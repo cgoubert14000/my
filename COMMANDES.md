@@ -11,6 +11,47 @@
 
 ---
 
+## 🚨 Erreur « image(s) absente(s) du dossier »  ← le problème le plus fréquent
+
+Quand le bot affiche :
+
+```
+20 image(s) absente(s) du dossier, post(s) ignore(s) :
+   01.jpg, 02.jpg, 03.jpg, ... (+12)
+
+Plus aucune image disponible a programmer.
+Verifie le dossier images/ ou lance scraper.py.
+```
+
+…c'est qu'il cherche chaque image dans **`fb_auto\images\`** avec **exactement**
+le nom écrit dans `planning.txt` (`IMAGE: 01.jpg`). Une seule lettre de
+différence et il ne la voit pas — il ne devine jamais, il ne cherche pas ailleurs.
+
+**Lance ce script : il compare `planning.txt` avec ce qu'il y a vraiment sur
+ton disque, et te dit où sont tes images.**
+
+```bash
+python verifier_images.py              # diagnostic — ne touche à rien
+python verifier_images.py --corriger   # répare tout seul (ne supprime rien)
+```
+
+Il détecte et répare les 4 causes classiques :
+
+| Cause | Ce que tu as sur le disque | Ce que le script fait |
+|---|---|---|
+| **ZIP extrait dans un sous-dossier** | `images\images\01.jpg` ou `fb_auto\fb_auto\images\01.jpg` | remet les images dans `images\` et supprime le dossier vide |
+| **Mauvais dossier** | les images sont restées dans `Téléchargements`, ou dans `Bureau\images` | te donne le chemin exact à utiliser |
+| **Autre extension** | `01.png`, `01.webp`, `03.JPG` | convertit en vrai `.jpg` (via Pillow) |
+| **Autre nom** | `1.jpg` au lieu de `01.jpg`, `01 (1).jpg`, `01 - Copie.jpg` | renomme correctement |
+
+Il affiche aussi **le chemin exact** où le bot cherche, ce qui permet de vérifier
+en 5 secondes à l'explorateur Windows.
+
+**ZIP jamais extrait ?** Clic droit sur le `.zip` → **Extraire tout**.
+Ouvrir l'aperçu du ZIP ne suffit pas : les fichiers restent enfermés dedans.
+
+---
+
 ## ⚡ L'essentiel : programmer tes images en 3 commandes
 
 ### 1. Vérifier que tout est branché (à faire en premier)
