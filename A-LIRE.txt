@@ -1,0 +1,61 @@
+===========================================================
+  fb_auto  -  MISE A JOUR DU 12/10/2026
+===========================================================
+
+Ce ZIP ne contient QUE des fichiers a ajouter.
+Il ne remplace rien, ne supprime rien, ne touche ni a tes
+images, ni a ton planning.txt, ni a ton config.json.
+
+-----------------------------------------------------------
+  OU LE METTRE ?
+-----------------------------------------------------------
+Dans ton dossier :   C:\Users\LFBZ\Desktop\fb_auto
+(celui ou il y a programmer.py, config.json, planning.txt)
+
+Le plus simple :
+  1. Clic droit sur le ZIP  ->  Extraire tout...
+  2. Dans le champ du chemin, colle :
+         C:\Users\LFBZ\Desktop\fb_auto
+  3. Clique sur Extraire
+  4. Si Windows demande de remplacer un fichier -> Oui
+
+-----------------------------------------------------------
+  LES 4 FICHIERS
+-----------------------------------------------------------
+VERIFIER-IMAGES.bat   Double-clique : dit POURQUOI le bot ne
+                      trouve pas tes images. Ne modifie rien.
+
+REPARER-IMAGES.bat    Double-clique : corrige tout seul
+                      (deplace, renomme, convertit en .jpg).
+                      Ne supprime aucune image.
+
+verifier_images.py    Le script utilise par les 2 raccourcis.
+
+COMMANDES.md          La liste de toutes tes commandes
+                      (images, textes, Reels, depannage).
+
+-----------------------------------------------------------
+  QUE FAIRE MAINTENANT ?
+-----------------------------------------------------------
+1. Double-clique sur  VERIFIER-IMAGES.bat
+   -> lis ce qui s'affiche, la solution y est ecrite
+
+2. S'il propose de reparer : double-clique sur
+   REPARER-IMAGES.bat   puis reponds  oui
+
+3. Relance ton bot normalement :
+      python programmer.py "demain" --par-jour 5 --limite 20 --test
+
+-----------------------------------------------------------
+  A SAVOIR
+-----------------------------------------------------------
+- Le bot cherche les images dans  fb_auto\images\
+  avec EXACTEMENT le nom ecrit dans planning.txt  (01.jpg).
+
+- Sous Windows, la commande est "python" (et non "python3").
+  Si "python" n'est pas reconnu, essaie "py".
+
+- Ce ZIP ne contient pas tes images ni ton config.json :
+  c'est normal, ils sont deja sur ton PC.
+  Ne les envoie JAMAIS a personne : le config.json contient
+  la cle qui permet de publier sur ta page Facebook.
