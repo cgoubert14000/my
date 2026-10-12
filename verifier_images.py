@@ -45,6 +45,21 @@ EXT_IMAGES = (".jpg", ".jpeg", ".jfif", ".png", ".webp", ".gif",
 NOMS_DOSSIERS_IMAGES = ("images", "image", "photos", "photo",
                         "pictures", "pics", "img")
 
+# Reconnaissance par le contenu : tes fichiers peuvent n'avoir AUCUNE
+# extension (ex : humour_noir_couple_20261012_1likes_577164508518853291).
+SIGNATURES = (
+    (b"\xff\xd8\xff", "jpg"),
+    (b"\x89PNG\r\n\x1a\n", "png"),
+    (b"GIF87a", "gif"),
+    (b"GIF89a", "gif"),
+    (b"BM", "bmp"),
+    (b"II*\x00", "tiff"),
+    (b"MM\x00*", "tiff"),
+)
+EXT_A_JETER = (".zip", ".rar", ".7z", ".txt", ".md", ".json", ".ini", ".db",
+               ".py", ".exe", ".lnk", ".url", ".csv", ".log", ".bak", ".tmp",
+               ".html", ".htm", ".xml", ".pdf", ".mp4", ".mkv", ".mov")
+
 IGNORES = ("__pycache__", "node_modules", "logs", "$recycle.bin",
            "appdata", "windows", "program files", "system volume information")
 
@@ -130,6 +145,29 @@ def lire_planning(chemin):
 # ---------------------------------------------------------------------
 # Inventaire des images
 # ---------------------------------------------------------------------
+def est_une_image(chemin, nom):
+    """Vrai si le fichier est une image (extension OU contenu)."""
+    if nom.lower().endswith(EXT_IMAGES):
+        return True
+    if nom.lower().endswith(EXT_A_JETER):
+        return False
+    try:
+        with open(chemin, "rb") as f:
+            tete = f.read(32)
+    except Exception:
+        return False
+    if len(tete) < 12:
+        return False
+    for sig, _ in SIGNATURES:
+        if tete.startswith(sig):
+            return True
+    if tete[:4] == b"RIFF" and tete[8:12] == b"WEBP":
+        return True
+    if tete[4:8] == b"ftyp":
+        return True
+    return False
+
+
 def lister_images(dossier, recursif=False):
     """Noms de fichiers images (chemins relatifs si recursif)."""
     trouves = []
@@ -141,13 +179,13 @@ def lister_images(dossier, recursif=False):
                            if d.lower() not in IGNORES
                            and not d.startswith(".")]
             for f in fichiers:
-                if f.lower().endswith(EXT_IMAGES):
+                if est_une_image(os.path.join(racine, f), f):
                     rel = os.path.relpath(os.path.join(racine, f), dossier)
                     trouves.append(rel)
     else:
         for f in os.listdir(dossier):
             chemin = os.path.join(dossier, f)
-            if os.path.isfile(chemin) and f.lower().endswith(EXT_IMAGES):
+            if os.path.isfile(chemin) and est_une_image(chemin, f):
                 trouves.append(f)
     return sorted(trouves)
 
@@ -163,7 +201,8 @@ def dossiers_avec_images(racine, profondeur=4, filtrer=False):
         dossiers[:] = [d for d in dossiers
                        if d.lower() not in IGNORES and not d.startswith(".")]
 
-        n = sum(1 for f in fichiers if f.lower().endswith(EXT_IMAGES))
+        n = sum(1 for f in fichiers
+                if est_une_image(os.path.join(courant, f), f))
         if n and (not filtrer or dossier_pertinent(courant)):
             trouves.append((os.path.abspath(courant), n))
 
@@ -459,12 +498,21 @@ def main():
             print()
             info("Autrement dit : tes images ne portent pas les noms")
             info("01.jpg, 02.jpg... ecrits dans le planning.")
-            info("Trois solutions :")
-            info("  a) les renommer a la main (01.jpg, 02.jpg...) dans l'ordre")
-            info("  b) les remettre dans : " + dossier_images)
+            info("Si leurs noms sont quelconques (du genre")
+            info("humour_noir_couple_20261012_1likes_577164508518853291),")
+            info("il ne faut PAS les renommer : utilise plutot :")
+            print()
+            info("      python associer_images.py --preparer")
+            print()
+            info("Ce script prend toutes les images du dossier (sans tenir")
+            info("compte du nom), en fait des copies 01.jpg, 02.jpg... et")
+            info("ecrit un planning pret a publier.")
+            print()
+            info("Sinon, a la main :")
+            info("  a) renommer les fichiers dans l'ordre : 01.jpg, 02.jpg...")
+            info("  b) les mettre dans : " + dossier_images)
             info("  c) relancer un scraping : "
                  "python scraper.py \"funny cat\" 10")
-            info("  (astuce : la ligne IMAGE: accepte aussi une adresse http)")
 
     if not args.corriger:
         print()

@@ -52,6 +52,60 @@ Ouvrir l'aperçu du ZIP ne suffit pas : les fichiers restent enfermés dedans.
 
 ---
 
+## 🏷️ Tes fichiers s'appellent `humour_noir_couple_20261012_1likes_577164508518853291` ?
+
+Alors c'est **la** cause de l'erreur. Le bot compare les noms au caractère près :
+`01.jpg` ≠ `humour_noir_couple_...`. Aucun script ne peut deviner que ce fichier
+correspond au post n° 1 — et le renommer à la main sur 100 images, non merci.
+
+**Solution : `associer_images.py`.** Il ne regarde pas les noms, il regarde le
+**contenu** des fichiers.
+
+```bash
+python associer_images.py                # 1. voir ce qu'il a trouvé (analyse seule)
+python associer_images.py --preparer     # 2. créer les copies + planning_auto.txt
+```
+
+Puis on programme avec le planning généré :
+
+```bash
+# Aperçu (rien n'est envoyé)
+python programmer.py "demain" --planning planning_auto.txt --par-jour 5 --limite 20 --test
+
+# Pour de vrai (même commande SANS --test)
+python programmer.py "demain" --planning planning_auto.txt --par-jour 5 --limite 20
+```
+
+Ce qu'il fait :
+
+| | |
+|---|---|
+| **Cherche dans** | `images/` **et** `image/` (et `photos/` si tu l'as) |
+| **Reconnaît** | les vraies images par leur contenu → marche même **sans extension** |
+| **Ignore** | `.txt`, `.json`, `.zip`, le CREDITS.txt, les fichiers illisibles |
+| **Supprime** | rien du tout : les images en double (même contenu) sont écartées du lot |
+| **Renomme** | rien : il **copie** en `01.jpg`, `02.jpg`, `03.jpg`… dans `images/` |
+| **Convertit** | en vrai `.jpg` (avec Pillow), et réduit à 1440 px de large si c'est plus gros |
+| **Écrit** | `planning_auto.txt` + `images_correspondance.txt` (quelle image vient d'où) |
+| **Retient** | ce qu'il a déjà préparé (`images_traitees.json`) → relancer ne crée pas de doublons |
+
+Options utiles :
+
+```bash
+python associer_images.py --preparer --limite 20        # seulement les 20 premières
+python associer_images.py --preparer --ordre date       # dans l'ordre d'ajout au dossier
+python associer_images.py --preparer --ordre hasard     # ordre aléatoire
+python associer_images.py --preparer --dossier "C:\...\mes images"
+```
+
+Le hashtag utilisé est celui de ton `planning.txt` — mais tu peux forcer :
+`--hashtags "#humour #drole"`.
+
+> Ensuite, tu peux ouvrir `planning_auto.txt` pour ajouter un `TEXTE:` sous chaque
+> image (légende), ou mettre `ACTIF: non` sur une image à écarter.
+
+---
+
 ## ⚡ L'essentiel : programmer tes images en 3 commandes
 
 ### 1. Vérifier que tout est branché (à faire en premier)

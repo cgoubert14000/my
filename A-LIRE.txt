@@ -19,43 +19,83 @@ Le plus simple :
   3. Clique sur Extraire
   4. Si Windows demande de remplacer un fichier -> Oui
 
+
+===========================================================
+  TES IMAGES S'APPELLENT
+  humour_noir_couple_20261012_1likes_577164508518853291 ?
+===========================================================
+
+C'est POUR CA que le bot ne les trouve pas : il cherche
+"01.jpg" et compare les noms au caractere pres.
+
+La solution est ASSOCIER-IMAGES.bat (voir plus bas).
+Tu n'as RIEN a renommer a la main.
+
+
 -----------------------------------------------------------
-  LES 4 FICHIERS
+  LES 7 FICHIERS DE CE ZIP
 -----------------------------------------------------------
+ASSOCIER-IMAGES.bat   *** LE PLUS IMPORTANT ***
+                      Double-clique : prend TOUTES les images
+                      de ton dossier (quel que soit leur nom),
+                      en fait des copies 01.jpg, 02.jpg, 03.jpg...
+                      et ecrit planning_auto.txt.
+                      Ne supprime rien, ne renomme rien : il ajoute.
+
 VERIFIER-IMAGES.bat   Double-clique : dit POURQUOI le bot ne
                       trouve pas tes images. Ne modifie rien.
 
-REPARER-IMAGES.bat    Double-clique : corrige tout seul
-                      (deplace, renomme, convertit en .jpg).
-                      Ne supprime aucune image.
+REPARER-IMAGES.bat    Corrige les cas simples (mauvais dossier,
+                      extension differente, doublon de nom).
 
-verifier_images.py    Le script utilise par les 2 raccourcis.
+associer_images.py    Le moteur de ASSOCIER-IMAGES.bat.
+verifier_images.py    Le moteur de VERIFIER / REPARER.
+COMMANDES.md          Toutes tes commandes, en une page.
+A-LIRE.txt            Ce fichier.
 
-COMMANDES.md          La liste de toutes tes commandes
-                      (images, textes, Reels, depannage).
 
 -----------------------------------------------------------
-  QUE FAIRE MAINTENANT ?
+  QUOI FAIRE, DANS L'ORDRE
 -----------------------------------------------------------
-1. Double-clique sur  VERIFIER-IMAGES.bat
-   -> lis ce qui s'affiche, la solution y est ecrite
+1. Double-clique sur   ASSOCIER-IMAGES.bat
+   -> il affiche la liste des images reconnues, tu reponds oui
+   -> il cree 01.jpg, 02.jpg... et le fichier planning_auto.txt
 
-2. S'il propose de reparer : double-clique sur
-   REPARER-IMAGES.bat   puis reponds  oui
+2. Ouvre une invite de commandes dans le dossier et tape :
 
-3. Relance ton bot normalement :
-      python programmer.py "demain" --par-jour 5 --limite 20 --test
+      python programmer.py "demain" --planning planning_auto.txt --par-jour 5 --limite 20 --test
+
+   --> C'est l'APERCU : rien n'est envoye sur Facebook.
+       Regarde la liste : image, date, heure, hashtags.
+
+3. Si l'apercu te plait, relance la MEME commande SANS --test :
+
+      python programmer.py "demain" --planning planning_auto.txt --par-jour 5 --limite 20
+
+   Il demande "oui/non" puis programme vraiment.
+   Verifie ensuite dans Meta Business Suite -> Planificateur.
+
 
 -----------------------------------------------------------
   A SAVOIR
 -----------------------------------------------------------
-- Le bot cherche les images dans  fb_auto\images\
-  avec EXACTEMENT le nom ecrit dans planning.txt  (01.jpg).
+- Tes fichiers d'origine ne sont JAMAIS modifies ni renommes.
+  Le script ajoute seulement des copies numerotees.
 
-- Sous Windows, la commande est "python" (et non "python3").
-  Si "python" n'est pas reconnu, essaie "py".
+- Il reconnait les images par leur CONTENU : tes fichiers
+  peuvent n'avoir aucune extension, ca marche quand meme.
 
-- Ce ZIP ne contient pas tes images ni ton config.json :
-  c'est normal, ils sont deja sur ton PC.
-  Ne les envoie JAMAIS a personne : le config.json contient
-  la cle qui permet de publier sur ta page Facebook.
+- Il regarde dans "images/" ET dans "image/".
+
+- Il ecarte tout seul les .txt, .zip, .json et les images en
+  double (meme contenu) pour ne pas publier 2 fois la meme.
+
+- Si tu relances ASSOCIER-IMAGES.bat plus tard, il ne refera
+  QUE les nouvelles images ajoutees depuis.
+
+- Sous Windows la commande est "python" (pas "python3").
+  Si "python" n'est pas reconnu, tape "py".
+
+- Ne mets JAMAIS ton config.json sur internet ni dans un ZIP
+  envoye a quelqu'un : il contient la cle qui permet de
+  publier sur ta page Facebook.
