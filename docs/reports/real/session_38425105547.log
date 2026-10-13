@@ -1,0 +1,524 @@
+=== real-market session: chain=base minutes=60.0 candidates=['base-rpc.publicnode.com', 'mainnet.base.org', 'base.llamarpc.com', 'base.drpc.org', '1rpc.io', 'base-mainnet.public.blastapi.io', 'base.meowrpc.com', 'base.blockpi.network', 'endpoints.omniatech.io', 'base.gateway.tenderly.co']
+[preflight] base-rpc.publicnode.com: ok=True state_override=True p50=20.6 ms head_age=1.9 s failed=[]
+[preflight] mainnet.base.org: ok=True state_override=True p50=23.4 ms head_age=1.5 s failed=[]
+[preflight] base.llamarpc.com: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] base.drpc.org: ok=True state_override=True p50=38.5 ms head_age=1.7 s failed=[]
+[preflight] 1rpc.io: EXCEPTION AttributeError("'str' object has no attribute 'get'")
+[preflight] base-mainnet.public.blastapi.io: ok=True state_override=True p50=21.1 ms head_age=2.1 s failed=[]
+[preflight] base.meowrpc.com: ok=False state_override=False p50=1066.3 ms head_age=13.9 s failed=['multicall3', 'tokens', 'factory:uniswap_v3', 'factory:uniswap_v2', 'factory:sushiswap_v2', 'factory:sushiswap_v3', 'factory:pancakeswap_v3', 'factory:pancakeswap_v2', 'factory:aerodrome', 'factory:aerodrome_slipstream', 'l1_fee_oracle']
+[preflight] base.blockpi.network: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] endpoints.omniatech.io: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] base.gateway.tenderly.co: ok=True state_override=True p50=28.5 ms head_age=1.0 s failed=[]
+=== chosen RPC: base-rpc.publicnode.com ; fallbacks: ['mainnet.base.org', 'base.drpc.org', 'base-mainnet.public.blastapi.io', 'base.gateway.tenderly.co']
+=== full verify-chain (pools, depth, flash-loan capacity) on the chosen endpoint
+2026-10-13 15:49:53,949 WARNING arbbot.rpc: rpc error (the method debug_traceTransaction does not exist/is not available) → switching to https://mainnet.base.org
+2026-10-13 15:49:54,257 WARNING arbbot.rpc: rpc error (rejected due to request filter settings) → switching to https://base.drpc.org
+2026-10-13 15:49:54,885 WARNING arbbot.rpc: rpc error (transaction not found) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 15:49:59,110 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 15:49:59,582 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+report: /home/runner/work/my/my/docs/reports/verify_chain_base_20261013-154953.md
+OK  rpc_reachable                base-rpc.publicnode.com in 28 ms
+OK  chain_id                     rpc=8453 config=8453
+OK  block_time                   measured 2.00 s vs config 2.0 s
+OK  head_fresh                   head age 0.8 s
+OK  rpc_latency                  p50 19 ms, max 27 ms
+OK  multicall3                   0xcA11bde05977b3631167028862bE2a173976CA11 aggregate3 ok=True
+OK  eth_call_state_override      supported
+WARN debug_traceTransaction       unavailable (rpc failed after retries: unexpected character, expected a JSON value: line 1 column 1 (char 0)) → revert reasons come from eth_call replay
+OK  code:multicall3              0xcA11bde05977b3631167028862bE2a173976CA11 (3808 bytes) — source: mds1/multicall Multicall3 (same address on all chains)
+OK  code:wrapped_native          0x4200000000000000000000000000000000000006 (2041 bytes) — source: OP-stack WETH predeploy; bgd-labs/aave-address-book AaveV3Base WETH_UNDERLYING
+OK  code:dex:uniswap_v3          0x33128a8fC17869897dcE68Ed026d694621f6FDfD (24535 bytes) — source: @uniswap/sdk-core 7.19 BASE_ADDRESSES.v3CoreFactoryAddress
+OK  code:dex:uniswap_v2          0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6 (13859 bytes) — source: @uniswap/sdk-core 7.19 V2_FACTORY_ADDRESSES[BASE]
+OK  code:dex:sushiswap_v2        0x71524B4f93c58fcbF659783284E38825f0622859 (11264 bytes) — source: sushi npm package evm/config/features/sushiswap-v2 (BASE factory)
+OK  code:dex:sushiswap_v3        0xc35DADB65012eC5796536bD9864eD8773aBc74C4 (24535 bytes) — source: sushi npm package: SushiSwap V3 factory on BASE / V2 factory on ARBITRUM
+OK  code:dex:pancakeswap_v3      0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865 (5151 bytes) — source: @pancakeswap/v3-sdk FACTORY_ADDRESSES (BASE, ARBITRUM_ONE)
+OK  code:dex:pancakeswap_v2      0x02a84c1b3BBD7401a5f7fa98a384EBC70bB5749E (14075 bytes) — source: @pancakeswap/v2-sdk FACTORY_ADDRESS_MAP (BASE, ARBITRUM_ONE)
+OK  code:dex:aerodrome           0x420DD381b31aEf6683db6B902084cB0FFECe40Da (3516 bytes) — source: aerodrome-finance/contracts README (PoolFactory)
+OK  code:dex:aerodrome_slipstream 0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A (4958 bytes) — source: aerodrome-finance/slipstream README (CL PoolFactory, Base)
+OK  code:flash:MORPHO            0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb (15623 bytes) — source: @morpho-org/morpho-ts addresses (BaseMainnet.blue / EthMainnet.blue)
+OK  code:flash:BALANCER_V2       0xBA12222222228d8Ba445958a75a0704d566BF2C8 (24512 bytes) — source: balancer/balancer-deployments addresses/base.json 20210418-vault
+OK  code:flash:AAVE_V3           0xA238Dd80C259a72e81d7e4664a9801593F98d1c5 (1933 bytes) — source: bgd-labs/aave-address-book AaveV3Base.POOL
+OK  code:token:WETH              0x4200000000000000000000000000000000000006 (2041 bytes) — source: OP-stack WETH predeploy; bgd-labs/aave-address-book AaveV3Base WETH_UNDERLYING
+OK  code:token:USDC              0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (1852 bytes) — source: bgd-labs/aave-address-book AaveV3Base USDC_UNDERLYING (Circle native USDC)
+OK  code:token:USDbC             0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA (2096 bytes) — source: bgd-labs/aave-address-book AaveV3Base USDbC_UNDERLYING; sushi npm tokens/base/USDbC
+OK  code:token:DAI               0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb (5835 bytes) — source: sushi npm package evm/config/tokens/DAI (BASE)
+OK  code:token:cbETH             0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22 (2096 bytes) — source: bgd-labs/aave-address-book AaveV3Base cbETH_UNDERLYING
+OK  code:token:cbBTC             0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf (1550 bytes) — source: bgd-labs/aave-address-book AaveV3Base cbBTC_UNDERLYING
+OK  code:token:AERO              0x940181a94A35A4569E4529A3CDfB74e38FD98631 (4736 bytes) — source: sushi npm package evm/config/tokens/AERO (BASE)
+OK  code:opstack_gas_oracle      0x420000000000000000000000000000000000000F (2055 bytes) — source: OP-stack GasPriceOracle predeploy
+OK  token:WETH                   on-chain symbol=WETH decimals=18 / config WETH/18
+OK  token:USDC                   on-chain symbol=USDC decimals=6 / config USDC/6
+OK  token:USDbC                  on-chain symbol=USDbC decimals=6 / config USDbC/6
+OK  token:DAI                    on-chain symbol=DAI decimals=18 / config DAI/18
+OK  token:cbETH                  on-chain symbol=cbETH decimals=18 / config cbETH/18
+OK  token:cbBTC                  on-chain symbol=cbBTC decimals=8 / config cbBTC/8
+OK  token:AERO                   on-chain symbol=AERO decimals=18 / config AERO/18
+OK  factory:uniswap_v3           V3 feeAmountTickSpacing(3000)=60
+OK  factory:uniswap_v2           V2 allPairsLength=3069346
+OK  factory:sushiswap_v2         V2 allPairsLength=6129
+OK  factory:sushiswap_v3         V3 feeAmountTickSpacing(3000)=60
+OK  factory:pancakeswap_v3       V3 feeAmountTickSpacing(2500)=50
+OK  factory:pancakeswap_v2       V2 allPairsLength=33424
+OK  factory:aerodrome            Solidly allPoolsLength=29747
+OK  factory:aerodrome_slipstream Slipstream tickSpacingToFee(100)=500
+OK  l1_fee_oracle                getL1FeeUpperBound(900 B) = 0.000000038 ETH
+OK  pool_discovery               251 pools: {'uniswap_v3': 69, 'uniswap_v2': 17, 'sushiswap_v2': 10, 'sushiswap_v3': 38, 'pancakeswap_v3': 53, 'pancakeswap_v2': 12, 'aerodrome': 31, 'aerodrome_slipstream': 21}
+OK  pools_with_depth             50 pools ≥ 20 000 $ (deepest: WETH/USDC uniswap_v3 150372978.14 $)
+OK  native_price                 ETH ≈ 2509.986780796142 $ (from the deepest WETH/stable pool)
+OK  flash:MORPHO                 fee 0.0 bps, capacity WETH 82,759.80, USDC 235,273,086.58
+OK  flash:BALANCER_V2            fee 0.0 bps, capacity WETH 18.71, USDC 69,753.71
+OK  flash:AAVE_V3                fee 5.0 bps, capacity WETH 17,774.69, USDC 16,983,417.92
+OK  flash_any_capacity           at least one provider can lend a borrowable token
+    block: 52558623
+    block_time_measured_s: 2.0
+    block_time_config_s: 2.0
+    base_fee_gwei: 0.005
+    priority_fee_gwei: 0.001
+    latency_p50_ms: 19.3
+    latency_max_ms: 27.4
+    head_age_s: 0.8
+    l1_fee_900B_eth: 3.8335745003e-08
+    native_price_usd: 2509.986780796142
+
+ALL BLOCKING CHECKS PASSED — chain=base (8453) rpc=base-rpc.publicnode.com pools=251
+=== ghost session 60.0 min (read-only, every candidate recorded)
+2026-10-13 15:50:04,589 INFO arbbot.indexer: factory discovery: 251 candidate pools from 462 queries
+2026-10-13 15:50:04,691 INFO arbbot.indexer: indexed 251 pools on Base
+2026-10-13 15:50:09,964 INFO arbbot.fees: flash providers: {'MORPHO': (0.0, True), 'BALANCER_V2': (0.0, True), 'AAVE_V3': (5.0, True)}
+2026-10-13 15:50:11,306 INFO arbbot.runtime: runtime ready: 251 pools, 192222 routes, 0 observations, executor=(state override)
+block 52558632 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558635 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558639 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558645 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558648 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558652 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558657 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558661 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558664 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558670 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558674 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558679 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558683 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558686 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558692 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558695 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52558699 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558704 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52558709 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558714 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52558718 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52558721 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558727 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558731 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558736 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558740 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558743 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558749 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558752 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558756 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558761 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558765 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558768 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558774 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558778 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558783 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558787 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558791 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558796 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558800 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52558803 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558809 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52558809 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558813 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558819 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558823 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558828 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558832 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558835 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 64 ms
+block 52558841 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558844 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558848 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558854 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558857 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558861 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 64 ms
+block 52558866 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 64 ms
+block 52558870 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 64 ms
+block 52558874 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 64 ms
+block 52558879 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558883 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558887 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 61 ms
+block 52558892 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 61 ms
+block 52558896 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 61 ms
+block 52558899 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 61 ms
+block 52558905 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 61 ms
+block 52558908 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 61 ms
+block 52558912 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558918 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 63 ms
+block 52558921 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 62 ms
+block 52558925 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 65 ms
+block 52558931 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 66 ms
+block 52558934 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 66 ms
+block 52558938 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 69 ms
+block 52558944 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 70 ms
+block 52558947 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 69 ms
+block 52558951 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 73 ms
+block 52558956 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 74 ms
+block 52558960 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 74 ms
+block 52558964 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 75 ms
+block 52558969 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 75 ms
+block 52558973 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 74 ms
+block 52558977 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 72 ms
+block 52558982 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 72 ms
+block 52558986 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 72 ms
+block 52558989 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 69 ms
+block 52558995 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 69 ms
+block 52558998 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 69 ms
+block 52559002 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 65 ms
+block 52559007 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 64 ms
+block 52559011 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 64 ms
+block 52559015 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52559021 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52559024 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52559028 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52559033 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52559037 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52559040 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52559046 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559049 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559053 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559058 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559062 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559066 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559071 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559075 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559078 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559084 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559088 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559093 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559097 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559100 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559106 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559109 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559113 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559119 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559122 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559126 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559131 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559135 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559139 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559144 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559148 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559151 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559157 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559161 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559166 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559170 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559173 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559179 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559182 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559186 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559192 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559195 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559199 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559204 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559208 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559211 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559217 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559221 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559226 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559230 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559233 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559239 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559243 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559248 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559252 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559256 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559261 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559265 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559268 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559274 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559278 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559283 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559287 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559290 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559296 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559299 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559303 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559309 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559312 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559316 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559322 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559325 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559329 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559335 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559338 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559342 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559347 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559351 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559355 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559360 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559364 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559368 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559373 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559377 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559380 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559386 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559389 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559393 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559398 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559402 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559406 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559411 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559415 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559418 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559424 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559428 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559433 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559437 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559440 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559446 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559449 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559453 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559458 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559462 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559465 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559471 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559475 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559480 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559484 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559487 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559493 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559496 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559500 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559505 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559509 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559513 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559518 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559522 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559525 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559531 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559534 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559538 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559544 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559547 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559551 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559557 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559560 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559564 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559569 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559573 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559577 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559582 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559586 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559589 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559595 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559598 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559602 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559608 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559611 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559615 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559620 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559624 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559628 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559633 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559637 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559640 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559646 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559649 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559653 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559658 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559662 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559666 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559671 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559675 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559679 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559684 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559688 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559691 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559697 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559700 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559704 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559709 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559713 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559717 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559722 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559726 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559729 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559735 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559739 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52559744 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559748 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559751 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559757 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559760 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559764 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559769 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559773 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559777 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559782 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559786 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559789 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559795 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559798 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559802 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559807 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559811 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559814 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559820 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559823 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559827 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559833 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559836 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559840 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559845 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559849 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559852 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559858 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559861 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559865 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559870 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559874 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559877 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559883 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559887 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559892 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559896 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52559899 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559905 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559908 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559912 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559917 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559921 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559924 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559930 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559933 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559937 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559942 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559946 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 49 ms
+block 52559950 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559955 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559959 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559963 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559968 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559972 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52559975 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559981 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559984 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52559988 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559993 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52559997 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560000 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560006 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560009 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560013 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52560018 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560022 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560026 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560031 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560035 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560038 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560044 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560047 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560051 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52560056 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52560060 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 50 ms
+block 52560063 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52560069 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52560073 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52560078 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52560082 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52560085 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560091 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560094 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560098 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560103 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560107 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 51 ms
+block 52560111 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560116 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560120 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 52 ms
+block 52560123 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52560129 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52560132 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 53 ms
+block 52560136 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52560141 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52560145 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52560149 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52560154 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52560158 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 54 ms
+block 52560161 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560167 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560171 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560176 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560180 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560184 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560189 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560193 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560196 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560202 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560206 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560211 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560215 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560218 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560224 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560227 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560231 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560236 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52560240 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 55 ms
+block 52560244 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560249 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560253 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560256 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560262 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560266 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52560271 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52560275 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52560279 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560284 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560288 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52560292 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560297 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560301 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560304 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560310 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560313 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 60 ms
+block 52560317 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52560322 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52560326 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 59 ms
+block 52560330 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52560335 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52560339 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 58 ms
+block 52560342 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560348 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560351 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 56 ms
+block 52560355 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560360 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+block 52560364 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 57 ms
+2026-10-13 16:48:04,609 WARNING arbbot.rpc: rpc error ([Errno 104] Connection reset by peer) → switching to https://mainnet.base.org
+block 52560364 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 1 p50 56 ms
+block 52560364 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 1 p50 56 ms
+block 52560364 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 1 p50 56 ms
+2026-10-13 16:48:19,534 WARNING arbbot.rpc: rpc error () → switching to https://base.drpc.org
+2026-10-13 16:48:19,534 WARNING arbbot.rpc: rpc error () → switching to https://base-mainnet.public.blastapi.io
+block 52560367 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 3 p50 56 ms
+block 52560367 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 3 p50 58 ms
+block 52560379 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 3 p50 56 ms
+block 52560387 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 3 p50 56 ms
+2026-10-13 16:48:49,599 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 16:48:51,227 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 16:48:51,227 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 16:48:51,230 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-10-13 16:48:51,233 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 16:48:51,235 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 16:48:51,238 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+block 52560391 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 59 ms
+block 52560396 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 59 ms
+block 52560400 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 59 ms
+block 52560404 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 66 ms
+block 52560409 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 66 ms
+block 52560413 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 66 ms
+block 52560413 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 72 ms
+block 52560416 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 72 ms
+block 52560423 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 71 ms
+block 52560423 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 81 ms
+block 52560426 | APPRENTISSAGE | candidates 0 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 10 p50 81 ms
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_38425105547.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_38425105547.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_38425105547_opportunities.csv"}
