@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arbbot"
+version = "0.1.0"
+description = "Autonomous, self-correcting flash-loan arbitrage research & execution engine (EVM L2s)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "web3>=7.6,<8",
+    "eth-account>=0.13",
+    "eth-abi>=5.1",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "websockets>=12",
+    "aiohttp>=3.9",
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "orjson>=3.10",
+    "python-dotenv>=1.0",
+    "rich>=13.7",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "hypothesis>=6.100",
+    "httpx>=0.27",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+arbbot = "arbbot.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["arbbot*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "devnet: tests that need a running local anvil devnet",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"

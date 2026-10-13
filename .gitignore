@@ -1,0 +1,44 @@
+# Secrets / local config
+.env
+.env.*
+!.env.example
+authorization.json
+*.keystore
+keystore/
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+frontend/dist/
+.vite/
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/lib/
+
+# Runtime data
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+logs/
+*.log
+devnet/state/
+devnet/deployments.local.json
+
+# OS
+.DS_Store
+Thumbs.db
