@@ -827,3 +827,7 @@ block 52566134 | APPRENTISSAGE | candidates 43218 | positive 65 | ghost {'pendin
 block 52566134 | APPRENTISSAGE | candidates 43218 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 738 ms
 block 52566134 | APPRENTISSAGE | candidates 43218 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 738 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_38445117116.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_38445117116.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_38445117116_opportunities.csv.gz"}
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (0e4f0ef)
+2026-10-13 20:00:34,607 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:00:34,607 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:00:34,608 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://mainnet.base.org
