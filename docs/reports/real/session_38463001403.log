@@ -1,0 +1,54 @@
+=== real-market session: chain=base minutes=340.0 candidates=['base-rpc.publicnode.com', 'mainnet.base.org', 'base.llamarpc.com', 'base.drpc.org', '1rpc.io', 'base-mainnet.public.blastapi.io', 'base.meowrpc.com', 'base.blockpi.network', 'endpoints.omniatech.io', 'base.gateway.tenderly.co']
+[preflight] base-rpc.publicnode.com: ok=True state_override=True p50=20.5 ms head_age=1.9 s failed=[]
+[preflight] mainnet.base.org: ok=True state_override=True p50=17.5 ms head_age=1.6 s failed=[]
+[preflight] base.llamarpc.com: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] base.drpc.org: ok=True state_override=True p50=33.6 ms head_age=1.5 s failed=[]
+[preflight] 1rpc.io: EXCEPTION AttributeError("'str' object has no attribute 'get'")
+[preflight] base-mainnet.public.blastapi.io: ok=True state_override=True p50=21.1 ms head_age=1.2 s failed=[]
+[preflight] base.meowrpc.com: ok=False state_override=False p50=1070.8 ms head_age=14.4 s failed=['multicall3', 'tokens', 'factory:uniswap_v3', 'factory:uniswap_v2', 'factory:sushiswap_v2', 'factory:sushiswap_v3', 'factory:pancakeswap_v3', 'factory:pancakeswap_v2', 'factory:aerodrome', 'factory:aerodrome_slipstream', 'l1_fee_oracle']
+[preflight] base.blockpi.network: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] endpoints.omniatech.io: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] base.gateway.tenderly.co: ok=True state_override=True p50=27.7 ms head_age=1.8 s failed=[]
+=== chosen RPC: base-rpc.publicnode.com ; fallbacks: ['mainnet.base.org', 'base.drpc.org', 'base-mainnet.public.blastapi.io', 'base.gateway.tenderly.co']
+=== websocket base-rpc.publicnode.com: OK (head 52568191 after 0.9 s)
+=== full verify-chain (pools, depth, flash-loan capacity) on the chosen endpoint
+2026-10-13 21:08:51,050 WARNING arbbot.rpc: rpc error (the method debug_traceTransaction does not exist/is not available) → switching to https://mainnet.base.org
+2026-10-13 21:08:51,329 WARNING arbbot.rpc: rpc error (rejected due to request filter settings) → switching to https://base.drpc.org
+2026-10-13 21:08:52,205 WARNING arbbot.rpc: rpc error (transaction not found) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:08:59,784 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:09:03,873 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 21:19:43,119 WARNING arbbot.rpc: rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://mainnet.base.org
+2026-10-13 21:19:43,134 WARNING arbbot.rpc: rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://base.drpc.org
+2026-10-13 21:19:49,387 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:19:49,387 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:19:49,463 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base-rpc.publicnode.com
+2026-10-13 21:19:49,463 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://mainnet.base.org
+2026-10-13 21:19:49,464 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base.drpc.org
+2026-10-13 21:19:49,466 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:19:49,466 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:19:49,485 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base-rpc.publicnode.com
+2026-10-13 21:19:49,485 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://mainnet.base.org
+2026-10-13 21:19:49,521 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base.drpc.org
+2026-10-13 21:19:49,521 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:19:49,521 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:19:49,832 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 21:19:49,907 WARNING arbbot.rpc: rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://mainnet.base.org
+2026-10-13 21:19:49,935 WARNING arbbot.rpc: rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://base.drpc.org
+2026-10-13 21:19:53,361 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:19:54,450 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:19:56,872 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 21:19:56,873 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 21:19:56,874 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-10-13 21:19:56,876 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:19:56,877 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:19:56,884 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 21:19:56,884 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 21:19:56,889 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-10-13 21:19:56,890 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:19:56,890 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:19:56,890 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 21:19:56,891 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 21:20:02,556 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-10-13 21:20:02,557 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 21:20:02,577 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 21:20:03,239 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
