@@ -39,7 +39,7 @@ class FeeCalculator:
         self.t = tunables
         self.providers: dict[FlashSource, FlashProviderLive] = {}
         self.measured_gas: dict[str, list[int]] = {}  # route shape → observed gas used (from sims / receipts)
-        self.l1_fee_cache: tuple[int, float] = (0, 0.0)
+        self._l1_cache: dict[tuple[int, int], tuple[int, str | None]] = {}  # (calldata_len, block) → (wei, unknown)
 
     # ------------------------------------------------------------------ live provider data
 
@@ -125,20 +125,33 @@ class FeeCalculator:
         self.measured_gas.setdefault(self.shape_key(route, source), []).append(int(gas_used))
 
     async def l1_data_fee(self, calldata_len: int) -> tuple[int, str | None]:
-        """OP-stack L1 data fee estimate for a tx with `calldata_len` bytes. Returns (wei, unknown_reason)."""
+        """OP-stack L1 data fee estimate for a tx with `calldata_len` bytes. Returns (wei, unknown_reason).
+
+        One oracle read per (calldata size, block) — hundreds of candidates per block must not turn into hundreds of
+        RPC calls on a rate-limited endpoint. An oracle failure is cached for the same block and reported as an
+        unknown cost (the candidate is then rejected, never priced optimistically)."""
         if self.chain.l1_fee_model != "opstack":
             return 0, None
+        block = self.collector.stats.last_block if self.collector is not None else 0
+        key = (calldata_len, block)
+        hit = self._l1_cache.get(key)
+        if hit is not None:
+            return hit
         try:
             # getL1FeeUpperBound(unsignedTxSize) exists since Fjord; fall back to getL1Fee(bytes) with zero-ish payload
             try:
                 raw = await self.rpc.call(self.chain.opstack_gas_oracle, encode_call("getL1FeeUpperBound(uint256)", [calldata_len + 120]))
-                return int(decode_result(["uint256"], raw)[0]), None
+                out = (int(decode_result(["uint256"], raw)[0]), None)
             except RpcError:
                 payload = b"\x02" + b"\xff" * (calldata_len + 120)
                 raw = await self.rpc.call(self.chain.opstack_gas_oracle, encode_call("getL1Fee(bytes)", [payload]))
-                return int(decode_result(["uint256"], raw)[0]), None
+                out = (int(decode_result(["uint256"], raw)[0]), None)
         except RpcError as e:
-            return 0, f"l1 fee oracle unavailable ({e})"
+            out = (0, f"l1 fee oracle unavailable ({e})")
+        if len(self._l1_cache) > 64:
+            self._l1_cache.clear()
+        self._l1_cache[key] = out
+        return out
 
     # ------------------------------------------------------------------ conversions
 

@@ -230,3 +230,31 @@ def test_signer_refuses_when_policy_wallet_differs(tmp_path):
     other = Account.from_key("0x" + "22" * 32)
     s = Signer(make_policy(wallet_address=other.address), ACCT, SignerState(tmp_path / "s.json"), "mem")
     assert s.check(req())[0] is False
+
+
+def test_load_account_from_encrypted_keystore_only(tmp_path, monkeypatch):
+    """Outside the devnet the signer key comes from an encrypted keystore (password via env or prompt); a raw key in
+    the environment is refused unless ARB_SIGNER_ALLOW_RAW_KEY=1 — the engine never sees key material."""
+    from arbbot.signer.service import load_account
+
+    acct = Account.create()
+    ks = tmp_path / "executor.json"
+    ks.write_text(json.dumps(Account.encrypt(acct.key, "correct horse battery staple")))
+    monkeypatch.setenv("ARB_SIGNER_KEYSTORE", str(ks))
+    monkeypatch.setenv("ARB_SIGNER_KEYSTORE_PASSWORD", "correct horse battery staple")
+    loaded = load_account()
+    assert loaded.address == acct.address
+    signed = loaded.sign_transaction({"to": acct.address, "value": 0, "gas": 21_000, "maxFeePerGas": 10**8,
+                                      "maxPriorityFeePerGas": 10**6, "nonce": 0, "chainId": 8453, "data": b""})
+    assert Account.recover_transaction(signed.raw_transaction) == acct.address
+    # wrong password → no account, no silent fallback
+    monkeypatch.setenv("ARB_SIGNER_KEYSTORE_PASSWORD", "wrong")
+    with pytest.raises(ValueError):
+        load_account()
+    # raw key refused without the explicit devnet-only flag
+    monkeypatch.delenv("ARB_SIGNER_KEYSTORE")
+    monkeypatch.delenv("ARB_SIGNER_KEYSTORE_PASSWORD")
+    monkeypatch.setenv("ARB_SIGNER_PRIVATE_KEY", acct.key.hex())
+    monkeypatch.delenv("ARB_SIGNER_ALLOW_RAW_KEY", raising=False)
+    with pytest.raises(SystemExit):
+        load_account()

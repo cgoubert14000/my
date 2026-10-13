@@ -1,14 +1,14 @@
 {
- "ts": 1791898287.0368583,
+ "ts": 1791898927.835185,
  "exit_code": 0,
- "passed": 64,
+ "passed": 72,
  "failed": 0,
  "skipped": 0,
  "errors": 0,
  "tests": {
   "tests.test_api_selfcorr_ghost::test_param_repo_propose_accept_rollback_are_git_isolated": {
    "status": "passed",
-   "time": 0.064
+   "time": 0.067
   },
   "tests.test_api_selfcorr_ghost::test_self_correction_cannot_touch_financial_controls": {
    "status": "passed",
@@ -16,23 +16,23 @@
   },
   "tests.test_api_selfcorr_ghost::test_ghost_dedup_one_observation_per_route_per_window": {
    "status": "passed",
-   "time": 0.298
+   "time": 0.187
   },
   "tests.test_api_selfcorr_ghost::test_api_status_opportunities_emergency_stop_and_tunable_guard": {
    "status": "passed",
-   "time": 0.484
+   "time": 0.522
   },
   "tests.test_devnet_e2e::test_detection_simulation_exact_and_ghost_label": {
    "status": "passed",
-   "time": 2.264
+   "time": 2.071
   },
   "tests.test_devnet_e2e::test_preflight_refuses_without_signer_and_emergency_stop": {
    "status": "passed",
-   "time": 1.578
+   "time": 1.942
   },
   "tests.test_devnet_e2e::test_live_execution_under_policy_with_isolated_signer": {
    "status": "passed",
-   "time": 2.051
+   "time": 2.147
   },
   "tests.test_engine_units::test_build_routes_2_and_3_hops_no_pool_reuse": {
    "status": "passed",
@@ -64,7 +64,7 @@
   },
   "tests.test_engine_units::test_selector_requires_demonstrated_reliability": {
    "status": "passed",
-   "time": 0.002
+   "time": 0.001
   },
   "tests.test_engine_units::test_gate_stale_data": {
    "status": "passed",
@@ -84,7 +84,7 @@
   },
   "tests.test_engine_units::test_negative_net_never_eligible_and_ev_ranking": {
    "status": "passed",
-   "time": 0.002
+   "time": 0.001
   },
   "tests.test_engine_units::test_decode_custom_errors": {
    "status": "passed",
@@ -92,11 +92,35 @@
   },
   "tests.test_engine_units::test_rpc_client_surfaces_connection_errors": {
    "status": "passed",
-   "time": 2.008
+   "time": 2.009
   },
   "tests.test_factory_discovery_devnet::test_factory_discovery_matches_deployed_pools": {
    "status": "passed",
-   "time": 0.013
+   "time": 0.019
+  },
+  "tests.test_l1_fee_opstack::test_fjord_upper_bound_used_and_cached_per_block": {
+   "status": "passed",
+   "time": 0.002
+  },
+  "tests.test_l1_fee_opstack::test_pre_fjord_fallback_to_getl1fee_bytes": {
+   "status": "passed",
+   "time": 0.002
+  },
+  "tests.test_l1_fee_opstack::test_oracle_failure_is_an_unknown_cost_not_zero": {
+   "status": "passed",
+   "time": 0.002
+  },
+  "tests.test_l1_fee_opstack::test_arbitrum_has_no_separate_l1_component": {
+   "status": "passed",
+   "time": 0.002
+  },
+  "tests.test_l1_fee_opstack::test_mainnet_chain_configs_declare_l1_model[base]": {
+   "status": "passed",
+   "time": 0.001
+  },
+  "tests.test_l1_fee_opstack::test_mainnet_chain_configs_declare_l1_model[arbitrum]": {
+   "status": "passed",
+   "time": 0.001
   },
   "tests.test_math_units::test_v2_matches_reference_formula": {
    "status": "passed",
@@ -104,7 +128,7 @@
   },
   "tests.test_math_units::test_v2_output_never_breaks_k": {
    "status": "passed",
-   "time": 0.281
+   "time": 0.302
   },
   "tests.test_math_units::test_v2_fee_on_input_reduces_output": {
    "status": "passed",
@@ -132,19 +156,19 @@
   },
   "tests.test_math_vs_chain::test_v3_simulation_matches_real_pool_bytecode": {
    "status": "passed",
-   "time": 1.309
+   "time": 1.302
   },
   "tests.test_math_vs_chain::test_v2_quote_is_maximal_against_real_pair": {
    "status": "passed",
-   "time": 0.026
+   "time": 0.03
   },
   "tests.test_math_vs_chain::test_solidly_matches_onchain_getAmountOut": {
    "status": "passed",
-   "time": 0.623
+   "time": 0.624
   },
   "tests.test_policy_risk_signer::test_policy_is_frozen_and_rejects_unknown_fields": {
    "status": "passed",
-   "time": 0.003
+   "time": 0.001
   },
   "tests.test_policy_risk_signer::test_policy_disabled_or_expired_is_invalid": {
    "status": "passed",
@@ -160,7 +184,7 @@
   },
   "tests.test_policy_risk_signer::test_reliability_insufficient_then_ok": {
    "status": "passed",
-   "time": 0.005
+   "time": 0.004
   },
   "tests.test_policy_risk_signer::test_reliability_bad_outcomes_fail_threshold": {
    "status": "passed",
@@ -176,7 +200,7 @@
   },
   "tests.test_policy_risk_signer::test_status_reliability_insufficient": {
    "status": "passed",
-   "time": 0.002
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_status_ready_but_authorization_missing": {
    "status": "passed",
@@ -184,7 +208,7 @@
   },
   "tests.test_policy_risk_signer::test_status_ready_then_live_then_suspended_on_losses": {
    "status": "passed",
-   "time": 0.008
+   "time": 0.007
   },
   "tests.test_policy_risk_signer::test_budget_checks_and_kill_switch": {
    "status": "passed",
@@ -240,11 +264,19 @@
   },
   "tests.test_policy_risk_signer::test_signer_enforces_cumulative_budget_and_count": {
    "status": "passed",
-   "time": 0.011
+   "time": 0.01
   },
   "tests.test_policy_risk_signer::test_signer_refuses_when_policy_wallet_differs": {
    "status": "passed",
-   "time": 0.005
+   "time": 0.003
+  },
+  "tests.test_policy_risk_signer::test_load_account_from_encrypted_keystore_only": {
+   "status": "passed",
+   "time": 2.125
+  },
+  "tests.test_state_override_sim_devnet::test_state_override_simulation_equals_deployed": {
+   "status": "passed",
+   "time": 0.477
   },
   "tests.test_verify_chain::test_every_mainnet_address_has_a_documented_source": {
    "status": "passed",
@@ -256,12 +288,12 @@
   },
   "tests.test_verify_chain::test_real_chain_config_with_unreachable_rpc_fails_closed": {
    "status": "passed",
-   "time": 1.76
+   "time": 1.758
   },
   "tests.test_verify_chain::test_verify_chain_passes_on_devnet_and_records_digest": {
    "status": "passed",
-   "time": 0.845
+   "time": 0.841
   }
  },
- "tail": "................................................................         [100%]\n=============================== warnings summary ===============================\ntests/test_api_selfcorr_ghost.py::test_api_status_opportunities_emergency_stop_and_tunable_guard\n  /home/user/my/.venv/lib/python3.11/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/\n    response = await f(request)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n64 passed, 1 warning in 15.46s\n"
+ "tail": "........................................................................ [100%]\n=============================== warnings summary ===============================\ntests/test_api_selfcorr_ghost.py::test_api_status_opportunities_emergency_stop_and_tunable_guard\n  /home/user/my/.venv/lib/python3.11/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/\n    response = await f(request)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n72 passed, 1 warning in 18.26s\n"
 }
