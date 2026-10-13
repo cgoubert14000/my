@@ -411,7 +411,7 @@ class PoolIndexer:
                     source=f"{dex.id} factory getPool",
                 )
             )
-        self.stats["pools_from_pairs"] = len(pools)
+        self.stats["pools_from_pairs"] += len(pools)
         log.info("factory discovery: %d candidate pools from %d queries over %d pairs", len(pools), len(calls), len(pairs))
         return pools
 
