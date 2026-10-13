@@ -1,0 +1,52 @@
+rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://mainnet.base.org
+rpc error (http 429) → switching to https://base.drpc.org
+rpc error (ranges over 10000 blocks are not supported on free plan) → switching to https://base-mainnet.public.blastapi.io
+rpc error (You can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0x320d764, 0x320d76d]) → switching to https://base-rpc.publicnode.com
+rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://mainnet.base.org
+rpc error (http 429) → switching to https://base.drpc.org
+rpc error (ranges over 10000 blocks are not supported on free plan) → switching to https://base-mainnet.public.blastapi.io
+rpc error (You can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0x320d764, 0x320d76d]) → switching to https://base-rpc.publicnode.com
+rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://mainnet.base.org
+rpc error (http 429) → switching to https://base.drpc.org
+rpc error (ranges over 10000 blocks are not supported on free plan) → switching to https://base-mainnet.public.blastapi.io
+rpc error (You can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0x320d764, 0x320d76d]) → switching to https://base-rpc.publicnode.com
+rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://mainnet.base.org
+rpc error (http 429) → switching to https://base.drpc.org
+rpc error (ranges over 10000 blocks are not supported on free plan) → switching to https://base-mainnet.public.blastapi.io
+rpc error (You can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0x320d764, 0x320d76d]) → switching to https://base-rpc.publicnode.com
+rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://mainnet.base.org
+rpc error (http 429) → switching to https://base.drpc.org
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/data/rpc.py", line 174, in request
+    raise RpcError(text, code=err.get("code"), data=err.get("data"))
+arbbot.data.rpc.RpcError: ranges over 10000 blocks are not supported on free plan
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 260, in <module>
+    sys.exit(asyncio.run(main()))
+             ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 115, in main
+    logs = await get_logs_chunked(rpc, {"address": factory, "topics": [topic]}, start, head, 5_000)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 72, in get_logs_chunked
+    raise ex
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 66, in get_logs_chunked
+    out.extend(await rpc.get_logs({**params, "fromBlock": hex(b), "toBlock": hex(e)}))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/data/rpc.py", line 285, in get_logs
+    return await self.request("eth_getLogs", [params])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/data/rpc.py", line 187, in request
+    raise RpcError(f"rpc failed after retries: {last_exc}") from last_exc
+arbbot.data.rpc.RpcError: rpc failed after retries: ranges over 10000 blocks are not supported on free plan
