@@ -66,9 +66,10 @@ function render(r) {
   const net = document.getElementById("net");
   net.textContent = devnet ? "⚠️ DEVNET LOCAL — données non réelles" : `RÉSEAU RÉEL — ${ch.name} (chain id ${ch.chain_id}) — adresses vérifiées : ${ch.verified ? "oui" : "NON"}`;
   net.className = "badge " + (devnet ? "dev" : "real");
-  const now = Date.now()/1000, lag = now - (r.generated_ts||0);
+  const gts = r.generated_ts || (Date.parse(r.generated_at) / 1000);
+  const now = Date.now()/1000, lag = now - gts;
   const fr = document.getElementById("fresh");
-  fr.textContent = `instantané il y a ${ago(lag)} · bloc ${r.blocks?.last} (tête il y a ${r.head_block_ts ? ago(r.generated_ts - r.head_block_ts) : "—"} au moment de l'instantané)`;
+  fr.textContent = `instantané il y a ${ago(lag)} · bloc ${r.blocks?.last} (tête il y a ${r.head_block_ts ? ago(gts - r.head_block_ts) : "—"} au moment de l'instantané)`;
   fr.className = "badge " + (lag > 300 ? "stale" : "real");
   document.getElementById("meta").textContent = `généré ${r.generated_at} · durée ${r.duration_min} min · RPC ${ch.rpc_host} · WS ${r.collector?.ws_connected ? "connecté" : "non"}`;
   document.getElementById("src").textContent = SRC;
@@ -94,8 +95,8 @@ function render(r) {
   const rows = (o.best && o.best.length) ? o.best : (o.closest || []);
   const title = (o.best && o.best.length) ? `<p class="ok">${o.best.length} candidats à net attendu positif (meilleurs d'abord)</p>` :
     `<p class="warn">Aucun candidat à net attendu positif pendant la session — ci-dessous les ${rows.length} plus proches de la rentabilité (net négatif).</p>`;
-  document.getElementById("opps").innerHTML = title + `<table><thead><tr><th>Bloc</th><th class="l">Route</th><th>Emprunt</th><th>Brut</th><th>Frais flash</th><th>Gaz (dont L1)</th><th>Net attendu</th><th>Net (€)</th><th>Net simulé</th><th>Marge bps</th><th>p inf.</th><th class="l">Décision / motifs</th></tr></thead><tbody>` +
-    rows.map(b => { const f=b.fees||{}, dec=b.token_decimals||18, s=b.token; return `<tr><td>${b.block_number}</td><td class="l">${b.route}</td><td>${tok(b.amount_in,dec,s)}</td><td>${tok(b.gross_profit,dec,s)}</td><td>${tok(f.flash_fee,dec,s)}</td><td>${tok(f.gas_cost_token,dec,s)}</td><td>${tok(b.expected_net,dec,s)}</td><td>${fmt(b.expected_net_eur,4)}</td><td>${tok(b.simulated_net,dec,s)}</td><td>${fmt(b.margin_bps,2)}</td><td>${b.p_lower!=null?fmt(b.p_lower,3):"—"} (n=${b.p_n??0})</td><td class="l">${b.decision} <span class="mut">${(b.reasons||[]).join(", ")}</span></td></tr>`; }).join("") +
+  document.getElementById("opps").innerHTML = title + `<table><thead><tr><th>Bloc</th><th class="l">Route</th><th>Emprunt</th><th>Brut</th><th>Frais LP</th><th>Frais flash</th><th>Gaz (dont L1)</th><th>Net attendu</th><th>Net (€)</th><th>Net simulé</th><th>Marge bps</th><th>p inf.</th><th class="l">Décision / motifs</th></tr></thead><tbody>` +
+    rows.map(b => { const f=b.fees||{}, dec=b.token_decimals||18, s=b.token; return `<tr><td>${b.block_number}</td><td class="l">${b.route}</td><td>${tok(b.amount_in,dec,s)}</td><td>${tok(b.gross_profit,dec,s)}</td><td>${tok(f.swap_fees,dec,s)}</td><td>${tok(f.flash_fee,dec,s)}</td><td>${tok(f.gas_cost_token,dec,s)}</td><td>${tok(b.expected_net,dec,s)}</td><td>${fmt(b.expected_net_eur,4)}</td><td>${tok(b.simulated_net,dec,s)}</td><td>${fmt(b.margin_bps,2)}</td><td>${b.p_lower!=null?fmt(b.p_lower,3):"—"} (n=${b.p_n??0})</td><td class="l">${b.decision} <span class="mut">${(b.reasons||[]).join(", ")}</span></td></tr>`; }).join("") +
     `</tbody></table><p class="mut">Total enregistré : ${fmt(o.total,0)} candidats · décisions ${JSON.stringify(o.decisions||{})}</p>`;
 
   const pools = (r.pools||[]).slice(0, 80);
