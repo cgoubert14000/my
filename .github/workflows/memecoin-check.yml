@@ -59,6 +59,8 @@ jobs:
           px=$(python3 -c "import json;print(json.load(open('docs/reports/real/latest_${{ steps.cfg.outputs.chain }}.json')).get('native_price_usd') or 0)" 2>/dev/null || echo 0)
           echo "eth_usd=$px" >> "$GITHUB_OUTPUT"
       - name: Vérification memecoin (lecture seule)
+        env:
+          ARB_RPC_ARCHIVE_URL: ${{ secrets.RPC_ARCHIVE_URL_BASE }}
         run: |
           python scripts/memecoin_reality_check.py --chain "${{ steps.cfg.outputs.chain }}" --days "${{ steps.cfg.outputs.days }}" \
             --max-pairs "${{ steps.cfg.outputs.max_pairs }}" --buy-eth "${{ steps.cfg.outputs.buy_eth }}" \

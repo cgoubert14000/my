@@ -40,8 +40,11 @@ CHAINS = {
         "chain_id": 8453, "block_time": 2.0, "weth": "0x4200000000000000000000000000000000000006",
         "factories": {"uniswap_v2": ("0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6", TOPIC_PAIR_CREATED),
                       "aerodrome": ("0x420DD381b31aEf6683db6B902084cB0FFECe40Da", TOPIC_POOL_CREATED_AERO)},
-        # eth_getLogs only: drpc's free plan rejects ranges > 10 000 blocks whatever the request, so it is left out
-        "rpcs": ["https://base-rpc.publicnode.com", "https://base-mainnet.public.blastapi.io", "https://mainnet.base.org"],
+        # Historical eth_getLogs on public Base endpoints (measured 2026-10-13): publicnode → "Archive requests require a
+        # personal token"; blastapi → 10-block range max; mainnet.base.org → 429; drpc free → ≤ 10 000-block range.
+        # drpc is therefore the only usable free endpoint; an archive URL with a key (ARB_RPC_ARCHIVE_URL / --rpc)
+        # is used first when present.
+        "rpcs": ["https://base.drpc.org"],
     },
 }
 
@@ -99,7 +102,9 @@ async def main() -> int:
     else:
         chain = args.chain
         cfg = CHAINS[chain]
-    rpcs = args.rpc or cfg["rpcs"]
+    import os
+
+    rpcs = args.rpc or ([os.environ["ARB_RPC_ARCHIVE_URL"]] if os.environ.get("ARB_RPC_ARCHIVE_URL") else []) + cfg["rpcs"]
     weth = cfg["weth"].lower()
     buy_wei = int(args.buy_eth * 1e18)
     t_start = time.time()
@@ -116,7 +121,20 @@ async def main() -> int:
         # 1) paires créées -----------------------------------------------------------------------------------
         created: list[dict] = []
         for dex, (factory, topic) in cfg["factories"].items():
-            logs = await get_logs_chunked(rpc, {"address": factory, "topics": [topic]}, start, head, args.chunk)
+            try:
+                logs = await get_logs_chunked(rpc, {"address": factory, "topics": [topic]}, start, head, args.chunk, floor=500)
+            except RpcError as ex:
+                out_dir = pathlib.Path(args.out_dir)
+                out_dir.mkdir(parents=True, exist_ok=True)
+                tag = args.tag or time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+                msg = (f"# Bot memecoin — vérification impossible sur RPC public ({chain})\n\n"
+                       f"Généré le {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}. Les journaux historiques (`eth_getLogs` sur {args.days:g} j) "
+                       f"ne sont pas servis par les points d'accès publics essayés ({', '.join(rpcs)}) : `{ex}`.\n\n"
+                       "Aucun chiffre n'est inventé à la place. Pour exécuter la mesure, fournir une URL RPC d'archive avec clé gratuite "
+                       "(Alchemy, Infura, QuickNode…) dans le secret GitHub `RPC_ARCHIVE_URL_BASE` (ou `--rpc URL` en local).\n")
+                (out_dir / f"memecoin_check_{chain}_{tag}.md").write_text(msg)
+                print(msg)
+                return 2
             for lg in logs:
                 t0, t1 = _addr(lg["topics"][1]).lower(), _addr(lg["topics"][2]).lower()
                 if weth not in (t0, t1):
