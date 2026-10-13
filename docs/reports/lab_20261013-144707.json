@@ -1,0 +1,2109 @@
+{
+ "generated": 1791902827.0519466,
+ "duration_min": 54.96715920766194,
+ "chain": "local",
+ "is_devnet": true,
+ "phases": {
+  "diagnostic": {
+   "chain_id": 31337,
+   "chain": "local",
+   "is_devnet": true,
+   "verified_addresses": true,
+   "rpc_latency_ms": {
+    "p50": 0.4207500005577458,
+    "max": 0.8410180007558665,
+    "samples": 10
+   },
+   "pools": 18,
+   "quarantined": 0,
+   "routes": 696,
+   "data_age_ms": 696.0928440093994,
+   "gas": {
+    "block_number": 3274,
+    "base_fee_gwei": 0.005819061,
+    "priority_fee_gwei": 0.000581906,
+    "gas_price_gwei": 0.006400967,
+    "l1_base_fee_gwei": 0.0,
+    "ts": 1791899528.33267
+   },
+   "native_price_usd": 1998.2574677316745,
+   "flash_providers": {
+    "BALANCER_V2": {
+     "fee_bps": 0.0,
+     "verified": true
+    },
+    "AAVE_V3": {
+     "fee_bps": 5.0,
+     "verified": true
+    },
+    "MORPHO": {
+     "fee_bps": 0.0,
+     "verified": true
+    }
+   },
+   "executor_deployed": true,
+   "executor": "0xDC57724Ea354ec925BaFfCA0cCf8A1248a8E5CF1",
+   "signer_configured": false,
+   "signer_health": null,
+   "policy": {
+    "enabled": false,
+    "valid": false,
+    "reason": "policy disabled",
+    "digest": "230e95d4c7bae02e",
+    "wallet_address": "",
+    "chain_ids": [],
+    "executor_contract": "",
+    "max_total_budget_native": 0.0,
+    "max_gas_per_tx_native": 0.0,
+    "max_transactions": 0,
+    "min_net_profit_native": 0.0,
+    "max_slippage_bps": 30,
+    "max_cumulative_loss_native": 0.0,
+    "min_success_probability": 0.75,
+    "max_borrow_usd": 0.0,
+    "valid_until": 0.0,
+    "auto_resume_after_suspension": false,
+    "submission": "public_rpc"
+   },
+   "tunables_version": 1,
+   "observations": 1117,
+   "test_reports": {
+    "forge_tests.json": {
+     "ts": 1791898908.9142487,
+     "exit_code": 0,
+     "passed": 36,
+     "failed": 0,
+     "suites": {
+      "FlashArbExecutorTest": {
+       "test_aave_profitable_pays_premium()": {
+        "ok": true,
+        "gas": 213992,
+        "runs": null
+       },
+       "test_balancer_profitable()": {
+        "ok": true,
+        "gas": 209413,
+        "runs": null
+       },
+       "test_feeOnTransfer_token_detected_by_balance_delta()": {
+        "ok": true,
+        "gas": 2189376,
+        "runs": null
+       },
+       "test_morpho_profitable_zero_fee()": {
+        "ok": true,
+        "gas": 211084,
+        "runs": null
+       },
+       "test_owner_can_execute_too()": {
+        "ok": true,
+        "gas": 205415,
+        "runs": null
+       },
+       "test_ownership_two_step()": {
+        "ok": true,
+        "gas": 33728,
+        "runs": null
+       },
+       "test_pause_blocks_execution_and_guardian_can_pause()": {
+        "ok": true,
+        "gas": 238271,
+        "runs": null
+       },
+       "test_quoteV2_matches_mock_pair()": {
+        "ok": true,
+        "gas": 18474,
+        "runs": null
+       },
+       "test_revert_badHopCount_and_zeroAmount()": {
+        "ok": true,
+        "gas": 41254,
+        "runs": null
+       },
+       "test_revert_borrowCap()": {
+        "ok": true,
+        "gas": 64785,
+        "runs": null
+       },
+       "test_revert_direct_callbacks_are_rejected()": {
+        "ok": true,
+        "gas": 429529,
+        "runs": null
+       },
+       "test_revert_expired()": {
+        "ok": true,
+        "gas": 29738,
+        "runs": null
+       },
+       "test_revert_hopMinOut()": {
+        "ok": true,
+        "gas": 159359,
+        "runs": null
+       },
+       "test_revert_insufficientProfit()": {
+        "ok": true,
+        "gas": 182538,
+        "runs": null
+       },
+       "test_revert_notExecutor()": {
+        "ok": true,
+        "gas": 29198,
+        "runs": null
+       },
+       "test_revert_poolNotAllowed()": {
+        "ok": true,
+        "gas": 624577,
+        "runs": null
+       },
+       "test_revert_providerNotAllowed()": {
+        "ok": true,
+        "gas": 37870,
+        "runs": null
+       },
+       "test_revert_routeNotCyclic_and_discontinuous()": {
+        "ok": true,
+        "gas": 73714,
+        "runs": null
+       },
+       "test_revert_tokenNotAllowed()": {
+        "ok": true,
+        "gas": 560338,
+        "runs": null
+       },
+       "test_revert_unprofitable_route_cannot_repay()": {
+        "ok": true,
+        "gas": 222887,
+        "runs": null
+       },
+       "test_revert_unprofitable_selfFunded_never_loses()": {
+        "ok": true,
+        "gas": 158150,
+        "runs": null
+       },
+       "test_selfFunded_profitable()": {
+        "ok": true,
+        "gas": 184240,
+        "runs": null
+       },
+       "test_solidly_stable_route_profitable()": {
+        "ok": true,
+        "gas": 938094,
+        "runs": null
+       },
+       "test_withdraw_onlyOwner()": {
+        "ok": true,
+        "gas": 63607,
+        "runs": null
+       }
+      },
+      "FuzzTest": {
+       "testFuzz_callbacks_reject_any_sender(address,bytes)": {
+        "ok": true,
+        "gas": null,
+        "runs": 512
+       },
+       "testFuzz_minProfit_is_enforced(uint256,uint256)": {
+        "ok": true,
+        "gas": null,
+        "runs": 512
+       },
+       "testFuzz_only_executors(address)": {
+        "ok": true,
+        "gas": null,
+        "runs": 512
+       },
+       "testFuzz_profit_accounting_v2(uint256,uint96,uint32)": {
+        "ok": true,
+        "gas": null,
+        "runs": 512
+       },
+       "testFuzz_quoteV2_matches_pair_execution(uint112,uint112,uint256)": {
+        "ok": true,
+        "gas": null,
+        "runs": 512
+       }
+      },
+      "InvariantTest": {
+       "invariant_balance_equals_sum_of_profits()": {
+        "ok": true,
+        "gas": null,
+        "runs": null
+       },
+       "invariant_execution_counter_matches()": {
+        "ok": true,
+        "gas": null,
+        "runs": null
+       },
+       "invariant_no_residual_allowances()": {
+        "ok": true,
+        "gas": null,
+        "runs": null
+       },
+       "invariant_owner_and_executor_unchanged()": {
+        "ok": true,
+        "gas": null,
+        "runs": null
+       }
+      },
+      "RealUniswapV3Test": {
+       "testFuzz_real_v3_profit_matches_reference(uint256)": {
+        "ok": true,
+        "gas": null,
+        "runs": 512
+       },
+       "test_real_v3_pool_arbitrage_balancer_source()": {
+        "ok": true,
+        "gas": 361254,
+        "runs": null
+       },
+       "test_real_v3_pool_as_flash_source()": {
+        "ok": true,
+        "gas": 120842,
+        "runs": null
+       }
+      }
+     }
+    },
+    "pytest_results.json": {
+     "ts": 1791898927.835185,
+     "exit_code": 0,
+     "passed": 72,
+     "failed": 0,
+     "skipped": 0,
+     "errors": 0,
+     "tests": {
+      "tests.test_api_selfcorr_ghost::test_param_repo_propose_accept_rollback_are_git_isolated": {
+       "status": "passed",
+       "time": 0.067
+      },
+      "tests.test_api_selfcorr_ghost::test_self_correction_cannot_touch_financial_controls": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_api_selfcorr_ghost::test_ghost_dedup_one_observation_per_route_per_window": {
+       "status": "passed",
+       "time": 0.187
+      },
+      "tests.test_api_selfcorr_ghost::test_api_status_opportunities_emergency_stop_and_tunable_guard": {
+       "status": "passed",
+       "time": 0.522
+      },
+      "tests.test_devnet_e2e::test_detection_simulation_exact_and_ghost_label": {
+       "status": "passed",
+       "time": 2.071
+      },
+      "tests.test_devnet_e2e::test_preflight_refuses_without_signer_and_emergency_stop": {
+       "status": "passed",
+       "time": 1.942
+      },
+      "tests.test_devnet_e2e::test_live_execution_under_policy_with_isolated_signer": {
+       "status": "passed",
+       "time": 2.147
+      },
+      "tests.test_engine_units::test_build_routes_2_and_3_hops_no_pool_reuse": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_quarantined_pool_excluded": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_spread_and_fee_bps": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_optimizer_finds_interior_optimum_matching_closed_form": {
+       "status": "passed",
+       "time": 0.002
+      },
+      "tests.test_engine_units::test_optimizer_reports_no_profit_when_gap_below_fees": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_flash_fee_rounds_up_like_aave": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_max_borrow_respects_depth_provider_and_policy": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_selector_requires_demonstrated_reliability": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_gate_stale_data": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_gate_simulation_failed_and_below_estimate": {
+       "status": "passed",
+       "time": 0.002
+      },
+      "tests.test_engine_units::test_gate_unknown_costs_block_eligibility": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_gate_policy_allowlists_and_budget": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_negative_net_never_eligible_and_ev_ranking": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_decode_custom_errors": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_engine_units::test_rpc_client_surfaces_connection_errors": {
+       "status": "passed",
+       "time": 2.009
+      },
+      "tests.test_factory_discovery_devnet::test_factory_discovery_matches_deployed_pools": {
+       "status": "passed",
+       "time": 0.019
+      },
+      "tests.test_l1_fee_opstack::test_fjord_upper_bound_used_and_cached_per_block": {
+       "status": "passed",
+       "time": 0.002
+      },
+      "tests.test_l1_fee_opstack::test_pre_fjord_fallback_to_getl1fee_bytes": {
+       "status": "passed",
+       "time": 0.002
+      },
+      "tests.test_l1_fee_opstack::test_oracle_failure_is_an_unknown_cost_not_zero": {
+       "status": "passed",
+       "time": 0.002
+      },
+      "tests.test_l1_fee_opstack::test_arbitrum_has_no_separate_l1_component": {
+       "status": "passed",
+       "time": 0.002
+      },
+      "tests.test_l1_fee_opstack::test_mainnet_chain_configs_declare_l1_model[base]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_l1_fee_opstack::test_mainnet_chain_configs_declare_l1_model[arbitrum]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_units::test_v2_matches_reference_formula": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_units::test_v2_output_never_breaks_k": {
+       "status": "passed",
+       "time": 0.302
+      },
+      "tests.test_math_units::test_v2_fee_on_input_reduces_output": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_units::test_v3_tick_sqrt_roundtrip": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_units::test_solidly_stable_close_to_peg_and_volatile_equals_v2_shape": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_units::test_route_quote_two_hop_profit_and_loss": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_units::test_quote_rejects_zero_and_token_not_in_pool": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_units::test_price_impact_grows_with_size": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_math_vs_chain::test_v3_simulation_matches_real_pool_bytecode": {
+       "status": "passed",
+       "time": 1.302
+      },
+      "tests.test_math_vs_chain::test_v2_quote_is_maximal_against_real_pair": {
+       "status": "passed",
+       "time": 0.03
+      },
+      "tests.test_math_vs_chain::test_solidly_matches_onchain_getAmountOut": {
+       "status": "passed",
+       "time": 0.624
+      },
+      "tests.test_policy_risk_signer::test_policy_is_frozen_and_rejects_unknown_fields": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_policy_disabled_or_expired_is_invalid": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_self_correction_cannot_touch_financial_limits": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_tunables_roundtrip": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_reliability_insufficient_then_ok": {
+       "status": "passed",
+       "time": 0.004
+      },
+      "tests.test_policy_risk_signer::test_reliability_bad_outcomes_fail_threshold": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_reliability_never_fabricates_from_other_buckets": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_status_learning_without_data": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_status_reliability_insufficient": {
+       "status": "passed",
+       "time": 0.003
+      },
+      "tests.test_policy_risk_signer::test_status_ready_but_authorization_missing": {
+       "status": "passed",
+       "time": 0.004
+      },
+      "tests.test_policy_risk_signer::test_status_ready_then_live_then_suspended_on_losses": {
+       "status": "passed",
+       "time": 0.007
+      },
+      "tests.test_policy_risk_signer::test_budget_checks_and_kill_switch": {
+       "status": "passed",
+       "time": 0.004
+      },
+      "tests.test_policy_risk_signer::test_cumulative_loss_limit": {
+       "status": "passed",
+       "time": 0.005
+      },
+      "tests.test_policy_risk_signer::test_signer_signs_valid_request": {
+       "status": "passed",
+       "time": 0.006
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad0-target]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad1-chain]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad2-value]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad3-gas limit]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad4-maxFeePerGas]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad5-executeArbitrage]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad6-minProfit]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad7-borrow]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad8-not in policy]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses[bad9-deadline]": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_policy_risk_signer::test_signer_enforces_cumulative_budget_and_count": {
+       "status": "passed",
+       "time": 0.01
+      },
+      "tests.test_policy_risk_signer::test_signer_refuses_when_policy_wallet_differs": {
+       "status": "passed",
+       "time": 0.003
+      },
+      "tests.test_policy_risk_signer::test_load_account_from_encrypted_keystore_only": {
+       "status": "passed",
+       "time": 2.125
+      },
+      "tests.test_state_override_sim_devnet::test_state_override_simulation_equals_deployed": {
+       "status": "passed",
+       "time": 0.477
+      },
+      "tests.test_verify_chain::test_every_mainnet_address_has_a_documented_source": {
+       "status": "passed",
+       "time": 0.001
+      },
+      "tests.test_verify_chain::test_digest_changes_with_any_address_and_revokes_verification": {
+       "status": "passed",
+       "time": 0.003
+      },
+      "tests.test_verify_chain::test_real_chain_config_with_unreachable_rpc_fails_closed": {
+       "status": "passed",
+       "time": 1.758
+      },
+      "tests.test_verify_chain::test_verify_chain_passes_on_devnet_and_records_digest": {
+       "status": "passed",
+       "time": 0.841
+      }
+     },
+     "tail": "........................................................................ [100%]\n=============================== warnings summary ===============================\ntests/test_api_selfcorr_ghost.py::test_api_status_opportunities_emergency_stop_and_tunable_guard\n  /home/user/my/.venv/lib/python3.11/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/\n    response = await f(request)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n72 passed, 1 warning in 18.26s\n"
+    }
+   },
+   "issues": []
+  },
+  "data_validation": {
+   "v2": {
+    "exact": 60,
+    "mismatch": 0,
+    "transient": 0
+   },
+   "solidly": {
+    "exact": 18,
+    "mismatch": 0,
+    "transient": 0
+   },
+   "v3": {
+    "exact": 24,
+    "mismatch": 0,
+    "transient": 0,
+    "skipped": 6
+   },
+   "sim_vs_estimate": {
+    "exact": 1235,
+    "within_tolerance": 0,
+    "below": 0,
+    "failed": 0,
+    "samples": [
+     {
+      "id": "87daf1542463",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 468481773252683759616,
+      "estimate": 287820692140465696,
+      "sim": 287820692140465696,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "ec2c04ce8040",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2449858786009303482368,
+      "estimate": 265098303761831570,
+      "sim": 265098303761831570,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "0bc09f6a6acb",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 233997687403213760,
+      "estimate": 143809191409713,
+      "sim": 143809191409713,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "795ffacfca90",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 468481773252683759616,
+      "estimate": 287820692140465696,
+      "sim": 287820692140465696,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "555e783c8448",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2451256403590640041984,
+      "estimate": 265101611432802955,
+      "sim": 265101611432802955,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "2270c1af8039",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 228895531301015712,
+      "estimate": 138042760114474,
+      "sim": 138042760114474,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "c7b11ccc4255",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "256787f861f7",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "0f4c0a88c8a3",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 228895531301015712,
+      "estimate": 138042760114474,
+      "sim": 138042760114474,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "c6cd7a787858",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "299c22c98b80",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "770bb6814df4",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 228895531301015712,
+      "estimate": 138042760114474,
+      "sim": 138042760114474,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "5a56cf79a9be",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "35d5783b554a",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "e7d3cac39bb7",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 228895531301015712,
+      "estimate": 138042760114474,
+      "sim": 138042760114474,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "98bd1a1e381c",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "c89ee8b3f01b",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "d543b6d97680",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 228895531301015712,
+      "estimate": 138042760114474,
+      "sim": 138042760114474,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "0c9ff1e41723",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "dd2548dad8bb",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "97066bcfd0d6",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 228895531301015712,
+      "estimate": 138042760114474,
+      "sim": 138042760114474,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "1576d26ed588",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "284551de5953",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "4207d3ee988e",
+      "route": "WETH\u2192[uniswap_v2]\u2192DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH",
+      "amount_in": 228895531301015712,
+      "estimate": 138042760114474,
+      "sim": 138042760114474,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "20d0c8ed426f",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "63e67a9a98ae",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "b3820d0e3af1",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "9526e3e716a4",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 479075630446455750656,
+      "estimate": 619454824355877503,
+      "sim": 619454824355877503,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "6cf3f6b4806c",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192DAI",
+      "amount_in": 2171893812712089059328,
+      "estimate": 207568645383081614,
+      "sim": 207568645383081614,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "e510878ff47a",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "439be17a43fb",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 479075630446455750656,
+      "estimate": 619454824355877503,
+      "sim": 619454824355877503,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "5af502f48194",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[aerodrome]\u2192DAI",
+      "amount_in": 264378849464464834560,
+      "estimate": 352066135993000693,
+      "sim": 352066135993000693,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "e3ef9d611331",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 458795881363434700800,
+      "estimate": 276286579915271358,
+      "sim": 276286579915271358,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "5f052a931b67",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[uniswap_v2]\u2192DAI",
+      "amount_in": 479075630446455750656,
+      "estimate": 619454824355877503,
+      "sim": 619454824355877503,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "523748d9c0e4",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[aerodrome]\u2192DAI",
+      "amount_in": 264378849464464834560,
+      "estimate": 352066135993000693,
+      "sim": 352066135993000693,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "b0156c0d4046",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1609804790774448259072,
+      "estimate": 3472059299437975722,
+      "sim": 3472059299437975722,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "7e9759648b23",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1053057797476580065280,
+      "estimate": 3025144253250148279,
+      "sim": 3025144253250148279,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "ea717864d54f",
+      "route": "DAI\u2192[aerodrome]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 848897398493515481088,
+      "estimate": 1931371224646866196,
+      "sim": 1931371224646866196,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "b36972cb3eb7",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1714370172604069445632,
+      "estimate": 3960802255807745563,
+      "sim": 3960802255807745563,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "0504b2055d75",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1104624278808363925504,
+      "estimate": 3350426776348109025,
+      "sim": 3350426776348109025,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "f031d837f512",
+      "route": "DAI\u2192[aerodrome]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 848897398493515481088,
+      "estimate": 1931371224646866196,
+      "sim": 1931371224646866196,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "2e490a177674",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1674432532481552154624,
+      "estimate": 3777639882855165118,
+      "sim": 3777639882855165118,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "367972e47835",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1104624278808363925504,
+      "estimate": 3350426776348109025,
+      "sim": 3350426776348109025,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "c1f40ad65531",
+      "route": "DAI\u2192[aerodrome]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 848897398493515481088,
+      "estimate": 1931371224646866196,
+      "sim": 1931371224646866196,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "e1e99cce7c14",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1674432532481552154624,
+      "estimate": 3777639882855165118,
+      "sim": 3777639882855165118,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "e6a0697d078e",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1104624278808363925504,
+      "estimate": 3350426776348109025,
+      "sim": 3350426776348109025,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "21d6892aebe5",
+      "route": "DAI\u2192[aerodrome]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 848897398493515481088,
+      "estimate": 1931371224646866196,
+      "sim": 1931371224646866196,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "c745e4ce6a8c",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[uniswap_v3]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1674432532481552154624,
+      "estimate": 3777639882855165118,
+      "sim": 3777639882855165118,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "432e17c8aefc",
+      "route": "DAI\u2192[uniswap_v3]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 1104624278808363925504,
+      "estimate": 3350426776348109025,
+      "sim": 3350426776348109025,
+      "error": null,
+      "kind": "exact"
+     },
+     {
+      "id": "75045dc08467",
+      "route": "DAI\u2192[aerodrome]\u2192USDC\u2192[aerodrome]\u2192WETH\u2192[sushiswap]\u2192DAI",
+      "amount_in": 848897398493515481088,
+      "estimate": 1931371224646866196,
+      "sim": 1931371224646866196,
+      "error": null,
+      "kind": "exact"
+     }
+    ]
+   }
+  },
+  "search_simulation": {
+   "blocks": 452,
+   "cycles": 452,
+   "cycle_ms_p50": 407.2,
+   "cycle_ms_p95": 782.5,
+   "candidates": 57414,
+   "positives": 13227,
+   "routes_optimized": 57414,
+   "simulations": 1228,
+   "sim_failures": 0,
+   "sim_below_estimate": 0,
+   "ghost_labeled": 259,
+   "ghost_positives": 191,
+   "best_expected_net_eur_max": 532.6094421935113,
+   "best_expected_net_eur_median": 1.2443497117602798,
+   "gas_estimate_over_model_median": null,
+   "rejections": {
+    "spread_below_threshold": 515921,
+    "negative_expected_net": 87292
+   },
+   "rpc": {
+    "requests": 6924,
+    "errors": 0,
+    "retries": 0,
+    "latency_p50_ms": 0.8690419999766164,
+    "latency_p95_ms": 1.3812259985570563,
+    "latency_max_ms": 1.9890120001946343,
+    "error_rate": 0.0
+   },
+   "ghost_positive_rate": 0.7374517374517374
+  },
+  "self_correction": {
+   "observe": {
+    "blocks": 452,
+    "cycles": 452,
+    "cycle_ms_p50": 407.2,
+    "cycle_ms_p95": 782.5,
+    "candidates": 57414,
+    "positives": 13227,
+    "routes_optimized": 57414,
+    "simulations": 1228,
+    "sim_failures": 0,
+    "sim_below_estimate": 0,
+    "ghost_labeled": 259,
+    "ghost_positives": 191,
+    "best_expected_net_eur_max": 532.6094421935113,
+    "best_expected_net_eur_median": 1.2443497117602798,
+    "gas_estimate_over_model_median": null,
+    "rpc": {
+     "requests": 6924,
+     "errors": 0,
+     "retries": 0,
+     "latency_p50_ms": 0.8690419999766164,
+     "latency_p95_ms": 1.3812259985570563,
+     "latency_max_ms": 1.9890120001946343,
+     "error_rate": 0.0
+    },
+    "ghost_positive_rate": 0.7374517374517374,
+    "block_time_ms": 2000.0,
+    "unquotable": 0,
+    "spread_near_threshold": 25796,
+    "threshold": 0.75,
+    "bucket_rates": {
+     "m[20-50]|h2|UNIV2+UNIV3": [
+      28,
+      0.7758620689655172
+     ],
+     "m[20-50]|h3|UNIV2+UNIV3": [
+      104,
+      0.5476190476190477
+     ],
+     "m[20-50]|h2|UNIV2": [
+      13,
+      0.4642857142857143
+     ],
+     "m[8-20]|h2|UNIV2+UNIV3": [
+      44,
+      0.7666666666666667
+     ],
+     "m[8-20]|h2|SOLIDLY+UNIV2": [
+      25,
+      0.6730769230769231
+     ],
+     "m[20-50]|h3|SOLIDLY+UNIV2+UNIV3": [
+      51,
+      0.5288461538461539
+     ],
+     "m[20-50]|h2|SOLIDLY+UNIV2": [
+      20,
+      0.7857142857142857
+     ],
+     "m[3-8]|h3|SOLIDLY+UNIV3": [
+      29,
+      0.8166666666666667
+     ],
+     "m[3-8]|h3|SOLIDLY+UNIV2+UNIV3": [
+      58,
+      0.8050847457627118
+     ],
+     "m[20-50]|h3|SOLIDLY+UNIV3": [
+      25,
+      0.5961538461538461
+     ],
+     "m[20-50]|h3|SOLIDLY+UNIV2": [
+      40,
+      0.5487804878048781
+     ],
+     "m[8-20]|h3|UNIV2+UNIV3": [
+      155,
+      0.6634615384615384
+     ],
+     "m[0-3]|h3|UNIV2+UNIV3": [
+      65,
+      0.7651515151515151
+     ],
+     "m[8-20]|h3|SOLIDLY+UNIV2+UNIV3": [
+      80,
+      0.7345679012345679
+     ],
+     "m[0-3]|h3|SOLIDLY+UNIV2+UNIV3": [
+      23,
+      0.6875
+     ],
+     "m[3-8]|h2|UNIV2+UNIV3": [
+      71,
+      0.8125
+     ],
+     "m[0-3]|h2|SOLIDLY+UNIV2": [
+      11,
+      0.7916666666666666
+     ],
+     "m[3-8]|h3|UNIV2+UNIV3": [
+      106,
+      0.7897196261682243
+     ],
+     "m[8-20]|h3|SOLIDLY+UNIV2": [
+      36,
+      0.7162162162162162
+     ],
+     "m[3-8]|h3|SOLIDLY+UNIV2": [
+      21,
+      0.7045454545454546
+     ],
+     "m[50-1e+09]|h2|SOLIDLY+UNIV2": [
+      24,
+      0.78
+     ],
+     "m[50-1e+09]|h2|UNIV2+UNIV3": [
+      38,
+      0.6538461538461539
+     ],
+     "m[50-1e+09]|h2|UNIV2": [
+      10,
+      0.4090909090909091
+     ],
+     "m[50-1e+09]|h3|UNIV2+UNIV3": [
+      121,
+      0.7172131147540983
+     ],
+     "m[50-1e+09]|h3|SOLIDLY+UNIV2": [
+      22,
+      0.5434782608695652
+     ],
+     "m[3-8]|h2|SOLIDLY+UNIV2": [
+      26,
+      0.9074074074074074
+     ],
+     "m[0-3]|h3|SOLIDLY+UNIV3": [
+      18,
+      0.9736842105263158
+     ],
+     "m[50-1e+09]|h3|SOLIDLY+UNIV3": [
+      34,
+      0.8428571428571429
+     ],
+     "m[8-20]|h3|UNIV2": [
+      25,
+      0.6346153846153846
+     ],
+     "m[50-1e+09]|h3|UNIV2": [
+      9,
+      0.75
+     ],
+     "m[20-50]|h3|UNIV2": [
+      29,
+      0.7166666666666667
+     ],
+     "m[50-1e+09]|h3|SOLIDLY+UNIV2+UNIV3": [
+      61,
+      0.6693548387096774
+     ],
+     "m[8-20]|h3|SOLIDLY+UNIV3": [
+      47,
+      0.6145833333333334
+     ],
+     "m[20-50]|h3|UNIV3": [
+      3,
+      0.375
+     ],
+     "m[3-8]|h2|UNIV2": [
+      6,
+      0.7857142857142857
+     ],
+     "m[3-8]|h2|SOLIDLY+UNIV3": [
+      11,
+      0.875
+     ],
+     "m[0-3]|h3|UNIV2": [
+      2,
+      0.8333333333333334
+     ],
+     "m[0-3]|h2|SOLIDLY+UNIV3": [
+      23,
+      0.9375
+     ],
+     "m[0-3]|h3|SOLIDLY+UNIV2": [
+      8,
+      0.8333333333333334
+     ],
+     "m[0-3]|h2|UNIV2+UNIV3": [
+      36,
+      0.7972972972972973
+     ],
+     "m[8-20]|h2|UNIV3": [
+      4,
+      0.9
+     ],
+     "m[3-8]|h3|UNIV3": [
+      7,
+      0.9375
+     ],
+     "m[3-8]|h2|UNIV3": [
+      10,
+      0.9545454545454546
+     ],
+     "m[8-20]|h2|UNIV2": [
+      18,
+      0.7105263157894737
+     ],
+     "m[8-20]|h2|SOLIDLY+UNIV3": [
+      7,
+      0.9375
+     ],
+     "m[20-50]|h3|SOLIDLY": [
+      4,
+      0.3
+     ],
+     "m[8-20]|h3|UNIV3": [
+      6,
+      0.7857142857142857
+     ],
+     "m[3-8]|h3|UNIV2": [
+      10,
+      0.7727272727272727
+     ],
+     "m[0-3]|h3|UNIV3": [
+      8,
+      0.8333333333333334
+     ],
+     "m[8-20]|h3|SOLIDLY": [
+      1,
+      0.75
+     ],
+     "m[0-3]|h2|UNIV3": [
+      7,
+      0.9375
+     ],
+     "m[0-3]|h2|UNIV2": [
+      3,
+      0.625
+     ],
+     "m[3-8]|h3|SOLIDLY": [
+      1,
+      0.75
+     ],
+     "m[50-1e+09]|h2|SOLIDLY+UNIV3": [
+      2,
+      0.8333333333333334
+     ]
+    }
+   },
+   "diagnose": {
+    "findings": [
+     "ghost positive rate 74% over 259 labels < required 75%: opportunities vanish before N+1"
+    ],
+    "rationale": [
+     "min_spread_bps 5.0 \u2192 6.0: favour gaps wide enough to survive one block"
+    ]
+   },
+   "changes": {
+    "min_spread_bps": 6.0
+   },
+   "iterations": [
+    {
+     "branch": "cand-1791901329-1f099e@5beb516",
+     "ab": {
+      "blocks": 60,
+      "score_eur": {
+       "ref": 841.7307831041014,
+       "cand": 841.7307831041014
+      },
+      "counts": {
+       "ref": {
+        "positives": 981,
+        "picked": 33,
+        "ok_next": 22,
+        "fail_next": 11,
+        "blocks": 60
+       },
+       "cand": {
+        "positives": 981,
+        "picked": 33,
+        "ok_next": 22,
+        "fail_next": 11,
+        "blocks": 60
+       }
+      },
+      "metric": "simulated net at N+1 minus failure cost (EUR)"
+     }
+    }
+   ],
+   "reference": {
+    "version": 1,
+    "min_spread_bps": 5.0,
+    "max_hops": 3,
+    "max_price_impact_bps": 150.0,
+    "max_data_age_ms": 4000.0,
+    "min_liquidity_usd": 20000.0,
+    "grid_points": 18,
+    "golden_iters": 24,
+    "max_borrow_fraction_of_depth": 0.25,
+    "gas_safety_multiplier": 1.15,
+    "gas_units_base": 70000,
+    "gas_units_per_hop": {
+     "UNIV2": 65000,
+     "UNIV3": 110000,
+     "SOLIDLY": 90000,
+     "PANCAKE_V3": 110000
+    },
+    "gas_units_flash": {
+     "BALANCER_V2": 45000,
+     "AAVE_V3": 130000,
+     "MORPHO": 35000,
+     "UNISWAP_V3": 55000,
+     "NONE": 0
+    },
+    "v3_tick_cross_gas": 22000,
+    "priority_fee_floor_gwei": 0.001,
+    "failure_gas_fraction": 0.55,
+    "safety_margin_bps": 2.0,
+    "sim_tolerance_bps": 1.0,
+    "reliability_min_observations": 30,
+    "reliability_credible_level": 0.9,
+    "quarantine_after_false_positives": 5
+   },
+   "decision": "rolled_back",
+   "git_log": [
+    "5beb516 candidate: min_spread_bps 5.0 \u2192 6.0: favour gaps wide enough to survive one block",
+    "0bf0332 reference: default tunables"
+   ]
+  },
+  "comparative_validation": {
+   "decision": "reference_only",
+   "ghost_labels": 445,
+   "ghost_positives": 306
+  }
+ },
+ "reliability": {
+  "n": 2121,
+  "positives": 1514,
+  "rate": 0.7138142385667138,
+  "threshold": 0.75,
+  "credible_level": 0.9,
+  "min_observations": 30,
+  "global_mean": 0.7137134778510839,
+  "global_lower": 0.7010965439194455,
+  "global_upper": 0.726244093135312,
+  "required_n_at_current_rate": null,
+  "buckets": {
+   "m[20-50]|h2|UNIV2+UNIV3": {
+    "n": 33,
+    "k": 26,
+    "mean": 0.7794117647058824,
+    "lower": 0.6857877366834801,
+    "upper": 0.8657071229136509,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[20-50]|h3|UNIV2+UNIV3": {
+    "n": 127,
+    "k": 67,
+    "mean": 0.52734375,
+    "lower": 0.47077120921318333,
+    "upper": 0.5837312583721384,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[20-50]|h2|UNIV2": {
+    "n": 17,
+    "k": 8,
+    "mean": 0.4722222222222222,
+    "lower": 0.32357818607325145,
+    "upper": 0.6222952430795414,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[8-20]|h2|UNIV2+UNIV3": {
+    "n": 59,
+    "k": 43,
+    "mean": 0.725,
+    "lower": 0.6498692799789423,
+    "upper": 0.7968426776939459,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[8-20]|h2|SOLIDLY+UNIV2": {
+    "n": 35,
+    "k": 25,
+    "mean": 0.7083333333333334,
+    "lower": 0.6094578333464065,
+    "upper": 0.8020555106913365,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[20-50]|h3|SOLIDLY+UNIV2+UNIV3": {
+    "n": 65,
+    "k": 35,
+    "mean": 0.5378787878787878,
+    "lower": 0.4591787919693152,
+    "upper": 0.6160764451751362,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[20-50]|h2|SOLIDLY+UNIV2": {
+    "n": 23,
+    "k": 19,
+    "mean": 0.8125,
+    "lower": 0.7068477523536134,
+    "upper": 0.9063627569840587,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h3|SOLIDLY+UNIV3": {
+    "n": 37,
+    "k": 29,
+    "mean": 0.7763157894736842,
+    "lower": 0.6874303461090945,
+    "upper": 0.8587432941942048,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[3-8]|h3|SOLIDLY+UNIV2+UNIV3": {
+    "n": 73,
+    "k": 57,
+    "mean": 0.777027027027027,
+    "lower": 0.7137411392123645,
+    "upper": 0.8370456748730312,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[20-50]|h3|SOLIDLY+UNIV3": {
+    "n": 35,
+    "k": 19,
+    "mean": 0.5416666666666666,
+    "lower": 0.43522767941121526,
+    "upper": 0.647074373797075,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[20-50]|h3|SOLIDLY+UNIV2": {
+    "n": 50,
+    "k": 27,
+    "mean": 0.5392156862745098,
+    "lower": 0.4497209113095033,
+    "upper": 0.6280331648054875,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[8-20]|h3|UNIV2+UNIV3": {
+    "n": 189,
+    "k": 124,
+    "mean": 0.6552631578947369,
+    "lower": 0.6107742350363248,
+    "upper": 0.6990468883422584,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[0-3]|h3|UNIV2+UNIV3": {
+    "n": 94,
+    "k": 69,
+    "mean": 0.7315789473684211,
+    "lower": 0.6724532247102128,
+    "upper": 0.7885855899852652,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[8-20]|h3|SOLIDLY+UNIV2+UNIV3": {
+    "n": 96,
+    "k": 71,
+    "mean": 0.7371134020618557,
+    "lower": 0.6789695365019698,
+    "upper": 0.7931329609586518,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[0-3]|h3|SOLIDLY+UNIV2+UNIV3": {
+    "n": 30,
+    "k": 22,
+    "mean": 0.7258064516129032,
+    "lower": 0.6209202896346933,
+    "upper": 0.8241672413992582,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[3-8]|h2|UNIV2+UNIV3": {
+    "n": 97,
+    "k": 82,
+    "mean": 0.8418367346938775,
+    "lower": 0.7934149636473904,
+    "upper": 0.8872293718084472,
+    "sufficient": true,
+    "status": "OK"
+   },
+   "m[0-3]|h2|SOLIDLY+UNIV2": {
+    "n": 15,
+    "k": 12,
+    "mean": 0.78125,
+    "lower": 0.6443360621496028,
+    "upper": 0.9018023213964044,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h3|UNIV2+UNIV3": {
+    "n": 128,
+    "k": 100,
+    "mean": 0.7790697674418605,
+    "lower": 0.731477936294739,
+    "upper": 0.8247885453575655,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[8-20]|h3|SOLIDLY+UNIV2": {
+    "n": 46,
+    "k": 34,
+    "mean": 0.7340425531914894,
+    "lower": 0.649833980837073,
+    "upper": 0.8138571635017979,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[3-8]|h3|SOLIDLY+UNIV2": {
+    "n": 23,
+    "k": 16,
+    "mean": 0.6875,
+    "lower": 0.5640445199704313,
+    "upper": 0.8038636978926916,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[50-1e+09]|h2|SOLIDLY+UNIV2": {
+    "n": 28,
+    "k": 22,
+    "mean": 0.7758620689655172,
+    "lower": 0.6738179868904239,
+    "upper": 0.8693649496494764,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[50-1e+09]|h2|UNIV2+UNIV3": {
+    "n": 46,
+    "k": 31,
+    "mean": 0.6702127659574468,
+    "lower": 0.5811839800200422,
+    "upper": 0.7560449135553756,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[50-1e+09]|h2|UNIV2": {
+    "n": 13,
+    "k": 5,
+    "mean": 0.39285714285714285,
+    "lower": 0.23160980460600164,
+    "upper": 0.5613414470601339,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[50-1e+09]|h3|UNIV2+UNIV3": {
+    "n": 167,
+    "k": 119,
+    "mean": 0.7113095238095238,
+    "lower": 0.6660389245428779,
+    "upper": 0.7554936875334384,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[50-1e+09]|h3|SOLIDLY+UNIV2": {
+    "n": 24,
+    "k": 12,
+    "mean": 0.5,
+    "lower": 0.3727031018169633,
+    "upper": 0.6272968981830367,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h2|SOLIDLY+UNIV2": {
+    "n": 32,
+    "k": 30,
+    "mean": 0.9242424242424242,
+    "lower": 0.8625531211104899,
+    "upper": 0.974557233994961,
+    "sufficient": true,
+    "status": "OK"
+   },
+   "m[0-3]|h3|SOLIDLY+UNIV3": {
+    "n": 27,
+    "k": 26,
+    "mean": 0.9464285714285714,
+    "lower": 0.8897030492026423,
+    "upper": 0.9891356742630897,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[50-1e+09]|h3|SOLIDLY+UNIV3": {
+    "n": 45,
+    "k": 37,
+    "mean": 0.8152173913043478,
+    "lower": 0.7397480977181301,
+    "upper": 0.8846414670169901,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[8-20]|h3|UNIV2": {
+    "n": 32,
+    "k": 20,
+    "mean": 0.6212121212121212,
+    "lower": 0.5120190519727323,
+    "upper": 0.7271213457052901,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[50-1e+09]|h3|UNIV2": {
+    "n": 10,
+    "k": 8,
+    "mean": 0.7727272727272727,
+    "lower": 0.6051703639094647,
+    "upper": 0.9163848424676679,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[20-50]|h3|UNIV2": {
+    "n": 32,
+    "k": 23,
+    "mean": 0.7121212121212122,
+    "lower": 0.6091498608533557,
+    "upper": 0.8093488100789512,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[50-1e+09]|h3|SOLIDLY+UNIV2+UNIV3": {
+    "n": 80,
+    "k": 52,
+    "mean": 0.6481481481481481,
+    "lower": 0.5795355353069511,
+    "upper": 0.7151664364158958,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[8-20]|h3|SOLIDLY+UNIV3": {
+    "n": 61,
+    "k": 40,
+    "mean": 0.6532258064516129,
+    "lower": 0.5749611713033622,
+    "upper": 0.7293246205532542,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[20-50]|h3|UNIV3": {
+    "n": 3,
+    "k": 1,
+    "mean": 0.375,
+    "lower": 0.1015373255475093,
+    "upper": 0.6847103216080093,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h2|UNIV2": {
+    "n": 11,
+    "k": 9,
+    "mean": 0.7916666666666666,
+    "lower": 0.6358814697168935,
+    "upper": 0.9242675802119007,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h2|SOLIDLY+UNIV3": {
+    "n": 15,
+    "k": 12,
+    "mean": 0.78125,
+    "lower": 0.6443360621496028,
+    "upper": 0.9018023213964044,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[0-3]|h3|UNIV2": {
+    "n": 4,
+    "k": 3,
+    "mean": 0.7,
+    "lower": 0.43150701531066554,
+    "upper": 0.9247429264997867,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[0-3]|h2|SOLIDLY+UNIV3": {
+    "n": 23,
+    "k": 22,
+    "mean": 0.9375,
+    "lower": 0.8716003537571847,
+    "upper": 0.9872373064107043,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[0-3]|h3|SOLIDLY+UNIV2": {
+    "n": 11,
+    "k": 7,
+    "mean": 0.625,
+    "lower": 0.44410391552187145,
+    "upper": 0.7958922787076704,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[0-3]|h2|UNIV2+UNIV3": {
+    "n": 55,
+    "k": 41,
+    "mean": 0.7410714285714286,
+    "lower": 0.6646254350385234,
+    "upper": 0.8137369555516305,
+    "sufficient": true,
+    "status": "FIABILIT\u00c9 INSUFFISANTE"
+   },
+   "m[8-20]|h2|UNIV3": {
+    "n": 7,
+    "k": 7,
+    "mean": 0.9375,
+    "lower": 0.8299588337008514,
+    "upper": 0.998912221908885,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h3|UNIV3": {
+    "n": 9,
+    "k": 9,
+    "mean": 0.95,
+    "lower": 0.8640330223500159,
+    "upper": 0.9991471213100018,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h2|UNIV3": {
+    "n": 16,
+    "k": 15,
+    "mean": 0.9117647058823529,
+    "lower": 0.8199183221534599,
+    "upper": 0.9816151828890534,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[8-20]|h2|UNIV2": {
+    "n": 27,
+    "k": 19,
+    "mean": 0.6964285714285714,
+    "lower": 0.5830093896359909,
+    "upper": 0.803531636292977,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[8-20]|h2|SOLIDLY+UNIV3": {
+    "n": 8,
+    "k": 7,
+    "mean": 0.8333333333333334,
+    "lower": 0.6675756613747537,
+    "upper": 0.9629651064346587,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[20-50]|h3|SOLIDLY": {
+    "n": 4,
+    "k": 1,
+    "mean": 0.3,
+    "lower": 0.07525707350021323,
+    "upper": 0.5684929846893345,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[8-20]|h3|UNIV3": {
+    "n": 8,
+    "k": 7,
+    "mean": 0.8333333333333334,
+    "lower": 0.6675756613747537,
+    "upper": 0.9629651064346587,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h3|UNIV2": {
+    "n": 12,
+    "k": 10,
+    "mean": 0.8076923076923077,
+    "lower": 0.6622191451938826,
+    "upper": 0.9307896665627046,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[0-3]|h3|UNIV3": {
+    "n": 14,
+    "k": 12,
+    "mean": 0.8333333333333334,
+    "lower": 0.705003347029916,
+    "upper": 0.9409552339470375,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[8-20]|h3|SOLIDLY": {
+    "n": 2,
+    "k": 2,
+    "mean": 0.8333333333333334,
+    "lower": 0.5518508004395702,
+    "upper": 0.9965181105251797,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[0-3]|h2|UNIV3": {
+    "n": 11,
+    "k": 11,
+    "mean": 0.9583333333333334,
+    "lower": 0.8867519242370515,
+    "upper": 0.999298607871792,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[0-3]|h2|UNIV2": {
+    "n": 5,
+    "k": 3,
+    "mean": 0.5833333333333334,
+    "lower": 0.3268473972645825,
+    "upper": 0.8250236556434699,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[3-8]|h3|SOLIDLY": {
+    "n": 2,
+    "k": 1,
+    "mean": 0.5,
+    "lower": 0.15647558693372968,
+    "upper": 0.8435244130662704,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[50-1e+09]|h2|SOLIDLY+UNIV3": {
+    "n": 4,
+    "k": 4,
+    "mean": 0.9,
+    "lower": 0.7281374884271226,
+    "upper": 0.9981471814789045,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   },
+   "m[20-50]|h2|SOLIDLY+UNIV3": {
+    "n": 1,
+    "k": 1,
+    "mean": 0.75,
+    "lower": 0.35135719802562754,
+    "upper": 0.9938187560615703,
+    "sufficient": false,
+    "status": "FIABILIT\u00c9 NON D\u00c9MONTR\u00c9E \u2014 DONN\u00c9ES INSUFFISANTES"
+   }
+  },
+  "recent": {
+   "n": 100,
+   "observed_rate": 0.72,
+   "mean_net_error": -5.191611637439111e+18,
+   "net_error_p10": -3.177518296514444e+18
+  },
+  "logistic": {
+   "holdout_n": 637,
+   "brier_logistic": 0.20964911277403686,
+   "brier_bucket": 0.20865304929859316,
+   "ece_logistic": 0.05402008800871967,
+   "ece_bucket": 0.03836070095205979,
+   "lr_better": false
+  },
+  "label": "FIABILIT\u00c9 INSUFFISANTE"
+ },
+ "risk": {
+  "status": "FIABILIT\u00c9 INSUFFISANTE",
+  "status_code": "RELIABILITY_INSUFFICIENT",
+  "sub_status": "borne inf\u00e9rieure 70.1% < 75%",
+  "suspended_reason": "",
+  "kill_switch": false,
+  "criteria": [
+   {
+    "name": "chain_verified",
+    "ok": true,
+    "detail": "addresses verified live (arbbot verify-chain)"
+   },
+   {
+    "name": "tests_passed",
+    "ok": true,
+    "detail": "pytest + forge suites green"
+   },
+   {
+    "name": "contract_tested",
+    "ok": true,
+    "detail": "unit/fuzz/invariant + real-V3 tests"
+   },
+   {
+    "name": "financial_math_validated",
+    "ok": true,
+    "detail": "bit-exact vs chain + sim\u2248estimate"
+   },
+   {
+    "name": "no_critical_issues",
+    "ok": true,
+    "detail": "none"
+   },
+   {
+    "name": "simulations_realistic",
+    "ok": true,
+    "detail": "4402 ok / 0 failed"
+   },
+   {
+    "name": "reliability_documented",
+    "ok": true,
+    "detail": "n=2121 (min 30); FIABILIT\u00c9 INSUFFISANTE"
+   },
+   {
+    "name": "p_success_ge_threshold",
+    "ok": false,
+    "detail": "lower bound 0.701 vs 0.75"
+   },
+   {
+    "name": "emergency_stop_ok",
+    "ok": true,
+    "detail": "pause + kill switch tested"
+   },
+   {
+    "name": "budget_and_limits_configured",
+    "ok": false,
+    "detail": "policy disabled"
+   },
+   {
+    "name": "signer_available",
+    "ok": false,
+    "detail": "signer service reachable & key matches policy wallet"
+   },
+   {
+    "name": "data_fresh",
+    "ok": true,
+    "detail": "data age 1076 ms, rpc_ok=True"
+   },
+   {
+    "name": "model_calibrated",
+    "ok": true,
+    "detail": "recent success 68% vs lower bound assumed at decision time 66% (no optimistic drift)"
+   }
+  ],
+  "ledger": {
+   "tx_count": 0,
+   "gas_spent_native": 0.0,
+   "realized_net_native": 0.0,
+   "failures": 0,
+   "consecutive_failures": 0,
+   "reserved_native": 0.0,
+   "last_tx_ts": 0.0
+  },
+  "policy": {
+   "enabled": false,
+   "valid": false,
+   "reason": "policy disabled",
+   "digest": "230e95d4c7bae02e",
+   "wallet_address": "",
+   "chain_ids": [],
+   "executor_contract": "",
+   "max_total_budget_native": 0.0,
+   "max_gas_per_tx_native": 0.0,
+   "max_transactions": 0,
+   "min_net_profit_native": 0.0,
+   "max_slippage_bps": 30,
+   "max_cumulative_loss_native": 0.0,
+   "min_success_probability": 0.75,
+   "max_borrow_usd": 0.0,
+   "valid_until": 0.0,
+   "auto_resume_after_suspension": false,
+   "submission": "public_rpc"
+  },
+  "flags": {
+   "tests_passed": true,
+   "contract_tested": true,
+   "financial_math_validated": true,
+   "emergency_stop_ok": true,
+   "critical_issues": [],
+   "simulations_ok": 4402,
+   "simulations_failed": 0,
+   "sim_mismatch_recent": 0,
+   "data_stale": false,
+   "rpc_degraded": false,
+   "test_reports": {
+    "pytest": {
+     "ts": 1791898927.835185,
+     "passed": 72,
+     "failed": 0
+    },
+    "forge": {
+     "ts": 1791898908.9142487,
+     "passed": 36,
+     "failed": 0
+    }
+   }
+  },
+  "manual_live_enabled": true
+ },
+ "cumulative": {
+  "expected_net_eur_selected": 0.0,
+  "ghost_net_after_eur": 16202.590652720908,
+  "realized_net_native": 0.0,
+  "failed_gas_native": 0.0,
+  "executions": 0,
+  "failures": 0
+ },
+ "status": "FIABILIT\u00c9 INSUFFISANTE",
+ "sub_status": "borne inf\u00e9rieure 70.1% < 75%",
+ "tunables_final": {
+  "version": 1,
+  "min_spread_bps": 5.0,
+  "max_hops": 3,
+  "max_price_impact_bps": 150.0,
+  "max_data_age_ms": 4000.0,
+  "min_liquidity_usd": 20000.0,
+  "grid_points": 18,
+  "golden_iters": 24,
+  "max_borrow_fraction_of_depth": 0.25,
+  "gas_safety_multiplier": 1.15,
+  "gas_units_base": 70000,
+  "gas_units_per_hop": {
+   "UNIV2": 65000,
+   "UNIV3": 110000,
+   "SOLIDLY": 90000,
+   "PANCAKE_V3": 110000
+  },
+  "gas_units_flash": {
+   "BALANCER_V2": 45000,
+   "AAVE_V3": 130000,
+   "MORPHO": 35000,
+   "UNISWAP_V3": 55000,
+   "NONE": 0
+  },
+  "v3_tick_cross_gas": 22000,
+  "priority_fee_floor_gwei": 0.001,
+  "failure_gas_fraction": 0.55,
+  "safety_margin_bps": 2.0,
+  "sim_tolerance_bps": 1.0,
+  "reliability_min_observations": 30,
+  "reliability_credible_level": 0.9,
+  "quarantine_after_false_positives": 5
+ },
+ "policy_digest": "230e95d4c7bae02e"
+}
