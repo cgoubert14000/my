@@ -3,5 +3,6 @@
   "chain": "base",
   "minutes": 60,
   "max_rps": 12,
-  "run": 3
+  "run": 4,
+  "note": "run 4: pipeline temps réel — instantanés publiés toutes les 2 min (latest_base.json), WebSocket newHeads si disponible, avoirs réels, filtre frais-conscient"
 }
