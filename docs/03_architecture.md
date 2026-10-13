@@ -42,6 +42,7 @@
 | `data/collector.py` | état par bloc | réserves V2, slot0/liquidité/ticks V3, Solidly ; âge des données ; gaz ; prix ETH |
 | `core/math_*.py`, `core/pricing.py` | courbes exactes | entiers uniquement ; `QuoteError` si ticks insuffisants |
 | `engine/routes.py` | cycles 2–3 sauts | multi-DEX, tokens de départ empruntables |
+| `engine/screen.py` | filtre vectorisé par bloc | écart = Σ ±log(prix) par route (numpy), comparé aux frais LP + marge, profondeur réelle min ; ~30 ms pour 192 000 routes |
 | `engine/optimizer.py` | montant optimal | grille + nombre d'or, contrainte d'impact |
 | `engine/fees.py` | frais flash (lus on-chain), gaz, L1, conversion token | capacité des fournisseurs |
 | `engine/detector.py` / `selector.py` | candidats, décisions | motifs, EV, quarantaine de pools |
@@ -69,6 +70,16 @@
 SQLite `data/arbbot.sqlite` (WAL). Tables : `opportunities` (toutes les colonnes de coût, décision, motifs, sim,
 ghost), `observations` (features, étiquette, source), `executions`, `events`, `changes`, `metrics` (séries
 temporelles pour les graphiques), `kv`. Les rapports humains sont dans `docs/reports/`.
+
+## Session de marché réel et publication en continu
+
+`scripts/real_market_session.py` (local ou GitHub Actions) : pré-vol des RPC publics → test de l'abonnement WebSocket
+`newHeads` → `.env` sans secret → `arbbot verify-chain` (bloquant) → `arbbot ghost --snapshot-every 2 --on-snapshot
+"bash ops/real/publish.sh"`. Toutes les 2 minutes, `ops/ghost_report.py` écrit `ghost_<chain>_<run>.{json,md}`,
+`latest_<chain>.{json,md}` (noms stables), une ligne dans `history_<chain>.jsonl` (série temporelle), et le crochet
+pousse ces fichiers dans la branche (`[skip ci]`, `pull --rebase --autostash`). `docs/live/index.html` (statique,
+sans dépendance) lit `latest_<chain>.json` + `history_<chain>.jsonl` par URL relative — servie par GitHub Pages ou par
+`scripts/live_mirror.py` — et affiche l'âge de l'instantané. Le CSV complet (gzip) n'est écrit qu'au rapport final.
 
 ## Ajout d'un réseau
 
