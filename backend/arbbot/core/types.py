@@ -66,6 +66,9 @@ class Pool:
     balance0: int = 0
     balance1: int = 0
     balances_block: int = 0
+    # Discovery metadata (mainnet): how the pool entered the universe and its depth in USD at discovery time
+    source: str = ""
+    depth_usd_hint: float = 0.0
 
     def other(self, token: str) -> Token:
         return self.token1 if token.lower() == self.token0.address.lower() else self.token0

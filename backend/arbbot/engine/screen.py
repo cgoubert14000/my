@@ -22,6 +22,9 @@ import numpy as np
 from ..core.pricing import _mid_price
 from ..core.types import Pool, Route
 
+if False:  # pragma: no cover - typing only
+    from .routes import RouteTable
+
 
 @dataclass
 class ScreenResult:
@@ -32,24 +35,16 @@ class ScreenResult:
 
 
 class RouteScreen:
-    def __init__(self, routes: list[Route]):
-        self.routes = routes
-        pools: dict[str, Pool] = {}
-        for r in routes:
-            for h in r.hops:
-                pools.setdefault(h.pool.address, h.pool)
-        self.pools: list[Pool] = list(pools.values())
-        index = {p.address: i for i, p in enumerate(self.pools)}
+    def __init__(self, routes: "RouteTable | list[Route]"):
+        from .routes import RouteTable
+
+        table = routes if isinstance(routes, RouteTable) else RouteTable.from_routes(routes)
+        self.table = table
+        self.pools: list[Pool] = table.pools
         self.n_pools = len(self.pools)
-        dummy = self.n_pools  # padding slot for 2-hop routes: log-price 0, infinite depth, never quarantined
-        R = len(routes)
-        H = max((len(r.hops) for r in routes), default=1)
-        self.idx = np.full((R, H), dummy, dtype=np.int64)
-        self.sign = np.zeros((R, H), dtype=np.float64)
-        for ri, r in enumerate(routes):
-            for k, h in enumerate(r.hops):
-                self.idx[ri, k] = index[h.pool.address]
-                self.sign[ri, k] = 1.0 if h.pool.is_token0(h.token_in.address) else -1.0
+        # padding slot (index n_pools) for 2-hop rows in a 3-column table: log-price 0, infinite depth, never quarantined
+        self.idx = table.idx.astype(np.int64, copy=False)
+        self.sign = table.sign
         self.fee_bps = self._route_fees()  # recomputed every run: LP fees can change (Slipstream dynamic fee modules)
 
     def _route_fees(self) -> np.ndarray:

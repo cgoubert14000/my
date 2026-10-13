@@ -1,42 +1,42 @@
 {
- "ts": 1791918641.8670576,
+ "ts": 1791922909.9415796,
  "exit_code": 0,
- "passed": 78,
+ "passed": 81,
  "failed": 0,
  "skipped": 0,
  "errors": 0,
  "tests": {
   "tests.test_api_selfcorr_ghost::test_param_repo_propose_accept_rollback_are_git_isolated": {
    "status": "passed",
-   "time": 0.069
+   "time": 0.064
   },
   "tests.test_api_selfcorr_ghost::test_self_correction_cannot_touch_financial_controls": {
    "status": "passed",
-   "time": 0.002
+   "time": 0.001
   },
   "tests.test_api_selfcorr_ghost::test_ghost_dedup_one_observation_per_route_per_window": {
    "status": "passed",
-   "time": 0.377
+   "time": 0.254
   },
   "tests.test_api_selfcorr_ghost::test_api_status_opportunities_emergency_stop_and_tunable_guard": {
    "status": "passed",
-   "time": 0.575
+   "time": 2.084
   },
   "tests.test_api_selfcorr_ghost::test_ghost_session_report_counts_closest_and_latest_files": {
    "status": "passed",
-   "time": 0.377
+   "time": 0.378
   },
   "tests.test_devnet_e2e::test_detection_simulation_exact_and_ghost_label": {
    "status": "passed",
-   "time": 1.771
+   "time": 2.075
   },
   "tests.test_devnet_e2e::test_preflight_refuses_without_signer_and_emergency_stop": {
    "status": "passed",
-   "time": 1.592
+   "time": 1.615
   },
   "tests.test_devnet_e2e::test_live_execution_under_policy_with_isolated_signer": {
    "status": "passed",
-   "time": 2.19
+   "time": 2.236
   },
   "tests.test_engine_units::test_build_routes_2_and_3_hops_no_pool_reuse": {
    "status": "passed",
@@ -96,15 +96,15 @@
   },
   "tests.test_engine_units::test_rpc_client_surfaces_connection_errors": {
    "status": "passed",
-   "time": 2.009
+   "time": 2.007
   },
   "tests.test_engine_units::test_db_count_opportunities_is_exact_beyond_page_limit": {
    "status": "passed",
-   "time": 0.032
+   "time": 0.024
   },
   "tests.test_engine_units::test_collector_refreshes_each_head_once_whatever_the_source": {
    "status": "passed",
-   "time": 0.023
+   "time": 0.022
   },
   "tests.test_engine_units::test_selector_applies_the_onchain_safety_floor": {
    "status": "passed",
@@ -112,7 +112,7 @@
   },
   "tests.test_engine_units::test_vectorised_screen_matches_per_route_formulas_and_is_fast": {
    "status": "passed",
-   "time": 0.05
+   "time": 0.042
   },
   "tests.test_engine_units::test_collector_tracks_dynamic_lp_fee_changes": {
    "status": "passed",
@@ -120,11 +120,11 @@
   },
   "tests.test_factory_discovery_devnet::test_factory_discovery_matches_deployed_pools": {
    "status": "passed",
-   "time": 0.018
+   "time": 0.016
   },
   "tests.test_l1_fee_opstack::test_fjord_upper_bound_used_and_cached_per_block": {
    "status": "passed",
-   "time": 0.002
+   "time": 0.001
   },
   "tests.test_l1_fee_opstack::test_pre_fjord_fallback_to_getl1fee_bytes": {
    "status": "passed",
@@ -132,7 +132,7 @@
   },
   "tests.test_l1_fee_opstack::test_oracle_failure_is_an_unknown_cost_not_zero": {
    "status": "passed",
-   "time": 0.002
+   "time": 0.001
   },
   "tests.test_l1_fee_opstack::test_arbitrum_has_no_separate_l1_component": {
    "status": "passed",
@@ -152,7 +152,7 @@
   },
   "tests.test_math_units::test_v2_output_never_breaks_k": {
    "status": "passed",
-   "time": 0.365
+   "time": 0.349
   },
   "tests.test_math_units::test_v2_fee_on_input_reduces_output": {
    "status": "passed",
@@ -184,99 +184,99 @@
   },
   "tests.test_math_vs_chain::test_v2_quote_is_maximal_against_real_pair": {
    "status": "passed",
-   "time": 0.046
+   "time": 0.032
   },
   "tests.test_math_vs_chain::test_solidly_matches_onchain_getAmountOut": {
    "status": "passed",
-   "time": 0.651
+   "time": 0.666
   },
   "tests.test_policy_risk_signer::test_policy_is_frozen_and_rejects_unknown_fields": {
    "status": "passed",
-   "time": 0.003
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_policy_disabled_or_expired_is_invalid": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_self_correction_cannot_touch_financial_limits": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_tunables_roundtrip": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_reliability_insufficient_then_ok": {
    "status": "passed",
-   "time": 0.004
+   "time": 0.009
   },
   "tests.test_policy_risk_signer::test_reliability_bad_outcomes_fail_threshold": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_reliability_never_fabricates_from_other_buckets": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_status_learning_without_data": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_status_reliability_insufficient": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_status_ready_but_authorization_missing": {
    "status": "passed",
-   "time": 0.004
+   "time": 0.011
   },
   "tests.test_policy_risk_signer::test_status_ready_then_live_then_suspended_on_losses": {
    "status": "passed",
-   "time": 0.007
+   "time": 0.02
   },
   "tests.test_policy_risk_signer::test_budget_checks_and_kill_switch": {
    "status": "passed",
-   "time": 0.004
+   "time": 0.011
   },
   "tests.test_policy_risk_signer::test_cumulative_loss_limit": {
    "status": "passed",
-   "time": 0.004
+   "time": 0.009
   },
   "tests.test_policy_risk_signer::test_signer_signs_valid_request": {
    "status": "passed",
-   "time": 0.006
+   "time": 0.011
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad0-target]": {
    "status": "passed",
-   "time": 0.002
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad1-chain]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad2-value]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad3-gas limit]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad4-maxFeePerGas]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad5-executeArbitrage]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad6-minProfit]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad7-borrow]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.002
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad8-not in policy]": {
    "status": "passed",
@@ -284,11 +284,11 @@
   },
   "tests.test_policy_risk_signer::test_signer_refuses[bad9-deadline]": {
    "status": "passed",
-   "time": 0.001
+   "time": 0.003
   },
   "tests.test_policy_risk_signer::test_signer_enforces_cumulative_budget_and_count": {
    "status": "passed",
-   "time": 0.011
+   "time": 0.017
   },
   "tests.test_policy_risk_signer::test_signer_refuses_when_policy_wallet_differs": {
    "status": "passed",
@@ -296,11 +296,23 @@
   },
   "tests.test_policy_risk_signer::test_load_account_from_encrypted_keystore_only": {
    "status": "passed",
-   "time": 2.261
+   "time": 2.047
   },
   "tests.test_state_override_sim_devnet::test_state_override_simulation_equals_deployed": {
    "status": "passed",
-   "time": 0.485
+   "time": 0.622
+  },
+  "tests.test_universe_discovery::test_universe_discovery_tokens_pools_depth_and_sources": {
+   "status": "passed",
+   "time": 0.011
+  },
+  "tests.test_universe_discovery::test_universe_without_filters_keeps_everything_measured": {
+   "status": "passed",
+   "time": 0.01
+  },
+  "tests.test_universe_discovery::test_max_pools_keeps_the_deepest": {
+   "status": "passed",
+   "time": 0.01
   },
   "tests.test_verify_chain::test_every_mainnet_address_has_a_documented_source": {
    "status": "passed",
@@ -308,7 +320,7 @@
   },
   "tests.test_verify_chain::test_digest_changes_with_any_address_and_revokes_verification": {
    "status": "passed",
-   "time": 0.003
+   "time": 0.002
   },
   "tests.test_verify_chain::test_real_chain_config_with_unreachable_rpc_fails_closed": {
    "status": "passed",
@@ -316,8 +328,8 @@
   },
   "tests.test_verify_chain::test_verify_chain_passes_on_devnet_and_records_digest": {
    "status": "passed",
-   "time": 0.848
+   "time": 0.847
   }
  },
- "tail": "........................................................................ [ 92%]\n......                                                                   [100%]\n=============================== warnings summary ===============================\ntests/test_api_selfcorr_ghost.py::test_api_status_opportunities_emergency_stop_and_tunable_guard\n  /home/user/my/.venv/lib/python3.11/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/\n    response = await f(request)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n78 passed, 1 warning in 19.13s\n"
+ "tail": "........................................................................ [ 88%]\n.........                                                                [100%]\n=============================== warnings summary ===============================\ntests/test_api_selfcorr_ghost.py::test_api_status_opportunities_emergency_stop_and_tunable_guard\n  /home/user/my/.venv/lib/python3.11/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/\n    response = await f(request)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n81 passed, 1 warning in 20.44s\n"
 }

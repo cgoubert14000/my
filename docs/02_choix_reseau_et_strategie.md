@@ -52,6 +52,28 @@
 * **Soumission** : RPC public du séquenceur (pas de mempool publique sur Base/Arbitrum). Le gain possible d'un relais
   privé est nul ici ; la seule « protection MEV » utile est la garde `minProfit` on-chain et `minAmountOut` par saut.
 
+## Univers surveillé (élargi le 13/10, sessions 9+)
+
+Le but fixé par l'opérateur est de voir **le plus d'opportunités possible**. L'univers n'est donc plus une liste
+fixe de 7 jetons mais est **construit à chaque démarrage** et mesuré on-chain :
+
+1. **Hubs** = les jetons vérifiés de la configuration (WETH, USDC, USDbC, DAI, cbETH, cbBTC, AERO) ; seuls
+   WETH, USDC et cbBTC sont **empruntables** (capacité de flash loan mesurée en direct).
+2. **Longue traîne** = 407 jetons Base des listes publiques `@uniswap/default-token-list@22.26.0` et
+   `ethereum-optimism.github.io` (v10.0.1769), plus tous les jetons ayant un pool Aerodrome/Slipstream contre un hub
+   (énumération `allPools` des deux factories). Chaque jeton est contrôlé (`decimals()` cohérent) ; ils ne sont
+   **jamais empruntés** et un faux « USDC » n'est jamais pris pour un dollar (les stables sont reconnus par adresse).
+3. **Pools** = toutes les paires hub×jeton et hub×hub sur les 8 factories (Uniswap V2/V3, Sushi V2/V3, Pancake V2/V3,
+   Aerodrome, Slipstream) + les pools énumérés : profondeur réelle (`balanceOf`) valorisée avec les prix des hubs ;
+   plancher 10 k$, plafond 1 500 pools (les plus profonds), paramétrables.
+4. **Routes** = cycles hub → X → hub (2 sauts, deux pools différents) et hub → X → Y → hub (3 sauts), table numpy.
+5. **Protection** : un pool de la longue traîne dont les routes « positives » échouent 5 fois de suite en
+   simulation est mis en quarantaine 300 blocs (modèle ≠ chaîne : frais dynamiques, jeton à frais de transfert,
+   ticks périmés…) ; les pools hub×hub en sont exempts. La simulation du contrat reste le juge final.
+
+Ce que cela change pour l'honnêteté des chiffres : plus de routes dimensionnées ne veut pas dire plus de profit ;
+seuls les candidats **simulés avec succès puis confirmés au bloc N+1** comptent dans la fiabilité.
+
 ## Références
 
 * Documentation Aave V3 — flash loans : premium initialisé à 0,05 % (`FLASHLOAN_PREMIUM_TOTAL`), remboursement par allowance.

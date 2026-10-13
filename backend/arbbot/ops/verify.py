@@ -232,7 +232,11 @@ async def verify_chain(settings: Settings, *, discover_pools: bool = True, write
         pools = []
         if discover_pools:
             try:
-                pools = await PoolIndexer(rpc, chain).discover()
+                pools = await PoolIndexer(rpc, chain, use_tokenlists=settings.discovery_tokenlists,
+                                          factory_enum=settings.discovery_factory_enum,
+                                          factory_enum_max=settings.discovery_factory_enum_max,
+                                          min_pool_usd=settings.discovery_min_pool_usd,
+                                          max_pools=settings.discovery_max_pools).discover()
                 by_dex: dict[str, int] = {}
                 for p in pools:
                     by_dex[p.dex] = by_dex.get(p.dex, 0) + 1

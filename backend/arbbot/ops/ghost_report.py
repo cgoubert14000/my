@@ -37,9 +37,32 @@ def _json_safe(o: Any) -> Any:
     return o
 
 
-def pool_rows(rt) -> list[dict]:
-    rows = []
+def universe_summary(rt) -> dict:
+    """Counts per DEX, quarantines, token universe and how it was discovered (kept small: published every snapshot)."""
+    per_dex: dict[str, dict] = {}
     for p in rt.pools:
+        d = per_dex.setdefault(p.dex, {"pools": 0, "quarantined": 0})
+        d["pools"] += 1
+        d["quarantined"] += int(p.quarantined)
+    tokens = {p.token0.address.lower() for p in rt.pools} | {p.token1.address.lower() for p in rt.pools}
+    quarantined = [{"pool": p.short(), "address": p.address, "reason": p.quarantine_reason} for p in rt.pools if p.quarantined][:40]
+    return {"pools": len(rt.pools), "tokens": len(tokens), "per_dex": per_dex, "quarantined": quarantined,
+            "discovery": rt.chain.extra.get("discovery", {}), "token_sources_count": len(rt.chain.extra.get("token_sources", {}))}
+
+
+def _discovery_line(d: dict) -> str:
+    if not d:
+        return "configuration statique (devnet) ou information indisponible"
+    return (f"jetons config {d.get('tokens_config')} + listes publiques {d.get('tokens_tokenlist')} + énumération des factories "
+            f"{d.get('tokens_factory_enum')} (rejetés {d.get('tokens_rejected')}) → {d.get('tokens_total')} jetons ; pools candidats "
+            f"{d.get('pools_candidates')} (énumérés {d.get('pools_enumerated')}, par paires {d.get('pools_from_pairs')}), mesurés "
+            f"{d.get('pools_measured')}, sous le plancher de {d.get('min_pool_usd')} $ : {d.get('pools_below_min_depth')} → gardés "
+            f"{d.get('pools_kept')} (max {d.get('max_pools')}) ; prix des hubs : {d.get('hub_prices')}")
+
+
+def pool_rows(rt, limit: int = 150) -> list[dict]:
+    rows = []
+    for p in sorted(rt.pools, key=lambda p: -p.depth_usd_hint)[:limit] if len(rt.pools) > limit else rt.pools:
         x, y = p.depth_tokens()  # real holdings (balanceOf), not virtual reserves
         vx, vy = p.liquidity_hint()
         px0 = rt.fees.token_price_usd(p.token0) or 0.0
@@ -98,6 +121,7 @@ def build(rt, *, started_at: float, started_block: int, extra: dict | None = Non
                                                                         "capacity": {t: str(c) for t, c in getattr(v, "capacity", {}).items()}}
                             for k, v in rt.fees.providers.items()},
         "pools": pool_rows(rt),
+        "universe": universe_summary(rt),
         "routes": st.get("routes"),
         "detector": st["detector"],
         "ghost": st["ghost"],
@@ -130,7 +154,12 @@ def render_markdown(rep: dict) -> str:
         f"- Gaz : base fee {_fmt(rep['gas'].get('base_fee_gwei'), 6)} gwei ; prix ETH (pool le plus profond) : {_fmt(rep.get('native_price_usd'), 2)} $",
         f"- Fournisseurs de flash loan : " + ", ".join(f"{k} {v['fee_bps']} bps (vérifié={v['verified']})" for k, v in rep["flash_providers"].items()),
         "",
-        f"## Pools suivis ({len(rep['pools'])}) — état au bloc indiqué",
+        f"## Univers suivi : {rep.get('universe', {}).get('pools', len(rep['pools']))} pools, {rep.get('universe', {}).get('tokens', '?')} jetons, {rep.get('routes')} routes",
+        f"- Par DEX : " + ", ".join(f"{k} {v['pools']}" + (f" (quarantaine {v['quarantined']})" if v.get('quarantined') else "") for k, v in rep.get('universe', {}).get('per_dex', {}).items()),
+        f"- Découverte : {_discovery_line(rep.get('universe', {}).get('discovery', {}))}",
+        f"- Pools en quarantaine : {len(rep.get('universe', {}).get('quarantined', []))}" + (" — " + "; ".join(f"{q['pool']}: {q['reason']}" for q in rep.get('universe', {}).get('quarantined', [])[:8]) if rep.get('universe', {}).get('quarantined') else ""),
+        "",
+        f"## Pools les plus profonds ({len(rep['pools'])} affichés) — état au bloc indiqué",
         "",
         "| DEX | Paire | Frais (ppm) | Profondeur ($) | Prix (token1 par token0) | Bloc | Adresse |",
         "|---|---|---:|---:|---:|---:|---|",
@@ -190,7 +219,7 @@ def render_markdown(rep: dict) -> str:
         f"- Statut de maturité : **{rk.get('status')}** — {rk.get('sub_status')}",
         "- Critères : " + "; ".join(f"{'✅' if c['ok'] else '❌'} {c['name']}" for c in rk.get("criteria", [])),
         "",
-        "Fichiers : `*.json` (tout l'état), `*_opportunities.csv` (chaque candidat avec toutes les colonnes de coût).",
+        "Fichiers : `*.json` (tout l'état), `*_opportunities.csv.gz` (candidats avec toutes les colonnes de coût : tous les positifs/simulés/étiquetés, puis les meilleurs négatifs, 30 000 lignes max — l'intégralité reste dans la base SQLite de la session).",
     ]
     if not devnet:
         lines += ["", "Aucune transaction n'a été signée ni envoyée pendant cette session (mode ghost, lecture seule)."]
@@ -225,7 +254,7 @@ def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, t
     files = {"json": str(base.with_suffix(".json")), "md": str(base.with_suffix(".md"))}
     if not with_csv:
         return files
-    opps = rt.db.opportunities(limit=200000, since=started_at)
+    opps = rt.db.iter_export(started_at, max_rows=30_000)  # streamed; positives/simulated/labelled first (full set: SQLite)
     cols = ["ts", "block_number", "route", "token", "flash_source", "amount_in", "amount_out", "gross_profit", "expected_net", "expected_net_eur",
             "simulated_net", "ghost_next_block_net", "margin_bps", "price_impact_bps", "spread_bps", "p_success", "p_lower", "p_upper", "p_n",
             "ev", "decision", "reasons", "sim_ok", "sim_error", "sim_gas_used", "data_age_ms", "uncertainty", "dexes", "pools"]
@@ -234,7 +263,7 @@ def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, t
     with gzip.open(csv_path, "wt", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(cols + [f"fee_{c}" for c in fee_cols])
-        for o in reversed(opps):
+        for o in opps:
             fees = o.get("fees") or {}
             w.writerow([json.dumps(o.get(c), ensure_ascii=False) if isinstance(o.get(c), (list, dict)) else o.get(c) for c in cols]
                        + [json.dumps(fees.get(c)) if isinstance(fees.get(c), (list, dict)) else fees.get(c) for c in fee_cols])

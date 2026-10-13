@@ -103,6 +103,17 @@ class Database:
             sql += " WHERE " + " AND ".join(where)
         return int(self._exec(sql, params).fetchone()[0])
 
+    def iter_export(self, since: float | None, max_rows: int = 30_000):
+        """Streams opportunity payloads for the session export, most informative first: every record with a positive
+        expected net, a simulation or a ghost label, then the remaining negatives by decreasing expected net, capped
+        at `max_rows` (the full set stays in the SQLite file)."""
+        sql = ("SELECT payload FROM opportunities" + (" WHERE ts >= ?" if since else "") +
+               " ORDER BY (expected_net_eur > 0) DESC, (sim_ok IS NOT NULL) DESC, (ghost_next_block_net IS NOT NULL) DESC,"
+               " expected_net_eur DESC, ts ASC LIMIT ?")
+        cur = self._conn.execute(sql, ([since] if since else []) + [max_rows])
+        for (payload,) in cur:
+            yield json.loads(payload)
+
     def opportunities(self, limit: int = 200, decision: str | None = None, since: float | None = None) -> list[dict]:
         sql = "SELECT payload FROM opportunities"
         where, params = [], []

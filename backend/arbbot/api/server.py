@@ -2,6 +2,8 @@
 operator controls (emergency stop / resume / live enable toggle / tunables within the allowlist / lab start)."""
 from __future__ import annotations
 
+import numpy as np
+
 import asyncio
 import json
 import logging
@@ -122,12 +124,23 @@ def create_app(settings: Settings | None = None, runtime=None) -> FastAPI:
 
     @app.get("/api/routes")
     def routes(limit: int = 50):
-        from ..engine.routes import route_fee_bps, route_spread_bps
+        from ..engine.routes import route_fee_bps
 
         r = rt()
-        rows = [{"route": x.describe(), "key": x.key, "spread_bps": route_spread_bps(x), "fee_bps": route_fee_bps(x), "hops": len(x.hops)} for x in r.routes]
-        rows.sort(key=lambda d: -d["spread_bps"])
-        return rows[:limit]
+        from ..engine.screen import RouteScreen
+
+        table = r.routes
+        if not len(table) or r.fees is None:
+            return []
+        screen = r.detector._screen if r.detector is not None and r.detector._screen is not None else RouteScreen(table)
+        res = screen.run(min_spread_bps=-1e9, min_liquidity_usd=0.0, price_usd=r.fees.token_price_usd)
+        order = [int(i) for i in np.argsort(-res.spread_bps, kind="stable")[: max(1, limit)]]
+        rows = []
+        for i in order:
+            x = screen.table.route(i)
+            rows.append({"route": x.describe(), "key": x.key, "spread_bps": float(res.spread_bps[i]), "fee_bps": route_fee_bps(x),
+                         "edge_bps": float(res.edge_bps[i]), "hops": len(x.hops)})
+        return rows
 
     @app.get("/api/lab/runs")
     def lab_runs(limit: int = 10):

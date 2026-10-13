@@ -22,6 +22,7 @@ SIG_RESERVES = encode_call("getReserves()")
 SIG_SLOT0 = encode_call("slot0()")
 SIG_LIQ = encode_call("liquidity()")
 SIG_FEE = encode_call("fee()")
+MULTICALL_CHUNK = 800  # calls per aggregate3 request: ~3-4 M gas and <100 KB of return data — fine on public RPCs
 FEE_RECHECK_BLOCKS = 300  # immutable V3 fee tiers are still re-read now and then (cheap safety net)
 
 
@@ -210,7 +211,7 @@ class StateCollector:
                     calls.append((p.address, SIG_FEE))
                     idx.append((p, "fee"))
         # gas: block header for base fee (one call) — fetched in the same loop iteration
-        results, header = await asyncio.gather(self.rpc.multicall(calls, block), self.rpc.get_block(block))
+        results, header = await asyncio.gather(self.rpc.multicall(calls, block, chunk=MULTICALL_CHUNK), self.rpc.get_block(block))
         now = time.time()
         slot_cache: dict[str, tuple[int, int]] = {}
         for (ok, data), (p, what) in zip(results, idx):
@@ -288,7 +289,7 @@ class StateCollector:
             for w in range(center - self.tick_words, center + self.tick_words + 1):
                 calls.append((p.address, encode_call("tickBitmap(int16)", [w])))
                 idx.append((p, w))
-        results = await self.rpc.multicall(calls, block)
+        results = await self.rpc.multicall(calls, block, chunk=MULTICALL_CHUNK)
         words: dict[str, dict[int, int]] = {p.address: {} for p in need}
         for (ok, data), (p, w) in zip(results, idx):
             if ok and data:
@@ -306,7 +307,7 @@ class StateCollector:
                     calls.append((p.address, encode_call("ticks(int24)", [tick])))
                     idx2.append((p, tick))
                     b ^= low
-        results = await self.rpc.multicall(calls, block) if calls else []
+        results = await self.rpc.multicall(calls, block, chunk=MULTICALL_CHUNK) if calls else []
         nets: dict[str, dict[int, int]] = {p.address: {} for p in need}
         for (ok, data), (p, tick) in zip(results, idx2):
             if ok and len(data) >= 64:
@@ -331,7 +332,7 @@ class StateCollector:
             calls.append((p.token0.address, encode_call("balanceOf(address)", [p.address])))
             calls.append((p.token1.address, encode_call("balanceOf(address)", [p.address])))
         try:
-            results = await self.rpc.multicall(calls, block)
+            results = await self.rpc.multicall(calls, block, chunk=MULTICALL_CHUNK)
         except RpcError as e:
             log.warning("balance refresh failed: %s", e)
             return
@@ -351,12 +352,13 @@ class StateCollector:
     def _update_native_price(self) -> None:
         """Native (ETH) price in USD from the deepest WETH/stable pool, for display and gas conversion."""
         wn = self.chain.wrapped_native.lower()
+        stables = self.chain.stable_addresses() if hasattr(self.chain, "stable_addresses") else set()
         best = None
         for p in self.pools:
             if p.quarantined or not (p.token0.address.lower() == wn or p.token1.address.lower() == wn):
                 continue
             other = p.token1 if p.token0.address.lower() == wn else p.token0
-            if other.symbol.upper() not in ("USDC", "USDBC", "USDT", "DAI", "USDCE"):
+            if other.address.lower() not in stables:  # verified stable addresses only (never by symbol)
                 continue
             x, y = p.liquidity_hint()  # price = ratio of (virtual) reserves at the current tick
             bx, by = p.depth_tokens()  # depth = what the pool really holds

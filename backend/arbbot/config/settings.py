@@ -40,6 +40,14 @@ class Settings(BaseSettings):
     executor_address: str = ""  # deployed FlashArbExecutor; empty => simulation via state override only
     executor_artifact: pathlib.Path = REPO_ROOT / "contracts" / "out" / "FlashArbExecutor.sol" / "FlashArbExecutor.json"
     simulate_with_state_override: bool = True
+    # --- universe discovery (mainnet): hub tokens come from the verified chain config; the long tail comes from
+    # bundled public token lists and from DEX factory enumeration, then every pool is measured on-chain
+    discovery_tokenlists: bool = True  # use data/tokenlists/<chain>.json (documented sources)
+    discovery_factory_enum: bool = True  # enumerate Aerodrome / Slipstream factories (allPools) for pools with a hub side
+    discovery_factory_enum_max: int = 60_000  # safety cap on enumerated pools per factory
+    discovery_min_pool_usd: float = 10_000.0  # pools shallower than this are not watched (re-measured at each start)
+    discovery_max_pools: int = 1_500  # deepest pools kept (RPC budget on public endpoints)
+    discovery_max_routes: int = 1_500_000
 
     # --- authorization / signer (read-only from the engine's perspective) ---
     policy_path: pathlib.Path = REPO_ROOT / "authorization.json"

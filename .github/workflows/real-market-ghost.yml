@@ -5,6 +5,9 @@ name: real-market-ghost
 # Les rapports (JSON/MD/CSV) sont poussés dans docs/reports/real/ sur la branche courante.
 #
 # Déclenchement : modification de ops/real/run.json (ou de ce fichier), ou lancement manuel.
+# Fonctionnement continu : si `continuous` vaut true dans ops/real/run.json (version de la branche au moment de la fin de
+# session), la session relance elle-même la suivante (workflow_dispatch) — les sessions s'enchaînent sans chevauchement
+# (groupe de concurrence) jusqu'à ce que `continuous` soit remis à false. Limite GitHub : 6 h par job → sessions de 340 min.
 
 on:
   push:
@@ -25,6 +28,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: real-market-${{ github.ref }}
@@ -33,7 +37,7 @@ concurrency:
 jobs:
   ghost:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 358
     steps:
       - uses: actions/checkout@v4
         with:
@@ -80,6 +84,7 @@ jobs:
           test -f out/FlashArbExecutor.sol/FlashArbExecutor.json
 
       - name: Session de marché réel (pré-vol RPC → verify-chain → ghost)
+        id: session
         env:
           PYTHONUNBUFFERED: "1"
           ARB_SNAPSHOT_HOOK: "bash ops/real/publish.sh"
@@ -89,7 +94,7 @@ jobs:
           git config user.name "real-market-bot"
           git config user.email "actions@users.noreply.github.com"
           python scripts/real_market_session.py --chain "${{ steps.cfg.outputs.chain }}" --minutes "${{ steps.cfg.outputs.minutes }}" \
-            --max-rps "${{ steps.cfg.outputs.max_rps }}" --snapshot-every 2 --tag "${{ github.run_id }}" 2>&1 | tee docs/reports/real/session_${{ github.run_id }}.log
+            --max-rps "${{ steps.cfg.outputs.max_rps }}" --snapshot-every 3 --tag "${{ github.run_id }}" 2>&1 | tee docs/reports/real/session_${{ github.run_id }}.log
 
       - name: Résumé
         if: always()
@@ -114,3 +119,20 @@ jobs:
             docs/reports/verify_chain_*
             data/*.sqlite
           if-no-files-found: warn
+
+      - name: Enchaîner la session suivante (si `continuous` est true dans ops/real/run.json sur la branche)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch -q origin "${GITHUB_REF_NAME}"
+          cfg="$(git show "origin/${GITHUB_REF_NAME}:ops/real/run.json" 2>/dev/null || cat ops/real/run.json)"
+          cont="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(str(json.load(sys.stdin).get("continuous", False)).lower())')"
+          minutes="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("minutes", 340))')"
+          chain="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("chain", "base"))')"
+          rps="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("max_rps", 12))')"
+          echo "continuous=$cont session_outcome=${{ steps.session.outcome }}"
+          if [ "$cont" != "true" ]; then echo "pas d'enchaînement (continuous=false)"; exit 0; fi
+          if [ "${{ steps.session.outcome }}" != "success" ]; then echo "session en échec : pause de 10 min avant relance"; sleep 600; fi
+          gh workflow run real-market-ghost.yml --ref "${GITHUB_REF_NAME}" -f chain="$chain" -f minutes="$minutes" -f max_rps="$rps" \
+            && echo "session suivante demandée" || echo "relance impossible (permissions actions:write ?) — relancer en modifiant ops/real/run.json"

@@ -40,6 +40,13 @@ class FeeCalculator:
         self.providers: dict[FlashSource, FlashProviderLive] = {}
         self.measured_gas: dict[str, list[int]] = {}  # route shape → observed gas used (from sims / receipts)
         self._l1_cache: dict[tuple[int, int], tuple[int, str | None]] = {}  # (calldata_len, block) → (wei, unknown)
+        # token price cache (per block) + pool index by token: token_price_usd is called thousands of times per cycle
+        # on a large universe and a linear scan over ~10³ pools each time would cost more than the screen itself
+        self._px_cache: dict[str, float | None] = {}
+        self._px_block: int = -1
+        self._by_token: dict[str, list] = {}
+        self._by_token_n: int = -1
+        self._stables: set[str] = chain.stable_addresses() if hasattr(chain, "stable_addresses") else set()
 
     # ------------------------------------------------------------------ live provider data
 
@@ -155,22 +162,44 @@ class FeeCalculator:
 
     # ------------------------------------------------------------------ conversions
 
-    def token_price_usd(self, token: Token) -> float | None:
-        sym = token.symbol.upper()
-        if sym in ("USDC", "USDBC", "USDT", "DAI", "USDCE"):
+    def _pools_of(self, address: str) -> list:
+        pools = self.collector.pools
+        if len(pools) != self._by_token_n:
+            self._by_token = {}
+            for p in pools:
+                self._by_token.setdefault(p.token0.address.lower(), []).append(p)
+                self._by_token.setdefault(p.token1.address.lower(), []).append(p)
+            self._by_token_n = len(pools)
+        return self._by_token.get(address.lower(), [])
+
+    def token_price_usd(self, token: Token | None) -> float | None:
+        if token is None:
+            return None
+        blk = getattr(self.collector.stats, "last_block", 0)
+        if blk != self._px_block:
+            self._px_cache, self._px_block = {}, blk
+        key = token.address.lower()
+        if key in self._px_cache:
+            return self._px_cache[key]
+        val = self._price_uncached(token)
+        self._px_cache[key] = val
+        return val
+
+    def _price_uncached(self, token: Token) -> float | None:
+        addr = token.address.lower()
+        if addr in self._stables:  # by verified address — a long-tail token *named* "USDC" is not a dollar
             return 1.0
         native = self.collector.native_price_usd
-        if token.address.lower() == self.chain.wrapped_native.lower():
+        if addr == self.chain.wrapped_native.lower():
             return native
         # derive through the deepest pool against WETH or a stable
         best: tuple[float, float] | None = None
-        for p in self.collector.pools:
+        for p in self._pools_of(addr):
             if p.quarantined or not p.has(token.address):
                 continue
             other = p.other(token.address)
-            ref = 1.0 if other.symbol.upper() in ("USDC", "USDBC", "USDT", "DAI", "USDCE") else (
-                native if other.address.lower() == self.chain.wrapped_native.lower() else None
-            )
+            oa = other.address.lower()
+            ref = 1.0 if oa in self._stables else (native if oa == self.chain.wrapped_native.lower() else None)
             if ref is None:
                 continue
             x, y = p.liquidity_hint()  # ratio → marginal price

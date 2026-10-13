@@ -17,6 +17,7 @@ from ..core.types import Decision, DexKind, FlashSource, Opportunity, ProfitBrea
 from ..data.collector import StateCollector
 from .fees import FeeCalculator
 from .optimizer import max_borrow_for_route, optimize_amount
+from .routes import RouteTable
 from .screen import RouteScreen
 
 log = logging.getLogger("arbbot.detector")
@@ -62,8 +63,8 @@ class OpportunityDetector:
         self._screen: RouteScreen | None = None
         self._screen_key: tuple[int, int] = (0, 0)
 
-    def _screen_for(self, routes: list[Route]) -> RouteScreen:
-        """Index/sign matrices are rebuilt only when the route list object or its length changes."""
+    def _screen_for(self, routes: "RouteTable | list[Route]") -> RouteScreen:
+        """Index/sign matrices are rebuilt only when the route set object or its length changes."""
         key = (id(routes), len(routes))
         if self._screen is None or key != self._screen_key:
             self._screen = RouteScreen(routes)
@@ -88,7 +89,7 @@ class OpportunityDetector:
             return None
         return int(max_borrow_usd / usd * 10**token.decimals)
 
-    async def scan(self, routes: list[Route], block: int, *, max_borrow_usd: float | None = None,
+    async def scan(self, routes: "RouteTable | list[Route]", block: int, *, max_borrow_usd: float | None = None,
                    only_positive: bool = False) -> list[Opportunity]:
         t0 = time.perf_counter()
         self.stats.cycles += 1
@@ -109,7 +110,7 @@ class OpportunityDetector:
             if i >= self.t.max_optimizations_per_cycle or (time.perf_counter() - t0) > budget_s:
                 self.stats.reject("cycle_budget_exhausted")
                 continue
-            route = routes[int(ri)]
+            route = screen.table.route(int(ri))
             spread = float(sr.spread_bps[ri])
             token = route.token
             cap_policy = self._policy_cap(token, max_borrow_usd)

@@ -26,7 +26,7 @@ from ..data.indexer import PoolIndexer
 from ..data.rpc import RpcClient, RpcError
 from ..engine.detector import OpportunityDetector
 from ..engine.fees import FeeCalculator
-from ..engine.routes import build_routes
+from ..engine.routes import RouteTable
 from ..engine.selector import SelectionContext, Selector
 from ..execution.executor import LiveExecutor, SignerClient
 from ..ghost.labeler import GhostLabeler
@@ -82,9 +82,13 @@ class Runtime:
         self.bus = EventBus()
         self.rpc = RpcClient(settings.rpc_http_url, settings.fallback_urls, settings.rpc_timeout_s, settings.rpc_max_rps,
                              self.chain.multicall3)
-        self.indexer = PoolIndexer(self.rpc, self.chain)
+        self.indexer = PoolIndexer(self.rpc, self.chain, use_tokenlists=settings.discovery_tokenlists,
+                                   factory_enum=settings.discovery_factory_enum, factory_enum_max=settings.discovery_factory_enum_max,
+                                   min_pool_usd=settings.discovery_min_pool_usd, max_pools=settings.discovery_max_pools)
         self.pools = []
         self.routes = []
+        self.sim_fail_counts: dict[str, int] = {}
+        self.quarantine_until: dict[str, int] = {}
         self.collector: StateCollector | None = None
         self.fees: FeeCalculator | None = None
         self.detector: OpportunityDetector | None = None
@@ -127,7 +131,8 @@ class Runtime:
         if self.settings.native_usd_fallback and not self.collector.native_price_usd:
             self.collector.native_price_usd = self.settings.native_usd_fallback
         self.fees = FeeCalculator(self.rpc, self.chain, self.collector, self.tunables)
-        await self.fees.refresh_providers(list(self.chain.tokens.values()))
+        await self.fees.refresh_providers([self.chain.tokens[s] for s in self.chain.borrowable if s in self.chain.tokens]
+                                          + [t for t in self.chain.hub_tokens() if t.symbol not in self.chain.borrowable])
         self.detector = OpportunityDetector(self.chain, self.collector, self.fees, self.tunables, self.settings.eur_per_usd)
         exec_addr = self.settings.executor_address or self.chain.executor or self.policy.executor_contract
         sender = self.wallet or "0x" + "11" * 20
@@ -136,7 +141,7 @@ class Runtime:
         self.executor = LiveExecutor(self.rpc, self.collector, self.fees, self.selector, self.simulator, self.risk, self.policy,
                                      self.signer, sender, dry_run=self.signer is None)
         start_tokens = [self.chain.tokens[s] for s in self.chain.borrowable if s in self.chain.tokens]
-        self.routes = build_routes(self.pools, start_tokens, self.tunables.max_hops)
+        self.routes = RouteTable.build(self.pools, start_tokens, self.tunables.max_hops, self.settings.discovery_max_routes)
         # reload observations
         obs = self.db.observations()
         self.reliability.extend([Observation(o["ts"], o["features"], o["label"], o["source"], o["route_key"], o["net_after"], o["net_expected"]) for o in obs])
@@ -262,6 +267,7 @@ class Runtime:
         #  and labelled, so the reliability statistics describe exactly the trades that could be executed)
         positives = sorted([o for o in opps if o.profit.expected_net > 0 and not any(r.startswith("below_safety_margin") for r in o.reasons)],
                            key=lambda o: -o.profit.expected_net)[:3]
+        self._lift_expired_quarantines(block)
         for o in positives:
             sim = await self.simulator.simulate(o, min_profit=1, block=block)
             o.sim = sim.__dict__
@@ -269,9 +275,12 @@ class Runtime:
             if sim.ok:
                 self.risk.flags["simulations_ok"] += 1
                 o.profit.simulated_net = sim.profit - o.profit.fees.gas_cost_token
+                for h in o.route.hops:
+                    self.sim_fail_counts.pop(h.pool.address.lower(), None)
             else:
                 self.risk.flags["simulations_failed"] += 1
                 o.profit.simulated_net = None
+                self._note_sim_failure(o, block)
             self.ghost.enqueue(o, block)
         # re-run gates now that simulation results exist
         for o in positives:
@@ -344,6 +353,41 @@ class Runtime:
         self.bus.publish("execution", rec)
 
     # ------------------------------------------------------------------ housekeeping
+
+    # ------------------------------------------------------------------ model/chain mismatch protection
+
+    QUARANTINE_BLOCKS = 300  # ≈ 10 min on Base; the pool is re-admitted afterwards and must prove itself again
+
+    def _note_sim_failure(self, o, block: int) -> None:
+        """A route the model priced positive but the contract simulation rejects = model/chain mismatch somewhere on
+        the route. Hub/hub pools (both tokens verified) are exempt — they are deep and shared by every route; the
+        long-tail pool that keeps appearing in failed routes is quarantined for QUARANTINE_BLOCKS once it reaches
+        `quarantine_after_false_positives` consecutive failures (counts reset on any successful simulation)."""
+        hubs = self.chain._hub_set() if hasattr(self.chain, "_hub_set") else set()
+        limit = max(1, int(self.tunables.quarantine_after_false_positives))
+        for h in o.route.hops:
+            p = h.pool
+            if p.token0.address.lower() in hubs and p.token1.address.lower() in hubs:
+                continue
+            key = p.address.lower()
+            self.sim_fail_counts[key] = self.sim_fail_counts.get(key, 0) + 1
+            if self.sim_fail_counts[key] >= limit and not p.quarantined:
+                p.quarantined = True
+                p.quarantine_reason = f"simulation failed ×{self.sim_fail_counts[key]} (model/chain mismatch) — until block {block + self.QUARANTINE_BLOCKS}"
+                self.quarantine_until[key] = block + self.QUARANTINE_BLOCKS
+                self.cumulative["pools_quarantined"] = self.cumulative.get("pools_quarantined", 0) + 1
+                log.warning("quarantine %s: %s (last error: %s)", p.short(), p.quarantine_reason, o.sim_error)
+                self.db.add_event("warning", "quarantine", f"{p.short()}: {p.quarantine_reason}", {"error": o.sim_error, "route": o.route.describe()})
+
+    def _lift_expired_quarantines(self, block: int) -> None:
+        for key, until in list(self.quarantine_until.items()):
+            if block >= until:
+                del self.quarantine_until[key]
+                self.sim_fail_counts.pop(key, None)
+                for p in self.pools:
+                    if p.address.lower() == key and p.quarantined and p.quarantine_reason.startswith("simulation failed"):
+                        p.quarantined, p.quarantine_reason = False, ""
+                        self.db.add_event("info", "quarantine_lifted", p.short(), {})
 
     async def _housekeeping(self) -> None:
         while not self._stop.is_set():

@@ -4,7 +4,7 @@
 >
 > * Tout le code (contrat, moteur, simulateur, signer isolé, laboratoire, interface) est écrit et **exécuté**. Preuves
 >   reproductibles : `docs/reports/tests_latest.md` — **36/36 tests Foundry** (unitaires, fuzz, invariants, Uniswap V3
->   réel), **78/78 tests Python** dont des tests bout-en-bout sur un devnet anvil avec **une vraie transaction signée et
+>   réel), **81/81 tests Python** dont des tests bout-en-bout sur un devnet anvil avec **une vraie transaction signée et
 >   minée** par le signer isolé sous politique ; `docs/reports/slither.json` ; `docs/reports/lab_*.md` (laboratoire 60 min).
 > * **Sessions sur le réseau réel (Base mainnet, chain id 8453), en lecture seule** : elles tournent sur GitHub Actions
 >   (`.github/workflows/real-market-ghost.yml`) parce que l'environnement de développement n'a accès à aucun RPC ; les
@@ -64,6 +64,11 @@ python scripts\real_market_session.py --chain base --minutes 60      # pré-vol 
 arbbot serve                                                         # interface en direct bloc par bloc (http://localhost:8000)
 python scripts\live_mirror.py --branch arena/9aff96cd-my --port 8090  # page docs/live alimentée par les sessions GitHub Actions
 ```
+
+Fonctionnement continu sans PC allumé : `ops/real/run.json` avec `"continuous": true` fait s'enchaîner des sessions
+GitHub Actions de 340 min (limite GitHub : 6 h/job) ; `"continuous": false` arrête la chaîne à la fin de la session en
+cours. L'univers (≈ 400 jetons, jusqu'à 1 500 pools, 8 DEX) est reconstruit et mesuré on-chain à chaque démarrage
+(`docs/02`, § Univers surveillé).
 
 Guide complet : `docs/04_installation_windows.md`.
 

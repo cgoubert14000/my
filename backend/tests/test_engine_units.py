@@ -254,6 +254,10 @@ def test_db_count_opportunities_is_exact_beyond_page_limit(tmp_path):
             assert st["reject_reasons"] == {"ghost_mode": 1, "negative_expected_net": 1, "p_lower_below_threshold": 1}
         assert [o["id"] for o in db.top_opportunities(limit=5)] == ["pos", "neg"]
         assert [o["id"] for o in db.top_opportunities(limit=5, positive_only=True)] == ["pos"]
+        # export stream: positives / simulated / labelled first, then the rest, capped
+        ex = list(db.iter_export(None, max_rows=10))
+        assert len(ex) == 10 and ex[0]["id"] == "pos" and ex[1]["id"] == "neg"
+        assert len(list(db.iter_export(1300.0, max_rows=100))) == 2
     finally:
         db.close()
 
@@ -361,7 +365,7 @@ async def test_collector_tracks_dynamic_lp_fee_changes():
         calls: list[tuple[str, bytes]] = []
         fee = 3000
 
-        async def multicall(self, calls, block=None):
+        async def multicall(self, calls, block=None, chunk=300):
             self.calls = list(calls)
             out = []
             for _, data in calls:

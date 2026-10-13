@@ -1,8 +1,9 @@
 {
-  "_comment": "Changer ce fichier (et pousser) déclenche une session de marché réel sur GitHub Actions (lecture seule, aucune clé).",
+  "_comment": "Changer ce fichier (et pousser) déclenche une session de marché réel sur GitHub Actions (lecture seule, aucune clé). continuous=true : chaque session relance la suivante ; mettre false pour arrêter la chaîne.",
   "chain": "base",
-  "minutes": 60,
+  "minutes": 340,
   "max_rps": 12,
-  "run": 8,
-  "note": "run 8 (60 min) : frais LP dynamiques Slipstream relus à chaque bloc (les 15 « positifs » du run 7 passaient tous par le pool AERO/cbBTC Slipstream et échouaient en simulation : FlashRepaymentImpossible)"
+  "run": 9,
+  "note": "run 9+ (sessions de 340 min enchaînées tant que continuous=true) : univers élargi (listes de jetons publiques + énumération Aerodrome/Slipstream + paires hub×jeton sur 8 DEX, profondeur mesurée on-chain, 1 500 pools max), table de routes compacte, quarantaine automatique des pools dont les simulations échouent, cbBTC empruntable",
+  "continuous": true
 }

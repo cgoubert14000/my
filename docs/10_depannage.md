@@ -25,6 +25,9 @@
 | Page `docs/live` : « aucun instantané disponible » | `latest_<chain>.json` absent (aucune session n'a encore publié) ou page ouverte en `file://` (fetch interdit) | servir la page (`python scripts\live_mirror.py …` ou GitHub Pages) ; lancer une session |
 | Page `docs/live` : bandeau rouge « instantané il y a > 5 min » | session terminée, ou crochet de publication en échec (voir `snapshot hook rc=` dans `session_<run>.log`) | normal après la fin d'une session ; sinon lire le journal : `publish: push rejected` = concurrence sur la branche (réessayé au prochain instantané) |
 | `cycle_budget_exhausted` élevé, `routes_optimized` faible | trop de survivants au filtre pour le budget de 1,2 s | normal : les routes sont dimensionnées par écart décroissant ; augmenter `cycle_time_budget_ms` seulement si les blocs ne sont pas manqués (`blocks_seen` ≈ durée/2 s) |
+| Sessions GitHub Actions qui s'enchaînent sans fin | `continuous: true` dans `ops/real/run.json` | mettre `"continuous": false`, pousser : la session en cours se termine normalement et n'en relance pas d'autre |
+| Démarrage long (2–4 min) sur le réseau réel | construction de l'univers (≈ 400 jetons, milliers de pools mesurés) | normal ; réduire `ARB_DISCOVERY_MAX_POOLS` / désactiver `ARB_DISCOVERY_FACTORY_ENUM=false` sur un RPC lent |
+| `429` au démarrage sur RPC public | découverte = ~200 requêtes multicall | baisser `--max-rps`, ou fournir votre propre RPC (`--rpc`) |
 | `blocks_seen` très inférieur à durée/2 s | cycle plus long que le bloc (RPC lent, ticks V3, trop d'optimisations) | vérifier `last_cycle_ms`, `last_screen_ms`, `refresh_p95_ms` dans le rapport ; `ARB_RPC_WS_URL` ; RPC payant plus rapide |
 
 ## Arrêt d'urgence — rappel

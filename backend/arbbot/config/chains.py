@@ -22,6 +22,7 @@ class DexConfig:
     fee_tiers: tuple[int, ...] = ()  # V3: tiers to scan
     solidly_fee_from_factory: bool = False  # Aerodrome: getFee(pool, stable)
     dynamic_fee: bool = False  # pool.fee() can change between blocks (Slipstream fee modules) → re-read every refresh
+    enumerable: bool = False  # factory exposes allPoolsLength()/allPools(i) (Velodrome-style) → full enumeration
     enabled: bool = True
     notes: str = ""
 
@@ -54,6 +55,22 @@ class ChainConfig:
     extra: dict = field(default_factory=dict)
     # tokens the route finder is allowed to borrow (must have deep flash liquidity)
     borrowable: tuple[str, ...] = ("WETH", "USDC")
+    # USD-pegged tokens (by verified address) used as price references — never matched by symbol (fake "USDC"s exist)
+    stables: tuple[str, ...] = ("USDC", "USDbC", "DAI")
+
+    def stable_addresses(self) -> set[str]:
+        return {self.tokens[s].address.lower() for s in self.stables if s in self.tokens}
+
+    def hub_tokens(self) -> list[Token]:
+        """Verified config tokens: the long tail is only paired against these (routes must return to a borrowable hub)."""
+        return [t for t in self.tokens.values() if t.address.lower() in self._hub_set()]
+
+    def _hub_set(self) -> set[str]:
+        hubs = self.extra.get("hub_addresses")
+        if hubs is None:
+            hubs = {t.address.lower() for t in self.tokens.values()}
+            self.extra["hub_addresses"] = hubs
+        return hubs
     # explicit pools (devnet) – mainnet pools are discovered from factories
     static_pools: list[dict] = field(default_factory=list)
 
@@ -96,10 +113,11 @@ BASE = ChainConfig(
         DexConfig("pancakeswap_v2", DexKind.UNIV2, "0x02a84c1b3BBD7401a5f7fa98a384EBC70bB5749E", fee_ppm=2500),
         DexConfig("baseswap_v2", DexKind.UNIV2, "0xFDa619b6d20975be80A10332cD39b9a4b0FAa8BB", fee_ppm=2500, enabled=False,
                   notes="address NOT confirmed from an official repository/package → disabled until verified by the operator"),
-        DexConfig("aerodrome", DexKind.SOLIDLY, "0x420DD381b31aEf6683db6B902084cB0FFECe40Da", solidly_fee_from_factory=True),
+        DexConfig("aerodrome", DexKind.SOLIDLY, "0x420DD381b31aEf6683db6B902084cB0FFECe40Da", solidly_fee_from_factory=True,
+                  enumerable=True),
         DexConfig(
             "aerodrome_slipstream", DexKind.UNIV3, "0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A", fee_tiers=(),
-            dynamic_fee=True,
+            dynamic_fee=True, enumerable=True,
             notes="CL pools keyed by tickSpacing (1,50,100,200,2000); fee read from pool.fee() — dynamic (fee module), re-read every block",
         ),
     ],
@@ -111,7 +129,8 @@ BASE = ChainConfig(
     block_time_s=2.0,
     l1_fee_model="opstack",
     explorer_tx="https://basescan.org/tx/",
-    borrowable=("WETH", "USDC"),
+    borrowable=("WETH", "USDC", "cbBTC"),
+    stables=("USDC", "USDbC", "DAI"),
 )
 
 ARBITRUM = ChainConfig(
@@ -149,6 +168,7 @@ ARBITRUM = ChainConfig(
     l1_fee_model="arbitrum",
     explorer_tx="https://arbiscan.io/tx/",
     borrowable=("WETH", "USDC"),
+    stables=("USDC", "USDCe", "USDT", "DAI"),
 )
 
 

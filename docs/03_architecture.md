@@ -38,10 +38,10 @@
 | `config/policy.py` | `AuthorizationPolicy` (gelée) | validité, plafonds, listes, empreinte |
 | `config/tunables.py` | paramètres de stratégie modifiables | `ALLOWED_KEYS` = seul périmètre de l'auto-correction |
 | `data/rpc.py` | client JSON-RPC asynchrone | retries, bascule de fallback, limiteur, métriques p50/p95, multicall concurrent |
-| `data/indexer.py` | découverte des pools | factories (réel) ou `deployments.local.json` (devnet) ; métadonnées on-chain |
+| `data/indexer.py` | construction de l'univers | réel : jetons = config vérifiée (hubs) ∪ listes publiques versionnées (`data/tokenlists/<chain>.json`, source documentée par entrée) ∪ jetons des pools Aerodrome/Slipstream énumérés (`allPools`) ; pools = toutes les paires hub×jeton et hub×hub sur les 8 factories + pools énumérés ayant un hub ; `decimals()` vérifié, profondeur mesurée (`balanceOf`) et valorisée avec les prix des hubs ; plancher `ARB_DISCOVERY_MIN_POOL_USD` (10 k$), plafond `ARB_DISCOVERY_MAX_POOLS` (1 500, les plus profonds). Devnet : `deployments.local.json` |
 | `data/collector.py` | état par bloc | réserves V2, slot0/liquidité/ticks V3, Solidly ; âge des données ; gaz ; prix ETH |
 | `core/math_*.py`, `core/pricing.py` | courbes exactes | entiers uniquement ; `QuoteError` si ticks insuffisants |
-| `engine/routes.py` | cycles 2–3 sauts | multi-DEX, tokens de départ empruntables |
+| `engine/routes.py` | cycles 2–3 sauts | `RouteTable` compacte (numpy : index de pool + sens par saut), construite une fois ; les objets `Route` ne sont matérialisés que pour les survivants du filtre. Départ = jetons empruntables (hubs) ; les jetons de la longue traîne ne sont jamais empruntés, seulement traversés |
 | `engine/screen.py` | filtre vectorisé par bloc | écart = Σ ±log(prix) par route (numpy), comparé aux frais LP + marge, profondeur réelle min ; ~30 ms pour 192 000 routes |
 | `engine/optimizer.py` | montant optimal | grille + nombre d'or, contrainte d'impact |
 | `engine/fees.py` | frais flash (lus on-chain), gaz, L1, conversion token | capacité des fournisseurs |

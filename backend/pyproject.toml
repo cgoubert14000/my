@@ -43,6 +43,9 @@ arbbot = "arbbot.cli:app"
 where = ["."]
 include = ["arbbot*"]
 
+[tool.setuptools.package-data]
+arbbot = ["data/tokenlists/*.json"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

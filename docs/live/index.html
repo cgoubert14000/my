@@ -48,7 +48,8 @@
   <section><h2>Évolution pendant la session (un point par instantané, ~2 min)</h2><div class="charts" id="charts"></div></section>
   <section><h2>Statut de maturité et critères</h2><div id="risk"></div></section>
   <section><h2>Opportunités de la session (toutes charges déduites : frais LP, frais flash, gaz L2 + données L1)</h2><div id="opps"></div></section>
-  <section><h2>Pools réels suivis — avoirs réels (balanceOf) et prix au bloc</h2><div id="pools"></div></section>
+  <section><h2>Univers suivi — comment il a été construit, et ce qui en a été écarté</h2><div id="universe"></div></section>
+  <section><h2>Pools réels les plus profonds — avoirs réels (balanceOf) et prix au bloc</h2><div id="pools"></div></section>
   <section><h2>Connexion, fiabilité, rejets</h2><div id="misc"></div></section>
 </main>
 <footer>
@@ -85,7 +86,8 @@ function render(r) {
   document.getElementById("kpis").innerHTML = [
     kpi("Prix ETH (pool le plus profond)", `${fmt(r.native_price_usd, 2)} $`),
     kpi("Base fee", `${fmt(r.gas?.base_fee_gwei, 6)} gwei`, `priorité ${fmt(r.gas?.priority_fee_gwei, 6)} gwei`),
-    kpi("Pools / routes", `${(r.pools||[]).length} / ${fmt(r.routes,0)}`),
+    kpi("Univers : pools / jetons / routes", `${fmt(r.universe?.pools ?? (r.pools||[]).length,0)} / ${fmt(r.universe?.tokens,0)} / ${fmt(r.routes,0)}`,
+        `quarantaine ${fmt((r.universe?.quarantined||[]).length,0)} pool(s) · frais LP changés ${fmt(r.collector?.fee_changes,0)}`),
     kpi("Blocs vus", fmt(r.blocks?.seen,0), `${r.blocks?.first} → ${r.blocks?.last}`),
     kpi("Routes dimensionnées", fmt(d.candidates,0), `dernier cycle ${fmt(d.last_cycle_ms,0)} ms`),
     kpi("Net attendu > 0", fmt(d.positive_net,0), `${fmt(o.simulated,0)} simulées (eth_call réel), ${fmt(o.sim_failed,0)} échecs`),
@@ -105,6 +107,14 @@ function render(r) {
     rows.map(b => { const f=b.fees||{}, dec=b.token_decimals||18, s=b.token; return `<tr><td>${b.block_number}</td><td class="l">${b.route}</td><td>${tok(b.amount_in,dec,s)}</td><td>${tok(b.gross_profit,dec,s)}</td><td>${tok(f.swap_fees,dec,s)}</td><td>${tok(f.flash_fee,dec,s)}</td><td>${tok(f.gas_cost_token,dec,s)}</td><td>${tok(b.expected_net,dec,s)}</td><td>${fmt(b.expected_net_eur,4)}</td><td>${tok(b.simulated_net,dec,s)}</td><td>${fmt(b.margin_bps,2)}</td><td>${b.p_lower!=null?fmt(b.p_lower,3):"—"} (n=${b.p_n??0})</td><td class="l">${b.decision} <span class="mut">${(b.reasons||[]).join(", ")}</span></td></tr>`; }).join("") +
     `</tbody></table><p class="mut">Total enregistré : ${fmt(o.total,0)} candidats · décisions ${JSON.stringify(o.decisions||{})}</p>`;
 
+  const u = r.universe || {};
+  const perDex = Object.entries(u.per_dex||{}).map(([k,v]) => `${k} ${v.pools}${v.quarantined?` (quarantaine ${v.quarantined})`:""}`).join(" · ");
+  const disc = u.discovery || {};
+  const quar = (u.quarantined||[]).slice(0, 12).map(q => `<li><code>${q.pool}</code> — ${q.reason}</li>`).join("");
+  document.getElementById("universe").innerHTML =
+    `<p>Par DEX : ${perDex || "—"}</p>` +
+    (disc.tokens_total ? `<p>Découverte au démarrage : ${fmt(disc.tokens_config,0)} jetons vérifiés (config) + ${fmt(disc.tokens_tokenlist,0)} (listes publiques) + ${fmt(disc.tokens_factory_enum,0)} (énumération des factories), ${fmt(disc.tokens_rejected,0)} rejetés → ${fmt(disc.tokens_total,0)} jetons ; ${fmt(disc.pools_candidates,0)} pools candidats mesurés, ${fmt(disc.pools_below_min_depth,0)} sous ${fmt(disc.min_pool_usd,0)} $ → ${fmt(disc.pools_kept,0)} suivis (max ${fmt(disc.max_pools,0)}).</p>` : "") +
+    (quar ? `<p class="warn">Pools écartés automatiquement (simulations en échec = modèle ≠ chaîne) :</p><ul>${quar}</ul>` : `<p>Aucun pool en quarantaine.</p>`);
   const pools = (r.pools||[]).slice(0, 80);
   document.getElementById("pools").innerHTML = `<table><thead><tr><th class="l">DEX</th><th class="l">Paire</th><th>Frais ppm</th><th>Avoirs réels ($)</th><th>Prix token1/token0</th><th>Bloc</th><th class="l">Adresse</th></tr></thead><tbody>` +
     pools.map(p => `<tr><td class="l">${p.dex}</td><td class="l">${p.pair}${p.stable?" (stable)":""}</td><td>${p.fee_ppm}</td><td>${fmt(p.depth_usd,0)}${p.depth_is_real_balance===false?' <span class="warn" title="réserves virtuelles">~</span>':""}</td><td>${fmt(p.price_token1_per_token0,6)}</td><td>${p.updated_block}</td><td class="l"><code>${p.address}</code></td></tr>`).join("") + `</tbody></table>`;
