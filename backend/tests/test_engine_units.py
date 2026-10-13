@@ -223,3 +223,20 @@ async def test_rpc_client_surfaces_connection_errors():
         assert rpc.metrics.errors >= 2
     finally:
         await rpc.close()
+
+
+def test_db_count_opportunities_is_exact_beyond_page_limit(tmp_path):
+    """Session reports must count every record (opportunities() is paginated)."""
+    from arbbot.storage.db import Database
+
+    db = Database(tmp_path / "t.sqlite")
+    try:
+        for i in range(250):
+            db.upsert_opportunity({"id": f"o{i}", "ts": 1000.0 + i, "chain_id": 8453, "block_number": i, "route": "r", "route_key": "k",
+                                   "token": "WETH", "amount_in": 1, "expected_net": -1, "decision": "REJECTED" if i % 5 else "ELIGIBLE"})
+        assert db.count_opportunities() == 250
+        assert db.count_opportunities(since=1200.0) == 50
+        assert db.count_opportunities(decision="ELIGIBLE") == 50
+        assert len(db.opportunities(limit=100)) == 100
+    finally:
+        db.close()

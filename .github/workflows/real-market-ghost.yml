@@ -110,7 +110,7 @@ jobs:
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -q -m "real-market session ${{ github.run_id }} (${{ steps.cfg.outputs.chain }}, ${{ steps.cfg.outputs.minutes }} min) [skip ci]"
           for i in 1 2 3 4 5; do
-            git pull --rebase -q origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && break
+            git pull --rebase --autostash -q origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && break
             sleep 10
           done
 

@@ -126,3 +126,33 @@ async def test_api_status_opportunities_emergency_stop_and_tunable_guard(tmp_pat
     finally:
         await rt.stop()
         await asyncio.sleep(0)
+
+
+@pytest.mark.devnet
+@requires_devnet
+async def test_ghost_session_report_counts_closest_and_latest_files(tmp_path, devnet_cfg):
+    """Session report: exact counts, closest-to-profit table when nothing is positive, stable latest_<chain> files."""
+    import json
+    import time
+
+    from arbbot.ops import ghost_report
+    from tests.test_devnet_e2e import _positive_candidates, _runtime
+
+    rt = await _runtime(tmp_path)
+    try:
+        t0 = time.time() - 1
+        b, _ = await _positive_candidates(rt, devnet_cfg)
+        out = tmp_path / "rep"
+        files = ghost_report.write(rt, out, started_at=t0, started_block=b, tag="t")
+        rep = json.loads((out / "ghost_local_t.json").read_text())
+        assert rep["opportunities"]["total"] == rt.db.count_opportunities(since=t0)
+        assert rep["generated_ts"] > t0 and rep["chain"]["is_devnet"] is True
+        assert (out / "latest_local.json").exists() and (out / "latest_local.md").exists()
+        assert (out / "latest_local.json").read_text() == (out / "ghost_local_t.json").read_text()
+        md = (out / "ghost_local_t.md").read_text()
+        assert "DEVNET" in md.upper()
+        if not rep["opportunities"]["best"]:
+            assert rep["opportunities"]["closest"] and "plus proches de la rentabilité" in md
+        assert set(files) >= {"json", "md", "csv"}
+    finally:
+        await rt.stop()

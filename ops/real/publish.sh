@@ -10,7 +10,8 @@ git add -f docs/reports/real docs/reports/verify_chain_*.md docs/reports/verify_
 if git diff --cached --quiet; then echo "publish: nothing new"; exit 0; fi
 git commit -q -m "real-market snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]" || exit 0
 for i in 1 2 3 4 5; do
-  if git pull --rebase -q origin "$BRANCH" && git push -q origin "HEAD:$BRANCH"; then echo "publish: pushed to $BRANCH"; exit 0; fi
+  # --autostash: the session log is still being appended by tee while we publish
+  if git pull --rebase --autostash -q origin "$BRANCH" && git push -q origin "HEAD:$BRANCH"; then echo "publish: pushed to $BRANCH"; exit 0; fi
   sleep 8
 done
 echo "publish: push failed (will retry at next snapshot)"; exit 0

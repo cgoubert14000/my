@@ -137,6 +137,27 @@ et laisse un `.env` prêt pour `arbbot serve` (interface en direct). Le même sc
 **GitHub Actions** (`.github/workflows/real-market-ghost.yml`) à chaque modification de `ops/real/run.json` :
 les rapports arrivent dans la branche, sans aucune clé.
 
+### 4b-ter. Suivi en temps réel de la session réelle (sans rien installer)
+
+Pendant une session GitHub Actions, le moteur publie **toutes les 2 minutes** un instantané complet
+(`docs/reports/real/latest_base.json` + `.md`, et le journal `session_<run>.log`) dans la branche. La page
+`docs/live/index.html` lit ce JSON et se rafraîchit toutes les 30 s ; elle affiche en haut **l'âge de l'instantané**
+(bandeau rouge au-delà de 5 min = session terminée ou job arrêté), le bloc de tête au moment de l'instantané, le
+réseau (chain id) et l'hôte RPC. Rien n'est calculé dans le navigateur : tout vient du moteur connecté à Base.
+
+* **GitHub Pages** (recommandé, aucune machine à laisser allumée) : *Settings → Pages → Deploy from a branch →
+  branche `arena/9aff96cd-my`, dossier `/docs`* ; la page est alors servie sur
+  `https://cgoubert14000.github.io/my/live/` (l'activation demande les droits d'administration du dépôt : l'agent ne
+  peut pas l'activer à votre place, le jeton d'intégration a reçu un 403).
+* **Miroir local** (n'importe quelle machine qui atteint github.com) :
+  `python scripts\live_mirror.py --branch arena/9aff96cd-my --port 8090` puis ouvrir `http://localhost:8090/live/`.
+* **Vrai temps réel bloc par bloc** (latence ≈ 2 s, celle du réseau) : uniquement avec le moteur sur **votre** machine,
+  `arbbot serve` après `python scripts\real_market_session.py` (le `.env` écrit contient `ARB_RPC_WS_URL` si
+  l'abonnement WebSocket `newHeads` a répondu — il est testé au démarrage et noté dans le journal).
+
+Pour lancer vous-même une nouvelle session de 60 min depuis GitHub : modifier `ops/real/run.json` (champ `run`) et
+pousser, ou *Actions → real-market-ghost → Run workflow*.
+
 ### 4c. Laboratoire de 60 minutes sur données réelles
 
 ```powershell
