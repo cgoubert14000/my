@@ -1501,3 +1501,78 @@ block 52567781 | APPRENTISSAGE | candidates 36255 | positive 0 | ghost {'pending
 block 52567782 | APPRENTISSAGE | candidates 36306 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 173 ms
 block 52567786 | APPRENTISSAGE | candidates 36408 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 209 ms
 block 52567789 | APPRENTISSAGE | candidates 36512 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 191 ms
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (da9a563)
+block 52567792 | APPRENTISSAGE | candidates 36738 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 179 ms
+block 52567792 | APPRENTISSAGE | candidates 36738 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 217 ms
+block 52567797 | APPRENTISSAGE | candidates 36903 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 196 ms
+2026-10-13 20:55:47,664 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 436 → 424 ppm
+block 52567800 | APPRENTISSAGE | candidates 37068 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 189 ms
+block 52567802 | APPRENTISSAGE | candidates 37178 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 204 p50 191 ms
+2026-10-13 20:55:53,818 WARNING arbbot.rpc: rpc error ([Errno 104] Connection reset by peer) → switching to https://mainnet.base.org
+2026-10-13 20:55:56,245 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:55:56,253 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:55:56,257 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:55:56,288 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:55:56,313 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+block 52567802 | APPRENTISSAGE | candidates 37178 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 210 p50 259 ms
+2026-10-13 20:56:00,558 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+block 52567807 | APPRENTISSAGE | candidates 37325 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 211 p50 252 ms
+block 52567810 | APPRENTISSAGE | candidates 37457 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 211 p50 249 ms
+block 52567812 | APPRENTISSAGE | candidates 37537 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 211 p50 244 ms
+2026-10-13 20:56:16,064 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:16,090 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:16,103 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:56:16,106 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:56:16,109 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:16,116 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:16,126 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:56:16,126 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:56:16,138 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:16,146 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:16,146 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:56:16,198 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:56:16,213 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:16,251 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:16,312 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+block 52567812 | APPRENTISSAGE | candidates 37537 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 226 p50 257 ms
+2026-10-13 20:56:21,019 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+block 52567817 | APPRENTISSAGE | candidates 37657 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 227 p50 245 ms
+block 52567820 | APPRENTISSAGE | candidates 37777 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 227 p50 214 ms
+block 52567822 | APPRENTISSAGE | candidates 37857 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 227 p50 202 ms
+2026-10-13 20:56:35,812 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:35,819 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:35,825 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:56:35,839 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:56:35,839 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:35,846 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:35,851 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:56:35,858 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:56:35,859 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:35,865 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:35,870 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:56:35,870 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:56:36,463 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-13 20:56:36,504 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-13 20:56:36,532 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-13 20:56:37,002 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-13 20:56:37,285 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+block 52567822 | APPRENTISSAGE | candidates 37857 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 218 ms
+block 52567827 | APPRENTISSAGE | candidates 37977 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 213 ms
+block 52567830 | APPRENTISSAGE | candidates 38063 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 206 ms
+block 52567832 | APPRENTISSAGE | candidates 38177 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 199 ms
+block 52567832 | APPRENTISSAGE | candidates 38177 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 224 ms
+2026-10-13 20:57:01,626 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 332 → 334 ppm
+block 52567837 | APPRENTISSAGE | candidates 38297 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 219 ms
+block 52567840 | APPRENTISSAGE | candidates 38429 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 214 ms
+2026-10-13 20:57:09,860 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 549 → 564 ppm
+2026-10-13 20:57:12,394 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 424 → 436 ppm
+block 52567842 | APPRENTISSAGE | candidates 38538 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 210 ms
+2026-10-13 20:57:13,937 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 100 → 145 ppm
+2026-10-13 20:57:13,937 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 334 → 336 ppm
+block 52567842 | APPRENTISSAGE | candidates 38538 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 251 ms
+2026-10-13 20:57:20,332 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 564 → 579 ppm
+2026-10-13 20:57:20,333 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 436 → 448 ppm
+2026-10-13 20:57:20,333 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 336 → 338 ppm
+2026-10-13 20:57:21,910 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 579 → 594 ppm
+block 52567847 | APPRENTISSAGE | candidates 38729 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 239 ms
+block 52567850 | APPRENTISSAGE | candidates 38932 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 244 p50 236 ms
