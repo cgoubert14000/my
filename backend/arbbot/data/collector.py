@@ -91,6 +91,8 @@ class StateCollector:
         self._tick_window: dict[str, tuple[int, int]] = {}
         self._subscribers: list[asyncio.Queue] = []
         self._stop = asyncio.Event()
+        self._last_head = 0
+        self._head_lock = asyncio.Lock()
         self.native_price_usd: float | None = None
 
     # ------------------------------------------------------------------ pub/sub
@@ -116,15 +118,10 @@ class StateCollector:
         self._stop.clear()
         if self.ws_url:
             asyncio.create_task(self._ws_heads())
-        last = 0
         while not self._stop.is_set():
             try:
                 bn = await self.rpc.block_number()
-                if bn != last:
-                    last = bn
-                    self.stats.blocks_seen += 1
-                    await self.refresh(bn)
-                    self._publish(bn)
+                await self._on_head(bn)
             except Exception as e:  # noqa: BLE001
                 self.stats.errors += 1
                 log.warning("collector error: %s", e)
@@ -133,6 +130,19 @@ class StateCollector:
 
     def stop(self) -> None:
         self._stop.set()
+
+    async def _on_head(self, bn: int) -> bool:
+        """Refresh once per new head, whichever source (WebSocket newHeads or polling) sees it first."""
+        if bn <= self._last_head:
+            return False
+        async with self._head_lock:
+            if bn <= self._last_head:
+                return False
+            self._last_head = bn
+            self.stats.blocks_seen += 1
+            await self.refresh(bn)
+            self._publish(bn)
+            return True
 
     async def _ws_heads(self) -> None:
         """newHeads subscription (optional). On any failure, reconnect with backoff; polling keeps working."""
@@ -156,10 +166,7 @@ class StateCollector:
                             msg = orjson.loads(raw)
                             head = msg.get("params", {}).get("result", {})
                             if "number" in head:
-                                bn = int(head["number"], 16)
-                                self.stats.blocks_seen += 1
-                                await self.refresh(bn)
-                                self._publish(bn)
+                                await self._on_head(int(head["number"], 16))
             except Exception as e:  # noqa: BLE001
                 self.stats.ws_connected = False
                 self.stats.ws_reconnects += 1

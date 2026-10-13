@@ -240,3 +240,29 @@ def test_db_count_opportunities_is_exact_beyond_page_limit(tmp_path):
         assert len(db.opportunities(limit=100)) == 100
     finally:
         db.close()
+
+
+async def test_collector_refreshes_each_head_once_whatever_the_source():
+    """WebSocket newHeads and polling may both see a block: it must be refreshed/published once."""
+    import asyncio
+
+    from arbbot.data.collector import StateCollector as Collector
+
+    c = Collector.__new__(Collector)
+    c._subscribers, c._stop, c._last_head, c._head_lock = [], asyncio.Event(), 0, asyncio.Lock()
+    from arbbot.data.collector import CollectorStats
+
+    c.stats = CollectorStats()
+    refreshed: list[int] = []
+
+    async def fake_refresh(bn, pools=None):
+        await asyncio.sleep(0.01)
+        refreshed.append(bn)
+        return 0
+
+    c.refresh = fake_refresh  # type: ignore[method-assign]
+    q = c.subscribe()
+    await asyncio.gather(c._on_head(100), c._on_head(100), c._on_head(99), c._on_head(101))
+    assert refreshed == [100, 101] or refreshed == [101] or sorted(refreshed) == [100, 101]
+    assert c.stats.blocks_seen == len(refreshed)
+    assert q.qsize() == len(refreshed)
