@@ -22,6 +22,10 @@
 | `forge: command not found` | Foundry absent du PATH | réinstaller (docs/04 §2) ou utiliser les paquets npm ; sans forge, `run_tests.py` saute les tests de contrat et `contract_tested` reste rouge (mode réel impossible, par conception) |
 | `npm run build` échoue (`tsc`) | Node trop ancien | Node ≥ 20 |
 | Port 8000 occupé | autre instance | `ARB_API_PORT=8010` ou fermer l'ancienne |
+| Page `docs/live` : « aucun instantané disponible » | `latest_<chain>.json` absent (aucune session n'a encore publié) ou page ouverte en `file://` (fetch interdit) | servir la page (`python scripts\live_mirror.py …` ou GitHub Pages) ; lancer une session |
+| Page `docs/live` : bandeau rouge « instantané il y a > 5 min » | session terminée, ou crochet de publication en échec (voir `snapshot hook rc=` dans `session_<run>.log`) | normal après la fin d'une session ; sinon lire le journal : `publish: push rejected` = concurrence sur la branche (réessayé au prochain instantané) |
+| `cycle_budget_exhausted` élevé, `routes_optimized` faible | trop de survivants au filtre pour le budget de 1,2 s | normal : les routes sont dimensionnées par écart décroissant ; augmenter `cycle_time_budget_ms` seulement si les blocs ne sont pas manqués (`blocks_seen` ≈ durée/2 s) |
+| `blocks_seen` très inférieur à durée/2 s | cycle plus long que le bloc (RPC lent, ticks V3, trop d'optimisations) | vérifier `last_cycle_ms`, `last_screen_ms`, `refresh_p95_ms` dans le rapport ; `ARB_RPC_WS_URL` ; RPC payant plus rapide |
 
 ## Arrêt d'urgence — rappel
 
