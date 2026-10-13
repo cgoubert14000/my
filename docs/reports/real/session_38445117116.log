@@ -810,3 +810,20 @@ block 52566102 | APPRENTISSAGE | candidates 41562 | positive 65 | ghost {'pendin
 2026-10-13 19:59:15,271 WARNING arbbot.rpc: rpc error ([Errno 104] Connection reset by peer) → switching to https://mainnet.base.org
 block 52566104 | APPRENTISSAGE | candidates 41682 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 1 p50 220 ms
 block 52566104 | APPRENTISSAGE | candidates 41682 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 1 p50 218 ms
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (36f66f1)
+2026-10-13 19:59:25,595 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+block 52566106 | APPRENTISSAGE | candidates 41748 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 2 p50 232 ms
+2026-10-13 19:59:31,302 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+block 52566108 | APPRENTISSAGE | candidates 41870 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 232 ms
+block 52566114 | APPRENTISSAGE | candidates 41998 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 233 ms
+block 52566115 | APPRENTISSAGE | candidates 42058 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 273 ms
+block 52566121 | APPRENTISSAGE | candidates 42418 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 285 ms
+block 52566123 | APPRENTISSAGE | candidates 42598 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 273 ms
+block 52566124 | APPRENTISSAGE | candidates 42660 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 274 ms
+block 52566128 | APPRENTISSAGE | candidates 42780 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 439 ms
+block 52566131 | APPRENTISSAGE | candidates 42968 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 515 ms
+block 52566133 | APPRENTISSAGE | candidates 43158 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 458 ms
+block 52566134 | APPRENTISSAGE | candidates 43218 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 493 ms
+block 52566134 | APPRENTISSAGE | candidates 43218 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 738 ms
+block 52566134 | APPRENTISSAGE | candidates 43218 | positive 65 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=15 | rpc err 3 p50 738 ms
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_38445117116.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_38445117116.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_38445117116_opportunities.csv.gz"}
