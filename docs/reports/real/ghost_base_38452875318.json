@@ -1,9 +1,9 @@
 {
  "kind": "ghost_session",
- "generated_at": "2026-10-13T20:53:22+00:00",
- "generated_ts": 1791924802.821,
+ "generated_at": "2026-10-13T20:55:26+00:00",
+ "generated_ts": 1791924926.525,
  "started_at": 1791921985.442,
- "head_block_ts": 1791924801,
+ "head_block_ts": 1791924925,
  "chain": {
   "id": "base",
   "chain_id": 8453,
@@ -18,45 +18,45 @@
   }
  },
  "is_devnet": false,
- "duration_min": 46.96,
+ "duration_min": 49.02,
  "blocks": {
   "first": 52566312,
-  "last": 52567727,
-  "seen": 1189
+  "last": 52567789,
+  "seen": 1241
  },
  "rpc": {
-  "requests": 19391,
-  "errors": 200,
-  "retries": 200,
-  "latency_p50_ms": 250.51994900013597,
-  "latency_p95_ms": 1342.5115840000217,
-  "latency_max_ms": 2004.467203999866,
-  "error_rate": 0.01031406322520757
+  "requests": 20240,
+  "errors": 204,
+  "retries": 204,
+  "latency_p50_ms": 190.690166999957,
+  "latency_p95_ms": 1339.995720999923,
+  "latency_max_ms": 1661.5059040000233,
+  "error_rate": 0.01007905138339921
  },
  "collector": {
-  "blocks_seen": 1189,
-  "refreshes": 1190,
-  "last_refresh_ms": 396.8,
-  "last_block": 52567727,
-  "block_age_s": 1.52,
-  "last_block_ts": 1791924801,
+  "blocks_seen": 1241,
+  "refreshes": 1242,
+  "last_refresh_ms": 372.7,
+  "last_block": 52567789,
+  "block_age_s": 1.2,
+  "last_block_ts": 1791924925,
   "ws_connected": false,
   "ws_reconnects": 0,
   "errors": 0,
   "stale_pools": 0,
-  "fee_changes": 598,
-  "refresh_p50_ms": 408.96777600028145,
-  "refresh_p95_ms": 6247.642091000216
+  "fee_changes": 612,
+  "refresh_p50_ms": 397.6582519999283,
+  "refresh_p95_ms": 6288.624583000001
  },
  "gas": {
-  "block_number": 52567727,
+  "block_number": 52567789,
   "base_fee_gwei": 0.005,
   "priority_fee_gwei": 0.0005,
   "gas_price_gwei": 0.0055,
   "l1_base_fee_gwei": 0.0,
-  "ts": 1791924801.7907212
+  "ts": 1791924926.1406176
  },
- "native_price_usd": 2504.4473118672863,
+ "native_price_usd": 2504.446963891547,
  "flash_providers": {
   "MORPHO": {
    "fee_bps": 0.0,
@@ -108,12 +108,12 @@
    "pair": "WETH/USDC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "35121817127176480237166",
-   "balance1": "62494085189281",
-   "depth_usd": 150454825.68,
+   "balance0": "35121865329686707452850",
+   "balance1": "62493958946327",
+   "depth_usd": 150454807.94,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2504.447311867287,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2504.446963891548,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -126,12 +126,12 @@
    "pair": "USDC/AERO",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
-   "balance0": "20974383984599",
-   "balance1": "23220857231598279987598881",
-   "depth_usd": 41948767.97,
+   "balance0": "20974383610281",
+   "balance1": "23220857938445526289851352",
+   "depth_usd": 41948767.22,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.1071055649905528,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.1071056184489432,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -146,10 +146,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "5556317715388269384005",
    "balance1": "5217443709",
-   "depth_usd": 18254927.87,
+   "depth_usd": 18254925.34,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.0301118677548487,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -164,10 +164,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "3814935917131201944391",
    "balance1": "6791162650",
-   "depth_usd": 15202613.57,
+   "depth_usd": 15202611.46,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.030128846094063227,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -182,10 +182,28 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "2400782709146705987787",
    "balance1": "5633663461",
-   "depth_usd": 10698232.66,
+   "depth_usd": 10698231.17,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.030111881200387654,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
+   "quarantined": false,
+   "quarantine_reason": ""
+  },
+  {
+   "address": "0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "fee_ppm": 549,
+   "stable": false,
+   "pair": "WETH/USDC",
+   "token0": "0x4200000000000000000000000000000000000006",
+   "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "balance0": "2214929595327401421474",
+   "balance1": "4272893778910",
+   "depth_usd": 9820067.48,
+   "depth_is_real_balance": true,
+   "price_token1_per_token0": 2509.3479694227913,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -198,12 +216,12 @@
    "pair": "WETH/USDC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "2532707407144344746509",
-   "balance1": "3209241603798",
-   "depth_usd": 9552273.86,
+   "balance0": "2532596378354550700317",
+   "balance1": "3209520408393",
+   "depth_usd": 9552273.72,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2508.633998901339,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2508.652826874313,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -216,12 +234,12 @@
    "pair": "USDC/cbBTC",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-   "balance0": "5806381176577",
-   "balance1": "4276980497",
-   "depth_usd": 9363607.32,
+   "balance0": "5818786272992",
+   "balance1": "4262100823",
+   "depth_usd": 9363636.28,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.2002860522941774e-05,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.1998759475237216e-05,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -234,30 +252,12 @@
    "pair": "WETH/USDC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "1818640118065400080457",
-   "balance1": "4558945718841",
-   "depth_usd": 9113634.07,
+   "balance0": "1818628045352902917942",
+   "balance1": "4558975982776",
+   "depth_usd": 9113633.47,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2506.788271937294,
-   "updated_block": 52567727,
-   "quarantined": false,
-   "quarantine_reason": ""
-  },
-  {
-   "address": "0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59",
-   "dex": "aerodrome_slipstream",
-   "kind": "UNIV3",
-   "fee_ppm": 564,
-   "stable": false,
-   "pair": "WETH/USDC",
-   "token0": "0x4200000000000000000000000000000000000006",
-   "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "2092270260825524159819",
-   "balance1": "3696419875322",
-   "depth_usd": 8936400.51,
-   "depth_is_real_balance": true,
-   "price_token1_per_token0": 2508.4970564250266,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2506.8215539870525,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -265,17 +265,17 @@
    "address": "0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb",
    "dex": "aerodrome_slipstream",
    "kind": "UNIV3",
-   "fee_ppm": 334,
+   "fee_ppm": 332,
    "stable": false,
    "pair": "USDC/cbBTC",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-   "balance0": "5486050648882",
-   "balance1": "3593051047",
-   "depth_usd": 8474442.84,
+   "balance0": "5488174719999",
+   "balance1": "3590502963",
+   "depth_usd": 8474447.21,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.200075828373577e-05,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.1999670388874474e-05,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -283,17 +283,17 @@
    "address": "0x4e962BB3889Bf030368F56810A9c96B83CB3E778",
    "dex": "aerodrome_slipstream",
    "kind": "UNIV3",
-   "fee_ppm": 424,
+   "fee_ppm": 436,
    "stable": false,
    "pair": "USDC/cbBTC",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-   "balance0": "3608815999948",
-   "balance1": "4354785313",
-   "depth_usd": 7230753.52,
+   "balance0": "3463387382626",
+   "balance1": "4202534100",
+   "depth_usd": 6958694.9,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.2001960930288729e-05,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.2000777321899013e-05,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -306,12 +306,12 @@
    "pair": "WETH/cbBTC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-   "balance0": "1536657487141859891799",
-   "balance1": "2059074647",
-   "depth_usd": 5561039.69,
+   "balance0": "1533023233767214545470",
+   "balance1": "2070015887",
+   "depth_usd": 5561037.1,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 0.03009929870154958,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 0.030106410227786425,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -324,12 +324,12 @@
    "pair": "USDC/AERO",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
-   "balance0": "2227084213966",
-   "balance1": "3491785507764220370190163",
-   "depth_usd": 5381061.23,
+   "balance0": "2227084213967",
+   "balance1": "3491785507762104889335032",
+   "depth_usd": 5381061.08,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1048301186500267,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -342,12 +342,12 @@
    "pair": "WETH/USDC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "1207401703394730516412",
-   "balance1": "1437992316611",
-   "depth_usd": 4461866.27,
+   "balance0": "1202933647992384009239",
+   "balance1": "1449205030873",
+   "depth_usd": 4461888.55,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2508.1503530136156,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2509.5886721064617,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -362,10 +362,10 @@
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
    "balance0": "744546811736997513519",
    "balance1": "2063393813574669514790870",
-   "depth_usd": 3728451.58,
+   "depth_usd": 3728451.23,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2771.3419506301498,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -379,11 +379,11 @@
    "token0": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
    "token1": "0x4200000000000000000000000000000000000006",
    "balance0": "367454968050070738153",
-   "balance1": "790475781847182155041",
-   "depth_usd": 3030302.43,
+   "balance1": "790475781886780571055",
+   "depth_usd": 3030302.01,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.141616748427589,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.1416167484275919,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -398,10 +398,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "1289953539523",
    "balance1": "1908107912",
-   "depth_usd": 2876954.31,
+   "depth_usd": 2876954.09,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2028745630002366e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -414,12 +414,12 @@
    "pair": "AERO/cbBTC",
    "token0": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-   "balance0": "1409008944459563337581389",
-   "balance1": "1684950104",
-   "depth_usd": 2674093.32,
+   "balance0": "1403939641122119423152575",
+   "balance1": "1690454810",
+   "depth_usd": 2674092.53,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.0845882950065247e-05,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.0847798984423728e-05,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -432,12 +432,12 @@
    "pair": "USDC/cbBTC",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-   "balance0": "783168740191",
-   "balance1": "1106320544",
-   "depth_usd": 1703311.43,
+   "balance0": "785593398733",
+   "balance1": "1103411654",
+   "depth_usd": 1703316.6,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.199978546495638e-05,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.1996868718122503e-05,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -452,10 +452,10 @@
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
    "balance0": "425620666288760980644",
    "balance1": "566140530826316227939733",
-   "depth_usd": 1577314.5,
+   "depth_usd": 1577314.32,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2772.0447781049916,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -470,10 +470,10 @@
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
    "balance0": "268611368090627054698",
    "balance1": "796738273592056557039816",
-   "depth_usd": 1392381.83,
+   "depth_usd": 1392381.7,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2770.905700250152,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -488,10 +488,10 @@
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "balance0": "335773411109569551369",
    "balance1": "435980169694",
-   "depth_usd": 1276906.99,
+   "depth_usd": 1276906.87,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.8139545106155,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -506,10 +506,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "215211511613859445463",
    "balance1": "647898635",
-   "depth_usd": 1077852.5,
+   "depth_usd": 1077852.35,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.030105203487557113,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -524,10 +524,10 @@
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "balance0": "122658251489428712261",
    "balance1": "606763844588",
-   "depth_usd": 913954.97,
+   "depth_usd": 913954.93,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2510.072188578063,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -540,12 +540,12 @@
    "pair": "WETH/USDC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "178040082950701746804",
-   "balance1": "446568711612",
-   "depth_usd": 892460.72,
+   "balance0": "178040082964782528687",
+   "balance1": "446568711577",
+   "depth_usd": 892460.66,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2508.248166429198,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2508.2481660342414,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -558,12 +558,12 @@
    "pair": "USDC/AERO",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
-   "balance0": "410585421296",
-   "balance1": "463237014026797446313025",
-   "depth_usd": 829007.14,
+   "balance0": "410690442050",
+   "balance1": "463120916592825019981484",
+   "depth_usd": 829007.28,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.106098814566839,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.1060204041874413,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -578,10 +578,10 @@
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
    "balance0": "70863815193696824390",
    "balance1": "478676831251746521049952",
-   "depth_usd": 609842.52,
+   "depth_usd": 609842.48,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2771.368995413846,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -594,12 +594,12 @@
    "pair": "WETH/USDC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "120180538384155169407",
-   "balance1": "197934009520",
-   "depth_usd": 498919.84,
+   "balance0": "119602988658909185414",
+   "balance1": "199383996318",
+   "depth_usd": 498923.34,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2508.079892891739,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2509.837560838658,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -614,10 +614,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "107421779237392628795",
    "balance1": "181307800",
-   "depth_usd": 419828.49,
+   "depth_usd": 419828.43,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.030106543065895806,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -632,10 +632,10 @@
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
    "balance0": "168594418145",
    "balance1": "188050528614417730820400",
-   "depth_usd": 338452.23,
+   "depth_usd": 338452.22,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1066362486862824,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -650,10 +650,10 @@
    "token1": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
    "balance0": "167417357901403205656868",
    "balance1": "151366109383",
-   "depth_usd": 302586.88,
+   "depth_usd": 302586.87,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9041243469637346,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -668,10 +668,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "131782062904",
    "balance1": "158498917",
-   "depth_usd": 263607.89,
+   "depth_usd": 263607.87,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2027351333501478e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -686,10 +686,10 @@
    "token1": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
    "balance0": "50851856974561024509",
    "balance1": "127468192829",
-   "depth_usd": 254823.99,
+   "depth_usd": 254823.97,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2506.6575817037874,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -702,12 +702,12 @@
    "pair": "USDC/AERO",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
-   "balance0": "134541803935",
-   "balance1": "131151937198293700191086",
-   "depth_usd": 253005.61,
+   "balance0": "134493712709",
+   "balance1": "131033667384369853339306",
+   "depth_usd": 252850.68,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 1.106170786461665,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 1.1058993789638876,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -722,10 +722,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "64528683479076592004",
    "balance1": "61986595",
-   "depth_usd": 213163.83,
+   "depth_usd": 213163.8,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.030032646579935648,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -740,10 +740,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "83180077766",
    "balance1": "155926681",
-   "depth_usd": 212866.54,
+   "depth_usd": 212866.52,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2003074396145972e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -756,12 +756,12 @@
    "pair": "WETH/AERO",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
-   "balance0": "41647725246340352335",
-   "balance1": "74306950455913076811876",
-   "depth_usd": 171422.75,
+   "balance0": "41728905677097936933",
+   "balance1": "74081829646539837823728",
+   "depth_usd": 171422.7,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2774.3810684988275,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2775.686893615854,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -776,10 +776,10 @@
    "token1": "0x4200000000000000000000000000000000000006",
    "balance0": "25838570441165812907",
    "balance1": "29417324220328512155",
-   "depth_usd": 147549.69,
+   "depth_usd": 147549.67,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1385043258221847,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -797,7 +797,7 @@
    "depth_usd": 140665.12,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9999693216299086,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -810,12 +810,12 @@
    "pair": "WETH/USDC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-   "balance0": "48744229199177511623",
-   "balance1": "12085210426",
-   "depth_usd": 134162.56,
+   "balance0": "48733448426645824464",
+   "balance1": "12112259704",
+   "depth_usd": 134162.6,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2508.3531679537123,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2509.132111255994,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -830,10 +830,10 @@
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
    "balance0": "15685267309734170317",
    "balance1": "81192226",
-   "depth_usd": 106811.67,
+   "depth_usd": 106811.65,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03012451225762974,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -848,10 +848,10 @@
    "token1": "0x4200000000000000000000000000000000000006",
    "balance0": "5436039761488817789",
    "balance1": "31581142666279218363",
-   "depth_usd": 94635.59,
+   "depth_usd": 94635.58,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1415951296318283,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -869,7 +869,7 @@
    "depth_usd": 90176.45,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.4672246042737,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -882,12 +882,12 @@
    "pair": "WETH/cbBTC",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
-   "balance0": "20683119208095931377",
-   "balance1": "41135407",
-   "depth_usd": 86012.69,
+   "balance0": "20629641035581591084",
+   "balance1": "41296423",
+   "depth_usd": 86012.67,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 0.03009778988916544,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 0.03010515421903213,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -905,7 +905,7 @@
    "depth_usd": 53892.28,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.141390059280299,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -920,10 +920,10 @@
    "token1": "0x4200000000000000000000000000000000000006",
    "balance0": "4537010779063243294",
    "balance1": "10770438055697937059",
-   "depth_usd": 39945.85,
+   "depth_usd": 39945.84,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1415901913445958,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -941,7 +941,7 @@
    "depth_usd": 39086.73,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.242745661304,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -959,7 +959,7 @@
    "depth_usd": 36530.52,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0873887214258062e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -977,7 +977,7 @@
    "depth_usd": 30788.87,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2031211509142561e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -992,10 +992,10 @@
    "token1": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "balance0": "2191068447443538852",
    "balance1": "16492920068",
-   "depth_usd": 21980.34,
+   "depth_usd": 21980.33,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 7527.3413239295905,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1013,7 +1013,7 @@
    "depth_usd": 18793.16,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.227291139652966,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1031,7 +1031,7 @@
    "depth_usd": 17311.98,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.998971900923035,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1049,7 +1049,7 @@
    "depth_usd": 15895.29,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9990773716468272,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1057,7 +1057,7 @@
    "address": "0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF",
    "dex": "aerodrome_slipstream",
    "kind": "UNIV3",
-   "fee_ppm": 109,
+   "fee_ppm": 100,
    "stable": false,
    "pair": "USDC/cbBTC",
    "token0": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -1067,7 +1067,7 @@
    "depth_usd": 15307.82,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2002695471018524e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1085,7 +1085,7 @@
    "depth_usd": 14833.37,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9999709744270139,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1103,7 +1103,7 @@
    "depth_usd": 13811.89,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1412484495130235,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1121,7 +1121,7 @@
    "depth_usd": 13207.19,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9308346472296298,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1139,7 +1139,7 @@
    "depth_usd": 12581.27,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.319904807432,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1157,7 +1157,7 @@
    "depth_usd": 12032.82,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9999725381938558,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1175,7 +1175,7 @@
    "depth_usd": 11304.96,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2503.7898283725453,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1193,7 +1193,7 @@
    "depth_usd": 11225.42,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9990065049159215,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1211,7 +1211,7 @@
    "depth_usd": 11169.41,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2505.6475385830163,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1229,7 +1229,7 @@
    "depth_usd": 10149.61,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1061438921225102,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1247,7 +1247,7 @@
    "depth_usd": 9657.69,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9990761836478768,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1265,7 +1265,7 @@
    "depth_usd": 8009.67,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9995938308992622,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1283,7 +1283,7 @@
    "depth_usd": 7582.68,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.998190301222625,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1301,7 +1301,7 @@
    "depth_usd": 7296.51,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.255679790919,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1319,7 +1319,7 @@
    "depth_usd": 6383.47,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2507.000513703746,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1337,7 +1337,7 @@
    "depth_usd": 5999.77,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1062814125137057,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1355,7 +1355,7 @@
    "depth_usd": 5466.07,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2503.60889900744,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1373,7 +1373,7 @@
    "depth_usd": 5339.48,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.8463817173904371,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1391,7 +1391,7 @@
    "depth_usd": 4530.59,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2016321577339388e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1409,7 +1409,7 @@
    "depth_usd": 4448.68,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9998456159346656,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1427,7 +1427,7 @@
    "depth_usd": 3835.25,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1412664152420264,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1445,7 +1445,7 @@
    "depth_usd": 3805.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9990740003195137,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1463,7 +1463,7 @@
    "depth_usd": 3640.31,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2857.6492816227737,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1481,7 +1481,7 @@
    "depth_usd": 3560.45,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2504.0799795745897,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1499,7 +1499,7 @@
    "depth_usd": 3501.83,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1049346501326482,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1517,7 +1517,7 @@
    "depth_usd": 3405.33,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.3594301205966626,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1535,7 +1535,7 @@
    "depth_usd": 3392.37,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2040710992499469e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1553,7 +1553,7 @@
    "depth_usd": 3357.26,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.141157112392159,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1571,7 +1571,7 @@
    "depth_usd": 3244.42,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.317845063336,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1589,7 +1589,7 @@
    "depth_usd": 3168.48,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2509.3828336267884,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1607,7 +1607,7 @@
    "depth_usd": 2927.85,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2507.438568110503,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1625,7 +1625,7 @@
    "depth_usd": 2862.29,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 8365.504353096838,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1643,7 +1643,7 @@
    "depth_usd": 2859.26,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428185e-27,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1661,7 +1661,7 @@
    "depth_usd": 2717.6,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.45581061556,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1679,7 +1679,7 @@
    "depth_usd": 2573.33,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03016318160565224,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1694,10 +1694,10 @@
    "token1": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
    "balance0": "567093645862355436",
    "balance1": "1116098943",
-   "depth_usd": 2536.36,
+   "depth_usd": 2536.35,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2506.8439471992874,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1715,7 +1715,7 @@
    "depth_usd": 2192.93,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 7534.770011785603,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1733,7 +1733,7 @@
    "depth_usd": 1677.47,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03440158751672337,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1751,7 +1751,7 @@
    "depth_usd": 1549.07,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2769.350996875168,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1769,7 +1769,7 @@
    "depth_usd": 1460.19,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.4596092211762862,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1787,7 +1787,7 @@
    "depth_usd": 1448.25,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0882022148912026e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1805,7 +1805,7 @@
    "depth_usd": 1306.24,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9032498557758372,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1823,7 +1823,7 @@
    "depth_usd": 1233.69,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2512.8481647267367,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1841,7 +1841,7 @@
    "depth_usd": 1217.9,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0846400049686475e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1859,7 +1859,7 @@
    "depth_usd": 1112.92,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.2135199169347,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1877,7 +1877,7 @@
    "depth_usd": 1010.11,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2507.0950490859086,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1895,7 +1895,7 @@
    "depth_usd": 918.24,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2505.3254019970295,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1913,7 +1913,7 @@
    "depth_usd": 844.4,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2867.920404136618,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1931,7 +1931,7 @@
    "depth_usd": 797.85,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03434381679419957,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1949,7 +1949,7 @@
    "depth_usd": 783.32,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2506.335853938818,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1967,7 +1967,7 @@
    "depth_usd": 706.02,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.0464645995694,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -1985,7 +1985,7 @@
    "depth_usd": 638.98,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.034364955654531355,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2003,7 +2003,7 @@
    "depth_usd": 637.88,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2508.5655326008637,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2021,7 +2021,7 @@
    "depth_usd": 593.45,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.8888715839097358,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2039,7 +2039,7 @@
    "depth_usd": 589.43,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0000077901222872,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2057,7 +2057,7 @@
    "depth_usd": 564.35,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2506.84463852334,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2075,7 +2075,7 @@
    "depth_usd": 520.48,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2513.9030659134623,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2093,7 +2093,7 @@
    "depth_usd": 505.79,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1996281227820054e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2111,7 +2111,7 @@
    "depth_usd": 451.44,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2501.6368736487952,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2129,7 +2129,7 @@
    "depth_usd": 386.51,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2503.819721428657,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2147,7 +2147,7 @@
    "depth_usd": 367.94,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.030057648801903245,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2165,7 +2165,7 @@
    "depth_usd": 360.44,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9992015624558268,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2183,7 +2183,7 @@
    "depth_usd": 352.34,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2780.53787099584,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2196,12 +2196,12 @@
    "pair": "WETH/AERO",
    "token0": "0x4200000000000000000000000000000000000006",
    "token1": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
-   "balance0": "33145193735309699",
-   "balance1": "280423919242872116808",
+   "balance0": "33081761056297287",
+   "balance1": "280599909942363060260",
    "depth_usd": 336.31,
    "depth_is_real_balance": true,
-   "price_token1_per_token0": 2766.1820530628443,
-   "updated_block": 52567727,
+   "price_token1_per_token0": 2768.8432924303656,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2219,7 +2219,7 @@
    "depth_usd": 200.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2502.877255011094,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2237,7 +2237,7 @@
    "depth_usd": 198.11,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2770.575948118974,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2255,7 +2255,7 @@
    "depth_usd": 173.11,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2501.6240404915898,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2273,7 +2273,7 @@
    "depth_usd": 123.56,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03016413094753848,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2291,7 +2291,7 @@
    "depth_usd": 122.9,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 7569.102920852966,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2309,7 +2309,7 @@
    "depth_usd": 113.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2506.343534246152,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2327,7 +2327,7 @@
    "depth_usd": 102.79,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2517.181875717154,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2345,7 +2345,7 @@
    "depth_usd": 100.98,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9997150853168969,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2363,7 +2363,7 @@
    "depth_usd": 90.96,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9995952541466585,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2381,7 +2381,7 @@
    "depth_usd": 79.39,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03011863494457365,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2399,7 +2399,7 @@
    "depth_usd": 78.19,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3149.1052808303752,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2417,7 +2417,7 @@
    "depth_usd": 73.83,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 83171.67402419406,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2435,7 +2435,7 @@
    "depth_usd": 70.18,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.999472473378782,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2453,7 +2453,7 @@
    "depth_usd": 67.8,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.041800831929412065,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2471,7 +2471,7 @@
    "depth_usd": 61.59,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.142292724574602,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2489,7 +2489,7 @@
    "depth_usd": 55.9,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1171470274022732,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2507,7 +2507,7 @@
    "depth_usd": 52.23,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2524.9615402877753,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2525,7 +2525,7 @@
    "depth_usd": 45.09,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9984359358521325,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2543,7 +2543,7 @@
    "depth_usd": 43.88,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1505947409313124,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2561,7 +2561,7 @@
    "depth_usd": 41.62,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0031858700217418,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2579,7 +2579,7 @@
    "depth_usd": 41.5,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2499.554649252938,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2597,7 +2597,7 @@
    "depth_usd": 41.24,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2494.156267023148,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2615,7 +2615,7 @@
    "depth_usd": 40.15,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9993380536210974,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2633,7 +2633,7 @@
    "depth_usd": 39.13,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9990003847785407,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2651,7 +2651,7 @@
    "depth_usd": 36.37,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2501.8744726669975,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2669,7 +2669,7 @@
    "depth_usd": 35.44,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2517.000311981721,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2687,7 +2687,7 @@
    "depth_usd": 34.74,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.110796589731109,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2705,7 +2705,7 @@
    "depth_usd": 34.35,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2464.825963457187,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2723,7 +2723,7 @@
    "depth_usd": 32.24,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2503.580659522576,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2741,7 +2741,7 @@
    "depth_usd": 26.75,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.138228544212277,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2759,7 +2759,7 @@
    "depth_usd": 18.69,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2489.244076991797,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2777,7 +2777,7 @@
    "depth_usd": 18.65,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2528.3034985098725,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2795,7 +2795,7 @@
    "depth_usd": 18.63,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.998335457994651,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2813,7 +2813,7 @@
    "depth_usd": 15.14,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3.4025678683638813e+38,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2831,7 +2831,7 @@
    "depth_usd": 11.52,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3235.693476614331,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2849,7 +2849,7 @@
    "depth_usd": 10.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2494.7944513574653,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2867,7 +2867,7 @@
    "depth_usd": 9.4,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0032939131311704,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2885,7 +2885,7 @@
    "depth_usd": 9.38,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2837.571426345165,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2903,7 +2903,7 @@
    "depth_usd": 8.69,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0006871227060508,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2921,7 +2921,7 @@
    "depth_usd": 8.61,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03229643704719538,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2939,7 +2939,7 @@
    "depth_usd": 7.44,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2852.3171990476785,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2957,7 +2957,7 @@
    "depth_usd": 7.32,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 128388.01446357634,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2975,7 +2975,7 @@
    "depth_usd": 7.23,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2820.8804028203895,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -2993,7 +2993,7 @@
    "depth_usd": 7.08,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9999143694795869,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3011,7 +3011,7 @@
    "depth_usd": 7.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9995461474138998,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3029,7 +3029,7 @@
    "depth_usd": 6.94,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0017933814530429,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3047,7 +3047,7 @@
    "depth_usd": 6.43,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.145191146369374,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3065,7 +3065,7 @@
    "depth_usd": 6.37,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1310465677244546,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3083,7 +3083,7 @@
    "depth_usd": 6.21,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9985858556690612,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3101,7 +3101,7 @@
    "depth_usd": 6.01,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0015177162450621,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3119,7 +3119,7 @@
    "depth_usd": 5.34,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03039911731970093,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3137,7 +3137,7 @@
    "depth_usd": 4.89,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 8.356811602074312e-06,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3155,7 +3155,7 @@
    "depth_usd": 4.31,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1551012285159445,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3173,7 +3173,7 @@
    "depth_usd": 3.73,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0047179331410374,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3191,7 +3191,7 @@
    "depth_usd": 3.55,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2108713864646966e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3209,7 +3209,7 @@
    "depth_usd": 3.14,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2814.6947086672694,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3227,7 +3227,7 @@
    "depth_usd": 2.93,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2882.979359361632,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3245,7 +3245,7 @@
    "depth_usd": 2.75,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9987426481009829,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3263,7 +3263,7 @@
    "depth_usd": 2.74,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0011785064276097,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3281,7 +3281,7 @@
    "depth_usd": 2.65,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03465120896436847,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3299,7 +3299,7 @@
    "depth_usd": 1.97,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9992298856549707,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3317,7 +3317,7 @@
    "depth_usd": 1.93,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1349723143983808,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3335,7 +3335,7 @@
    "depth_usd": 1.71,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.5965302973901332e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3353,7 +3353,7 @@
    "depth_usd": 1.11,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2819.480154799425,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3371,7 +3371,7 @@
    "depth_usd": 0.94,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2781.5398943386513,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3389,7 +3389,7 @@
    "depth_usd": 0.93,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0869528902689112,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3407,7 +3407,7 @@
    "depth_usd": 0.87,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1343674597032862,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3425,7 +3425,7 @@
    "depth_usd": 0.73,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0017187084034658,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3443,7 +3443,7 @@
    "depth_usd": 0.67,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2548.3334503206356,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3461,7 +3461,7 @@
    "depth_usd": 0.65,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3026.887404071261,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3479,7 +3479,7 @@
    "depth_usd": 0.47,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2815.262579698004,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3497,7 +3497,7 @@
    "depth_usd": 0.46,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3037.0937490165957,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3515,7 +3515,7 @@
    "depth_usd": 0.42,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.6570594689639482,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3533,7 +3533,7 @@
    "depth_usd": 0.4,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0004839992778818,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3551,7 +3551,7 @@
    "depth_usd": 0.36,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0858018333491861,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3569,7 +3569,7 @@
    "depth_usd": 0.36,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1204451417096537,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3587,7 +3587,7 @@
    "depth_usd": 0.36,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.031282445120513626,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3605,7 +3605,7 @@
    "depth_usd": 0.35,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1074066662865996,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3623,7 +3623,7 @@
    "depth_usd": 0.34,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3098.2481585338514,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3641,7 +3641,7 @@
    "depth_usd": 0.31,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.105083971910292,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3659,7 +3659,7 @@
    "depth_usd": 0.3,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 81125.6830601093,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3677,7 +3677,7 @@
    "depth_usd": 0.28,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428184e-51,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3695,7 +3695,7 @@
    "depth_usd": 0.23,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03279469265759243,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3713,7 +3713,7 @@
    "depth_usd": 0.23,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0026636123911248,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3731,7 +3731,7 @@
    "depth_usd": 0.21,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0006286798026496,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3749,7 +3749,7 @@
    "depth_usd": 0.15,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.12988296872322,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3767,7 +3767,7 @@
    "depth_usd": 0.14,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.55516259722872,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3785,7 +3785,7 @@
    "depth_usd": 0.13,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1005692666163858,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3803,7 +3803,7 @@
    "depth_usd": 0.12,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.03831187430822832,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3821,7 +3821,7 @@
    "depth_usd": 0.08,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 75298.0,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3839,7 +3839,7 @@
    "depth_usd": 0.08,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2499.8854661511386,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3857,7 +3857,7 @@
    "depth_usd": 0.04,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1497653827620363e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3875,7 +3875,7 @@
    "depth_usd": 0.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2136.8769249367892,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3893,7 +3893,7 @@
    "depth_usd": 0.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 9.999033144583348e-06,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3911,7 +3911,7 @@
    "depth_usd": 0.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3745.632793056449,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3929,7 +3929,7 @@
    "depth_usd": 0.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.000955460826106,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3947,7 +3947,7 @@
    "depth_usd": 0.03,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.3981658534896926e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3965,7 +3965,7 @@
    "depth_usd": 0.02,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.2985722808316735e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -3983,7 +3983,7 @@
    "depth_usd": 0.01,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.0,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4001,7 +4001,7 @@
    "depth_usd": 0.01,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3099.6458248218096,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4019,7 +4019,7 @@
    "depth_usd": 0.01,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428186e-29,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4037,7 +4037,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428185e-39,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4055,7 +4055,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3.4025678683638813e+50,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4073,7 +4073,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3529.791916619998,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4091,7 +4091,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3.4025678683638813e+50,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4109,7 +4109,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 4209.707603192454,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4127,7 +4127,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 90992.24150693207,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4145,7 +4145,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.976005211545481e-05,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4163,7 +4163,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428186e-29,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4181,7 +4181,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.041195224708470174,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4199,7 +4199,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 7.109311876493932e-06,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4217,7 +4217,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 8.019687307613882e-06,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4235,7 +4235,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 3057.4297041949208,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4253,7 +4253,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 999.2447138882944,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4271,7 +4271,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 47235.54448270419,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4289,7 +4289,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.3503792463081164,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4307,7 +4307,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.34916874510700674,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4325,7 +4325,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1323268934524684,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4343,7 +4343,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428186e-29,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4361,7 +4361,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 24999047.86681328,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4379,7 +4379,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 99.46143840545558,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4397,7 +4397,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.001000450120021,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4415,7 +4415,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9989033006385808,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4433,7 +4433,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.1769397326141768,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4451,7 +4451,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 4566.384093682677,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4469,7 +4469,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2773.681485893826,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4487,7 +4487,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.9999026535655938,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4505,7 +4505,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428185e-27,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4523,7 +4523,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 90901.29929114618,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4541,7 +4541,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.2999806953631495,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4559,7 +4559,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428185e-27,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4577,7 +4577,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 1.3499771141534458,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4595,7 +4595,7 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 2.9389568101428185e-39,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   },
@@ -4613,24 +4613,24 @@
    "depth_usd": 0.0,
    "depth_is_real_balance": true,
    "price_token1_per_token0": 0.04302643854719145,
-   "updated_block": 52567727,
+   "updated_block": 52567789,
    "quarantined": false,
    "quarantine_reason": ""
   }
  ],
  "routes": 192222,
  "detector": {
-  "cycles": 1189,
-  "routes_screened": 228551958,
-  "routes_optimized": 34481,
-  "candidates": 34481,
+  "cycles": 1241,
+  "routes_screened": 238547502,
+  "routes_optimized": 36513,
+  "candidates": 36512,
   "positive_net": 0,
-  "last_cycle_ms": 330.8,
-  "last_screen_ms": 28.2,
+  "last_cycle_ms": 397.0,
+  "last_screen_ms": 28.6,
   "rejections": {
-   "spread_below_threshold": 162996403,
-   "liquidity_below_min": 65521019,
-   "negative_expected_net": 34481,
+   "spread_below_threshold": 170146755,
+   "liquidity_below_min": 68364123,
+   "negative_expected_net": 36512,
    "cycle_budget_exhausted": 55
   }
  },
@@ -4719,7 +4719,7 @@
    {
     "name": "data_fresh",
     "ok": true,
-    "detail": "data age 4225 ms, rpc_ok=True"
+    "detail": "data age 1897 ms, rpc_ok=True"
    },
    {
     "name": "model_calibrated",
@@ -4783,7 +4783,7 @@
   "manual_live_enabled": true
  },
  "opportunities": {
-  "total": 34481,
+  "total": 36512,
   "positive_expected_net": 0,
   "simulated": 0,
   "sim_ok": 0,
@@ -4791,10 +4791,10 @@
   "ghost_labeled": 0,
   "ghost_positive": 0,
   "decisions": {
-   "REJECTED": 34481
+   "REJECTED": 36512
   },
   "reject_reasons": {
-   "negative_expected_net": 34481
+   "negative_expected_net": 36512
   },
   "best": [],
   "closest": [
