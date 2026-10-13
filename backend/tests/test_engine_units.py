@@ -297,3 +297,40 @@ def test_selector_applies_the_onchain_safety_floor():
     assert any(x.startswith("below_safety_margin") for x in thin.reasons)
     assert not any(x.startswith("below_safety_margin") for x in fat.reasons)
     assert "negative_expected_net" not in thin.reasons
+
+
+def test_vectorised_screen_matches_per_route_formulas_and_is_fast():
+    """The numpy screen must reproduce route_spread_bps/route_fee_bps and the depth rule for every route."""
+    import time as _t
+
+    import numpy as np
+
+    from arbbot.engine.screen import RouteScreen
+
+    p_a, p_b, _ = two_pool_gap()
+    c = v2("0x" + "03" * 20, USDC, DAI, 10**12, 10**24)
+    d = v2("0x" + "04" * 20, WETH, DAI, 10**21, 2 * 10**24, dex="sushiswap")
+    routes = build_routes([p_a, p_b, c, d], [WETH, USDC], 3)
+    assert routes
+    sc = RouteScreen(routes)
+    price = lambda tok: 1.0 if tok.symbol in ("USDC", "DAI") else 2000.0  # noqa: E731
+    res = sc.run(min_spread_bps=-1e9, min_liquidity_usd=0, price_usd=price)
+    for i, route in enumerate(routes):
+        assert abs(res.spread_bps[i] - route_spread_bps(route)) < 1e-6 * max(1.0, abs(route_spread_bps(route)))
+        assert abs((res.spread_bps[i] - res.edge_bps[i]) - route_fee_bps(route)) < 1e-9
+    # survivors are sorted by edge, best first, and the depth rule rejects when any hop pool is too shallow
+    assert list(res.edge_bps[res.survivors]) == sorted(res.edge_bps[res.survivors], reverse=True)
+    deep = sc.run(min_spread_bps=-1e9, min_liquidity_usd=1e15, price_usd=price)
+    assert len(deep.survivors) == 0 and deep.rejections.get("liquidity_below_min") == len(routes)
+    noref = sc.run(min_spread_bps=-1e9, min_liquidity_usd=0, price_usd=lambda tok: None)
+    assert len(noref.survivors) == 0 and noref.rejections.get("no_price_reference") == len(routes)
+    # speed: 200k synthetic routes screened in well under a second
+    big = RouteScreen(routes)
+    reps = max(1, 200_000 // len(routes))
+    big.idx = np.tile(big.idx, (reps, 1))
+    big.sign = np.tile(big.sign, (reps, 1))
+    big.fee_bps = np.tile(big.fee_bps, reps)
+    t0 = _t.perf_counter()
+    out = big.run(min_spread_bps=1.0, min_liquidity_usd=20_000, price_usd=price)
+    assert (_t.perf_counter() - t0) < 1.0
+    assert len(out.edge_bps) == len(routes) * reps

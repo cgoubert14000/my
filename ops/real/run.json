@@ -3,6 +3,6 @@
   "chain": "base",
   "minutes": 60,
   "max_rps": 12,
-  "run": 5,
-  "note": "run 5 (60 min) : pipeline temps réel — instantanés publiés toutes les 2 min (latest_base.json, history_base.jsonl), WebSocket newHeads si disponible, avoirs réels, filtre frais-conscient, plancher de sécurité à la sélection"
+  "run": 6,
+  "note": "run 6 (60 min) : filtre de routes vectorisé (numpy, ~30 ms pour 192k routes au lieu de 7 s), rafraîchissement des ticks V3 étalé, marge min 0,05 bps au-dessus des frais ; temps réel (instantanés 2 min, WebSocket newHeads)"
 }

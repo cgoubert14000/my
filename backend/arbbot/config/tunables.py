@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass, fields
 class TunableParams:
     version: int = 1
     # detection
-    min_spread_bps: float = 1.0  # margin (bps) the raw spread must show ABOVE the sum of LP fees to be sized
+    min_spread_bps: float = 0.05  # margin (bps) the raw spread must show ABOVE the sum of LP fees to be sized (gas on Base ≈ 0.005 $)
     max_hops: int = 3
     max_price_impact_bps: float = 150.0
     max_data_age_ms: float = 4000.0

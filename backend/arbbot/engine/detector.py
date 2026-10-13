@@ -17,7 +17,7 @@ from ..core.types import Decision, DexKind, FlashSource, Opportunity, ProfitBrea
 from ..data.collector import StateCollector
 from .fees import FeeCalculator
 from .optimizer import max_borrow_for_route, optimize_amount
-from .routes import route_fee_bps, route_spread_bps
+from .screen import RouteScreen
 
 log = logging.getLogger("arbbot.detector")
 
@@ -30,6 +30,7 @@ class DetectorStats:
     candidates: int = 0
     positive_net: int = 0
     last_cycle_ms: float = 0.0
+    last_screen_ms: float = 0.0
     rejections: dict[str, int] = field(default_factory=dict)
 
     def reject(self, reason: str) -> None:
@@ -43,6 +44,7 @@ class DetectorStats:
             "candidates": self.candidates,
             "positive_net": self.positive_net,
             "last_cycle_ms": round(self.last_cycle_ms, 1),
+            "last_screen_ms": round(self.last_screen_ms, 1),
             "rejections": dict(sorted(self.rejections.items(), key=lambda kv: -kv[1])[:12]),
         }
 
@@ -57,6 +59,16 @@ class OpportunityDetector:
         self.eur_per_usd = eur_per_usd
         self.stats = DetectorStats()
         self.false_positive_counts: dict[str, int] = {}
+        self._screen: RouteScreen | None = None
+        self._screen_key: tuple[int, int] = (0, 0)
+
+    def _screen_for(self, routes: list[Route]) -> RouteScreen:
+        """Index/sign matrices are rebuilt only when the route list object or its length changes."""
+        key = (id(routes), len(routes))
+        if self._screen is None or key != self._screen_key:
+            self._screen = RouteScreen(routes)
+            self._screen_key = key
+        return self._screen
 
     def set_tunables(self, t: TunableParams) -> None:
         self.t = t
@@ -76,18 +88,6 @@ class OpportunityDetector:
             return None
         return int(max_borrow_usd / usd * 10**token.decimals)
 
-    def _liquidity_ok(self, route: Route) -> tuple[bool, str]:
-        for h in route.hops:
-            x, y = h.pool.depth_tokens()
-            p0 = self.fees.token_price_usd(h.pool.token0)
-            p1 = self.fees.token_price_usd(h.pool.token1)
-            if p0 is None or p1 is None:
-                return False, "no_price_reference"
-            usd = x / 10**h.pool.token0.decimals * p0 + y / 10**h.pool.token1.decimals * p1
-            if usd < self.t.min_liquidity_usd:
-                return False, "liquidity_below_min"
-        return True, ""
-
     async def scan(self, routes: list[Route], block: int, *, max_borrow_usd: float | None = None,
                    only_positive: bool = False) -> list[Opportunity]:
         t0 = time.perf_counter()
@@ -97,29 +97,20 @@ class OpportunityDetector:
         # 1) cheap screen: a cycle whose raw mid-price spread is below the sum of LP fees cannot have a positive gross
         #    profit at ANY size (out = in · ∏mid · ∏(1−fee) · impact ≤ in · ∏mid · ∏(1−fee)); min_spread_bps is the
         #    extra margin required on top of the fees. Survivors are sized best-edge first within a time budget.
-        shortlist: list[tuple[float, Route]] = []
-        for route in routes:
-            self.stats.routes_screened += 1
-            if any(h.pool.quarantined for h in route.hops):
-                self.stats.reject("pool_quarantined")
-                continue
-            spread = route_spread_bps(route)
-            fee_bps = route_fee_bps(route)
-            edge = spread - fee_bps
-            if edge < self.t.min_spread_bps:
-                self.stats.reject("spread_below_threshold")
-                continue
-            ok, why = self._liquidity_ok(route)
-            if not ok:
-                self.stats.reject(why)
-                continue
-            shortlist.append((edge, route))
-        shortlist.sort(key=lambda e: -e[0])
+        #    (vectorised: ~ms for 2e5 routes, see engine/screen.py — the per-route Python loop took 7 s on Base)
+        screen = self._screen_for(routes)
+        sr = screen.run(min_spread_bps=self.t.min_spread_bps, min_liquidity_usd=self.t.min_liquidity_usd, price_usd=self.fees.token_price_usd)
+        self.stats.routes_screened += len(routes)
+        for why, n in sr.rejections.items():
+            self.stats.rejections[why] = self.stats.rejections.get(why, 0) + n
+        self.stats.last_screen_ms = (time.perf_counter() - t0) * 1000
         budget_s = self.t.cycle_time_budget_ms / 1000.0
-        for i, (edge, route) in enumerate(shortlist):
+        for i, ri in enumerate(sr.survivors):
             if i >= self.t.max_optimizations_per_cycle or (time.perf_counter() - t0) > budget_s:
                 self.stats.reject("cycle_budget_exhausted")
                 continue
+            route = routes[int(ri)]
+            spread = float(sr.spread_bps[ri])
             token = route.token
             cap_policy = self._policy_cap(token, max_borrow_usd)
             provider_cap = self.fees.provider_capacity(token) or None

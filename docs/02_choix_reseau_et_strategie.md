@@ -44,8 +44,11 @@
   25 % de la profondeur du pool le moins liquide et à l'impact de prix maximal (150 bps).
 * **Fournisseur de flash loan** : choisi par coût effectif pour le montant (Morpho 0 % → Balancer 0 % si liquidité →
   Aave 0,05 % → flash Uniswap V3 au prix du pool), avec vérification on-chain de la liquidité disponible.
-* **Seuil d'entrée** : écart brut ≥ 5 bps après frais de swap (paramètre `min_spread_bps`, ajustable par le laboratoire),
-  net prévu > 0 **et** probabilité (borne inférieure) ≥ 75 % que le net reste positif au bloc suivant.
+* **Seuil d'entrée** : filtre vectorisé par bloc sur les ~190 000 cycles — l'écart brut des prix marginaux doit dépasser
+  la somme des frais LP de la route d'au moins `min_spread_bps` (0,05 bps par défaut : un cycle dont l'écart est sous
+  ses frais ne peut être rentable à aucune taille ; le laboratoire peut ajuster cette marge), puis dimensionnement des
+  survivants par ordre d'écart décroissant dans un budget de temps (1,2 s), net prévu > 0 **et** supérieur au plancher
+  de sécurité on-chain, **et** probabilité (borne inférieure) ≥ 75 % que le net reste positif au bloc suivant.
 * **Soumission** : RPC public du séquenceur (pas de mempool publique sur Base/Arbitrum). Le gain possible d'un relais
   privé est nul ici ; la seule « protection MEV » utile est la garde `minProfit` on-chain et `minAmountOut` par saut.
 

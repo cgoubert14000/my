@@ -1,0 +1,463 @@
+{
+ "chain": "local",
+ "chain_id": 31337,
+ "rpc_host": "127.0.0.1:8545",
+ "ts": 1791910486.276574,
+ "checks": [
+  {
+   "name": "rpc_reachable",
+   "ok": true,
+   "detail": "127.0.0.1:8545 in 1 ms",
+   "blocking": true
+  },
+  {
+   "name": "chain_id",
+   "ok": true,
+   "detail": "rpc=31337 config=31337",
+   "blocking": true
+  },
+  {
+   "name": "block_time",
+   "ok": true,
+   "detail": "measured 2.00 s vs config 2.0 s",
+   "blocking": false
+  },
+  {
+   "name": "head_fresh",
+   "ok": true,
+   "detail": "head age 1.3 s",
+   "blocking": true
+  },
+  {
+   "name": "rpc_latency",
+   "ok": true,
+   "detail": "p50 0 ms, max 0 ms",
+   "blocking": false
+  },
+  {
+   "name": "multicall3",
+   "ok": true,
+   "detail": "0xcA11bde05977b3631167028862bE2a173976CA11 aggregate3 ok=True",
+   "blocking": true
+  },
+  {
+   "name": "eth_call_state_override",
+   "ok": true,
+   "detail": "supported",
+   "blocking": false
+  },
+  {
+   "name": "debug_traceTransaction",
+   "ok": true,
+   "detail": "available",
+   "blocking": false
+  },
+  {
+   "name": "code:multicall3",
+   "ok": true,
+   "detail": "0xcA11bde05977b3631167028862bE2a173976CA11 (3480 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:wrapped_native",
+   "ok": true,
+   "detail": "0xD2D5e508C82EFc205cAFA4Ad969a4395Babce026 (2227 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:sushiswap",
+   "ok": true,
+   "detail": "0xB468647B04bF657C9ee2de65252037d781eABafD (13859 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:uniswap_v2",
+   "ok": true,
+   "detail": "0x7bdd3b028C4796eF0EAf07d11394d0d9d8c24139 (13859 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:uniswap_v3",
+   "ok": true,
+   "detail": "0x6F9679BdF5F180a139d01c598839a5df4860431b (24535 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:flash:BALANCER_V2",
+   "ok": true,
+   "detail": "0xc075BC0f734EFE6ceD866324fc2A9DBe1065CBB1 (2442 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:flash:AAVE_V3",
+   "ok": true,
+   "detail": "0x837a41023CF81234f89F956C94D676918b4791c1 (1441 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:flash:MORPHO",
+   "ok": true,
+   "detail": "0x04d7478fDF318C3C22cECE62Da9D78ff94807D77 (910 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:token:WETH",
+   "ok": true,
+   "detail": "0xD2D5e508C82EFc205cAFA4Ad969a4395Babce026 (2227 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:token:USDC",
+   "ok": true,
+   "detail": "0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72 (2181 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:token:DAI",
+   "ok": true,
+   "detail": "0xF85895D097B2C25946BB95C4d11E2F3c035F8f0C (2181 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:token:WBTC",
+   "ok": true,
+   "detail": "0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953 (2181 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "code:executor",
+   "ok": true,
+   "detail": "0xDC57724Ea354ec925BaFfCA0cCf8A1248a8E5CF1 (14208 bytes)",
+   "blocking": true
+  },
+  {
+   "name": "token:WETH",
+   "ok": true,
+   "detail": "on-chain symbol=WETH decimals=18 / config WETH/18",
+   "blocking": true
+  },
+  {
+   "name": "token:USDC",
+   "ok": true,
+   "detail": "on-chain symbol=USDC decimals=6 / config USDC/6",
+   "blocking": true
+  },
+  {
+   "name": "token:DAI",
+   "ok": true,
+   "detail": "on-chain symbol=DAI decimals=18 / config DAI/18",
+   "blocking": true
+  },
+  {
+   "name": "token:WBTC",
+   "ok": true,
+   "detail": "on-chain symbol=WBTC decimals=8 / config WBTC/8",
+   "blocking": true
+  },
+  {
+   "name": "factory:sushiswap",
+   "ok": true,
+   "detail": "V2 allPairsLength=5",
+   "blocking": true
+  },
+  {
+   "name": "factory:uniswap_v2",
+   "ok": true,
+   "detail": "V2 allPairsLength=5",
+   "blocking": true
+  },
+  {
+   "name": "factory:uniswap_v3",
+   "ok": true,
+   "detail": "V3 feeAmountTickSpacing(3000)=60",
+   "blocking": true
+  },
+  {
+   "name": "pool_discovery",
+   "ok": true,
+   "detail": "18 pools: {'uniswap_v2': 5, 'sushiswap': 5, 'uniswap_v3': 5, 'aerodrome': 3}",
+   "blocking": true
+  },
+  {
+   "name": "pools_with_depth",
+   "ok": true,
+   "detail": "18 pools \u2265 20 000 $ (deepest: USDC/WETH uniswap_v3 4812780.93 $)",
+   "blocking": true
+  },
+  {
+   "name": "native_price",
+   "ok": true,
+   "detail": "ETH \u2248 1999.7843264801863 $ (from the deepest WETH/stable pool)",
+   "blocking": true
+  },
+  {
+   "name": "flash:BALANCER_V2",
+   "ok": true,
+   "detail": "fee 0.0 bps, capacity WETH 10,000.00, USDC 20,000,000.00, DAI 20,000,000.00",
+   "blocking": false
+  },
+  {
+   "name": "flash:AAVE_V3",
+   "ok": true,
+   "detail": "fee 5.0 bps, capacity WETH 10,000.00, USDC 20,000,000.00, DAI 20,000,000.00",
+   "blocking": false
+  },
+  {
+   "name": "flash:MORPHO",
+   "ok": true,
+   "detail": "fee 0.0 bps, capacity WETH 10,000.00, USDC 20,000,000.00, DAI 20,000,000.00",
+   "blocking": false
+  },
+  {
+   "name": "flash_any_capacity",
+   "ok": true,
+   "detail": "at least one provider can lend a borrowable token",
+   "blocking": true
+  }
+ ],
+ "pools": [
+  {
+   "address": "0x8E0D6aCb5cCF11A1781C2BA687bfFebd3ed74e3e",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 4812780.93,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xA1a91bAf4d410ae124F6BF86B4E960733ffA6068",
+   "dex": "sushiswap",
+   "kind": "UNIV2",
+   "pair": "USDC/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 4135740.65,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xD672B74BD16c047b66F8c002dD615DDc327d7c7A",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 4018149.48,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2Dd661d06C574d2e01cd03a6eA4599df49dCd2d7",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WBTC/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 3371857.29,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xf201fFeA8447AB3d43c98Da3349e0749813C9009",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "USDC/DAI",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 3158268.4,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xF8CB27Ff5188044E70ceEA1898f7C7bc96fd14F2",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2888247.54,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x0bbb8bd5A61aB040Ff38Fa5A268FCe800f2a59B9",
+   "dex": "sushiswap",
+   "kind": "UNIV2",
+   "pair": "USDC/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2764407.51,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x98Bf79b3e90be819d7396d88D8c1C7313A176dCf",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2644356.6,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x8e6D6733EB1A673ab49793546561Cc7aE94b8A22",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/WETH",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 2290594.69,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x069B618F7334d406C1E77a09efB6f4C14c7CABE3",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1930452.01,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x62a5eDc4bb9CF743257cA728D7f557AC435F04Ed",
+   "dex": "sushiswap",
+   "kind": "UNIV2",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1768968.49,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xa85EffB2658CFd81e0B1AaD4f2364CdBCd89F3a1",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "USDC/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1667247.52,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3E499b2cA7E85b7Bf320765055853fc58b2674c5",
+   "dex": "sushiswap",
+   "kind": "UNIV2",
+   "pair": "WBTC/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1445027.42,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x53b0B4E6EC4873771a8986b2a4E23fDDF256A78c",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WBTC/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1282147.17,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x98248C7Cfd54606bf1EbFcd8344e8c8e1012A0dB",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WBTC/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1107668.88,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4A00c427bCd0A92e5184a4e5336AFE81D53fa2A7",
+   "dex": "sushiswap",
+   "kind": "UNIV2",
+   "pair": "WBTC/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1086188.67,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x1bEfE2d8417e22Da2E0432560ef9B2aB68Ab75Ad",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 655781.3,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xe3d4672489d560fBc681d22cd0f82d12f72cB5f6",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/DAI",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 513663.02,
+   "quarantined": false,
+   "reason": ""
+  }
+ ],
+ "providers": {
+  "BALANCER_V2": {
+   "address": "0xc075BC0f734EFE6ceD866324fc2A9DBe1065CBB1",
+   "fee_bps": 0.0,
+   "verified": true,
+   "capacity": {
+    "WETH": 10000.0,
+    "USDC": 20000000.0,
+    "DAI": 20000000.0
+   }
+  },
+  "AAVE_V3": {
+   "address": "0x837a41023CF81234f89F956C94D676918b4791c1",
+   "fee_bps": 5.0,
+   "verified": true,
+   "capacity": {
+    "WETH": 10000.0,
+    "USDC": 20000000.0,
+    "DAI": 20000000.0
+   }
+  },
+  "MORPHO": {
+   "address": "0x04d7478fDF318C3C22cECE62Da9D78ff94807D77",
+   "fee_bps": 0.0,
+   "verified": true,
+   "capacity": {
+    "WETH": 10000.0,
+    "USDC": 20000000.0,
+    "DAI": 20000000.0
+   }
+  }
+ },
+ "network": {
+  "block": 8344,
+  "block_time_measured_s": 2.0,
+  "block_time_config_s": 2.0,
+  "base_fee_gwei": 0.009289985,
+  "priority_fee_gwei": 1.0,
+  "latency_p50_ms": 0.3,
+  "latency_max_ms": 0.4,
+  "head_age_s": 1.3,
+  "native_price_usd": 1999.7843264801863
+ },
+ "config_digest": "66f0c3199b1bfacb",
+ "ok": true
+}

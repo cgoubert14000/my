@@ -243,14 +243,20 @@ class StateCollector:
 
     async def _refresh_ticks(self, block: int, subset: list[Pool] | None = None) -> None:
         need: list[Pool] = []
-        for p in (subset if subset is not None else self.pools):
+        n_stagger = max(1, self.tick_refresh_blocks)
+        for i, p in enumerate(subset if subset is not None else self.pools):
             if p.kind not in (DexKind.UNIV3, DexKind.PANCAKE_V3) or p.v3 is None or p.quarantined:
                 continue
             last = self._tick_fetched_block.get(p.address, -1)
             win = self._tick_window.get(p.address)
             word = (p.v3.tick // (p.tick_spacing or 1)) >> 8
             out_of_window = win is None or not (win[0] < word < win[1])
-            if last < 0 or block - last >= self.tick_refresh_blocks or out_of_window:
+            # periodic refresh is staggered (pool i every N + i mod N blocks) so that only a fraction of the concentrated
+            # pools is re-fetched per block instead of all of them every N blocks (which stalled the collector for
+            # seconds on a rate-limited public RPC — real-market session 38425105547, refresh p95 3.9 s). A price move
+            # out of the fetched window still triggers an immediate re-fetch.
+            due = block - last >= n_stagger + (0 if subset is not None else i % n_stagger)
+            if last < 0 or due or out_of_window:
                 need.append(p)
         if not need:
             return

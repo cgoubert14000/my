@@ -117,7 +117,7 @@ def diagnose(obs: dict, t: TunableParams) -> Diagnosis:
         d.changes["gas_units_per_hop"] = {k: max(int(v * 0.9), 40_000) for k, v in t.gas_units_per_hop.items()}
         d.rationale.append("gas_units_per_hop × 0.9: over-estimated gas hides small but real opportunities")
     if positives == 0 and near_miss >= 5:
-        new_spread = max(round(t.min_spread_bps * 0.8, 2), 2.0)
+        new_spread = max(round(t.min_spread_bps * 0.8, 3), 0.05)  # margin above LP fees; never below the gas floor
         d.findings.append(f"no positive candidate but {near_miss} routes just below the spread threshold")
         d.changes["min_spread_bps"] = new_spread
         d.rationale.append(f"min_spread_bps {t.min_spread_bps} → {new_spread}: screen was too strict")
