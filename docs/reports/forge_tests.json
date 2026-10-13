@@ -1,0 +1,196 @@
+{
+ "ts": 1791896982.148553,
+ "exit_code": 0,
+ "passed": 36,
+ "failed": 0,
+ "suites": {
+  "FlashArbExecutorTest": {
+   "test_aave_profitable_pays_premium()": {
+    "ok": true,
+    "gas": 213992,
+    "runs": null
+   },
+   "test_balancer_profitable()": {
+    "ok": true,
+    "gas": 209413,
+    "runs": null
+   },
+   "test_feeOnTransfer_token_detected_by_balance_delta()": {
+    "ok": true,
+    "gas": 2189376,
+    "runs": null
+   },
+   "test_morpho_profitable_zero_fee()": {
+    "ok": true,
+    "gas": 211084,
+    "runs": null
+   },
+   "test_owner_can_execute_too()": {
+    "ok": true,
+    "gas": 205415,
+    "runs": null
+   },
+   "test_ownership_two_step()": {
+    "ok": true,
+    "gas": 33728,
+    "runs": null
+   },
+   "test_pause_blocks_execution_and_guardian_can_pause()": {
+    "ok": true,
+    "gas": 238271,
+    "runs": null
+   },
+   "test_quoteV2_matches_mock_pair()": {
+    "ok": true,
+    "gas": 18474,
+    "runs": null
+   },
+   "test_revert_badHopCount_and_zeroAmount()": {
+    "ok": true,
+    "gas": 41254,
+    "runs": null
+   },
+   "test_revert_borrowCap()": {
+    "ok": true,
+    "gas": 64785,
+    "runs": null
+   },
+   "test_revert_direct_callbacks_are_rejected()": {
+    "ok": true,
+    "gas": 429529,
+    "runs": null
+   },
+   "test_revert_expired()": {
+    "ok": true,
+    "gas": 29738,
+    "runs": null
+   },
+   "test_revert_hopMinOut()": {
+    "ok": true,
+    "gas": 159359,
+    "runs": null
+   },
+   "test_revert_insufficientProfit()": {
+    "ok": true,
+    "gas": 182538,
+    "runs": null
+   },
+   "test_revert_notExecutor()": {
+    "ok": true,
+    "gas": 29198,
+    "runs": null
+   },
+   "test_revert_poolNotAllowed()": {
+    "ok": true,
+    "gas": 624577,
+    "runs": null
+   },
+   "test_revert_providerNotAllowed()": {
+    "ok": true,
+    "gas": 37870,
+    "runs": null
+   },
+   "test_revert_routeNotCyclic_and_discontinuous()": {
+    "ok": true,
+    "gas": 73714,
+    "runs": null
+   },
+   "test_revert_tokenNotAllowed()": {
+    "ok": true,
+    "gas": 560338,
+    "runs": null
+   },
+   "test_revert_unprofitable_route_cannot_repay()": {
+    "ok": true,
+    "gas": 222887,
+    "runs": null
+   },
+   "test_revert_unprofitable_selfFunded_never_loses()": {
+    "ok": true,
+    "gas": 158150,
+    "runs": null
+   },
+   "test_selfFunded_profitable()": {
+    "ok": true,
+    "gas": 184240,
+    "runs": null
+   },
+   "test_solidly_stable_route_profitable()": {
+    "ok": true,
+    "gas": 938094,
+    "runs": null
+   },
+   "test_withdraw_onlyOwner()": {
+    "ok": true,
+    "gas": 63607,
+    "runs": null
+   }
+  },
+  "FuzzTest": {
+   "testFuzz_callbacks_reject_any_sender(address,bytes)": {
+    "ok": true,
+    "gas": null,
+    "runs": 512
+   },
+   "testFuzz_minProfit_is_enforced(uint256,uint256)": {
+    "ok": true,
+    "gas": null,
+    "runs": 512
+   },
+   "testFuzz_only_executors(address)": {
+    "ok": true,
+    "gas": null,
+    "runs": 512
+   },
+   "testFuzz_profit_accounting_v2(uint256,uint96,uint32)": {
+    "ok": true,
+    "gas": null,
+    "runs": 512
+   },
+   "testFuzz_quoteV2_matches_pair_execution(uint112,uint112,uint256)": {
+    "ok": true,
+    "gas": null,
+    "runs": 512
+   }
+  },
+  "InvariantTest": {
+   "invariant_balance_equals_sum_of_profits()": {
+    "ok": true,
+    "gas": null,
+    "runs": null
+   },
+   "invariant_execution_counter_matches()": {
+    "ok": true,
+    "gas": null,
+    "runs": null
+   },
+   "invariant_no_residual_allowances()": {
+    "ok": true,
+    "gas": null,
+    "runs": null
+   },
+   "invariant_owner_and_executor_unchanged()": {
+    "ok": true,
+    "gas": null,
+    "runs": null
+   }
+  },
+  "RealUniswapV3Test": {
+   "testFuzz_real_v3_profit_matches_reference(uint256)": {
+    "ok": true,
+    "gas": null,
+    "runs": 512
+   },
+   "test_real_v3_pool_arbitrage_balancer_source()": {
+    "ok": true,
+    "gas": 361254,
+    "runs": null
+   },
+   "test_real_v3_pool_as_flash_source()": {
+    "ok": true,
+    "gas": 120842,
+    "runs": null
+   }
+  }
+ }
+}

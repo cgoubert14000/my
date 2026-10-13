@@ -55,9 +55,9 @@ class GhostLabeler:
             return False
         self.last_labeled_block[key] = block
         self.pending.append(PendingLabel(opp, block, block + 1, time.time()))
-        return True
         if len(self.pending) > 500:
             del self.pending[:100]
+        return True
 
     async def on_block(self, block: int) -> list[dict]:
         """Label everything whose landing block has been reached. Returns the new observations (dicts)."""

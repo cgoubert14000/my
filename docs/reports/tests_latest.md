@@ -1,0 +1,114 @@
+# Rapport d'exécution des tests — 2026-10-13 13:09:56
+
+## Contrats (Foundry)
+- **36 réussis / 0 échoués** (code de sortie 0)
+- FlashArbExecutorTest : 24/24
+  - ✅ test_aave_profitable_pays_premium() — gaz 213992
+  - ✅ test_balancer_profitable() — gaz 209413
+  - ✅ test_feeOnTransfer_token_detected_by_balance_delta() — gaz 2189376
+  - ✅ test_morpho_profitable_zero_fee() — gaz 211084
+  - ✅ test_owner_can_execute_too() — gaz 205415
+  - ✅ test_ownership_two_step() — gaz 33728
+  - ✅ test_pause_blocks_execution_and_guardian_can_pause() — gaz 238271
+  - ✅ test_quoteV2_matches_mock_pair() — gaz 18474
+  - ✅ test_revert_badHopCount_and_zeroAmount() — gaz 41254
+  - ✅ test_revert_borrowCap() — gaz 64785
+  - ✅ test_revert_direct_callbacks_are_rejected() — gaz 429529
+  - ✅ test_revert_expired() — gaz 29738
+  - ✅ test_revert_hopMinOut() — gaz 159359
+  - ✅ test_revert_insufficientProfit() — gaz 182538
+  - ✅ test_revert_notExecutor() — gaz 29198
+  - ✅ test_revert_poolNotAllowed() — gaz 624577
+  - ✅ test_revert_providerNotAllowed() — gaz 37870
+  - ✅ test_revert_routeNotCyclic_and_discontinuous() — gaz 73714
+  - ✅ test_revert_tokenNotAllowed() — gaz 560338
+  - ✅ test_revert_unprofitable_route_cannot_repay() — gaz 222887
+  - ✅ test_revert_unprofitable_selfFunded_never_loses() — gaz 158150
+  - ✅ test_selfFunded_profitable() — gaz 184240
+  - ✅ test_solidly_stable_route_profitable() — gaz 938094
+  - ✅ test_withdraw_onlyOwner() — gaz 63607
+- FuzzTest : 5/5
+  - ✅ testFuzz_callbacks_reject_any_sender(address,bytes) — 512 runs
+  - ✅ testFuzz_minProfit_is_enforced(uint256,uint256) — 512 runs
+  - ✅ testFuzz_only_executors(address) — 512 runs
+  - ✅ testFuzz_profit_accounting_v2(uint256,uint96,uint32) — 512 runs
+  - ✅ testFuzz_quoteV2_matches_pair_execution(uint112,uint112,uint256) — 512 runs
+- InvariantTest : 4/4
+  - ✅ invariant_balance_equals_sum_of_profits()
+  - ✅ invariant_execution_counter_matches()
+  - ✅ invariant_no_residual_allowances()
+  - ✅ invariant_owner_and_executor_unchanged()
+- RealUniswapV3Test : 3/3
+  - ✅ testFuzz_real_v3_profit_matches_reference(uint256) — 512 runs
+  - ✅ test_real_v3_pool_arbitrage_balancer_source() — gaz 361254
+  - ✅ test_real_v3_pool_as_flash_source() — gaz 120842
+
+## Backend (pytest)
+- **59 réussis / 0 échoués / 0 ignorés / 0 erreurs** (code de sortie 0)
+- tests.test_api_selfcorr_ghost
+  - ✅ test_param_repo_propose_accept_rollback_are_git_isolated (0.07s)
+  - ✅ test_self_correction_cannot_touch_financial_controls (0.00s)
+  - ✅ test_ghost_dedup_one_observation_per_route_per_window (0.45s)
+  - ✅ test_api_status_opportunities_emergency_stop_and_tunable_guard (0.58s)
+- tests.test_devnet_e2e
+  - ✅ test_detection_simulation_exact_and_ghost_label (2.38s)
+  - ✅ test_preflight_refuses_without_signer_and_emergency_stop (1.59s)
+  - ✅ test_live_execution_under_policy_with_isolated_signer (2.23s)
+- tests.test_engine_units
+  - ✅ test_build_routes_2_and_3_hops_no_pool_reuse (0.00s)
+  - ✅ test_quarantined_pool_excluded (0.00s)
+  - ✅ test_spread_and_fee_bps (0.00s)
+  - ✅ test_optimizer_finds_interior_optimum_matching_closed_form (0.00s)
+  - ✅ test_optimizer_reports_no_profit_when_gap_below_fees (0.00s)
+  - ✅ test_flash_fee_rounds_up_like_aave (0.00s)
+  - ✅ test_max_borrow_respects_depth_provider_and_policy (0.00s)
+  - ✅ test_selector_requires_demonstrated_reliability (0.00s)
+  - ✅ test_gate_stale_data (0.00s)
+  - ✅ test_gate_simulation_failed_and_below_estimate (0.00s)
+  - ✅ test_gate_unknown_costs_block_eligibility (0.00s)
+  - ✅ test_gate_policy_allowlists_and_budget (0.00s)
+  - ✅ test_negative_net_never_eligible_and_ev_ranking (0.00s)
+  - ✅ test_decode_custom_errors (0.00s)
+  - ✅ test_rpc_client_surfaces_connection_errors (2.01s)
+- tests.test_math_units
+  - ✅ test_v2_matches_reference_formula (0.00s)
+  - ✅ test_v2_output_never_breaks_k (0.42s)
+  - ✅ test_v2_fee_on_input_reduces_output (0.00s)
+  - ✅ test_v3_tick_sqrt_roundtrip (0.00s)
+  - ✅ test_solidly_stable_close_to_peg_and_volatile_equals_v2_shape (0.00s)
+  - ✅ test_route_quote_two_hop_profit_and_loss (0.00s)
+  - ✅ test_quote_rejects_zero_and_token_not_in_pool (0.00s)
+  - ✅ test_price_impact_grows_with_size (0.00s)
+- tests.test_math_vs_chain
+  - ✅ test_v3_simulation_matches_real_pool_bytecode (1.32s)
+  - ✅ test_v2_quote_is_maximal_against_real_pair (0.03s)
+  - ✅ test_solidly_matches_onchain_getAmountOut (0.63s)
+- tests.test_policy_risk_signer
+  - ✅ test_policy_is_frozen_and_rejects_unknown_fields (0.00s)
+  - ✅ test_policy_disabled_or_expired_is_invalid (0.00s)
+  - ✅ test_self_correction_cannot_touch_financial_limits (0.00s)
+  - ✅ test_tunables_roundtrip (0.00s)
+  - ✅ test_reliability_insufficient_then_ok (0.01s)
+  - ✅ test_reliability_bad_outcomes_fail_threshold (0.00s)
+  - ✅ test_reliability_never_fabricates_from_other_buckets (0.00s)
+  - ✅ test_status_learning_without_data (0.00s)
+  - ✅ test_status_reliability_insufficient (0.00s)
+  - ✅ test_status_ready_but_authorization_missing (0.01s)
+  - ✅ test_status_ready_then_live_then_suspended_on_losses (0.01s)
+  - ✅ test_budget_checks_and_kill_switch (0.00s)
+  - ✅ test_cumulative_loss_limit (0.01s)
+  - ✅ test_signer_signs_valid_request (0.01s)
+  - ✅ test_signer_refuses[bad0-target] (0.00s)
+  - ✅ test_signer_refuses[bad1-chain] (0.00s)
+  - ✅ test_signer_refuses[bad2-value] (0.00s)
+  - ✅ test_signer_refuses[bad3-gas limit] (0.00s)
+  - ✅ test_signer_refuses[bad4-maxFeePerGas] (0.00s)
+  - ✅ test_signer_refuses[bad5-executeArbitrage] (0.00s)
+  - ✅ test_signer_refuses[bad6-minProfit] (0.00s)
+  - ✅ test_signer_refuses[bad7-borrow] (0.00s)
+  - ✅ test_signer_refuses[bad8-not in policy] (0.00s)
+  - ✅ test_signer_refuses[bad9-deadline] (0.00s)
+  - ✅ test_signer_enforces_cumulative_budget_and_count (0.01s)
+  - ✅ test_signer_refuses_when_policy_wallet_differs (0.00s)
+
+Les tests `devnet` sont ignorés si anvil n'est pas démarré ; ils ont été exécutés ici si leur statut est ✅.

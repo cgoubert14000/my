@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 
-from ..config.settings import Settings, get_settings
+from ..config.settings import REPO_ROOT, Settings, get_settings
 from ..config.tunables import TunableParams
 from ..reliability.model import required_sample_size
 
@@ -232,6 +232,13 @@ def create_app(settings: Settings | None = None, runtime=None) -> FastAPI:
             log.debug("ws closed: %s", e)
         finally:
             r.bus.unsubscribe(q)
+
+    # Production UI: serve frontend/dist at / when it has been built (npm run build) — one port for everything.
+    dist = REPO_ROOT / "frontend" / "dist"
+    if dist.exists():
+        from fastapi.staticfiles import StaticFiles
+
+        app.mount("/", StaticFiles(directory=str(dist), html=True), name="ui")
 
     return app
 

@@ -134,11 +134,42 @@ class Runtime:
         obs = self.db.observations()
         self.reliability.extend([Observation(o["ts"], o["features"], o["label"], o["source"], o["route_key"], o["net_after"], o["net_expected"]) for o in obs])
         self.risk.flags.update(self.db.kv_get("verification_flags", {}))
+        self._load_test_reports()
         log.info("runtime ready: %d pools, %d routes, %d observations, executor=%s", len(self.pools), len(self.routes), len(obs), exec_addr or "(state override)")
         self.db.add_event("info", "startup", f"{len(self.pools)} pools, {len(self.routes)} routes", {"chain": self.chain.id})
         self._tasks = [asyncio.create_task(self.collector.run(), name="collector"),
                        asyncio.create_task(self._engine_loop(), name="engine"),
                        asyncio.create_task(self._housekeeping(), name="housekeeping")]
+
+    def _load_test_reports(self) -> None:
+        """Maturity flags come from the *executed* test reports written by scripts/run_tests.py (never asserted by hand)."""
+        import json
+
+        from ..config.settings import REPO_ROOT
+
+        rep = REPO_ROOT / "docs" / "reports"
+        try:
+            py = json.loads((rep / "pytest_results.json").read_text()) if (rep / "pytest_results.json").exists() else None
+            fg = json.loads((rep / "forge_tests.json").read_text()) if (rep / "forge_tests.json").exists() else None
+        except (OSError, json.JSONDecodeError):
+            py, fg = None, None
+        max_age = 7 * 86400
+        now = time.time()
+        if py and py.get("failed", 1) == 0 and py.get("errors", 1) == 0 and py.get("passed", 0) > 0 and now - py.get("ts", 0) < max_age:
+            self.risk.flags["tests_passed"] = True
+            tests = py.get("tests", {})
+            math_ok = [k for k, v in tests.items() if "test_math_vs_chain" in k and v["status"] == "passed"]
+            e2e_ok = [k for k, v in tests.items() if "test_detection_simulation_exact" in k and v["status"] == "passed"]
+            self.risk.flags["financial_math_validated"] = bool(math_ok) and bool(e2e_ok)
+            self.risk.flags["emergency_stop_ok"] = any("emergency_stop" in k and v["status"] == "passed" for k, v in tests.items())
+        else:
+            self.risk.flags["tests_passed"] = False
+        if fg and not fg.get("skipped") and fg.get("failed", 1) == 0 and fg.get("passed", 0) > 0 and now - fg.get("ts", 0) < max_age:
+            self.risk.flags["contract_tested"] = True
+        else:
+            self.risk.flags["contract_tested"] = False
+        self.risk.flags["test_reports"] = {"pytest": None if not py else {"ts": py.get("ts"), "passed": py.get("passed"), "failed": py.get("failed")},
+                                           "forge": None if not fg else {"ts": fg.get("ts"), "passed": fg.get("passed"), "failed": fg.get("failed")}}
 
     async def stop(self) -> None:
         self._stop.set()

@@ -12,6 +12,7 @@ import logging
 import pathlib
 import subprocess
 import time
+import uuid
 from dataclasses import dataclass, field
 
 from ..config.tunables import TunableParams
@@ -54,7 +55,7 @@ class ParamRepo:
         return self._git("rev-parse", "--short", "HEAD")
 
     def propose(self, candidate: TunableParams, description: str) -> str:
-        branch = f"cand-{int(time.time())}"
+        branch = f"cand-{int(time.time())}-{uuid.uuid4().hex[:6]}"
         self._git("checkout", "-q", "main")
         self._git("checkout", "-q", "-b", branch)
         self.file.write_text(json.dumps(candidate.as_dict(), indent=2))
