@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "mode": "paper",
+  "instrument": "XAU_USD",
+  "data_instrument": "XAUUSD",
+  "variant": "R30_fvg_rr1_structure_ma0_p0_n1_cut1130",
+  "risk_pct_per_trade": 0.5,
+  "max_daily_loss_r": 2.0,
+  "max_trades_per_day": 2,
+  "max_units": 5,
+  "max_consecutive_losses": 6,
+  "allowed_weekdays": [0, 1, 2, 3, 4],
+  "kill_switch_file": "ops/orb/STOP",
+  "paper_equity": 10000.0,
+  "note": "Politique GELÉE : seul un humain la modifie. mode=paper ⇒ aucune exécution réelle ; oanda_practice ⇒ compte de démonstration ; oanda_live n'est jamais activé par le bot."
+}

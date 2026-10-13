@@ -1,0 +1,9 @@
+{
+  "run": 1,
+  "instruments": ["XAUUSD", "EURUSD"],
+  "start": "2022-01-01",
+  "end": "",
+  "grid": "full",
+  "split": 0.6,
+  "note": "Modifier `run` (ou tout champ) et pousser pour relancer le backtest réel sur GitHub Actions. `end` vide = hier."
+}

@@ -1,0 +1,73 @@
+name: orb-backtest
+
+# Backtest ORB sur données RÉELLES (bougies 1 min Dukascopy, flux public) : grille complète de variantes, validation
+# in-sample / out-of-sample, walk-forward, bootstrap. Déclenchement : modification de ops/orb/backtest.json ou manuel.
+# Les rapports sont publiés dans docs/reports/orb/ sur la branche.
+
+on:
+  push:
+    paths:
+      - "ops/orb/backtest.json"
+      - ".github/workflows/orb-backtest.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orb-backtest-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dépendances
+        run: python -m pip install -q -e "orb[dev]"
+      - name: Tests (stratégie, décodage, cohérence rejeu/backtest)
+        run: cd orb && python -m pytest tests -q 2>&1 | tee ../docs/reports/orb/tests_${{ github.run_id }}.log
+      - name: Paramètres
+        id: cfg
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          d = json.load(open("ops/orb/backtest.json"))
+          print("instruments=" + " ".join(d.get("instruments", ["XAUUSD"])))
+          print(f"start={d.get('start', '2022-01-01')}")
+          print(f"end={d.get('end', '')}")
+          print(f"grid={d.get('grid', 'full')}")
+          print(f"split={d.get('split', 0.6)}")
+          PY
+      - name: Cache des bougies Dukascopy
+        uses: actions/cache@v4
+        with:
+          path: data/orb
+          key: dukascopy-m1-${{ steps.cfg.outputs.instruments }}-${{ steps.cfg.outputs.start }}-${{ github.run_id }}
+          restore-keys: |
+            dukascopy-m1-${{ steps.cfg.outputs.instruments }}-${{ steps.cfg.outputs.start }}-
+            dukascopy-m1-
+      - name: Backtest (données réelles)
+        run: |
+          mkdir -p docs/reports/orb
+          for ins in ${{ steps.cfg.outputs.instruments }}; do
+            echo "=== $ins ==="
+            orbbot backtest --instrument "$ins" --start "${{ steps.cfg.outputs.start }}" --end "${{ steps.cfg.outputs.end }}" \
+              --grid "${{ steps.cfg.outputs.grid }}" --split "${{ steps.cfg.outputs.split }}" --tag "${{ github.run_id }}" \
+              --out docs/reports/orb 2>&1 | grep -v "^  lot " | tee -a docs/reports/orb/session_${{ github.run_id }}.log || echo "$ins: ÉCHEC" | tee -a docs/reports/orb/session_${{ github.run_id }}.log
+          done
+      - name: Publier les rapports dans la branche
+        if: always()
+        run: bash ops/orb/publish.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: orb-backtest-${{ github.run_id }}
+          path: docs/reports/orb/*${{ github.run_id }}*
+          if-no-files-found: warn

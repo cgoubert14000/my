@@ -1,0 +1,51 @@
+name: orb-paper
+
+# Séance de paper trading ORB (prix OANDA réels en temps réel, exécution fictive) chaque jour ouvré. Nécessite le secret
+# OANDA_TOKEN (compte de démonstration gratuit) ; sans lui, la séance est simplement notée comme non exécutable.
+# Aucune exécution réelle : la politique ops/orb/policy.json (mode=paper) l'interdit et le bot ne la modifie jamais.
+
+on:
+  schedule:
+    - cron: "15 13 * * 1-5"   # 13:15 UTC = 09:15 New York (été) / 08:15 (hiver) — le moteur attend l'ouverture
+  workflow_dispatch:
+    inputs:
+      max_minutes:
+        description: "durée maximale de la séance (minutes)"
+        default: "345"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orb-paper-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Dépendances
+        run: python -m pip install -q -e orb
+      - name: Séance paper (flux OANDA réel, exécution fictive)
+        env:
+          OANDA_TOKEN: ${{ secrets.OANDA_TOKEN }}
+          ORB_RUN_TAG: ${{ github.run_id }}
+        run: |
+          mkdir -p docs/reports/orb/live
+          if [ -z "$OANDA_TOKEN" ]; then
+            printf '# Séance paper %s non exécutée\n\nSecret `OANDA_TOKEN` absent : aucun flux de prix temps réel disponible. Créer un compte de démonstration OANDA (gratuit), générer un jeton API (Manage API Access) et l ajouter dans Settings → Secrets → Actions.\n' "$(date -u +%Y-%m-%dT%H:%MZ)" > "docs/reports/orb/live/paper_${{ github.run_id }}.md"
+            exit 0
+          fi
+          orbbot policy-check --policy ops/orb/policy.json
+          orbbot live --policy ops/orb/policy.json --broker paper --journal-dir docs/reports/orb/live --max-minutes "${{ github.event.inputs.max_minutes || '345' }}" \
+            2>&1 | tee "docs/reports/orb/live/paper_${{ github.run_id }}.log"
+      - name: Publier le journal dans la branche
+        if: always()
+        run: bash ops/orb/publish.sh
