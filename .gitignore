@@ -5,6 +5,7 @@
 authorization.json
 *.keystore
 keystore/
+keystores/
 secrets/
 
 # Python
@@ -28,14 +29,15 @@ contracts/cache/
 contracts/broadcast/
 contracts/lib/
 
-# Runtime data
-data/
+# Runtime data (root data/ only — backend/arbbot/data is source code)
+/data/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
 *.db
 logs/
 *.log
+!docs/reports/real/*.log
 devnet/state/
 devnet/deployments.local.json
 
