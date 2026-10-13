@@ -39,7 +39,8 @@ def _json_safe(o: Any) -> Any:
 def pool_rows(rt) -> list[dict]:
     rows = []
     for p in rt.pools:
-        x, y = p.liquidity_hint()
+        x, y = p.depth_tokens()  # real holdings (balanceOf), not virtual reserves
+        vx, vy = p.liquidity_hint()
         px0 = rt.fees.token_price_usd(p.token0) or 0.0
         px1 = rt.fees.token_price_usd(p.token1) or 0.0
         usd = x / 10**p.token0.decimals * px0 + y / 10**p.token1.decimals * px1
@@ -49,14 +50,14 @@ def pool_rows(rt) -> list[dict]:
                 from ..core.math_v3 import price_from_sqrt
 
                 price = price_from_sqrt(p.v3.sqrt_price_x96, p.token0.decimals, p.token1.decimals)
-            elif x and y:
-                price = (y / 10**p.token1.decimals) / (x / 10**p.token0.decimals)
+            elif vx and vy:
+                price = (vy / 10**p.token1.decimals) / (vx / 10**p.token0.decimals)
         except Exception:  # noqa: BLE001
             price = None
         rows.append({
             "address": p.address, "dex": p.dex, "kind": p.kind.name, "fee_ppm": p.fee_ppm, "stable": p.stable,
             "pair": f"{p.token0.symbol}/{p.token1.symbol}", "token0": p.token0.address, "token1": p.token1.address,
-            "reserve0": str(x), "reserve1": str(y), "depth_usd": round(usd, 2),
+            "balance0": str(x), "balance1": str(y), "depth_usd": round(usd, 2), "depth_is_real_balance": bool(p.balances_block),
             "price_token1_per_token0": price, "updated_block": p.updated_block,
             "quarantined": p.quarantined, "quarantine_reason": p.quarantine_reason,
         })

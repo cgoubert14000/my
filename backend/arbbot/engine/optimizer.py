@@ -37,16 +37,21 @@ def max_borrow_for_route(route: Route, fraction_of_depth: float, provider_capaci
     """Upper bound = fraction of the shallowest input-side depth along the route (in start-token units)."""
     bound = None
     scale = 1.0
+    from ..core.pricing import _mid_price
+
     for h in route.hops:
         x, y = h.pool.liquidity_hint()
         depth_in = x if h.pool.is_token0(h.token_in.address) else y
         if h.pool.kind in (DexKind.UNIV3, DexKind.PANCAKE_V3):
             depth_in = depth_in // 2  # virtual reserves overstate executable depth once concentrated ranges end
+        m = _mid_price(h.pool, h.token_in)
+        if h.pool.balances_block and m > 0:
+            # the pool cannot pay out more token_out than it really holds → cap the input side accordingly
+            bx, by = h.pool.depth_tokens()
+            out_held = by if h.pool.is_token0(h.token_in.address) else bx
+            depth_in = min(depth_in, int(out_held / m))
         cand = int(depth_in * fraction_of_depth / scale) if scale > 0 else 0
         bound = cand if bound is None else min(bound, cand)
-        from ..core.pricing import _mid_price
-
-        m = _mid_price(h.pool, h.token_in)
         scale = scale * m if m > 0 else scale
     if bound is None:
         return 0

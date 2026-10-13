@@ -124,6 +124,19 @@ construit la statistique de fiabilité. Laissez tourner **plusieurs heures au mi
 Sans signer configuré, l'interface affiche « PRÊT POUR TEST RÉEL — AUTORISATION FINANCIÈRE MANQUANTE » dès que les
 autres critères sont verts : rien ne peut être signé, c'est voulu.
 
+### 4b-bis. Le plus simple : la session « marché réel » tout-en-un
+
+```powershell
+# essaie les RPC publics Base (ou le vôtre avec --rpc), vérifie tout, puis tourne 30 min en ghost et écrit les rapports
+python scripts\real_market_session.py --chain base --minutes 30 --rpc https://base-mainnet.g.alchemy.com/v2/VOTRE_CLE
+```
+
+Elle écrit `docs\reports\real\ghost_base_<tag>.md` (pools réels avec profondeur et prix au bloc, gaz, meilleures
+opportunités avec toutes les charges, étiquettes ghost, fiabilité) + `.json` + `_opportunities.csv` (chaque candidat),
+et laisse un `.env` prêt pour `arbbot serve` (interface en direct). Le même script tourne automatiquement sur
+**GitHub Actions** (`.github/workflows/real-market-ghost.yml`) à chaque modification de `ops/real/run.json` :
+les rapports arrivent dans la branche, sans aucune clé.
+
 ### 4c. Laboratoire de 60 minutes sur données réelles
 
 ```powershell

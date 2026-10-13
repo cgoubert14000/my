@@ -60,6 +60,12 @@ class Pool:
     updated_at: float = 0.0
     quarantined: bool = False
     quarantine_reason: str = ""
+    # Real token balances held by the pool contract (ERC-20 balanceOf), refreshed periodically by the collector.
+    # For concentrated-liquidity pools the virtual reserves (liquidity_hint) overstate the TVL by orders of
+    # magnitude, so depth filters and displays must use these.
+    balance0: int = 0
+    balance1: int = 0
+    balances_block: int = 0
 
     def other(self, token: str) -> Token:
         return self.token1 if token.lower() == self.token0.address.lower() else self.token0
@@ -88,6 +94,12 @@ class Pool:
             y = (self.v3.liquidity * self.v3.sqrt_price_x96) // Q96
             return x, y
         return self.reserve0, self.reserve1
+
+    def depth_tokens(self) -> tuple[int, int]:
+        """(token0, token1) amounts actually held by the pool when known, else the virtual/actual reserves."""
+        if self.balances_block:
+            return self.balance0, self.balance1
+        return self.liquidity_hint()
 
     def short(self) -> str:
         return f"{self.dex}:{self.token0.symbol}/{self.token1.symbol}@{self.address[:8]}"

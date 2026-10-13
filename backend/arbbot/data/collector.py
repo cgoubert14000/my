@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from ..config.chains import ChainConfig
 from ..core.math_v3 import V3PoolState
 from ..core.types import DexKind, Pool
-from .rpc import RpcClient, decode_result, encode_call
+from .rpc import RpcError, RpcClient, decode_result, encode_call
 
 log = logging.getLogger("arbbot.collector")
 
@@ -81,6 +81,7 @@ class StateCollector:
         self.pools = pools
         self.tick_words = tick_words_each_side
         self.tick_refresh_blocks = tick_refresh_blocks
+        self.balance_refresh_blocks = 30
         self.poll_interval = poll_interval_s
         self.ws_url = ws_url
         self.gas = GasSnapshot()
@@ -217,6 +218,7 @@ class StateCollector:
                     p.v3.fee_pips = p.fee_ppm
                 p.updated_block, p.updated_at = block, now
         await self._refresh_ticks(block, subset)
+        await self._refresh_balances(block, subset)
         self._update_gas(block, header)
         self._update_native_price()
         dt = (time.perf_counter() - t0) * 1000
@@ -284,6 +286,29 @@ class StateCollector:
             self._tick_window[p.address] = (center - self.tick_words, center + self.tick_words)
             self._tick_fetched_block[p.address] = block
 
+    async def _refresh_balances(self, block: int, subset: list[Pool] | None = None) -> None:
+        """Real ERC-20 balances held by each pool (TVL), every `balance_refresh_blocks` — virtual reserves of
+        concentrated pools are useless as a depth/TVL measure."""
+        need = [p for p in (subset if subset is not None else self.pools)
+                if not p.quarantined and (not p.balances_block or block - p.balances_block >= self.balance_refresh_blocks)]
+        if not need:
+            return
+        calls: list[tuple[str, bytes]] = []
+        for p in need:
+            calls.append((p.token0.address, encode_call("balanceOf(address)", [p.address])))
+            calls.append((p.token1.address, encode_call("balanceOf(address)", [p.address])))
+        try:
+            results = await self.rpc.multicall(calls, block)
+        except RpcError as e:
+            log.warning("balance refresh failed: %s", e)
+            return
+        for i, p in enumerate(need):
+            ok0, d0 = results[2 * i]
+            ok1, d1 = results[2 * i + 1]
+            if ok0 and ok1 and len(d0) >= 32 and len(d1) >= 32:
+                p.balance0, p.balance1 = int.from_bytes(d0[:32], "big"), int.from_bytes(d1[:32], "big")
+                p.balances_block = block
+
     def _update_gas(self, block: int, header: dict | None) -> None:
         base = int(header.get("baseFeePerGas", "0x0"), 16) if header else 0
         # priority fee: L2 sequencers accept very low tips; use a floor and let the executor bump if needed
@@ -300,15 +325,16 @@ class StateCollector:
             other = p.token1 if p.token0.address.lower() == wn else p.token0
             if other.symbol.upper() not in ("USDC", "USDBC", "USDT", "DAI", "USDCE"):
                 continue
-            x, y = p.liquidity_hint()
+            x, y = p.liquidity_hint()  # price = ratio of (virtual) reserves at the current tick
+            bx, by = p.depth_tokens()  # depth = what the pool really holds
             if p.token0.address.lower() == wn:
-                weth_raw, stable_raw, sd = x, y, other.decimals
+                weth_raw, stable_raw, sd, depth_raw = x, y, other.decimals, by
             else:
-                weth_raw, stable_raw, sd = y, x, other.decimals
+                weth_raw, stable_raw, sd, depth_raw = y, x, other.decimals, bx
             if weth_raw <= 0:
                 continue
             price = (stable_raw / 10**sd) / (weth_raw / 1e18)
-            depth = stable_raw / 10**sd
+            depth = depth_raw / 10**sd
             if best is None or depth > best[1]:
                 best = (price, depth)
         if best:

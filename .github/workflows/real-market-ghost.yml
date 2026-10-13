@@ -83,6 +83,7 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
         run: |
+          set -o pipefail
           mkdir -p docs/reports/real
           python scripts/real_market_session.py --chain "${{ steps.cfg.outputs.chain }}" --minutes "${{ steps.cfg.outputs.minutes }}" \
             --max-rps "${{ steps.cfg.outputs.max_rps }}" --tag "${{ github.run_id }}" 2>&1 | tee docs/reports/real/session_${{ github.run_id }}.log

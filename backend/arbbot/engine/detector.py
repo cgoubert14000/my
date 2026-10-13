@@ -78,7 +78,7 @@ class OpportunityDetector:
 
     def _liquidity_ok(self, route: Route) -> tuple[bool, str]:
         for h in route.hops:
-            x, y = h.pool.liquidity_hint()
+            x, y = h.pool.depth_tokens()
             p0 = self.fees.token_price_usd(h.pool.token0)
             p1 = self.fees.token_price_usd(h.pool.token1)
             if p0 is None or p1 is None:
@@ -94,6 +94,10 @@ class OpportunityDetector:
         self.stats.cycles += 1
         out: list[Opportunity] = []
         gas = self.collector.gas
+        # 1) cheap screen: a cycle whose raw mid-price spread is below the sum of LP fees cannot have a positive gross
+        #    profit at ANY size (out = in · ∏mid · ∏(1−fee) · impact ≤ in · ∏mid · ∏(1−fee)); min_spread_bps is the
+        #    extra margin required on top of the fees. Survivors are sized best-edge first within a time budget.
+        shortlist: list[tuple[float, Route]] = []
         for route in routes:
             self.stats.routes_screened += 1
             if any(h.pool.quarantined for h in route.hops):
@@ -101,12 +105,20 @@ class OpportunityDetector:
                 continue
             spread = route_spread_bps(route)
             fee_bps = route_fee_bps(route)
-            if spread < max(self.t.min_spread_bps, fee_bps * 0.5):
+            edge = spread - fee_bps
+            if edge < self.t.min_spread_bps:
                 self.stats.reject("spread_below_threshold")
                 continue
             ok, why = self._liquidity_ok(route)
             if not ok:
                 self.stats.reject(why)
+                continue
+            shortlist.append((edge, route))
+        shortlist.sort(key=lambda e: -e[0])
+        budget_s = self.t.cycle_time_budget_ms / 1000.0
+        for i, (edge, route) in enumerate(shortlist):
+            if i >= self.t.max_optimizations_per_cycle or (time.perf_counter() - t0) > budget_s:
+                self.stats.reject("cycle_budget_exhausted")
                 continue
             token = route.token
             cap_policy = self._policy_cap(token, max_borrow_usd)

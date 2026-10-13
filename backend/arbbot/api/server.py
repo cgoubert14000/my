@@ -113,7 +113,7 @@ def create_app(settings: Settings | None = None, runtime=None) -> FastAPI:
         r = rt()
         out = []
         for p in r.pools:
-            x, y = p.liquidity_hint()
+            x, y = p.depth_tokens()
             out.append({"address": p.address, "dex": p.dex, "kind": p.kind.name, "fee_ppm": p.fee_ppm, "stable": p.stable,
                         "token0": p.token0.symbol, "token1": p.token1.symbol, "reserve0": str(x), "reserve1": str(y),
                         "updated_block": p.updated_block, "quarantined": p.quarantined, "reason": p.quarantine_reason,

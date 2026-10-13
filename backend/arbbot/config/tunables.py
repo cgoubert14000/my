@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass, fields
 class TunableParams:
     version: int = 1
     # detection
-    min_spread_bps: float = 5.0  # ignore routes whose raw spread is below this
+    min_spread_bps: float = 1.0  # margin (bps) the raw spread must show ABOVE the sum of LP fees to be sized
     max_hops: int = 3
     max_price_impact_bps: float = 150.0
     max_data_age_ms: float = 4000.0
@@ -22,6 +22,8 @@ class TunableParams:
     # optimisation
     grid_points: int = 18
     golden_iters: int = 24
+    max_optimizations_per_cycle: int = 300  # routes sized per block, best fee-adjusted spread first
+    cycle_time_budget_ms: float = 1200.0  # stop sizing routes when the cycle exceeds this (keeps up with 2 s blocks)
     max_borrow_fraction_of_depth: float = 0.25  # cap borrow at a fraction of the shallowest pool depth
     # fee / gas model
     gas_safety_multiplier: float = 1.15
@@ -45,7 +47,7 @@ class TunableParams:
         "golden_iters", "max_borrow_fraction_of_depth", "gas_safety_multiplier", "gas_units_base", "gas_units_per_hop",
         "gas_units_flash", "v3_tick_cross_gas", "priority_fee_floor_gwei", "failure_gas_fraction", "safety_margin_bps",
         "sim_tolerance_bps", "reliability_min_observations", "reliability_credible_level",
-        "quarantine_after_false_positives",
+        "quarantine_after_false_positives", "max_optimizations_per_cycle", "cycle_time_budget_ms",
     )
 
     def __post_init__(self) -> None:

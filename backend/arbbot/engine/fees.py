@@ -173,12 +173,14 @@ class FeeCalculator:
             )
             if ref is None:
                 continue
-            x, y = p.liquidity_hint()
+            x, y = p.liquidity_hint()  # ratio → marginal price
+            bx, by = p.depth_tokens()  # real holdings → depth ranking
             tok_raw, oth_raw = (x, y) if p.is_token0(token.address) else (y, x)
+            oth_bal = by if p.is_token0(token.address) else bx
             if tok_raw <= 0:
                 continue
             price = (oth_raw / 10**other.decimals) / (tok_raw / 10**token.decimals) * ref
-            depth = oth_raw / 10**other.decimals * ref
+            depth = oth_bal / 10**other.decimals * ref
             if best is None or depth > best[1]:
                 best = (price, depth)
         return best[0] if best else None

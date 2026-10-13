@@ -72,7 +72,7 @@ def test_self_correction_cannot_touch_financial_limits():
         with pytest.raises(PermissionError):
             t.with_changes(**{forbidden: 1})
     t2 = t.with_changes(min_spread_bps=7.5)
-    assert t2.min_spread_bps == 7.5 and t2.version == t.version + 1 and t.min_spread_bps == 5.0
+    assert t2.min_spread_bps == 7.5 and t2.version == t.version + 1 and t.min_spread_bps == TunableParams.min_spread_bps
     assert "min_success_probability" not in TunableParams.ALLOWED_KEYS
 
 

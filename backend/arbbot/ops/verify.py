@@ -124,8 +124,9 @@ async def verify_chain(settings: Settings, *, discover_pools: bool = True, write
     t0 = time.perf_counter()
     try:
         await rpc.open()
-    except RpcError as e:
+    except (RpcError, Exception) as e:  # noqa: BLE001 — unreachable/odd endpoints must not leak sessions
         rep.add("rpc_reachable", False, f"{host}: {e}")
+        await rpc.close()
         return rep
     rep.add("rpc_reachable", True, f"{host} in {(time.perf_counter() - t0) * 1000:.0f} ms")
     try:
@@ -246,7 +247,7 @@ async def verify_chain(settings: Settings, *, discover_pools: bool = True, write
                 await fees.refresh_providers(list(chain.tokens.values()))
                 rows = []
                 for p in pools:
-                    x, y = p.liquidity_hint()
+                    x, y = p.depth_tokens()
                     p0, p1 = fees.token_price_usd(p.token0), fees.token_price_usd(p.token1)
                     depth = None
                     if p0 is not None and p1 is not None:
