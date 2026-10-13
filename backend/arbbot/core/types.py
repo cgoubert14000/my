@@ -155,6 +155,7 @@ class FeeBreakdown:
     gas_units: int = 0
     gas_price_wei: int = 0  # effective gas price (base + priority)
     l1_data_fee_wei: int = 0
+    l1_data_fee_wei: int = 0  # OP-stack L1 data fee (0 when not applicable)
     gas_cost_wei: int = 0  # gas_units * gas_price + l1 fee
     gas_cost_token: int = 0  # converted into borrowed token
     native_price_in_token: float = 0.0  # token units per 1 native
@@ -191,8 +192,12 @@ class Opportunity:
     reasons: list[str] = field(default_factory=list)
     p_success: float | None = None  # calibrated probability of positive net profit
     p_lower: float | None = None  # conservative lower bound
+    p_upper: float | None = None
     p_n: int = 0  # observations behind the estimate
     uncertainty: str = "UNKNOWN"
+    ev: float = 0.0  # expected value used for ranking (token units)
+    features: dict[str, Any] = field(default_factory=dict)
+    sim: dict[str, Any] | None = None  # last simulation result (ok, profit, error, gas_estimate, mode, block, latency_ms)
     sim_ok: bool | None = None
     sim_error: str | None = None
     sim_gas_used: int | None = None
@@ -230,7 +235,11 @@ class Opportunity:
             "reasons": self.reasons,
             "p_success": self.p_success,
             "p_lower": self.p_lower,
+            "p_upper": self.p_upper,
             "p_n": self.p_n,
+            "ev": self.ev,
+            "features": self.features,
+            "sim": self.sim,
             "uncertainty": self.uncertainty,
             "sim_ok": self.sim_ok,
             "sim_error": self.sim_error,

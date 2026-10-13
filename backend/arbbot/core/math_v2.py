@@ -52,15 +52,17 @@ def optimal_two_pool_amount(r_in_a: int, r_out_a: int, r_in_b: int, r_out_b: int
 
     ga = PPM - fee_a_ppm
     gb = PPM - fee_b_ppm
-    # Effective combined pool: E_in = r_in_a * r_in_b * PPM / (r_in_b*PPM + ga*r_out_a) ... see docs/03_architecture.md
-    # Use the standard result: x* = (sqrt(Ea*Eb*ga*gb/PPM^2) - Ea) / (ga/PPM)
-    denom = r_in_b * PPM + ga * r_out_a
+    # Composition of two constant-product hops is again constant-product-shaped:
+    #   out(x) = ga·E_out·x / (E_in + ga·x)   with   E_in = Ra_in·Rb_in / (Rb_in + gb·Ra_out),
+    #                                              E_out = gb·Ra_out·Rb_out / (Rb_in + gb·Ra_out)
+    # maximising out(x) − x gives x* = (sqrt(ga·E_in·E_out) − E_in) / ga   (all fees as fractions of PPM)
+    denom = r_in_b * PPM + gb * r_out_a
     if denom == 0:
         return 0
     ea = (r_in_a * r_in_b * PPM) // denom
-    eb = (ga * r_out_a * r_out_b) // denom
+    eb = (gb * r_out_a * r_out_b) // denom
     if ea <= 0 or eb <= 0:
         return 0
-    root = isqrt(ea * eb * ga * gb) // PPM
+    root = isqrt(ea * eb * ga * PPM) // PPM
     x = (root - ea) * PPM // ga
     return max(x, 0)

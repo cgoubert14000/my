@@ -50,6 +50,8 @@ def quote_hop(pool: Pool, token_in: Token, amount_in: int) -> HopQuote:
         raise QuoteError("amount_in <= 0")
     if pool.quarantined:
         raise QuoteError(f"pool quarantined: {pool.quarantine_reason}")
+    if not pool.has(token_in.address):
+        raise QuoteError(f"token {token_in.symbol} not in pool {pool.short()}")
     is0 = pool.is_token0(token_in.address)
     mid = _mid_price(pool, token_in)
 

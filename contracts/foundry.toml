@@ -9,6 +9,7 @@ evm_version = "cancun"
 optimizer = true
 optimizer_runs = 2000
 via_ir = false
+extra_output = ["storageLayout"]
 fs_permissions = [{ access = "read", path = "./" }, { access = "read", path = "../devnet/artifacts" }]
 remappings = [
     "forge-std/=lib/forge-std/src/",
