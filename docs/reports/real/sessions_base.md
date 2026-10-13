@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-13T22:46:31Z)
+# Sessions de marché réel — base (généré 2026-10-13T22:49:36Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -11,8 +11,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38445117116](https://github.com/cgoubert14000/my/actions/runs/38445117116) | 2026-10-13T20:00:30+00:00 | 60 | 1779 | 251 / — / 192222 | 840 | 43218 | 65 | 0 / 17 | 0 / 15 | 15 / 0.1 % | APPRENTISSAGE |
 | [38452875318](https://github.com/cgoubert14000/my/actions/runs/38452875318) | 2026-10-13T21:06:26+00:00 | 60 | 1519 | 251 / — / 192222 | 266 | 47798 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
-| [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-13T22:46:31+00:00 | 34 | 981 | 579 / 328 / 21606 | 558 | 286131 | 4 | 1 / 1 | 0 / 1 | 1 / 0.6 % | APPRENTISSAGE |
+| [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-13T22:49:36+00:00 | 37 | 1071 | 579 / 328 / 21606 | 377 | 314241 | 4 | 1 / 1 | 0 / 1 | 1 / 0.6 % | APPRENTISSAGE |
 
-**Totaux** : 305 min, 5272 blocs, 412896 candidats, 69 à net attendu > 0, 1 simulations réussies / 18 échouées, 0/16 étiquettes N+1 positives.
+**Totaux** : 308 min, 5362 blocs, 441006 candidats, 69 à net attendu > 0, 1 simulations réussies / 18 échouées, 0/16 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
