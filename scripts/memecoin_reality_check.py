@@ -40,8 +40,8 @@ CHAINS = {
         "chain_id": 8453, "block_time": 2.0, "weth": "0x4200000000000000000000000000000000000006",
         "factories": {"uniswap_v2": ("0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6", TOPIC_PAIR_CREATED),
                       "aerodrome": ("0x420DD381b31aEf6683db6B902084cB0FFECe40Da", TOPIC_POOL_CREATED_AERO)},
-        "rpcs": ["https://base-rpc.publicnode.com", "https://mainnet.base.org", "https://base.drpc.org",
-                 "https://base-mainnet.public.blastapi.io"],
+        # eth_getLogs only: drpc's free plan rejects ranges > 10 000 blocks whatever the request, so it is left out
+        "rpcs": ["https://base-rpc.publicnode.com", "https://base-mainnet.public.blastapi.io", "https://mainnet.base.org"],
     },
 }
 
@@ -57,7 +57,9 @@ def v2_out(amount_in: int, r_in: int, r_out: int, fee_ppm: int = 3000) -> int:
     return a * r_out // (r_in * 1_000_000 + a)
 
 
-async def get_logs_chunked(rpc: RpcClient, params: dict, start: int, end: int, chunk: int) -> list[dict]:
+async def get_logs_chunked(rpc: RpcClient, params: dict, start: int, end: int, chunk: int, floor: int = 1_000) -> list[dict]:
+    """eth_getLogs over [start, end] in windows of `chunk` blocks; a provider error halves the window down to `floor`
+    (public endpoints cap the range at 2 000–10 000 blocks), beyond which the error is raised to the caller."""
     out: list[dict] = []
     b = start
     while b <= end:
@@ -66,8 +68,9 @@ async def get_logs_chunked(rpc: RpcClient, params: dict, start: int, end: int, c
             out.extend(await rpc.get_logs({**params, "fromBlock": hex(b), "toBlock": hex(e)}))
             b = e + 1
         except RpcError as ex:
-            if chunk > 250:  # provider range/size limit → halve the window and retry
-                chunk //= 2
+            if chunk > floor:
+                chunk = max(floor, chunk // 2)
+                await asyncio.sleep(0.5)
                 continue
             raise ex
     return out
@@ -76,11 +79,12 @@ async def get_logs_chunked(rpc: RpcClient, params: dict, start: int, end: int, c
 async def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--chain", default="base")
-    ap.add_argument("--days", type=float, default=2.0)
+    ap.add_argument("--days", type=float, default=1.0)
     ap.add_argument("--rpc", action="append", default=[])
-    ap.add_argument("--max-pairs", type=int, default=300)
+    ap.add_argument("--max-pairs", type=int, default=150)
     ap.add_argument("--buy-eth", type=float, default=0.005, help="taille d'achat du sniper simulé (ETH)")
-    ap.add_argument("--max-rps", type=float, default=10.0)
+    ap.add_argument("--max-rps", type=float, default=4.0, help="eth_getLogs est coûteux : rester bas sur RPC public")
+    ap.add_argument("--chunk", type=int, default=2_000, help="fenêtre eth_getLogs (blocs)")
     ap.add_argument("--out-dir", default=str(REPO / "docs" / "reports" / "real"))
     ap.add_argument("--tag", default="")
     ap.add_argument("--devnet", default="", help="chemin deployments.local.json (test local)")
@@ -112,7 +116,7 @@ async def main() -> int:
         # 1) paires créées -----------------------------------------------------------------------------------
         created: list[dict] = []
         for dex, (factory, topic) in cfg["factories"].items():
-            logs = await get_logs_chunked(rpc, {"address": factory, "topics": [topic]}, start, head, 5_000)
+            logs = await get_logs_chunked(rpc, {"address": factory, "topics": [topic]}, start, head, args.chunk)
             for lg in logs:
                 t0, t1 = _addr(lg["topics"][1]).lower(), _addr(lg["topics"][2]).lower()
                 if weth not in (t0, t1):
@@ -139,7 +143,7 @@ async def main() -> int:
         for i, c in enumerate(created):
             try:
                 logs = await get_logs_chunked(rpc, {"address": c["pair"], "topics": [sync_topic.get(c["dex"], TOPIC_SYNC_V2)]},
-                                              c["block"], head, 50_000)
+                                              c["block"], head, max(args.chunk, 10_000))
             except RpcError as ex:
                 results.append({**c, "error": str(ex)})
                 continue
