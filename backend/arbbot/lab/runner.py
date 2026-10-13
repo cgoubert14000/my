@@ -153,13 +153,13 @@ class LabRunner:
         """Exact math vs chain on live pools (V2 via pair reserves K-check, Solidly getAmountOut, V3 via helper when
         available) + estimate vs full simulation on live positive candidates."""
         rt = self.rt
-        res = {"v2": {"exact": 0, "mismatch": 0}, "solidly": {"exact": 0, "mismatch": 0}, "v3": {"exact": 0, "mismatch": 0, "skipped": 0},
+        res = {"v2": {"exact": 0, "mismatch": 0, "transient": 0}, "solidly": {"exact": 0, "mismatch": 0, "transient": 0},
+               "v3": {"exact": 0, "mismatch": 0, "transient": 0, "skipped": 0},
                "sim_vs_estimate": {"exact": 0, "within_tolerance": 0, "below": 0, "failed": 0, "samples": []}}
         helper = rt.chain.extra.get("v3_helper")
         maker = rt.chain.extra.get("accounts", {}).get("maker")
-        # Pin every on-chain quote to the block of the state snapshot the Python quote was computed from; otherwise a
-        # trade landing between the two would show up as a (false) mismatch.
-        snap_block = rt.collector.stats.last_block or rt.last_block
+        # Every on-chain quote is pinned to the block of the state snapshot the Python quote was computed from;
+        # otherwise a trade landing between the two would show up as a (false) mismatch.
         for p in rt.pools:
             if p.quarantined or time.time() > deadline - 5:
                 continue
@@ -169,37 +169,51 @@ class LabRunner:
                     amount = int((x if tin is p.token0 else y) * frac)
                     if amount <= 0:
                         continue
-                    snap_block = rt.collector.stats.last_block or rt.last_block  # state of `p` belongs to this block
+                    # the pool state belongs to `p.updated_block`; a refresh may land mid-check, so re-quote if it moved
                     try:
-                        q = quote_hop(p, tin, amount)
+                        for _attempt in range(3):
+                            snap_block = p.updated_block or rt.last_block
+                            q = quote_hop(p, tin, amount)
+                            if p.updated_block == snap_block:
+                                break
                     except QuoteError:
                         if p.kind in (DexKind.UNIV3, DexKind.PANCAKE_V3):
                             res["v3"]["skipped"] += 1
                         continue
-                    try:
+                    async def onchain_quote() -> tuple[int, str] | None:
                         if p.kind == DexKind.UNIV2:
                             raw = await rt.rpc.call(p.address, encode_call("getReserves()"), block=snap_block)
                             r0, r1 = decode_result(["uint112", "uint112"], raw[:64])
                             rin, rout = (r0, r1) if p.is_token0(tin.address) else (r1, r0)
                             fee = 1_000_000 - p.fee_ppm
-                            onchain = amount * fee * rout // (rin * 1_000_000 + amount * fee)
-                            key = "v2"
-                        elif p.kind == DexKind.SOLIDLY:
+                            return amount * fee * rout // (rin * 1_000_000 + amount * fee), "v2"
+                        if p.kind == DexKind.SOLIDLY:
                             raw = await rt.rpc.call(p.address, encode_call("getAmountOut(uint256,address)", [amount, tin.address]), block=snap_block)
-                            (onchain,) = decode_result(["uint256"], raw)
-                            key = "solidly"
-                        else:
-                            if not helper or not maker:
+                            return int(decode_result(["uint256"], raw)[0]), "solidly"
+                        if not helper or not maker:
+                            return None
+                        raw = await rt.rpc.call(helper, encode_call("swapExactIn(address,bool,uint256)", [p.address, p.is_token0(tin.address), amount]),
+                                                block=snap_block, sender=maker, gas=5_000_000)
+                        return int(decode_result(["uint256"], raw)[0]), "v3"
+
+                    try:
+                        got = await onchain_quote()
+                        if got is None:
+                            continue
+                        onchain, key = got
+                        if onchain != q.amount_out:
+                            # Re-ask the node for the SAME block: a dev node that resolves "block == latest" to its live
+                            # state can serve the next block's state while a block is being sealed. A discrepancy that
+                            # does not reproduce at the same block is a node artefact, not a math error — counted apart.
+                            again = await onchain_quote()
+                            if again is not None and again[0] == q.amount_out:
+                                res[key]["transient"] += 1
                                 continue
-                            raw = await rt.rpc.call(helper, encode_call("swapExactIn(address,bool,uint256)", [p.address, p.is_token0(tin.address), amount]),
-                                                    block=snap_block, sender=maker, gas=5_000_000)
-                            (onchain,) = decode_result(["uint256"], raw)
-                            key = "v3"
                     except RpcError:
                         continue
-                    res[key]["exact" if int(onchain) == q.amount_out else "mismatch"] += 1
-                    if int(onchain) != q.amount_out:
-                        self.log(f"MISMATCH {p.short()} {tin.symbol} in={amount}: ours={q.amount_out} chain={onchain}")
+                    res[key]["exact" if onchain == q.amount_out else "mismatch"] += 1
+                    if onchain != q.amount_out:
+                        self.log(f"MISMATCH {p.short()} {tin.symbol} in={amount} block={snap_block}: ours={q.amount_out} chain={onchain}")
         self.log(f"math vs chain: v2 {res['v2']}, solidly {res['solidly']}, v3 {res['v3']}")
         # estimate vs simulation on live candidates until the deadline
         while time.time() < deadline - 2 and not self._stop:
@@ -466,6 +480,8 @@ class LabRunner:
             "",
             "## 2. Validation des données (5–15 min)",
             f"- Maths vs chaîne — V2 : {v.get('v2')}, Solidly : {v.get('solidly')}, V3 : {v.get('v3')}",
+            "  (`exact` = sortie identique au wei ; `mismatch` = écart reproduit au même bloc ; `transient` = écart non "
+            "reproductible au même bloc, artefact du nœud ; `skipped` = ticks insuffisants, refusé par construction)",
             "- Simulation complète vs estimation : " + str({k: val for k, val in (v.get('sim_vs_estimate') or {}).items() if k != 'samples'}),
             "",
             "## 3. Recherche + simulation (15–30 min)",
