@@ -1,0 +1,114 @@
+[31m╭─[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m─╮[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/[0m[1mcli.py[0m:64 in backtest                     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m 61 [0m[2m│   [0m[94mfrom[0m[90m [0m[4;96m.[0m[4;96mbacktest[0m[4;96m.[0m[4;96mmetrics[0m[90m [0m[94mimport[0m summarize                            [31m│[0m
+[31m│[0m   [2m 62 [0m[2m│   [0mt0 = time.time()                                                   [31m│[0m
+[31m│[0m   [2m 63 [0m[2m│   [0mend_d = dt.date.fromisoformat(end) [94mif[0m end [94melse[0m dt.date.today() -   [31m│[0m
+[31m│[0m       dt.timedelta(days=[94m1[0m)                                                   [31m│[0m
+[31m│[0m [31m❱ [0m 64 [2m│   [0mdf = [1;4m_load(instrument, dt.date.fromisoformat(start), end_d, [0m       [31m│[0m
+[31m│[0m       [1;4mdata_dir, synthetic)[0m                                                   [31m│[0m
+[31m│[0m   [2m 65 [0m[2m│   [0m[94mif[0m df.empty:                                                       [31m│[0m
+[31m│[0m   [2m 66 [0m[2m│   │   [0mtyper.echo([33m"[0m[33maucune donnée : backtest impossible (rien n[0m[33m'[0m[33mest [0m   [31m│[0m
+[31m│[0m       [33minventé)[0m[33m"[0m, err=[94mTrue[0m)                                                   [31m│[0m
+[31m│[0m   [2m 67 [0m[2m│   │   [0m[94mraise[0m typer.Exit([94m2[0m)                                            [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/[0m[1mcli.py[0m:33 in _load                        [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m 30 [0m[2m│   │   [0m[94mfrom[0m[90m [0m[4;96m.[0m[4;96mdata[0m[4;96m.[0m[4;96msynthetic[0m[90m [0m[94mimport[0m random_walk_minutes                [31m│[0m
+[31m│[0m   [2m 31 [0m[2m│   │   [0m[94mreturn[0m random_walk_minutes(start, (end - start).days + [94m1[0m,      [31m│[0m
+[31m│[0m       seed=[94m42[0m)                                                               [31m│[0m
+[31m│[0m   [2m 32 [0m[2m│   [0m[94mfrom[0m[90m [0m[4;96m.[0m[4;96mdata[0m[4;96m.[0m[4;96mdukascopy[0m[90m [0m[94mimport[0m load_minutes                           [31m│[0m
+[31m│[0m [31m❱ [0m 33 [2m│   [0m[94mreturn[0m [1;4mload_minutes(instrument, start, end, data_dir, [0m             [31m│[0m
+[31m│[0m       [1;4mprogress=[0m[1;4;94mTrue[0m[1;4m)[0m                                                         [31m│[0m
+[31m│[0m   [2m 34 [0m                                                                       [31m│[0m
+[31m│[0m   [2m 35 [0m                                                                       [31m│[0m
+[31m│[0m   [2m 36 [0m[94mdef[0m[90m [0m[92m_variant_from_key[0m(key: [96mstr[0m) -> OrbParams:                          [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/data/[0m[1mdukascopy.py[0m:126 in load_minutes     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m123 [0m[2m│   [0m[94mwith[0m httpx.Client(headers={[33m"[0m[33mUser-Agent[0m[33m"[0m: [33m"[0m[33morbbot/0.1 [0m              [31m│[0m
+[31m│[0m       [33m(+research)[0m[33m"[0m}, follow_redirects=[94mTrue[0m) [94mas[0m client:                       [31m│[0m
+[31m│[0m   [2m124 [0m[2m│   │   [0m[94mwhile[0m day <= end:                                              [31m│[0m
+[31m│[0m   [2m125 [0m[2m│   │   │   [0m[94mif[0m day.weekday() < [94m6[0m:  [2m# dimanche : séance asiatique du [0m   [31m│[0m
+[31m│[0m       [2mlundi, on garde ; samedi : rien[0m                                        [31m│[0m
+[31m│[0m [31m❱ [0m126 [2m│   │   │   │   [0mdf = [1;4mfetch_day(client, instrument, day, root)[0m          [31m│[0m
+[31m│[0m   [2m127 [0m[2m│   │   │   │   [0m[94mif[0m [95mnot[0m df.empty:                                       [31m│[0m
+[31m│[0m   [2m128 [0m[2m│   │   │   │   │   [0mframes.append(df)                                  [31m│[0m
+[31m│[0m   [2m129 [0m[2m│   │   │   [0mn += [94m1[0m                                                     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/data/[0m[1mdukascopy.py[0m:113 in fetch_day        [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m110 [0m[2m│   │   [0m[94mexcept[0m (httpx.HTTPError, lzma.LZMAError) [94mas[0m e:  [2m# réseau / [0m    [31m│[0m
+[31m│[0m       [2mfichier corrompu : nouvel essai[0m                                        [31m│[0m
+[31m│[0m   [2m111 [0m[2m│   │   │   [0mlast = e                                                   [31m│[0m
+[31m│[0m   [2m112 [0m[2m│   │   │   [0mtime.sleep([94m1.5[0m * (attempt + [94m1[0m))                            [31m│[0m
+[31m│[0m [31m❱ [0m113 [2m│   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mRuntimeError[0m[1;4m([0m[1;4;33mf[0m[1;4;33m"[0m[1;4;33m{[0m[1;4minstrument[0m[1;4;33m}[0m[1;4;33m [0m[1;4;33m{[0m[1;4mday[0m[1;4;33m}[0m[1;4;33m: téléchargement impossible[0m [31m│[0m
+[31m│[0m       [1;4;33maprès [0m[1;4;33m{[0m[1;4mretries[0m[1;4;33m}[0m[1;4;33m essais ([0m[1;4;33m{[0m[1;4mlast[0m[1;4;33m}[0m[1;4;33m)[0m[1;4;33m"[0m[1;4m)[0m                                      [31m│[0m
+[31m│[0m   [2m114 [0m                                                                       [31m│[0m
+[31m│[0m   [2m115 [0m                                                                       [31m│[0m
+[31m│[0m   [2m116 [0m[94mdef[0m[90m [0m[92mload_minutes[0m(instrument: [96mstr[0m, start: dt.date, end: dt.date, root:  [31m│[0m
+[31m│[0m       pathlib.Path, progress: [96mbool[0m = [94mFalse[0m) -> pd.DataFrame:                 [31m│[0m
+[31m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+[1;91mRuntimeError: [0mXAUUSD [1;36m2022[0m-[1;36m01[0m-[1;36m01[0m: téléchargement impossible après [1;36m4[0m essais 
+[1m([0mServer error [32m'503 Service Unavailable'[0m for url 
+[32m'https://datafeed.dukascopy.com/datafeed/XAUUSD/2022/00/01/BID_candles_min_1.bi5[0m
+[32m'[0m
+For more information check: 
+[4;94mhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503[0m[4;94m)[0m
+[31m╭─[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m─╮[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/[0m[1mcli.py[0m:64 in backtest                     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m 61 [0m[2m│   [0m[94mfrom[0m[90m [0m[4;96m.[0m[4;96mbacktest[0m[4;96m.[0m[4;96mmetrics[0m[90m [0m[94mimport[0m summarize                            [31m│[0m
+[31m│[0m   [2m 62 [0m[2m│   [0mt0 = time.time()                                                   [31m│[0m
+[31m│[0m   [2m 63 [0m[2m│   [0mend_d = dt.date.fromisoformat(end) [94mif[0m end [94melse[0m dt.date.today() -   [31m│[0m
+[31m│[0m       dt.timedelta(days=[94m1[0m)                                                   [31m│[0m
+[31m│[0m [31m❱ [0m 64 [2m│   [0mdf = [1;4m_load(instrument, dt.date.fromisoformat(start), end_d, [0m       [31m│[0m
+[31m│[0m       [1;4mdata_dir, synthetic)[0m                                                   [31m│[0m
+[31m│[0m   [2m 65 [0m[2m│   [0m[94mif[0m df.empty:                                                       [31m│[0m
+[31m│[0m   [2m 66 [0m[2m│   │   [0mtyper.echo([33m"[0m[33maucune donnée : backtest impossible (rien n[0m[33m'[0m[33mest [0m   [31m│[0m
+[31m│[0m       [33minventé)[0m[33m"[0m, err=[94mTrue[0m)                                                   [31m│[0m
+[31m│[0m   [2m 67 [0m[2m│   │   [0m[94mraise[0m typer.Exit([94m2[0m)                                            [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/[0m[1mcli.py[0m:33 in _load                        [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m 30 [0m[2m│   │   [0m[94mfrom[0m[90m [0m[4;96m.[0m[4;96mdata[0m[4;96m.[0m[4;96msynthetic[0m[90m [0m[94mimport[0m random_walk_minutes                [31m│[0m
+[31m│[0m   [2m 31 [0m[2m│   │   [0m[94mreturn[0m random_walk_minutes(start, (end - start).days + [94m1[0m,      [31m│[0m
+[31m│[0m       seed=[94m42[0m)                                                               [31m│[0m
+[31m│[0m   [2m 32 [0m[2m│   [0m[94mfrom[0m[90m [0m[4;96m.[0m[4;96mdata[0m[4;96m.[0m[4;96mdukascopy[0m[90m [0m[94mimport[0m load_minutes                           [31m│[0m
+[31m│[0m [31m❱ [0m 33 [2m│   [0m[94mreturn[0m [1;4mload_minutes(instrument, start, end, data_dir, [0m             [31m│[0m
+[31m│[0m       [1;4mprogress=[0m[1;4;94mTrue[0m[1;4m)[0m                                                         [31m│[0m
+[31m│[0m   [2m 34 [0m                                                                       [31m│[0m
+[31m│[0m   [2m 35 [0m                                                                       [31m│[0m
+[31m│[0m   [2m 36 [0m[94mdef[0m[90m [0m[92m_variant_from_key[0m(key: [96mstr[0m) -> OrbParams:                          [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/data/[0m[1mdukascopy.py[0m:126 in load_minutes     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m123 [0m[2m│   [0m[94mwith[0m httpx.Client(headers={[33m"[0m[33mUser-Agent[0m[33m"[0m: [33m"[0m[33morbbot/0.1 [0m              [31m│[0m
+[31m│[0m       [33m(+research)[0m[33m"[0m}, follow_redirects=[94mTrue[0m) [94mas[0m client:                       [31m│[0m
+[31m│[0m   [2m124 [0m[2m│   │   [0m[94mwhile[0m day <= end:                                              [31m│[0m
+[31m│[0m   [2m125 [0m[2m│   │   │   [0m[94mif[0m day.weekday() < [94m6[0m:  [2m# dimanche : séance asiatique du [0m   [31m│[0m
+[31m│[0m       [2mlundi, on garde ; samedi : rien[0m                                        [31m│[0m
+[31m│[0m [31m❱ [0m126 [2m│   │   │   │   [0mdf = [1;4mfetch_day(client, instrument, day, root)[0m          [31m│[0m
+[31m│[0m   [2m127 [0m[2m│   │   │   │   [0m[94mif[0m [95mnot[0m df.empty:                                       [31m│[0m
+[31m│[0m   [2m128 [0m[2m│   │   │   │   │   [0mframes.append(df)                                  [31m│[0m
+[31m│[0m   [2m129 [0m[2m│   │   │   [0mn += [94m1[0m                                                     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/orb/orbbot/data/[0m[1mdukascopy.py[0m:113 in fetch_day        [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m110 [0m[2m│   │   [0m[94mexcept[0m (httpx.HTTPError, lzma.LZMAError) [94mas[0m e:  [2m# réseau / [0m    [31m│[0m
+[31m│[0m       [2mfichier corrompu : nouvel essai[0m                                        [31m│[0m
+[31m│[0m   [2m111 [0m[2m│   │   │   [0mlast = e                                                   [31m│[0m
+[31m│[0m   [2m112 [0m[2m│   │   │   [0mtime.sleep([94m1.5[0m * (attempt + [94m1[0m))                            [31m│[0m
+[31m│[0m [31m❱ [0m113 [2m│   [0m[1;4;94mraise[0m[1;4m [0m[1;4;96mRuntimeError[0m[1;4m([0m[1;4;33mf[0m[1;4;33m"[0m[1;4;33m{[0m[1;4minstrument[0m[1;4;33m}[0m[1;4;33m [0m[1;4;33m{[0m[1;4mday[0m[1;4;33m}[0m[1;4;33m: téléchargement impossible[0m [31m│[0m
+[31m│[0m       [1;4;33maprès [0m[1;4;33m{[0m[1;4mretries[0m[1;4;33m}[0m[1;4;33m essais ([0m[1;4;33m{[0m[1;4mlast[0m[1;4;33m}[0m[1;4;33m)[0m[1;4;33m"[0m[1;4m)[0m                                      [31m│[0m
+[31m│[0m   [2m114 [0m                                                                       [31m│[0m
+[31m│[0m   [2m115 [0m                                                                       [31m│[0m
+[31m│[0m   [2m116 [0m[94mdef[0m[90m [0m[92mload_minutes[0m(instrument: [96mstr[0m, start: dt.date, end: dt.date, root:  [31m│[0m
+[31m│[0m       pathlib.Path, progress: [96mbool[0m = [94mFalse[0m) -> pd.DataFrame:                 [31m│[0m
+[31m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+[1;91mRuntimeError: [0mEURUSD [1;36m2022[0m-[1;36m01[0m-[1;36m03[0m: téléchargement impossible après [1;36m4[0m essais 
+[1m([0mServer error [32m'503 Service Unavailable'[0m for url 
+[32m'https://datafeed.dukascopy.com/datafeed/EURUSD/2022/00/03/BID_candles_min_1.bi5[0m
+[32m'[0m
+For more information check: 
+[4;94mhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503[0m[4;94m)[0m
