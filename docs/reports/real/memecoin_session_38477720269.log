@@ -1,0 +1,40 @@
+rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://base-mainnet.public.blastapi.io
+rpc error (You can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0x32180d1, 0x32180da]) → switching to https://mainnet.base.org
+rpc error (http 429) → switching to https://base-rpc.publicnode.com
+rpc error (Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode) → switching to https://base-mainnet.public.blastapi.io
+rpc error (You can make eth_getLogs requests with up to a 10 block range. Based on your parameters, this block range should work: [0x32180d1, 0x32180da]) → switching to https://mainnet.base.org
+rpc error (http 429) → switching to https://base-rpc.publicnode.com
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/data/rpc.py", line 174, in request
+    raise RpcError(text, code=err.get("code"), data=err.get("data"))
+arbbot.data.rpc.RpcError: Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 264, in <module>
+    sys.exit(asyncio.run(main()))
+             ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 119, in main
+    logs = await get_logs_chunked(rpc, {"address": factory, "topics": [topic]}, start, head, args.chunk)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 75, in get_logs_chunked
+    raise ex
+  File "/home/runner/work/my/my/scripts/memecoin_reality_check.py", line 68, in get_logs_chunked
+    out.extend(await rpc.get_logs({**params, "fromBlock": hex(b), "toBlock": hex(e)}))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/data/rpc.py", line 285, in get_logs
+    return await self.request("eth_getLogs", [params])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/data/rpc.py", line 187, in request
+    raise RpcError(f"rpc failed after retries: {last_exc}") from last_exc
+arbbot.data.rpc.RpcError: rpc failed after retries: Archive requests require a personal token. Get one at: https://www.allnodes.com/publicnode
