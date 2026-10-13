@@ -114,3 +114,7 @@ Couper le processus `arbbot signer` rend toute signature physiquement impossible
 Code original (MIT). Dépendances : OpenZeppelin 5.4 (MIT), forge-std (MIT/Apache), bytecode Uniswap V2/V3 et Multicall3
 pour le devnet uniquement (licences respectives), web3.py, FastAPI, Recharts. Aucun code provenant de dépôts sans licence
 ou sous AGPL n'a été incorporé (détail dans `docs/01`).
+
+## Système ORB / OPR (Opening Range Breakout)
+
+Second système, indépendant : backtest exhaustif (1 080 variantes, données Dukascopy 1 min réelles, validation hors échantillon, walk-forward, bootstrap) et moteur temps réel (paper / OANDA) partageant le même code de stratégie. Voir `docs/orb/README.md` ; rapports réels dans `docs/reports/orb/`.

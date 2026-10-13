@@ -53,6 +53,13 @@ Aucune réécriture n'a été jugée nécessaire après triage ; les findings re
 | `test_state_override_sim_devnet.py` | 1 | mode lecture seule sans contrat déployé : la simulation par **state override** (bytecode injecté à une adresse fictive) donne le même profit, au wei, que le contrat déployé, et revert de la même façon |
 | `test_l1_fee_opstack.py` | 6 | frais de données L1 (Base) : `getL1FeeUpperBound` (Fjord), repli `getL1Fee(bytes)`, oracle indisponible ⇒ coût **inconnu** (candidat rejeté, jamais 0 optimiste), une lecture par bloc et par taille (pas de rafale RPC), Arbitrum sans composante séparée |
 
+### Système ORB / OPR (`orb/tests/`, 23 tests, `cd orb && python -m pytest tests -q`)
+
+| Fichier | Tests | Exigences couvertes |
+|---|---|---|
+| `test_strategy.py` | 14 | chaque règle de la machine à états sur des scénarios à résultat connu : cassure « close » → TP exactement +1 R ; stop avec slippage (< −1 R) ; short symétrique ; stop prioritaire si stop et objectif dans la même bougie ; FVG détectée au bon triplet, entrée limite au bord, stop structure ; signal FVG abandonné si reclôture dans le range ; TP partiel 1 R + TP2 (= +1,5 R) et break-even ; sortie horaire 15:55 ; aucune entrée après l'heure limite ; filtre EMA ; second trade (sens opposé / reclôture dans le range) ; journée sans données ignorée ; grille de 1 080 clés uniques |
+| `test_pipeline.py` | 9 | décodage Dukascopy (.bi5 LZMA) aller-retour, refus d'une échelle incohérente ; séances New York en heure d'été **et** d'hiver (09:30 NY = 13:30 / 14:30 UTC) ; grille parallèle == séquentielle ; métriques, bootstrap ; rapport sur marche aléatoire ⇒ toujours « FIABILITÉ NON DÉMONTRÉE », JSON strict ; **rejeu temps réel == backtest** (mêmes trades, même R, compte fictif = P&L modèle × unités, journal) ; politique désactivée ⇒ suivi sans exécution ; kill switch ferme la position et bloque les entrées ; règles de politique et calcul de taille |
+
 Cas de la liste d'exigences et où ils sont testés : frais (`test_math_units`, `test_engine_units`) ; conversions
 (`test_math_units`) ; chemins (`test_engine_units::routes`) ; montants de prêt (`optimizer`, `BorrowCap`) ;
 remboursement (`test_revert_unprofitable_route_cannot_repay`, e2e) ; slippage (`HopOutputTooLow`, pré-vol) ;
