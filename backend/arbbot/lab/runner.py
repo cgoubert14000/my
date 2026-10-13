@@ -157,6 +157,9 @@ class LabRunner:
                "sim_vs_estimate": {"exact": 0, "within_tolerance": 0, "below": 0, "failed": 0, "samples": []}}
         helper = rt.chain.extra.get("v3_helper")
         maker = rt.chain.extra.get("accounts", {}).get("maker")
+        # Pin every on-chain quote to the block of the state snapshot the Python quote was computed from; otherwise a
+        # trade landing between the two would show up as a (false) mismatch.
+        snap_block = rt.collector.stats.last_block or rt.last_block
         for p in rt.pools:
             if p.quarantined or time.time() > deadline - 5:
                 continue
@@ -166,6 +169,7 @@ class LabRunner:
                     amount = int((x if tin is p.token0 else y) * frac)
                     if amount <= 0:
                         continue
+                    snap_block = rt.collector.stats.last_block or rt.last_block  # state of `p` belongs to this block
                     try:
                         q = quote_hop(p, tin, amount)
                     except QuoteError:
@@ -174,20 +178,21 @@ class LabRunner:
                         continue
                     try:
                         if p.kind == DexKind.UNIV2:
-                            raw = await rt.rpc.call(p.address, encode_call("getReserves()"))
+                            raw = await rt.rpc.call(p.address, encode_call("getReserves()"), block=snap_block)
                             r0, r1 = decode_result(["uint112", "uint112"], raw[:64])
                             rin, rout = (r0, r1) if p.is_token0(tin.address) else (r1, r0)
                             fee = 1_000_000 - p.fee_ppm
                             onchain = amount * fee * rout // (rin * 1_000_000 + amount * fee)
                             key = "v2"
                         elif p.kind == DexKind.SOLIDLY:
-                            raw = await rt.rpc.call(p.address, encode_call("getAmountOut(uint256,address)", [amount, tin.address]))
+                            raw = await rt.rpc.call(p.address, encode_call("getAmountOut(uint256,address)", [amount, tin.address]), block=snap_block)
                             (onchain,) = decode_result(["uint256"], raw)
                             key = "solidly"
                         else:
                             if not helper or not maker:
                                 continue
-                            raw = await rt.rpc.call(helper, encode_call("swapExactIn(address,bool,uint256)", [p.address, p.is_token0(tin.address), amount]), sender=maker, gas=5_000_000)
+                            raw = await rt.rpc.call(helper, encode_call("swapExactIn(address,bool,uint256)", [p.address, p.is_token0(tin.address), amount]),
+                                                    block=snap_block, sender=maker, gas=5_000_000)
                             (onchain,) = decode_result(["uint256"], raw)
                             key = "v3"
                     except RpcError:
