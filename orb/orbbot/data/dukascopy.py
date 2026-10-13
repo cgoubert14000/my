@@ -77,11 +77,23 @@ def cache_path(root: pathlib.Path, instrument: str, day: dt.date) -> pathlib.Pat
     return root / instrument / f"{day.isoformat()}.csv.gz"
 
 
-def fetch_day(client: httpx.Client, instrument: str, day: dt.date, root: pathlib.Path, retries: int = 4) -> pd.DataFrame:
-    """Télécharge (ou relit le cache) la journée `day`. Un fichier vide dans le cache marque un jour sans données."""
+LAST_STATS: dict = {}
+HEADERS = {  # en-têtes de navigateur : le serveur répond 503 à certains clients « nus »
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+    "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9", "Referer": "https://freeserv.dukascopy.com/2.0/",
+    "Origin": "https://freeserv.dukascopy.com", "Connection": "keep-alive",
+}
+
+
+def fetch_day(client: httpx.Client, instrument: str, day: dt.date, root: pathlib.Path, retries: int = 4, stats: dict | None = None) -> pd.DataFrame:
+    """Télécharge (ou relit le cache) la journée `day`. Un fichier vide dans le cache marque un jour sans données ;
+    un jour indisponible (503/403 persistants) est compté dans `stats['unavailable']` et renvoyé vide, SANS être mis en
+    cache (il sera retenté la prochaine fois)."""
     meta = INSTRUMENTS[instrument]
+    stats = stats if stats is not None else LAST_STATS
     p = cache_path(root, instrument, day)
     if p.exists():
+        stats["cached"] = stats.get("cached", 0) + 1
         if p.stat().st_size == 0:
             return pd.DataFrame(columns=COLUMNS)
         with gzip.open(p, "rt") as f:
@@ -90,27 +102,37 @@ def fetch_day(client: httpx.Client, instrument: str, day: dt.date, root: pathlib
         return df
     p.parent.mkdir(parents=True, exist_ok=True)
     url = day_url(instrument, day)
-    last: Exception | None = None
+    last: Exception | str | None = None
     for attempt in range(retries):
         try:
             r = client.get(url, timeout=30)
             if r.status_code == 404:
                 p.write_bytes(b"")
+                stats["missing"] = stats.get("missing", 0) + 1
                 return pd.DataFrame(columns=COLUMNS)
+            if r.status_code in (403, 429, 500, 502, 503, 504):
+                last = f"HTTP {r.status_code}"
+                time.sleep(2.0 * (attempt + 1))
+                continue
             r.raise_for_status()
             df = decode_day(r.content, day, meta["scale"], meta["plausible"])
             if df.empty:
                 p.write_bytes(b"")
+                stats["missing"] = stats.get("missing", 0) + 1
             else:
                 buf = io.StringIO()
                 df.to_csv(buf)
                 with gzip.open(p, "wt") as f:
                     f.write(buf.getvalue())
+                stats["downloaded"] = stats.get("downloaded", 0) + 1
             return df
         except (httpx.HTTPError, lzma.LZMAError) as e:  # réseau / fichier corrompu : nouvel essai
             last = e
             time.sleep(1.5 * (attempt + 1))
-    raise RuntimeError(f"{instrument} {day}: téléchargement impossible après {retries} essais ({last})")
+    stats["unavailable"] = stats.get("unavailable", 0) + 1
+    stats.setdefault("errors", []).append(f"{day}: {last}")
+    log.warning("%s %s: indisponible (%s)", instrument, day, last)
+    return pd.DataFrame(columns=COLUMNS)
 
 
 def load_minutes(instrument: str, start: dt.date, end: dt.date, root: pathlib.Path, progress: bool = False) -> pd.DataFrame:
@@ -120,15 +142,22 @@ def load_minutes(instrument: str, start: dt.date, end: dt.date, root: pathlib.Pa
     frames: list[pd.DataFrame] = []
     day = start
     n = 0
-    with httpx.Client(headers={"User-Agent": "orbbot/0.1 (+research)"}, follow_redirects=True) as client:
+    stats: dict = {"requested": 0}
+    LAST_STATS.clear()
+    LAST_STATS.update(stats)
+    with httpx.Client(headers=HEADERS, follow_redirects=True, http2=False) as client:
         while day <= end:
-            if day.weekday() < 6:  # dimanche : séance asiatique du lundi, on garde ; samedi : rien
-                df = fetch_day(client, instrument, day, root)
+            if day.weekday() != 5:  # samedi : aucune donnée ; dimanche : ouverture asiatique (on garde)
+                LAST_STATS["requested"] += 1
+                df = fetch_day(client, instrument, day, root, stats=LAST_STATS)
                 if not df.empty:
                     frames.append(df)
+                if LAST_STATS.get("unavailable", 0) >= 25 and LAST_STATS.get("downloaded", 0) == 0 and LAST_STATS.get("cached", 0) == 0:
+                    log.error("%s: 25 jours consécutifs indisponibles sans aucun succès — source probablement bloquée, arrêt", instrument)
+                    break
             n += 1
             if progress and n % 50 == 0:
-                print(f"  {instrument}: {day} ({sum(len(f) for f in frames)} bougies)", flush=True)
+                print(f"  {instrument}: {day} ({sum(len(f) for f in frames)} bougies ; {LAST_STATS})", flush=True)
             day += dt.timedelta(days=1)
     if not frames:
         return pd.DataFrame(columns=COLUMNS)

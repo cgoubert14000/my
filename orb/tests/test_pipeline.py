@@ -175,3 +175,63 @@ def test_policy_rules_and_sizing():
     assert position_units(10_000, 0.5, 0.0, max_units=5) == 0.0
     assert len(pol.sha256()) == 16
     pathlib.Path  # (import utilisé par d'autres tests)
+
+
+# ---------------------------------------------------------------- téléchargement (serveurs simulés)
+
+def test_dukascopy_fetch_day_handles_404_503_and_cache(tmp_path):
+    import httpx
+    from orbbot.data import dukascopy as dk
+    day_ok, day_404, day_503 = dt.date(2025, 3, 3), dt.date(2025, 3, 1), dt.date(2025, 3, 4)
+    payload = encode_day_for_tests([(60 * i, 2000.0, 2000.5, 1999.5, 2001.0, 1.0) for i in range(300)], 1000)
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        if "/2025/02/03/" in request.url.path:
+            return httpx.Response(200, content=payload)
+        if "/2025/02/01/" in request.url.path:
+            return httpx.Response(404)
+        return httpx.Response(503)
+    client = httpx.Client(transport=httpx.MockTransport(handler), headers=dk.HEADERS)
+    stats: dict = {}
+    dk.time.sleep = lambda *_: None  # pas d'attente dans les tests
+    df = dk.fetch_day(client, "XAUUSD", day_ok, tmp_path, stats=stats)
+    assert len(df) == 300 and stats["downloaded"] == 1 and dk.cache_path(tmp_path, "XAUUSD", day_ok).stat().st_size > 0
+    assert dk.fetch_day(client, "XAUUSD", day_404, tmp_path, stats=stats).empty and stats["missing"] == 1
+    assert dk.cache_path(tmp_path, "XAUUSD", day_404).stat().st_size == 0           # jour sans données : mis en cache vide
+    assert dk.fetch_day(client, "XAUUSD", day_503, tmp_path, stats=stats).empty and stats["unavailable"] == 1
+    assert not dk.cache_path(tmp_path, "XAUUSD", day_503).exists()                  # indisponible : PAS mis en cache
+    n_before = calls["n"]
+    assert len(dk.fetch_day(client, "XAUUSD", day_ok, tmp_path, stats=stats)) == 300 and calls["n"] == n_before  # relu du cache
+
+
+def test_oanda_history_pagination_and_day_cache(tmp_path, monkeypatch):
+    import httpx
+    from orbbot.data import oanda as oa
+    src = random_walk_minutes(dt.date(2025, 3, 3), 3, seed=9)  # 3 jours × 1440 bougies = 4320 > 5000 ? non : on force des pages de 1000
+    rows = [(ts, r) for ts, r in src.iterrows()]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["Authorization"] == "Bearer tok"
+        q = dict(request.url.params)
+        start = pd.Timestamp(q["from"])
+        page = [(ts, r) for ts, r in rows if ts >= start][:1000]
+        candles = [{"time": ts.isoformat().replace("+00:00", "Z"), "complete": True, "volume": int(r["volume"]),
+                    "bid": {"o": f"{r['open']:.3f}", "h": f"{r['high']:.3f}", "l": f"{r['low']:.3f}", "c": f"{r['close']:.3f}"}} for ts, r in page]
+        return httpx.Response(200, json={"candles": candles})
+    real_client = httpx.Client
+
+    def fake_client(*a, **kw):
+        kw["transport"] = httpx.MockTransport(handler)
+        return real_client(*a, **kw)
+    monkeypatch.setattr(oa.httpx, "Client", fake_client)
+    df = oa.load_minutes_oanda("XAUUSD", dt.date(2025, 3, 3), dt.date(2025, 3, 5), tmp_path, "tok")
+    assert len(df) == len(src) and df.index[0] == src.index[0] and df.index[-1] == src.index[-1]
+    assert df["close"].iloc[10] == pytest.approx(round(src["close"].iloc[10], 3))
+    for d in (dt.date(2025, 3, 3), dt.date(2025, 3, 4), dt.date(2025, 3, 5)):
+        assert (tmp_path / "oanda" / "XAU_USD" / f"{d.isoformat()}.csv.gz").stat().st_size > 0
+    # second appel : tout vient du cache (le transport simulé n'est plus nécessaire)
+    monkeypatch.setattr(oa.httpx, "Client", lambda *a, **kw: (_ for _ in ()).throw(AssertionError("réseau appelé")))
+    df2 = oa.load_minutes_oanda("XAUUSD", dt.date(2025, 3, 3), dt.date(2025, 3, 5), tmp_path, "tok")
+    assert len(df2) == len(df)

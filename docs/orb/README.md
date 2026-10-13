@@ -19,7 +19,7 @@ données réelles, coûts, validation hors échantillon, et un moteur temps rée
 | Temps réel | `orb/orbbot/live/` | Flux OANDA v20 (M1 clôturées, polling 5 s) ou rejeu ; courtier `PaperBroker` (fictif) ou `OandaBroker` (ordres au marché avec stop/objectif serveur, clôture partielle, déplacement du stop) ; politique de risque gelée ; kill switch ; journal JSONL + état. |
 | Politique | `ops/orb/policy.json` | Risque 0,5 %/trade, perte max 2 R/jour, 2 trades/jour, 5 unités max, 6 pertes consécutives ⇒ suspension, `mode=paper`. Le bot ne la modifie jamais (empreinte SHA-256 journalisée). |
 | Automatisation | `.github/workflows/orb-backtest.yml`, `orb-paper.yml` | Backtest réel à chaque modification de `ops/orb/backtest.json` ; séance paper quotidienne (13:15 UTC) si le secret `OANDA_TOKEN` existe. |
-| Tests | `orb/tests/` | 23 tests exécutés : chaque règle de la stratégie sur des scénarios à résultat connu, décodage Dukascopy, heure d'été/hiver, grille parallèle = séquentielle, rapport, **rejeu temps réel == backtest**, politique, kill switch. |
+| Tests | `orb/tests/` | 25 tests exécutés : chaque règle de la stratégie sur des scénarios à résultat connu, décodage Dukascopy, heure d'été/hiver, grille parallèle = séquentielle, rapport, **rejeu temps réel == backtest**, politique, kill switch. |
 
 ## 2. Règles exactes de la stratégie (ce que le code fait, sans ambiguïté)
 

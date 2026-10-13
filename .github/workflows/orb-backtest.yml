@@ -57,6 +57,8 @@ jobs:
             dukascopy-m1-${{ steps.cfg.outputs.instruments }}-${{ steps.cfg.outputs.start }}-
             dukascopy-m1-
       - name: Backtest (données réelles)
+        env:
+          OANDA_TOKEN: ${{ secrets.OANDA_TOKEN }}
         run: |
           mkdir -p docs/reports/orb
           for ins in ${{ steps.cfg.outputs.instruments }}; do

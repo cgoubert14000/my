@@ -25,12 +25,40 @@ def _costs(instrument: str, spread: float | None, slippage: float | None) -> Cos
     return Costs(spread=sp, slippage=sl, min_risk=sp)
 
 
-def _load(instrument: str, start: dt.date, end: dt.date, data_dir: pathlib.Path, synthetic: bool):
+LAST_SOURCE = {"name": "", "note": ""}
+
+
+def _load(instrument: str, start: dt.date, end: dt.date, data_dir: pathlib.Path, synthetic: bool, source: str = "auto"):
+    """source : dukascopy | oanda | auto (Dukascopy, puis OANDA si OANDA_TOKEN est défini et que Dukascopy est bloqué)."""
     if synthetic:
+        LAST_SOURCE.update(name="synthetic", note="DONNÉES SYNTHÉTIQUES")
         from .data.synthetic import random_walk_minutes
         return random_walk_minutes(start, (end - start).days + 1, seed=42)
-    from .data.dukascopy import load_minutes
-    return load_minutes(instrument, start, end, data_dir, progress=True)
+    import pandas as pd
+    from .data import dukascopy
+    token = os.environ.get("OANDA_TOKEN", "")
+    df = pd.DataFrame()
+    if source in ("dukascopy", "auto"):
+        df = dukascopy.load_minutes(instrument, start, end, data_dir, progress=True)
+        st = dict(dukascopy.LAST_STATS)
+        st.pop("errors", None)
+        typer.echo(f"Dukascopy {instrument}: {len(df)} bougies, {st}", err=True)
+        expected_days = max(1, int((end - start).days * 5 / 7))
+        covered = len({d for d in df.index.normalize()}) if len(df) else 0
+        if covered >= 0.6 * expected_days:
+            LAST_SOURCE.update(name="dukascopy", note=f"Dukascopy 1 min BID, {len(df)} bougies ({covered} jours), statut téléchargement {st}")
+            return df
+        typer.echo(f"Dukascopy : couverture insuffisante ({covered} jours sur ≈{expected_days} attendus)", err=True)
+        if source == "dukascopy" or not token:
+            LAST_SOURCE.update(name="dukascopy-partiel", note=f"Dukascopy PARTIEL : {covered} jours sur ≈{expected_days} ({st}) ; OANDA_TOKEN absent, pas de source de secours")
+            return df
+    from .data.oanda import load_minutes_oanda
+    if not token:
+        typer.echo("source oanda : OANDA_TOKEN absent", err=True)
+        raise typer.Exit(2)
+    df2 = load_minutes_oanda(instrument, start, end, data_dir, token, practice=True, progress=True)
+    LAST_SOURCE.update(name="oanda", note=f"OANDA v20 (compte de démonstration) M1 BID, {len(df2)} bougies")
+    return df2
 
 
 def _variant_from_key(key: str) -> OrbParams:
@@ -54,18 +82,24 @@ def fetch(instrument: str = "XAUUSD", start: str = "2022-01-01", end: str = "", 
 def backtest(instrument: str = "XAUUSD", start: str = "2022-01-01", end: str = "", grid_name: str = typer.Option("full", "--grid"),
              spread: float | None = None, slippage: float | None = None, split: float = 0.6,
              out: pathlib.Path = pathlib.Path("docs/reports/orb"), tag: str = "", data_dir: pathlib.Path = pathlib.Path("data/orb"),
-             workers: int = 0, synthetic: bool = typer.Option(False, help="données SYNTHÉTIQUES (démo hors ligne, résultats sans valeur)")):
+             workers: int = 0, synthetic: bool = typer.Option(False, help="données SYNTHÉTIQUES (démo hors ligne, résultats sans valeur)"),
+             source: str = typer.Option("auto", help="dukascopy | oanda | auto")):
     """Exécute toute la grille de variantes et écrit le rapport (Markdown + JSON + CSV des trades)."""
     from .backtest.engine import prepare_sessions, run_grid, run_variants
     from .backtest.report import evaluate, write_outputs
     from .backtest.metrics import summarize
     t0 = time.time()
     end_d = dt.date.fromisoformat(end) if end else dt.date.today() - dt.timedelta(days=1)
-    df = _load(instrument, dt.date.fromisoformat(start), end_d, data_dir, synthetic)
+    df = _load(instrument, dt.date.fromisoformat(start), end_d, data_dir, synthetic, source)
     if df.empty:
         typer.echo("aucune donnée : backtest impossible (rien n'est inventé)", err=True)
+        _write_unavailable(out, instrument, tag, LAST_SOURCE["note"] or "aucune source de données accessible")
         raise typer.Exit(2)
     sessions = prepare_sessions(df)
+    if len(sessions) < 60:
+        typer.echo(f"seulement {len(sessions)} séances : trop peu pour une grille (rien n'est publié comme résultat)", err=True)
+        _write_unavailable(out, instrument, tag, f"{len(sessions)} séances seulement — {LAST_SOURCE['note']}")
+        raise typer.Exit(2)
     costs = _costs(instrument, spread, slippage)
     spec = {"full": FULL_GRID, "quick": QUICK_GRID}[grid_name]
     variants = grid(spec)
@@ -86,12 +120,23 @@ def backtest(instrument: str = "XAUUSD", start: str = "2022-01-01", end: str = "
             sens.append({"key": k, "spread": round(c2.spread, 6), "slippage": round(c2.slippage, 6), "summary": summarize(tr)})
     tag = tag or dt.datetime.now(dt.UTC).strftime("%Y%m%d-%H%M%S")
     note = ("DONNÉES SYNTHÉTIQUES (marche aléatoire) : démonstration du pipeline uniquement, aucun résultat n'a de valeur." if synthetic
-            else f"Source : Dukascopy 1 min BID, {len(df)} bougies téléchargées le {dt.date.today().isoformat()}.")
+            else f"Source : {LAST_SOURCE['note']} (téléchargement du {dt.date.today().isoformat()}).")
     md, js = write_outputs(ev, instrument if not synthetic else f"SYNTHETIC-{instrument}", {"spread": costs.spread, "slippage": costs.slippage}, out, tag, results, sens, note)
     typer.echo(f"rapport : {md} ({time.time() - t0:.0f} s) — verdict : {ev['status']}")
     if ev["selected"]:
         s = ev["selected"]
         typer.echo(f"sélection {s['key']} : OOS n={s['oos']['n']} WR={s['oos']['win_rate']} PF={s['oos']['profit_factor']}")
+
+
+def _write_unavailable(out: pathlib.Path, instrument: str, tag: str, why: str) -> None:
+    out.mkdir(parents=True, exist_ok=True)
+    tag = tag or dt.datetime.now(dt.UTC).strftime("%Y%m%d-%H%M%S")
+    txt = (f"# Backtest ORB — {instrument} — NON RÉALISÉ\n\nGénéré le {dt.datetime.now(dt.UTC).isoformat(timespec='seconds')}.\n\n"
+           f"Données indisponibles : {why}.\n\nAucun chiffre n'est publié sans données réelles. Solutions : (1) relancer plus tard "
+           f"(Dukascopy indisponible par moments) ; (2) ajouter le secret `OANDA_TOKEN` (compte de démonstration gratuit) : "
+           f"l'historique M1 est alors téléchargé depuis OANDA, la même source que le flux temps réel.\n")
+    (out / f"backtest_{instrument}_{tag}.md").write_text(txt, encoding="utf-8")
+    (out / f"latest_{instrument}.md").write_text(txt, encoding="utf-8")
 
 
 @app.command("policy-check")
