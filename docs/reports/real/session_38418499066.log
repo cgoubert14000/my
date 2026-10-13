@@ -1,0 +1,22 @@
+=== real-market session: chain=base minutes=25.0 candidates=['base-rpc.publicnode.com', 'mainnet.base.org', 'base.llamarpc.com', 'base.drpc.org', '1rpc.io', 'base-mainnet.public.blastapi.io', 'base.meowrpc.com', 'base.blockpi.network', 'endpoints.omniatech.io', 'base.gateway.tenderly.co']
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/scripts/real_market_session.py", line 145, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/my/my/scripts/real_market_session.py", line 105, in main
+    chosen, healthy, results = asyncio.run(preflight(args.chain, urls, args.max_rps, log))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/scripts/real_market_session.py", line 58, in preflight
+    from arbbot.ops.verify import verify_chain
+  File "/home/runner/work/my/my/backend/arbbot/ops/verify.py", line 27, in <module>
+    from ..data.collector import StateCollector
+ModuleNotFoundError: No module named 'arbbot.data'
