@@ -1,4 +1,4 @@
-# Rapport d'exécution des tests — 2026-10-13 21:34:58
+# Rapport d'exécution des tests — 2026-10-13 21:57:58
 
 ## Contrats (Foundry)
 - **36 réussis / 0 échoués** (code de sortie 0)
@@ -44,17 +44,18 @@
   - ✅ test_real_v3_pool_as_flash_source() — gaz 120842
 
 ## Backend (pytest)
-- **83 réussis / 0 échoués / 0 ignorés / 0 erreurs** (code de sortie 0)
+- **85 réussis / 0 échoués / 0 ignorés / 0 erreurs** (code de sortie 0)
 - tests.test_api_selfcorr_ghost
-  - ✅ test_param_repo_propose_accept_rollback_are_git_isolated (0.08s)
+  - ✅ test_param_repo_propose_accept_rollback_are_git_isolated (0.06s)
   - ✅ test_self_correction_cannot_touch_financial_controls (0.00s)
-  - ✅ test_ghost_dedup_one_observation_per_route_per_window (0.26s)
-  - ✅ test_api_status_opportunities_emergency_stop_and_tunable_guard (1.88s)
-  - ✅ test_ghost_session_report_counts_closest_and_latest_files (0.31s)
+  - ✅ test_ghost_dedup_one_observation_per_route_per_window (0.56s)
+  - ✅ test_api_status_opportunities_emergency_stop_and_tunable_guard (1.61s)
+  - ✅ test_ghost_session_report_counts_closest_and_latest_files (0.54s)
 - tests.test_devnet_e2e
-  - ✅ test_detection_simulation_exact_and_ghost_label (1.96s)
-  - ✅ test_preflight_refuses_without_signer_and_emergency_stop (1.79s)
+  - ✅ test_detection_simulation_exact_and_ghost_label (1.95s)
+  - ✅ test_preflight_refuses_without_signer_and_emergency_stop (1.66s)
   - ✅ test_live_execution_under_policy_with_isolated_signer (2.19s)
+  - ✅ test_event_feed_updates_state_before_the_block_refresh (2.04s)
 - tests.test_engine_units
   - ✅ test_build_routes_2_and_3_hops_no_pool_reuse (0.00s)
   - ✅ test_quarantined_pool_excluded (0.00s)
@@ -74,9 +75,10 @@
   - ✅ test_db_count_opportunities_is_exact_beyond_page_limit (0.03s)
   - ✅ test_collector_refreshes_each_head_once_whatever_the_source (0.02s)
   - ✅ test_selector_applies_the_onchain_safety_floor (0.00s)
-  - ✅ test_vectorised_screen_matches_per_route_formulas_and_is_fast (0.06s)
-  - ✅ test_collector_tracks_dynamic_lp_fee_changes (0.01s)
+  - ✅ test_vectorised_screen_matches_per_route_formulas_and_is_fast (0.04s)
+  - ✅ test_collector_tracks_dynamic_lp_fee_changes (0.00s)
   - ✅ test_observations_survive_sessions_via_jsonl_export_import (0.01s)
+  - ✅ test_event_feed_applies_swap_and_sync_logs_and_ignores_the_rest (0.00s)
 - tests.test_factory_discovery_devnet
   - ✅ test_factory_discovery_matches_deployed_pools (0.03s)
 - tests.test_l1_fee_opstack
@@ -88,7 +90,7 @@
   - ✅ test_mainnet_chain_configs_declare_l1_model[arbitrum] (0.00s)
 - tests.test_math_units
   - ✅ test_v2_matches_reference_formula (0.00s)
-  - ✅ test_v2_output_never_breaks_k (0.29s)
+  - ✅ test_v2_output_never_breaks_k (0.31s)
   - ✅ test_v2_fee_on_input_reduces_output (0.00s)
   - ✅ test_v3_tick_sqrt_roundtrip (0.00s)
   - ✅ test_solidly_stable_close_to_peg_and_volatile_equals_v2_shape (0.00s)
@@ -96,9 +98,9 @@
   - ✅ test_quote_rejects_zero_and_token_not_in_pool (0.00s)
   - ✅ test_price_impact_grows_with_size (0.00s)
 - tests.test_math_vs_chain
-  - ✅ test_v3_simulation_matches_real_pool_bytecode (1.35s)
-  - ✅ test_v2_quote_is_maximal_against_real_pair (0.04s)
-  - ✅ test_solidly_matches_onchain_getAmountOut (0.72s)
+  - ✅ test_v3_simulation_matches_real_pool_bytecode (1.33s)
+  - ✅ test_v2_quote_is_maximal_against_real_pair (0.03s)
+  - ✅ test_solidly_matches_onchain_getAmountOut (0.65s)
 - tests.test_policy_risk_signer
   - ✅ test_policy_is_frozen_and_rejects_unknown_fields (0.00s)
   - ✅ test_policy_disabled_or_expired_is_invalid (0.00s)
@@ -126,9 +128,9 @@
   - ✅ test_signer_refuses[bad9-deadline] (0.00s)
   - ✅ test_signer_enforces_cumulative_budget_and_count (0.01s)
   - ✅ test_signer_refuses_when_policy_wallet_differs (0.00s)
-  - ✅ test_load_account_from_encrypted_keystore_only (2.45s)
+  - ✅ test_load_account_from_encrypted_keystore_only (1.98s)
 - tests.test_state_override_sim_devnet
-  - ✅ test_state_override_simulation_equals_deployed (0.76s)
+  - ✅ test_state_override_simulation_equals_deployed (1.35s)
 - tests.test_universe_discovery
   - ✅ test_universe_discovery_tokens_pools_depth_and_sources (0.01s)
   - ✅ test_universe_without_filters_keeps_everything_measured (0.01s)

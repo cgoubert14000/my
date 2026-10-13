@@ -444,3 +444,55 @@ def test_observations_survive_sessions_via_jsonl_export_import(tmp_path):
     rows = db2.observations()
     assert len(rows) == 6 and rows[-1]["route_key"] == "r9" and rows[-1]["features"]["hops"] == 3
     assert len(db2.observations(since=1003.0)) == 3
+
+
+def _mk_pool(kind: DexKind, addr: str = "0x" + "ab" * 20) -> Pool:
+    t0 = Token("0x" + "11" * 20, "WETH", 18)
+    t1 = Token("0x" + "22" * 20, "USDC", 6)
+    return Pool(address=addr, dex="x", kind=kind, token0=t0, token1=t1, fee_ppm=3000, stable=False, tick_spacing=60)
+
+
+def _log(addr: str, topic: str, data_words: list[int], block: int = 100, removed: bool = False) -> dict:
+    data = b"".join((w % (1 << 256)).to_bytes(32, "big") for w in data_words)
+    return {"address": addr, "topics": [topic, "0x" + "00" * 32, "0x" + "00" * 32], "data": "0x" + data.hex(),
+            "blockNumber": hex(block), "removed": removed}
+
+
+def test_event_feed_applies_swap_and_sync_logs_and_ignores_the_rest():
+    """Swap/Sync logs update the watched pools instantly (the state the screen uses before the next multicall);
+    unknown pools, stale blocks, reorged logs and malformed data are ignored; Mint/Burn flag a tick re-fetch."""
+    from arbbot.data import collector as col
+    from arbbot.config.chains import BASE
+
+    v2 = _mk_pool(DexKind.UNIV2, "0x" + "a1" * 20)
+    so = _mk_pool(DexKind.SOLIDLY, "0x" + "a2" * 20)
+    v3 = _mk_pool(DexKind.UNIV3, "0x" + "a3" * 20)
+    pk = _mk_pool(DexKind.PANCAKE_V3, "0x" + "a4" * 20)
+    c = col.StateCollector(None, BASE, [v2, so, v3, pk])  # type: ignore[arg-type]
+    seen: list[tuple[str, int]] = []
+    c.on_pool_event = lambda p, b: seen.append((p.address, b))
+    assert c.apply_log(_log(v2.address, col.TOPIC_SYNC_V2, [10**21, 2_500_000 * 10**6])) is v2
+    assert (v2.reserve0, v2.reserve1, v2.updated_block) == (10**21, 2_500_000 * 10**6, 100)
+    assert c.apply_log(_log(so.address, col.TOPIC_SYNC_SOLIDLY, [5 * 10**20, 10**12], block=101)) is so
+    assert (so.reserve0, so.reserve1, so.updated_block) == (5 * 10**20, 10**12, 101)
+    sqrt_p = 1_234_567_890_123_456_789_012_345
+    assert c.apply_log(_log(v3.address, col.TOPIC_SWAP_V3, [-(10**18), 2_400 * 10**6, sqrt_p, 7 * 10**18, -197_234])) is v3
+    assert v3.v3 is not None and (v3.v3.sqrt_price_x96, v3.v3.liquidity, v3.v3.tick) == (sqrt_p, 7 * 10**18, -197_234)
+    assert v3.v3.fee_pips == 3000 and v3.v3.tick_spacing == 60
+    assert c.apply_log(_log(pk.address, col.TOPIC_SWAP_PANCAKE_V3, [1, -1, sqrt_p + 5, 9, 12, 0, 0])) is pk
+    assert pk.v3 is not None and (pk.v3.sqrt_price_x96, pk.v3.liquidity, pk.v3.tick) == (sqrt_p + 5, 9, 12)
+    assert c.stats.events_applied == 4 and [a for a, _ in seen] == [v2.address, so.address, v3.address, pk.address]
+    # ignored: unknown pool, stale block, reorged log, wrong topic for the kind, zero sqrt price, malformed hex
+    assert c.apply_log(_log("0x" + "ff" * 20, col.TOPIC_SYNC_V2, [1, 2])) is None
+    assert c.apply_log(_log(v2.address, col.TOPIC_SYNC_V2, [1, 2], block=99)) is None and v2.reserve0 == 10**21
+    assert c.apply_log(_log(v3.address, col.TOPIC_SWAP_V3, [0, 0, 1, 1, 1], block=105, removed=True)) is None
+    assert v3.address in c._force_tick_refresh and v3.v3.sqrt_price_x96 == sqrt_p
+    assert c.apply_log(_log(v2.address, col.TOPIC_SWAP_V3, [0, 0, 1, 1, 1], block=105)) is None
+    assert c.apply_log(_log(v3.address, col.TOPIC_SWAP_V3, [0, 0, 0, 1, 1], block=105)) is None
+    assert c.apply_log({"address": v2.address, "topics": [col.TOPIC_SYNC_V2], "data": "0xzz", "blockNumber": "0x70"}) is None
+    # Mint/Burn: no state change, tick window re-fetched at the next refresh
+    c._force_tick_refresh.clear()
+    assert c.apply_log(_log(pk.address, col.TOPIC_MINT_V3, [10**18, 1, 1], block=106)) is None
+    assert pk.address in c._force_tick_refresh and pk.updated_block == 100
+    assert c.stats.events_ignored == 7 and len(seen) == 4
+    assert c.stats.as_dict()["events_applied"] == 4

@@ -87,6 +87,8 @@ function render(r) {
   document.getElementById("kpis").innerHTML = [
     kpi("Prix ETH (pool le plus profond)", `${fmt(r.native_price_usd, 2)} $`),
     kpi("Base fee", `${fmt(r.gas?.base_fee_gwei, 6)} gwei`, `priorité ${fmt(r.gas?.priority_fee_gwei, 6)} gwei`),
+    kpi("Flux d'événements (Swap/Sync)", `${fmt(r.collector?.events_applied, 0)} appliqués`,
+        `${fmt(r.cumulative?.event_cycles, 0)} cycles déclenchés · avance médiane ${fmt(r.collector?.event_lead_p50_ms, 0)} ms`),
     kpi("Univers : pools / jetons / routes", `${fmt(r.universe?.pools ?? (r.pools||[]).length,0)} / ${fmt(r.universe?.tokens,0)} / ${fmt(r.routes,0)}`,
         `quarantaine ${fmt((r.universe?.quarantined||[]).length,0)} pool(s) · frais LP changés ${fmt(r.collector?.fee_changes,0)}`),
     kpi("Blocs vus", fmt(r.blocks?.seen,0), `${r.blocks?.first} → ${r.blocks?.last}`),

@@ -4,7 +4,7 @@
 >
 > * Tout le code (contrat, moteur, simulateur, signer isolé, laboratoire, interface) est écrit et **exécuté**. Preuves
 >   reproductibles : `docs/reports/tests_latest.md` — **36/36 tests Foundry** (unitaires, fuzz, invariants, Uniswap V3
->   réel), **83/83 tests Python** dont des tests bout-en-bout sur un devnet anvil avec **une vraie transaction signée et
+>   réel), **85/85 tests Python** dont des tests bout-en-bout sur un devnet anvil avec **une vraie transaction signée et
 >   minée** par le signer isolé sous politique ; `docs/reports/slither.json` ; `docs/reports/lab_*.md` (laboratoire 60 min).
 > * **Sessions sur le réseau réel (Base mainnet, chain id 8453), en lecture seule** : elles tournent sur GitHub Actions
 >   (`.github/workflows/real-market-ghost.yml`) parce que l'environnement de développement n'a accès à aucun RPC ; les

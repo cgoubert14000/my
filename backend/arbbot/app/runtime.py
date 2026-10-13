@@ -113,6 +113,9 @@ class Runtime:
         self._tasks: list[asyncio.Task] = []
         self._stop = asyncio.Event()
         self._cycle_lock = asyncio.Lock()
+        self._event_task: asyncio.Task | None = None
+        self._event_block = 0
+        self._dirty_pools: set[str] = set()
         self.mode = "ghost"  # "ghost" | "live" (live only when risk status == LIVE_ACTIVE and policy valid)
         self.signer_health: dict | None = None
         self.wallet = self.policy.wallet_address or self.chain.extra.get("accounts", {}).get("executor", "")
@@ -129,6 +132,9 @@ class Runtime:
         self.pools = await self.indexer.discover()
         self.collector = StateCollector(self.rpc, self.chain, self.pools, poll_interval_s=self.settings.poll_interval_s,
                                         ws_url=self.settings.rpc_ws_url)
+        self.collector.subscribe_logs = bool(self.settings.event_feed)
+        if self.settings.event_feed:
+            self.collector.on_pool_event = self._on_pool_event
         await self.collector.refresh()
         if self.settings.native_usd_fallback and not self.collector.native_price_usd:
             self.collector.native_price_usd = self.settings.native_usd_fallback
@@ -294,23 +300,49 @@ class Runtime:
 
     async def process_block(self, block: int) -> dict:
         async with self._cycle_lock:
-            if block <= self.last_block and self.last_cycle.get("block") == block:
+            if block <= self.last_block and self.last_cycle.get("block") == block and self.last_cycle.get("trigger") == "block":
                 return self.last_cycle
             return await self._process_block(block)
 
-    async def _process_block(self, block: int) -> dict:
+    # ------------------------------------------------------------------ event-driven cycles
+
+    def _on_pool_event(self, pool, block: int) -> None:
+        """Collector callback (same loop): a swap/sync log just updated `pool`. One scan per burst (debounced)."""
+        self._dirty_pools.add(pool.address)
+        self._event_block = max(self._event_block, block)
+        if self._event_task is None or self._event_task.done():
+            self._event_task = asyncio.create_task(self._event_cycle())
+
+    async def _event_cycle(self) -> None:
+        await asyncio.sleep(max(0, self.settings.event_debounce_ms) / 1000)
+        if self._stop.is_set():
+            return
+        block = max(self._event_block, self.last_block)
+        n = len(self._dirty_pools)
+        self._dirty_pools.clear()
+        try:
+            async with self._cycle_lock:
+                await self._process_block(block, trigger="event", touched=n)
+        except Exception as e:  # noqa: BLE001
+            log.exception("event cycle failed at block %s: %s", block, e)
+            self.db.add_event("error", "engine", str(e), {"block": block, "trigger": "event"})
+
+    async def _process_block(self, block: int, *, trigger: str = "block", touched: int = 0) -> dict:
         t0 = time.perf_counter()
-        self.last_block = block
-        # ghost labels for block-1 candidates
-        labels = await self.ghost.on_block(block)
-        for lb in labels:
-            usd = self.fees.token_price_usd(self.chain.tokens.get(lb["token"])) if lb["token"] in self.chain.tokens else None
-            if usd:
-                self.cumulative["ghost_net_after_eur"] += lb["net_after"] / 10**lb["decimals"] * usd * self.settings.eur_per_usd
-        if labels:
-            self.bus.publish("ghost_labels", labels)
+        self.last_block = max(self.last_block, block)
+        if trigger == "block":
+            # ghost labels for block-1 candidates
+            labels = await self.ghost.on_block(block)
+            for lb in labels:
+                usd = self.fees.token_price_usd(self.chain.tokens.get(lb["token"])) if lb["token"] in self.chain.tokens else None
+                if usd:
+                    self.cumulative["ghost_net_after_eur"] += lb["net_after"] / 10**lb["decimals"] * usd * self.settings.eur_per_usd
+            if labels:
+                self.bus.publish("ghost_labels", labels)
+        else:
+            self.cumulative["event_cycles"] = self.cumulative.get("event_cycles", 0) + 1
         if self.paused:
-            self.last_cycle = {"block": block, "paused": True}
+            self.last_cycle = {"block": block, "paused": True, "trigger": trigger}
             return self.last_cycle
         ctx = self._ctx(block)
         opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
@@ -322,7 +354,9 @@ class Runtime:
                            key=lambda o: -o.profit.expected_net)[:3]
         self._lift_expired_quarantines(block)
         for o in positives:
-            sim = await self.simulator.simulate(o, min_profit=1, block=block)
+            # event-triggered cycles run before the HTTP node necessarily has the block the events came from: simulate
+            # at "latest" there (the pinned block would fail with "header not found" on a lagging endpoint)
+            sim = await self.simulator.simulate(o, min_profit=1, block=block if trigger == "block" else "latest")
             o.sim = sim.__dict__
             o.sim_ok, o.sim_error, o.sim_gas_used = sim.ok, sim.error, sim.gas_estimate
             if sim.ok:
@@ -333,14 +367,16 @@ class Runtime:
             else:
                 self.risk.flags["simulations_failed"] += 1
                 o.profit.simulated_net = None
-                self._note_sim_failure(o, block)
+                if not str(sim.error or "").startswith("rpc:"):  # transport errors say nothing about the route
+                    self._note_sim_failure(o, block)
             self.ghost.enqueue(o, block)
         # re-run gates now that simulation results exist
         for o in positives:
             o.reasons = [r for r in o.reasons if not r.startswith(("simulation_failed", "sim_below", "simulated_net"))]
         self.selector.evaluate(positives, ctx, self.policy.min_success_probability)
         best = self.selector.pick(positives)
-        decision_log: dict = {"block": block, "candidates": len(opps), "positives": len(positives), "selected": None}
+        decision_log: dict = {"block": block, "candidates": len(opps), "positives": len(positives), "selected": None,
+                              "trigger": trigger, "touched_pools": touched}
         if best is not None:
             decision_log["selected"] = best.to_record()
             if self.risk.state.status == BotStatus.LIVE_ACTIVE and self.executor and not self.executor.dry_run:

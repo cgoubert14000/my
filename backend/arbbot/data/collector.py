@@ -14,12 +14,29 @@ from dataclasses import dataclass, field
 from ..config.chains import ChainConfig
 from ..core.math_v3 import V3PoolState
 from ..core.types import DexKind, Pool
-from .rpc import RpcError, RpcClient, decode_result, encode_call
+from .rpc import RpcError, RpcClient, decode_result, encode_call, event_topic
 
 log = logging.getLogger("arbbot.collector")
 
 SIG_RESERVES = encode_call("getReserves()")
 SIG_SLOT0 = encode_call("slot0()")
+
+# Event feed (WebSocket `logs` subscription): the pool state is updated the instant a swap is included, instead of
+# after the next multicall refresh — on a public RPC that refresh costs 0.3–4 s, i.e. most of a 2 s Base block.
+TOPIC_SYNC_V2 = event_topic("Sync(uint112,uint112)")  # Uniswap V2 / Sushi V2 / Pancake V2
+TOPIC_SYNC_SOLIDLY = event_topic("Sync(uint256,uint256)")  # Aerodrome (Solidly) pools
+TOPIC_SWAP_V3 = event_topic("Swap(address,address,int256,int256,uint160,uint128,int24)")  # Uniswap V3, Sushi V3, Slipstream
+TOPIC_SWAP_PANCAKE_V3 = event_topic("Swap(address,address,int256,int256,uint160,uint128,int24,uint128,uint128)")
+TOPIC_MINT_V3 = event_topic("Mint(address,address,int24,int24,uint128,uint256,uint256)")
+TOPIC_BURN_V3 = event_topic("Burn(address,int24,int24,uint128,uint256,uint256)")
+EVENT_TOPICS = (TOPIC_SYNC_V2, TOPIC_SYNC_SOLIDLY, TOPIC_SWAP_V3, TOPIC_SWAP_PANCAKE_V3, TOPIC_MINT_V3, TOPIC_BURN_V3)
+
+
+def _int24(word: bytes) -> int:
+    v = int.from_bytes(word, "big")
+    return v - (1 << 256) if v >> 255 else v
+
+
 SIG_LIQ = encode_call("liquidity()")
 SIG_FEE = encode_call("fee()")
 MULTICALL_CHUNK = 800  # calls per aggregate3 request: ~3-4 M gas and <100 KB of return data — fine on public RPCs
@@ -58,6 +75,10 @@ class CollectorStats:
     errors: int = 0
     stale_pools: int = 0
     fee_changes: int = 0  # dynamic LP fee changes observed (Slipstream fee modules)
+    events_applied: int = 0  # swap/sync logs applied to the pool state before the block refresh
+    events_ignored: int = 0  # logs for pools we do not watch, stale or malformed
+    events_lead_ms: list[float] = field(default_factory=list)  # how long before the multicall refresh the event arrived
+    last_event_at: float = 0.0
     refresh_latencies: list[float] = field(default_factory=list)
 
     def as_dict(self) -> dict:
@@ -76,6 +97,10 @@ class CollectorStats:
             "fee_changes": self.fee_changes,
             "refresh_p50_ms": lat[len(lat) // 2] if lat else None,
             "refresh_p95_ms": lat[int(0.95 * (len(lat) - 1))] if lat else None,
+            "events_applied": self.events_applied,
+            "events_ignored": self.events_ignored,
+            "event_lead_p50_ms": (sorted(self.events_lead_ms[-200:])[len(self.events_lead_ms[-200:]) // 2] if self.events_lead_ms else None),
+            "last_event_age_s": round(time.time() - self.last_event_at, 1) if self.last_event_at else None,
         }
 
 
@@ -98,6 +123,11 @@ class StateCollector:
         self._subscribers: list[asyncio.Queue] = []
         self._stop = asyncio.Event()
         self._last_head = 0
+        self._by_addr: dict[str, Pool] = {p.address.lower(): p for p in pools}
+        self._force_tick_refresh: set[str] = set()
+        self._event_block_seen: dict[str, int] = {}  # pool → block of the last applied event (lead-time measurement)
+        self.subscribe_logs = True  # second subscription on the same WebSocket (needs ws_url)
+        self.on_pool_event = None  # callback(pool, block) set by the runtime → immediate scan
         self._head_lock = asyncio.Lock()
         self.native_price_usd: float | None = None
 
@@ -163,10 +193,25 @@ class StateCollector:
                     self.stats.ws_connected = True
                     backoff = 1.0
                     await ws.send('{"jsonrpc":"2.0","id":1,"method":"eth_subscribe","params":["newHeads"]}')
+                    if self.subscribe_logs:
+                        import orjson
+
+                        # topics-only filter (an address list of 1 500 pools exceeds most providers' limits); the
+                        # pools we do not watch are dropped locally in apply_log
+                        await ws.send(orjson.dumps({"jsonrpc": "2.0", "id": 2, "method": "eth_subscribe",
+                                                    "params": ["logs", {"topics": [list(EVENT_TOPICS)]}]}))
                     async for raw in ws:
                         if self._stop.is_set():
                             break
-                        if b'"number"' in (raw if isinstance(raw, bytes) else raw.encode()):
+                        buf = raw if isinstance(raw, bytes) else raw.encode()
+                        if b'"topics"' in buf:
+                            import orjson
+
+                            msg = orjson.loads(raw)
+                            lg = msg.get("params", {}).get("result")
+                            if isinstance(lg, dict):
+                                self.apply_log(lg)
+                        elif b'"number"' in buf:
                             import orjson
 
                             msg = orjson.loads(raw)
@@ -179,6 +224,66 @@ class StateCollector:
                 log.warning("ws disconnected (%s); reconnecting in %.1fs", e, backoff)
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 30.0)
+
+    # ------------------------------------------------------------------ event feed
+
+    def apply_log(self, lg: dict) -> Pool | None:
+        """Apply one `logs` entry to the watched pool it belongs to; returns the pool when its state changed.
+        Swap (CL pools) carries the complete post-swap state (sqrtPrice, liquidity, tick); Sync (V2/Solidly) carries
+        the reserves. Mint/Burn only flag the pool for a tick re-fetch at the next refresh. Logs older than the pool's
+        last refresh block, reorged (`removed`) logs and logs of unknown pools are ignored."""
+        try:
+            p = self._by_addr.get(str(lg.get("address", "")).lower())
+            if p is None:
+                self.stats.events_ignored += 1
+                return None
+            topics = lg.get("topics") or []
+            t0 = str(topics[0]).lower() if topics else ""
+            block = int(lg.get("blockNumber", "0x0"), 16)
+            if lg.get("removed"):
+                self._tick_fetched_block.pop(p.address, None)
+                self._force_tick_refresh.add(p.address)
+                self.stats.events_ignored += 1
+                return None
+            if block < p.updated_block:
+                self.stats.events_ignored += 1
+                return None
+            data = bytes.fromhex(str(lg.get("data", "0x"))[2:])
+            now = time.time()
+            if t0 in (TOPIC_SYNC_V2, TOPIC_SYNC_SOLIDLY) and p.kind in (DexKind.UNIV2, DexKind.SOLIDLY) and len(data) >= 64:
+                p.reserve0, p.reserve1 = int.from_bytes(data[:32], "big"), int.from_bytes(data[32:64], "big")
+            elif t0 in (TOPIC_SWAP_V3, TOPIC_SWAP_PANCAKE_V3) and p.kind in (DexKind.UNIV3, DexKind.PANCAKE_V3) and len(data) >= 160:
+                sqrt_p = int.from_bytes(data[64:96], "big")
+                liq = int.from_bytes(data[96:128], "big")
+                tick = _int24(data[128:160])
+                if sqrt_p == 0:
+                    self.stats.events_ignored += 1
+                    return None
+                if p.v3 is None:
+                    p.v3 = V3PoolState(sqrt_p, tick, liq, p.fee_ppm, p.tick_spacing or 1)
+                else:
+                    p.v3.sqrt_price_x96, p.v3.tick, p.v3.liquidity = sqrt_p, tick, liq
+            elif t0 in (TOPIC_MINT_V3, TOPIC_BURN_V3) and p.kind in (DexKind.UNIV3, DexKind.PANCAKE_V3):
+                self._force_tick_refresh.add(p.address)  # liquidity_net of the touched ticks changed
+                self.stats.events_ignored += 1
+                return None
+            else:
+                self.stats.events_ignored += 1
+                return None
+            p.updated_block, p.updated_at = block, now
+            self._event_block_seen[p.address] = block
+            self.stats.events_applied += 1
+            self.stats.last_event_at = now
+            if self.on_pool_event is not None:
+                try:
+                    self.on_pool_event(p, block)
+                except Exception as e:  # noqa: BLE001 - never let the engine callback break the feed
+                    log.warning("on_pool_event failed: %s", e)
+            return p
+        except (ValueError, TypeError, IndexError) as e:
+            self.stats.events_ignored += 1
+            log.debug("malformed log ignored: %s", e)
+            return None
 
     # ------------------------------------------------------------------ refresh
 
@@ -211,8 +316,18 @@ class StateCollector:
                     calls.append((p.address, SIG_FEE))
                     idx.append((p, "fee"))
         # gas: block header for base fee (one call) — fetched in the same loop iteration
+        t_req = time.time()
         results, header = await asyncio.gather(self.rpc.multicall(calls, block, chunk=MULTICALL_CHUNK), self.rpc.get_block(block))
         now = time.time()
+        if pools is None and self._event_block_seen:
+            # pools whose swap event for this very block was applied before this refresh completed: the event feed
+            # led the multicall by (now - updated_at)
+            leads = [(now - p.updated_at) * 1000 for p in subset if self._event_block_seen.get(p.address) == block and p.updated_at <= now]
+            if leads:
+                self.stats.events_lead_ms.extend(leads[:50])
+                if len(self.stats.events_lead_ms) > 1000:
+                    del self.stats.events_lead_ms[:500]
+            del t_req
         slot_cache: dict[str, tuple[int, int]] = {}
         for (ok, data), (p, what) in zip(results, idx):
             if not ok or not data:
@@ -276,8 +391,9 @@ class StateCollector:
             # seconds on a rate-limited public RPC — real-market session 38425105547, refresh p95 3.9 s). A price move
             # out of the fetched window still triggers an immediate re-fetch.
             due = block - last >= n_stagger + (0 if subset is not None else i % n_stagger)
-            if last < 0 or due or out_of_window:
+            if last < 0 or due or out_of_window or p.address in self._force_tick_refresh:
                 need.append(p)
+        self._force_tick_refresh.difference_update(p.address for p in need)
         if not need:
             return
         # 1) bitmap words

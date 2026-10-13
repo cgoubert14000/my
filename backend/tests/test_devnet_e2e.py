@@ -17,7 +17,8 @@ from eth_account import Account
 from arbbot.app.runtime import Runtime
 from arbbot.config.policy import AuthorizationPolicy, EXAMPLE
 from arbbot.config.settings import Settings
-from arbbot.core.types import Decision
+from arbbot.core.types import Decision, DexKind
+from arbbot.data.rpc import decode_result, encode_call
 from arbbot.execution.executor import SignerClient
 from arbbot.risk.manager import BotStatus
 from arbbot.signer.service import SignRequest, Signer, SignerState
@@ -224,5 +225,35 @@ async def test_live_execution_under_policy_with_isolated_signer(tmp_path, devnet
         bad = await rt.signer.sign({"chain_id": devnet_cfg["chain_id"], "to": policy.executor_contract, "data": "0x12345678", "nonce": 0,
                                    "gas": 5_000_000, "max_fee_per_gas": 10**9, "max_priority_fee_per_gas": 1, "value": 0})
         assert bad[0] is None and bad[1]
+    finally:
+        await rt.stop()
+
+
+async def test_event_feed_updates_state_before_the_block_refresh(tmp_path):
+    """Real WebSocket `logs` subscription against anvil: swaps made by the market simulator reach the pool state
+    through Swap/Sync events, trigger an event-driven scan, and lead the multicall refresh of the same block."""
+    s = Settings(chain="local", rpc_ws_url="ws://127.0.0.1:8545", event_feed=True, event_debounce_ms=20)
+    rt = Runtime(s)
+    await rt.start()
+    try:
+        deadline = time.time() + 40
+        while time.time() < deadline and not (rt.collector.stats.events_applied >= 3 and rt.cumulative.get("event_cycles", 0) >= 1):
+            await asyncio.sleep(0.5)
+        st = rt.collector.stats.as_dict()
+        assert st["ws_connected"], st
+        assert st["events_applied"] >= 3, st
+        assert rt.cumulative.get("event_cycles", 0) >= 1
+        assert rt.last_cycle.get("trigger") in ("event", "block")
+        # the state written by an event is the state the chain reports for that block
+        touched = [p for p in rt.pools if p.updated_at and rt.collector._event_block_seen.get(p.address)]
+        assert touched
+        p = touched[0]
+        blk = rt.collector._event_block_seen[p.address]
+        if p.kind in (DexKind.UNIV2, DexKind.SOLIDLY):
+            r0, r1 = decode_result(["uint256", "uint256"], (await rt.rpc.call(p.address, encode_call("getReserves()"), blk))[:64])
+            assert (p.reserve0, p.reserve1) == (int(r0), int(r1)) or p.updated_block > blk
+        else:
+            sqrt_p, tick = decode_result(["uint160", "int24"], (await rt.rpc.call(p.address, encode_call("slot0()"), blk))[:64])
+            assert (p.v3.sqrt_price_x96, p.v3.tick) == (int(sqrt_p), int(tick)) or p.updated_block > blk
     finally:
         await rt.stop()

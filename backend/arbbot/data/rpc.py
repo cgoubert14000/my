@@ -23,6 +23,11 @@ def selector(signature: str) -> bytes:
     return keccak(text=signature)[:4]
 
 
+def event_topic(signature: str) -> str:
+    """0x-prefixed keccak of an event signature (topic0)."""
+    return "0x" + keccak(text=signature).hex()
+
+
 def encode_call(signature: str, args: Sequence[Any] = ()) -> bytes:
     """signature like 'getReserves()' or 'getPool(address,address,uint24)'."""
     sel = selector(signature)

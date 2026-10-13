@@ -155,6 +155,9 @@ def render_markdown(rep: dict) -> str:
         f"- Requêtes RPC : {rep['rpc'].get('requests')} ; erreurs : {rep['rpc'].get('errors')} ; latence p50/p95 : "
         f"{_fmt(rep['rpc'].get('latency_p50_ms'), 1)}/{_fmt(rep['rpc'].get('latency_p95_ms'), 1)} ms",
         f"- Rafraîchissements d'état : {rep['collector'].get('refreshes')} ; âge des données au dernier bloc : {rep['collector'].get('block_age_s')} s ; changements de frais LP observés (pools à frais dynamiques) : {rep['collector'].get('fee_changes', 0)}",
+        f"- Flux d'événements (WebSocket Swap/Sync) : {'connecté' if rep['collector'].get('ws_connected') else 'non connecté'} ; "
+        f"événements appliqués : {rep['collector'].get('events_applied', 0)} ; cycles déclenchés par événement : {(rep.get('cumulative') or {}).get('event_cycles', 0)} ; "
+        f"avance médiane sur le rafraîchissement multicall : {_fmt(rep['collector'].get('event_lead_p50_ms'), 0)} ms",
         f"- Gaz : base fee {_fmt(rep['gas'].get('base_fee_gwei'), 6)} gwei ; prix ETH (pool le plus profond) : {_fmt(rep.get('native_price_usd'), 2)} $",
         f"- Fournisseurs de flash loan : " + ", ".join(f"{k} {v['fee_bps']} bps (vérifié={v['verified']})" for k, v in rep["flash_providers"].items()),
         "",
