@@ -128,6 +128,8 @@ def build(rt, *, started_at: float, started_block: int, extra: dict | None = Non
         "universe": universe_summary(rt),
         "routes": st.get("routes"),
         "detector": st["detector"],
+        "cumulative": st.get("cumulative", {}),
+        "last_cycle": {k: v for k, v in (st.get("last_cycle") or {}).items() if k in ("block", "trigger", "touched_pools", "cycle_ms", "candidates", "positives")},
         "ghost": st["ghost"],
         "reliability": st["reliability"],
         "risk": st["risk"],
