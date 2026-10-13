@@ -108,3 +108,10 @@ Le script `arbbot executor-plan` fournit la liste des pools profonds à utiliser
 * **Clé chaude** : compromission du poste ⇒ perte du budget de gaz du portefeuille dédié (par construction pas plus).
 * **Pas d'audit externe** : les tests, le fuzzing, les invariants et Slither réduisent le risque ; ils ne remplacent pas
   un audit indépendant pour des montants significatifs.
+* **Frais dynamiques (Aerodrome / Slipstream)** : le frais d'un pool est lu on-chain au démarrage (`getFee` /
+  `fee()`), pas à chaque bloc ; s'il change en cours de session, l'estimation devient fausse jusqu'au redémarrage —
+  la simulation complète (`eth_call` de la vraie transaction) et l'étiquetage ghost le détectent (écart « sous
+  l'estimation », candidats rejetés), mais la couverture Solidly/CL sur le vrai réseau n'a pas pu être exercée ici.
+* **Artefacts de nœud** : voir §2 (anvil) ; sur un nœud de production la lecture épinglée à un bloc est déterministe,
+  mais un RPC derrière un répartiteur de charge peut servir des nœuds légèrement désynchronisés — d'où la
+  re-vérification complète juste avant signature et le refus en cas de données périmées.
