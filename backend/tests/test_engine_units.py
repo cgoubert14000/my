@@ -101,7 +101,7 @@ def test_max_borrow_respects_depth_provider_and_policy():
 # ---------------------------------------------------------------- selector gates
 
 
-def opp(route, expected_net=10**6, **kw) -> Opportunity:
+def opp(route, expected_net=10**7, **kw) -> Opportunity:  # 10 bps net: above the 2 bps on-chain safety floor
     fb = FeeBreakdown(flash_fee=0, gas_units=300_000, gas_price_wei=10**7, gas_cost_wei=3 * 10**12, gas_cost_token=6_000,
                       native_price_in_token=2000.0, failure_cost_wei=10**12)
     pb = ProfitBreakdown(amount_in=10_000 * 10**6, amount_out=10_000 * 10**6 + expected_net + 6_000, gross_profit=expected_net + 6_000,
@@ -195,10 +195,11 @@ def test_negative_net_never_eligible_and_ev_ranking():
     neg = opp(r, expected_net=-5)
     neg.decision = Decision.REJECTED
     neg.reasons.append("negative_expected_net")
-    small, big = opp(r, expected_net=10**6), opp(r, expected_net=2 * 10**6)  # same margin bucket (0–3 bps)
-    sel.evaluate([neg, small, big], ctx(), 0.75)
-    assert neg.decision == Decision.REJECTED
-    assert sel.pick([neg, small, big]) is big
+    small, big = opp(r, expected_net=10**7), opp(r, expected_net=15 * 10**6)  # same margin bucket (8–20 bps) as the trained one
+    thin = opp(r, expected_net=10**6)  # 1 bps: positive but below the on-chain floor ⇒ never eligible
+    sel.evaluate([neg, small, big, thin], ctx(), 0.75)
+    assert neg.decision == Decision.REJECTED and thin.decision == Decision.REJECTED
+    assert sel.pick([neg, small, big, thin]) is big
 
 
 # ---------------------------------------------------------------- revert decoding / rpc errors
@@ -238,6 +239,21 @@ def test_db_count_opportunities_is_exact_beyond_page_limit(tmp_path):
         assert db.count_opportunities(since=1200.0) == 50
         assert db.count_opportunities(decision="ELIGIBLE") == 50
         assert len(db.opportunities(limit=100)) == 100
+        # exact aggregates + ranking in SQL
+        db.upsert_opportunity({"id": "pos", "ts": 1300.0, "chain_id": 8453, "block_number": 9, "route": "r+", "route_key": "k+", "token": "WETH",
+                               "amount_in": 1, "expected_net": 5, "expected_net_eur": 0.5, "decision": "ELIGIBLE", "sim_ok": True,
+                               "ghost_next_block_net": 3, "reasons": ["ghost_mode"]})
+        db.upsert_opportunity({"id": "neg", "ts": 1300.0, "chain_id": 8453, "block_number": 9, "route": "r-", "route_key": "k-", "token": "WETH",
+                               "amount_in": 1, "expected_net": -5, "expected_net_eur": -0.2, "decision": "REJECTED", "sim_ok": False,
+                               "ghost_next_block_net": -1, "reasons": ["negative_expected_net: -5", "p_lower_below_threshold(0.1)"]})
+        st = db.opportunity_stats()
+        assert st["total"] == 252 and st["positive"] == 1 and st["simulated"] == 2 and st["sim_ok"] == 1 and st["sim_failed"] == 1
+        assert st["ghost_labeled"] == 2 and st["ghost_positive"] == 1
+        assert st["decisions"]["ELIGIBLE"] == 51
+        if st["reject_reasons"] is not None:
+            assert st["reject_reasons"] == {"ghost_mode": 1, "negative_expected_net": 1, "p_lower_below_threshold": 1}
+        assert [o["id"] for o in db.top_opportunities(limit=5)] == ["pos", "neg"]
+        assert [o["id"] for o in db.top_opportunities(limit=5, positive_only=True)] == ["pos"]
     finally:
         db.close()
 
@@ -266,3 +282,18 @@ async def test_collector_refreshes_each_head_once_whatever_the_source():
     assert refreshed == [100, 101] or refreshed == [101] or sorted(refreshed) == [100, 101]
     assert c.stats.blocks_seen == len(refreshed)
     assert q.qsize() == len(refreshed)
+
+
+def test_selector_applies_the_onchain_safety_floor():
+    """expected_net > 0 but below the safety margin ⇒ the contract would revert (minProfit = gas + margin) ⇒ not eligible."""
+    _, _, r = two_pool_gap()
+    sel, _ = trained_selector()
+    t = TunableParams()
+    amount_in = 10_000 * 10**6
+    floor = int(amount_in * t.safety_margin_bps) // 10_000  # 2 bps of notional by default
+    thin = opp(r, expected_net=floor - 1)
+    fat = opp(r, expected_net=floor + 1)
+    sel.evaluate([thin, fat], ctx(), 0.75)
+    assert any(x.startswith("below_safety_margin") for x in thin.reasons)
+    assert not any(x.startswith("below_safety_margin") for x in fat.reasons)
+    assert "negative_expected_net" not in thin.reasons

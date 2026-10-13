@@ -7,6 +7,7 @@ line can be checked against a block explorer.
 from __future__ import annotations
 
 import csv
+import gzip
 import datetime as dt
 import json
 import pathlib
@@ -68,21 +69,18 @@ def pool_rows(rt) -> list[dict]:
 def build(rt, *, started_at: float, started_block: int, extra: dict | None = None) -> dict:
     st = rt.status()
     since = started_at
-    total = rt.db.count_opportunities(since=since)
-    opps = rt.db.opportunities(limit=20000, since=since)
-    sims = [o for o in opps if o.get("sim_ok") is not None]
-    labeled = [o for o in opps if o.get("ghost_next_block_net") is not None]
-    positives = [o for o in opps if (o.get("expected_net") is not None and int(o["expected_net"]) > 0)]
-    best = sorted(positives, key=lambda o: -(o.get("expected_net_eur") or 0))[:25]
+    agg = rt.db.opportunity_stats(since=since)
+    best = rt.db.top_opportunities(since=since, limit=25, positive_only=True)
     # the candidates closest to profitability (even negative): shows how far the market is from an executable edge
-    closest = sorted((o for o in opps if o.get("expected_net_eur") is not None), key=lambda o: -(o.get("expected_net_eur") or -1e18))[:10]
-    decisions: dict[str, int] = {}
-    reasons: dict[str, int] = {}
-    for o in opps:
-        decisions[o.get("decision") or "?"] = decisions.get(o.get("decision") or "?", 0) + 1
-        for r in o.get("reasons") or []:
-            key = r.split(":")[0].split("(")[0]
-            reasons[key] = reasons.get(key, 0) + 1
+    closest = rt.db.top_opportunities(since=since, limit=10, positive_only=False)
+    decisions = agg["decisions"]
+    reasons = agg["reject_reasons"]
+    if reasons is None:  # SQLite without JSON1: scan (paged) rows
+        reasons = {}
+        for o in rt.db.opportunities(limit=200000, since=since):
+            for r in o.get("reasons") or []:
+                key = r.split(":")[0].split("(")[0]
+                reasons[key] = reasons.get(key, 0) + 1
     now = time.time()
     rep = {
         "kind": "ghost_session",
@@ -105,9 +103,9 @@ def build(rt, *, started_at: float, started_block: int, extra: dict | None = Non
         "ghost": st["ghost"],
         "reliability": st["reliability"],
         "risk": st["risk"],
-        "opportunities": {"total": total, "analysed_rows": len(opps), "positive_expected_net": len(positives), "simulated": len(sims),
-                          "sim_ok": sum(1 for o in sims if o.get("sim_ok")), "sim_failed": sum(1 for o in sims if o.get("sim_ok") is False),
-                          "ghost_labeled": len(labeled), "ghost_positive": sum(1 for o in labeled if int(o["ghost_next_block_net"]) > 0),
+        "opportunities": {"total": agg["total"], "positive_expected_net": agg["positive"], "simulated": agg["simulated"],
+                          "sim_ok": agg["sim_ok"], "sim_failed": agg["sim_failed"],
+                          "ghost_labeled": agg["ghost_labeled"], "ghost_positive": agg["ghost_positive"],
                           "decisions": decisions, "reject_reasons": reasons, "best": best, "closest": closest},
         "extra": extra or {},
     }
@@ -199,9 +197,13 @@ def render_markdown(rep: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, tag: str, extra: dict | None = None) -> dict[str, str]:
+def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, tag: str, extra: dict | None = None,
+          with_csv: bool = True) -> dict[str, str]:
+    """Write ghost_<chain>_<tag>.{json,md}, latest_<chain>.{json,md}, append history_<chain>.jsonl and (optionally) the
+    full per-candidate CSV (gzip — tens of MB uncompressed for a 60-min mainnet session)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     rep = build(rt, started_at=started_at, started_block=started_block, extra=extra)
+    rep["tag"] = tag
     base = out_dir / f"ghost_{rt.chain.id}_{tag}"
     js = json.dumps(rep, indent=1, ensure_ascii=False)
     md = render_markdown(rep)
@@ -210,17 +212,31 @@ def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, t
     # stable names for live dashboards (GitHub Pages / local mirror)
     (out_dir / f"latest_{rt.chain.id}.json").write_text(js)
     (out_dir / f"latest_{rt.chain.id}.md").write_text(md)
-    opps = rt.db.opportunities(limit=20000, since=started_at)
+    # compact time series (one line per snapshot) for the live charts
+    o, d = rep["opportunities"], rep["detector"]
+    top = (o["best"] or o.get("closest") or [None])[0]
+    point = {"ts": rep["generated_ts"], "tag": tag, "block": rep["blocks"]["last"], "blocks_seen": rep["blocks"]["seen"],
+             "eth_usd": rep["native_price_usd"], "base_fee_gwei": rep["gas"].get("base_fee_gwei"),
+             "candidates": o["total"], "positive": o["positive_expected_net"], "best_net_eur": (top or {}).get("expected_net_eur"),
+             "cycle_ms": d.get("last_cycle_ms"), "rpc_p50_ms": rep["rpc"].get("latency_p50_ms"), "rpc_errors": rep["rpc"].get("errors"),
+             "ghost_labeled": o["ghost_labeled"], "ghost_positive": o["ghost_positive"], "ws": rep["collector"].get("ws_connected")}
+    with (out_dir / f"history_{rt.chain.id}.jsonl").open("a") as f:
+        f.write(json.dumps(point) + "\n")
+    files = {"json": str(base.with_suffix(".json")), "md": str(base.with_suffix(".md"))}
+    if not with_csv:
+        return files
+    opps = rt.db.opportunities(limit=200000, since=started_at)
     cols = ["ts", "block_number", "route", "token", "flash_source", "amount_in", "amount_out", "gross_profit", "expected_net", "expected_net_eur",
             "simulated_net", "ghost_next_block_net", "margin_bps", "price_impact_bps", "spread_bps", "p_success", "p_lower", "p_upper", "p_n",
             "ev", "decision", "reasons", "sim_ok", "sim_error", "sim_gas_used", "data_age_ms", "uncertainty", "dexes", "pools"]
     fee_cols = ["flash_fee", "swap_fees", "gas_units", "gas_price_wei", "l1_data_fee_wei", "gas_cost_wei", "gas_cost_token", "failure_cost_wei", "unknowns"]
-    csv_path = out_dir / f"ghost_{rt.chain.id}_{tag}_opportunities.csv"
-    with csv_path.open("w", newline="") as f:
+    csv_path = out_dir / f"ghost_{rt.chain.id}_{tag}_opportunities.csv.gz"
+    with gzip.open(csv_path, "wt", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(cols + [f"fee_{c}" for c in fee_cols])
         for o in reversed(opps):
             fees = o.get("fees") or {}
             w.writerow([json.dumps(o.get(c), ensure_ascii=False) if isinstance(o.get(c), (list, dict)) else o.get(c) for c in cols]
                        + [json.dumps(fees.get(c)) if isinstance(fees.get(c), (list, dict)) else fees.get(c) for c in fee_cols])
-    return {"json": str(base.with_suffix(".json")), "md": str(base.with_suffix(".md")), "csv": str(csv_path)}
+    files["csv"] = str(csv_path)
+    return files

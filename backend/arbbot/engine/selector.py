@@ -33,6 +33,12 @@ class Selector:
         pb = opp.profit
         if pb.expected_net <= 0:
             reasons.append("negative_expected_net")
+        else:
+            # the contract reverts below minProfit = gas + safety margin (see executor.preflight); a candidate that cannot
+            # clear that floor would only burn gas, so it is never eligible — selection and execution use the same rule
+            safety = int(pb.amount_in * t.safety_margin_bps) // 10_000
+            if pb.expected_net < safety:
+                reasons.append(f"below_safety_margin({pb.expected_net}<{safety})")
         if opp.data_age_ms > t.max_data_age_ms:
             reasons.append(f"stale_data({opp.data_age_ms:.0f}ms>{t.max_data_age_ms})")
         if pb.price_impact_bps > t.max_price_impact_bps:

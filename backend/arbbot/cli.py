@@ -68,7 +68,7 @@ def ghost(minutes: float = typer.Option(0, help="0 = run until Ctrl-C"),
                            f"| positive {st['detector'].get('positive_net')} | ghost {st['ghost']} | rel n={st['reliability'].get('n')} "
                            f"| rpc err {st['rpc'].get('errors')} p50 {st['rpc'].get('latency_p50_ms', 0):.0f} ms")
                 if report_dir and time.time() >= next_snap:
-                    files = ghost_report.write(rt, report_dir, started_at=started_at, started_block=started_block, tag=run_tag)
+                    files = ghost_report.write(rt, report_dir, started_at=started_at, started_block=started_block, tag=run_tag, with_csv=False)
                     next_snap = time.time() + snapshot_every * 60
                     if on_snapshot:
                         await _run_hook(on_snapshot)

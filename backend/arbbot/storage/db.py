@@ -118,6 +118,45 @@ class Database:
         params.append(limit)
         return [json.loads(r["payload"]) for r in self._rows(sql, params)]
 
+    def opportunity_stats(self, since: float | None = None) -> dict:
+        """Exact session aggregates computed in SQL (never capped by a page size)."""
+        w = " WHERE ts >= ?" if since else ""
+        p = (since,) if since else ()
+        row = self._rows(
+            "SELECT COUNT(*) AS total,"
+            " SUM(CASE WHEN CAST(expected_net AS REAL) > 0 THEN 1 ELSE 0 END) AS positive,"
+            " SUM(CASE WHEN sim_ok IS NOT NULL THEN 1 ELSE 0 END) AS simulated,"
+            " SUM(CASE WHEN sim_ok = 1 THEN 1 ELSE 0 END) AS sim_ok,"
+            " SUM(CASE WHEN sim_ok = 0 THEN 1 ELSE 0 END) AS sim_failed,"
+            " SUM(CASE WHEN ghost_next_block_net IS NOT NULL THEN 1 ELSE 0 END) AS ghost_labeled,"
+            " SUM(CASE WHEN CAST(ghost_next_block_net AS REAL) > 0 THEN 1 ELSE 0 END) AS ghost_positive"
+            f" FROM opportunities{w}", p)[0]
+        out = {k: int(v or 0) for k, v in row.items()}
+        out["decisions"] = self.opportunity_counts(since)
+        try:
+            rows = self._rows("SELECT je.value AS reason, COUNT(*) AS n FROM opportunities, json_each(json_extract(payload,'$.reasons')) AS je"
+                              + w + " GROUP BY je.value", p)
+            reasons: dict[str, int] = {}
+            for r in rows:
+                key = str(r["reason"]).split(":")[0].split("(")[0]
+                reasons[key] = reasons.get(key, 0) + int(r["n"])
+            out["reject_reasons"] = reasons
+        except sqlite3.OperationalError:  # SQLite built without JSON1 → caller falls back to row scan
+            out["reject_reasons"] = None
+        return out
+
+    def top_opportunities(self, since: float | None = None, limit: int = 25, positive_only: bool = False) -> list[dict]:
+        """Highest expected net (EUR) first — exact over the whole session."""
+        where, params = ["expected_net_eur IS NOT NULL"], []
+        if since:
+            where.append("ts >= ?")
+            params.append(since)
+        if positive_only:
+            where.append("CAST(expected_net AS REAL) > 0")
+        sql = "SELECT payload FROM opportunities WHERE " + " AND ".join(where) + " ORDER BY expected_net_eur DESC LIMIT ?"
+        params.append(limit)
+        return [json.loads(r["payload"]) for r in self._rows(sql, params)]
+
     def opportunity_counts(self, since: float | None = None) -> dict:
         sql = "SELECT decision, COUNT(*) AS n FROM opportunities" + (" WHERE ts >= ?" if since else "") + " GROUP BY decision"
         return {r["decision"]: r["n"] for r in self._rows(sql, (since,) if since else ())}

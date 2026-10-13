@@ -28,6 +28,10 @@
   code { color:var(--mut); font-size:11px; }
   .mut { color:var(--mut); }
   .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+  .charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:10px; }
+  .chart { background:#0e1530; border:1px solid var(--line); border-radius:8px; padding:6px 8px; }
+  .chart .t { font-size:12px; color:var(--mut); margin-bottom:2px; display:flex; justify-content:space-between; }
+  svg { width:100%; height:110px; display:block; }
   footer { padding:12px 20px; color:var(--mut); font-size:12px; border-top:1px solid var(--line); }
   a { color:var(--acc); }
 </style>
@@ -41,6 +45,7 @@
 </header>
 <main>
   <div class="kpis" id="kpis"></div>
+  <section><h2>Évolution pendant la session (un point par instantané, ~2 min)</h2><div class="charts" id="charts"></div></section>
   <section><h2>Statut de maturité et critères</h2><div id="risk"></div></section>
   <section><h2>Opportunités de la session (toutes charges déduites : frais LP, frais flash, gaz L2 + données L1)</h2><div id="opps"></div></section>
   <section><h2>Pools réels suivis — avoirs réels (balanceOf) et prix au bloc</h2><div id="pools"></div></section>
@@ -111,11 +116,44 @@ function render(r) {
     `<p>Fiabilité : ${rel.label || "—"} · récent ${rel.recent ? `n=${rel.recent.n} taux ${fmt((rel.recent.observed_rate||0)*100,1)} %` : "—"}</p>`;
 }
 
+function chart(title, pts, key, unit, d=2) {
+  const vals = pts.map(p => p[key]).filter(v => v!==null && v!==undefined && !Number.isNaN(Number(v))).map(Number);
+  if (vals.length < 1) return `<div class="chart"><div class="t"><span>${title}</span><span>—</span></div></div>`;
+  const W=600, H=110, pad=6, lo=Math.min(...vals), hi=Math.max(...vals), span=(hi-lo)||1;
+  const xs = pts.map((p,i) => pad + i*(W-2*pad)/Math.max(1,pts.length-1));
+  const path = pts.map((p,i) => { const v=Number(p[key]); if (p[key]===null||p[key]===undefined||Number.isNaN(v)) return null; const y = H-pad-(v-lo)/span*(H-2*pad); return `${xs[i].toFixed(1)},${y.toFixed(1)}`; }).filter(Boolean);
+  const line = path.length>1 ? `<polyline fill="none" stroke="#4da3ff" stroke-width="2" points="${path.join(" ")}"/>` : "";
+  const dots = path.map(pt => `<circle cx="${pt.split(",")[0]}" cy="${pt.split(",")[1]}" r="2.5" fill="#4da3ff"/>`).join("");
+  const last = vals[vals.length-1];
+  return `<div class="chart"><div class="t"><span>${title}</span><span>dernier ${fmt(last,d)} ${unit} · min ${fmt(lo,d)} · max ${fmt(hi,d)}</span></div><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${line}${dots}</svg></div>`;
+}
+
+async function loadHistory(tag) {
+  try {
+    const res = await fetch(`../reports/real/history_${CHAIN}.jsonl?t=${Date.now()}`, {cache:"no-store"});
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const all = (await res.text()).trim().split("\n").filter(Boolean).map(l => JSON.parse(l));
+    const pts = all.filter(p => !tag || p.tag === tag).slice(-120);
+    document.getElementById("charts").innerHTML = pts.length ? [
+      chart("Prix ETH (pool le plus profond)", pts, "eth_usd", "$", 2),
+      chart("Meilleur net attendu (€, toutes charges déduites)", pts, "best_net_eur", "€", 4),
+      chart("Candidats dimensionnés (cumul session)", pts, "candidates", "", 0),
+      chart("Durée du dernier cycle (ms)", pts, "cycle_ms", "ms", 0),
+      chart("Base fee (gwei)", pts, "base_fee_gwei", "gwei", 6),
+      chart("Latence RPC p50 (ms)", pts, "rpc_p50_ms", "ms", 0),
+    ].join("") : `<p class="mut">pas encore d'historique pour cette session</p>`;
+  } catch (e) {
+    document.getElementById("charts").innerHTML = `<p class="mut">historique indisponible (${e.message}) — apparaît dès le premier instantané d'une session utilisant la publication continue</p>`;
+  }
+}
+
 async function load() {
   try {
     const res = await fetch(`${SRC}?t=${Date.now()}`, {cache:"no-store"});
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    render(await res.json());
+    const r = await res.json();
+    render(r);
+    await loadHistory(r.tag || null);
   } catch (e) {
     document.getElementById("net").textContent = `aucun instantané disponible (${e.message}) — la première session n'a pas encore publié`;
     document.getElementById("net").className = "badge stale";

@@ -132,7 +132,7 @@ python scripts\real_market_session.py --chain base --minutes 30 --rpc https://ba
 ```
 
 Elle écrit `docs\reports\real\ghost_base_<tag>.md` (pools réels avec profondeur et prix au bloc, gaz, meilleures
-opportunités avec toutes les charges, étiquettes ghost, fiabilité) + `.json` + `_opportunities.csv` (chaque candidat),
+opportunités avec toutes les charges, étiquettes ghost, fiabilité) + `.json` + `_opportunities.csv.gz` (chaque candidat, compressé),
 et laisse un `.env` prêt pour `arbbot serve` (interface en direct). Le même script tourne automatiquement sur
 **GitHub Actions** (`.github/workflows/real-market-ghost.yml`) à chaque modification de `ops/real/run.json` :
 les rapports arrivent dans la branche, sans aucune clé.

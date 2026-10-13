@@ -258,7 +258,10 @@ class Runtime:
         opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
         self.selector.evaluate(opps, ctx, self.policy.min_success_probability)
         # simulate the best positive candidates (cap RPC usage)
-        positives = sorted([o for o in opps if o.profit.expected_net > 0], key=lambda o: -o.profit.expected_net)[:3]
+        # (only candidates that clear the on-chain floor — the same population the executor may submit — are simulated
+        #  and labelled, so the reliability statistics describe exactly the trades that could be executed)
+        positives = sorted([o for o in opps if o.profit.expected_net > 0 and not any(r.startswith("below_safety_margin") for r in o.reasons)],
+                           key=lambda o: -o.profit.expected_net)[:3]
         for o in positives:
             sim = await self.simulator.simulate(o, min_profit=1, block=block)
             o.sim = sim.__dict__
