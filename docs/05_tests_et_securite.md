@@ -36,16 +36,16 @@ absents, rouges ou vieux de plus de 7 jours ⇒ critères `tests_passed` / `cont
 
 Aucune réécriture n'a été jugée nécessaire après triage ; les findings restent listés pour audit.
 
-## 2. Backend Python — pytest : 72 tests, 0 échec (dont 10 bout-en-bout sur devnet)
+## 2. Backend Python — pytest : 76 tests, 0 échec (dont 11 bout-en-bout sur devnet)
 
 | Fichier | Tests | Exigences couvertes |
 |---|---|---|
 | `test_math_vs_chain.py` | 3 | **bit-exact** vs vrai bytecode : V3 62 swaps multi-ticks, V2 12/12, Solidly 36/36 |
 | `test_math_units.py` | 8 (+300 cas Hypothesis) | frais, conversions de décimales, monotonie, impact de prix, quote impossible (ticks manquants) → `QuoteError` |
-| `test_engine_units.py` | 15 | optimiseur vs formule fermée (±1 %), sélection avec motifs (données périmées, impact, liquidité, net négatif), classement par espérance, erreurs RPC remontées (pas de silence) |
+| `test_engine_units.py` | 18 | optimiseur vs formule fermée (±1 %), sélection avec motifs (données périmées, impact, liquidité, net négatif, **plancher de sécurité on-chain** `below_safety_margin`), classement par espérance, erreurs RPC remontées (pas de silence), comptages de session exacts en SQL, collecteur : un rafraîchissement par tête de bloc (WebSocket + sondage) |
 | `test_policy_risk_signer.py` | 27 | politique : budget, nb de tx, gaz, slippage, validité, listes, mauvais contrat, `value≠0`, `minProfit=0`, mauvais portefeuille, **clé uniquement depuis un keystore chiffré** (mauvais mot de passe ⇒ erreur, clé brute refusée hors devnet) ; risque : dépassement de budget, échecs consécutifs → SUSPENDU, retour en simulation, arrêt d'urgence ; signer : refus, comptabilité indépendante |
-| `test_devnet_e2e.py` | 3 | détection → simulation exacte (profit `eth_call` = brut − frais flash) → étiquette ghost ; refus de pré-vol sans signer ; **exécution réelle sur devnet** par le signer sous politique (tx minée, net réalisé, compteurs), revert comptabilisé si l'état a bougé |
-| `test_api_selfcorr_ghost.py` | 4 | dépôt git d'auto-correction (propose/accepte/rollback isolés), interdiction des clés financières, dédup ghost, API : statut, opportunités, fiabilité, **arrêt d'urgence via l'API**, reprise, garde des tunables (403) |
+| `test_devnet_e2e.py` | 3 | détection → simulation exacte (profit `eth_call` = brut − frais flash) → étiquette ghost ; refus de pré-vol sans signer ; **exécution réelle sur devnet** par le signer sous politique (tx minée, net réalisé, compteurs) ; si le simulateur de marché (concurrent, chocs) bouge l'état entre simulation et inclusion, seules les issues protectrices sont acceptées (refus avant signature, ou revert `HopOutputTooLow`/`InsufficientProfit` comptabilisé au gaz près) puis nouvel essai au bloc suivant |
+| `test_api_selfcorr_ghost.py` | 5 | dépôt git d'auto-correction (propose/accepte/rollback isolés), interdiction des clés financières, dédup ghost, API : statut, opportunités, fiabilité, **arrêt d'urgence via l'API**, reprise, garde des tunables (403), rapport de session (comptages exacts, candidats les plus proches de la rentabilité, fichiers `latest_<chain>`) |
 | `test_factory_discovery_devnet.py` | 1 | chemin « réseau réel » : découverte des pools via les **factories** (vrai bytecode V2/V3), métadonnées on-chain |
 | `test_verify_chain.py` | 4 | provenance documentée de chaque adresse mainnet ; empreinte de configuration et révocation ; RPC injoignable ⇒ échec fermé ; vérification complète sur devnet |
 | `test_state_override_sim_devnet.py` | 1 | mode lecture seule sans contrat déployé : la simulation par **state override** (bytecode injecté à une adresse fictive) donne le même profit, au wei, que le contrat déployé, et revert de la même façon |

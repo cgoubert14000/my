@@ -2,20 +2,20 @@
 
 > **État réel du projet au 2026-10-13** (lire avant toute chose)
 >
-> * Tout le code (contrat, moteur, simulateur, signer isolé, laboratoire, interface) est écrit et **exécuté** dans cet
->   environnement contre un **réseau de développement local (anvil, chain id 31337)** sur lequel sont déployés le vrai
->   bytecode Uniswap V2/V3, un AMM de type Solidly (Aerodrome), des fournisseurs de flash loans (Morpho/Balancer/Aave
->   mock conformes aux interfaces) et un simulateur de marché. **Aucune donnée de marché réel (Base, Arbitrum) n'a pu
->   être observée depuis cet environnement : il n'a accès à aucun RPC public.** Toutes les mesures « réseau réel »
->   restent donc à produire **sur votre machine** avec la procédure fournie.
-> * Preuves disponibles (reproductibles) : `docs/reports/tests_latest.md` — **36/36 tests Foundry** (unitaires, fuzz,
->   invariants, Uniswap V3 réel), **72/72 tests Python** dont 10 tests bout-en-bout sur le devnet avec **une vraie
->   transaction signée et minée** par le signer isolé sous politique ; `docs/reports/slither.json` (analyse statique) ;
->   `docs/reports/lab_*.md` (laboratoire autonome). Le statut de maturité affiché par le bot est calculé à partir de
->   ces rapports, jamais déclaré à la main.
-> * **Aucune rentabilité n'est démontrée ni promise.** Sur le devnet, le mode ghost mesure un taux de « net > 0 au bloc
->   N+1 » d'environ 65–68 % (borne inférieure crédible < 75 %), ce qui donne exactement le statut « FIABILITÉ
->   INSUFFISANTE ». Sur un réseau réel, ce chiffre est inconnu tant que le mode ghost n'y a pas tourné.
+> * Tout le code (contrat, moteur, simulateur, signer isolé, laboratoire, interface) est écrit et **exécuté**. Preuves
+>   reproductibles : `docs/reports/tests_latest.md` — **36/36 tests Foundry** (unitaires, fuzz, invariants, Uniswap V3
+>   réel), **76/76 tests Python** dont des tests bout-en-bout sur un devnet anvil avec **une vraie transaction signée et
+>   minée** par le signer isolé sous politique ; `docs/reports/slither.json` ; `docs/reports/lab_*.md` (laboratoire 60 min).
+> * **Sessions sur le réseau réel (Base mainnet, chain id 8453), en lecture seule** : elles tournent sur GitHub Actions
+>   (`.github/workflows/real-market-ghost.yml`) parce que l'environnement de développement n'a accès à aucun RPC ; les
+>   résultats bruts sont dans `docs/reports/real/` (journal, pré-vol RPC, rapport JSON/MD, chaque candidat en CSV) et
+>   `docs/reports/verify_chain_base_*.md` (toutes les adresses et hypothèses vérifiées sur la chaîne). Suivi en direct :
+>   `docs/live/index.html` (instantané publié toutes les 2 min pendant une session, cf. `docs/04`, § 4b-ter).
+> * **Résultat réel à ce jour : aucune opportunité à net positif** après frais LP, frais de flash loan, gaz L2 et données
+>   L1 n'a été observée sur Base pendant les sessions (251 pools, 8 DEX, routes 2 et 3 sauts, cotations exactes au bloc).
+>   Le statut de maturité est donc **APPRENTISSAGE — FIABILITÉ NON DÉMONTRÉE (DONNÉES INSUFFISANTES)** et aucune
+>   transaction réelle ne sera tentée : c'est le comportement voulu. **Aucune rentabilité n'est démontrée ni promise.**
+> * Le statut affiché par le bot est calculé à partir des rapports exécutés, jamais déclaré à la main.
 
 ## Ce que fait le système
 
