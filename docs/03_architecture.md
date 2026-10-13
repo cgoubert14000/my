@@ -76,9 +76,9 @@ temporelles pour les graphiques), `kv`. Les rapports humains sont dans `docs/rep
 `scripts/real_market_session.py` (local ou GitHub Actions) : pré-vol des RPC publics → test de l'abonnement WebSocket
 `newHeads` → `.env` sans secret → `arbbot verify-chain` (bloquant) → `arbbot ghost --snapshot-every 2 --on-snapshot
 "bash ops/real/publish.sh"`. Toutes les 2 minutes, `ops/ghost_report.py` écrit `ghost_<chain>_<run>.{json,md}`,
-`latest_<chain>.{json,md}` (noms stables), une ligne dans `history_<chain>.jsonl` (série temporelle), et le crochet
+`latest_<chain>.{json,md}` (noms stables), une ligne dans `history_<chain>_<run>.jsonl` (série temporelle, un fichier par session), et le crochet
 pousse ces fichiers dans la branche (`[skip ci]`, `pull --rebase --autostash`). `docs/live/index.html` (statique,
-sans dépendance) lit `latest_<chain>.json` + `history_<chain>.jsonl` par URL relative — servie par GitHub Pages ou par
+sans dépendance) lit `latest_<chain>.json` + `history_<chain>_<run>.jsonl` par URL relative — servie par GitHub Pages ou par
 `scripts/live_mirror.py` — et affiche l'âge de l'instantané. Le CSV complet (gzip) n'est écrit qu'au rapport final.
 
 ## Ajout d'un réseau

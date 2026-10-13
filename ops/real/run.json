@@ -3,6 +3,6 @@
   "chain": "base",
   "minutes": 60,
   "max_rps": 12,
-  "run": 6,
-  "note": "run 6 (60 min) : filtre de routes vectorisé (numpy, ~30 ms pour 192k routes au lieu de 7 s), rafraîchissement des ticks V3 étalé, marge min 0,05 bps au-dessus des frais ; temps réel (instantanés 2 min, WebSocket newHeads)"
+  "run": 7,
+  "note": "run 7 (60 min) : publication sans conflit (fetch + reset + fichiers de la session uniquement), historique par session, filtre vectorisé, ticks étalés, WebSocket"
 }

@@ -131,7 +131,8 @@ function chart(title, pts, key, unit, d=2) {
 
 async function loadHistory(tag) {
   try {
-    const res = await fetch(`../reports/real/history_${CHAIN}.jsonl?t=${Date.now()}`, {cache:"no-store"});
+    let res = tag ? await fetch(`../reports/real/history_${CHAIN}_${tag}.jsonl?t=${Date.now()}`, {cache:"no-store"}) : {ok:false, status:404};
+    if (!res.ok) res = await fetch(`../reports/real/history_${CHAIN}.jsonl?t=${Date.now()}`, {cache:"no-store"});  // older sessions
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const all = (await res.text()).trim().split("\n").filter(Boolean).map(l => JSON.parse(l));
     const pts = all.filter(p => !tag || p.tag === tag).slice(-120);

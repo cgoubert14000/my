@@ -220,7 +220,7 @@ def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, t
              "candidates": o["total"], "positive": o["positive_expected_net"], "best_net_eur": (top or {}).get("expected_net_eur"),
              "cycle_ms": d.get("last_cycle_ms"), "rpc_p50_ms": rep["rpc"].get("latency_p50_ms"), "rpc_errors": rep["rpc"].get("errors"),
              "ghost_labeled": o["ghost_labeled"], "ghost_positive": o["ghost_positive"], "ws": rep["collector"].get("ws_connected")}
-    with (out_dir / f"history_{rt.chain.id}.jsonl").open("a") as f:
+    with (out_dir / f"history_{rt.chain.id}_{tag}.jsonl").open("a") as f:
         f.write(json.dumps(point) + "\n")
     files = {"json": str(base.with_suffix(".json")), "md": str(base.with_suffix(".md"))}
     if not with_csv:

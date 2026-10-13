@@ -167,7 +167,7 @@ def main() -> int:
         "ARB_LOG_LEVEL=INFO",
     ]
     (REPO / ".env").write_text("\n".join(env_lines) + "\n")
-    env = {**os.environ, "ARB_CHAIN": args.chain, "ARB_RPC_HTTP_URL": chosen, "ARB_RPC_FALLBACK_HTTP_URLS": ",".join(fallbacks),
+    env = {**os.environ, "ARB_CHAIN": args.chain, "ARB_RUN_TAG": tag, "ARB_RPC_HTTP_URL": chosen, "ARB_RPC_FALLBACK_HTTP_URLS": ",".join(fallbacks),
            "ARB_RPC_WS_URL": ws_url, "ARB_RPC_MAX_RPS": str(args.max_rps), "ARB_RPC_TIMEOUT_S": "15", "ARB_POLL_INTERVAL_S": "0.5"}
     py = sys.executable
     log("=== full verify-chain (pools, depth, flash-loan capacity) on the chosen endpoint")
