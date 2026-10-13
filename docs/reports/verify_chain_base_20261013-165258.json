@@ -1,0 +1,3126 @@
+{
+ "chain": "base",
+ "chain_id": 8453,
+ "rpc_host": "base-rpc.publicnode.com",
+ "ts": 1791910378.5382547,
+ "checks": [
+  {
+   "name": "rpc_reachable",
+   "ok": true,
+   "detail": "base-rpc.publicnode.com in 187 ms",
+   "blocking": true
+  },
+  {
+   "name": "chain_id",
+   "ok": true,
+   "detail": "rpc=8453 config=8453",
+   "blocking": true
+  },
+  {
+   "name": "block_time",
+   "ok": true,
+   "detail": "measured 2.00 s vs config 2.0 s",
+   "blocking": false
+  },
+  {
+   "name": "head_fresh",
+   "ok": true,
+   "detail": "head age 3.3 s",
+   "blocking": true
+  },
+  {
+   "name": "rpc_latency",
+   "ok": true,
+   "detail": "p50 100 ms, max 289 ms",
+   "blocking": false
+  },
+  {
+   "name": "multicall3",
+   "ok": true,
+   "detail": "0xcA11bde05977b3631167028862bE2a173976CA11 aggregate3 ok=True",
+   "blocking": true
+  },
+  {
+   "name": "eth_call_state_override",
+   "ok": true,
+   "detail": "supported",
+   "blocking": false
+  },
+  {
+   "name": "debug_traceTransaction",
+   "ok": false,
+   "detail": "unavailable (rpc failed after retries: unexpected character, expected a JSON value: line 1 column 1 (char 0)) \u2192 revert reasons come from eth_call replay",
+   "blocking": false
+  },
+  {
+   "name": "code:multicall3",
+   "ok": true,
+   "detail": "0xcA11bde05977b3631167028862bE2a173976CA11 (3808 bytes) \u2014 source: mds1/multicall Multicall3 (same address on all chains)",
+   "blocking": true
+  },
+  {
+   "name": "code:wrapped_native",
+   "ok": true,
+   "detail": "0x4200000000000000000000000000000000000006 (2041 bytes) \u2014 source: OP-stack WETH predeploy; bgd-labs/aave-address-book AaveV3Base WETH_UNDERLYING",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:uniswap_v3",
+   "ok": true,
+   "detail": "0x33128a8fC17869897dcE68Ed026d694621f6FDfD (24535 bytes) \u2014 source: @uniswap/sdk-core 7.19 BASE_ADDRESSES.v3CoreFactoryAddress",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:uniswap_v2",
+   "ok": true,
+   "detail": "0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6 (13859 bytes) \u2014 source: @uniswap/sdk-core 7.19 V2_FACTORY_ADDRESSES[BASE]",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:sushiswap_v2",
+   "ok": true,
+   "detail": "0x71524B4f93c58fcbF659783284E38825f0622859 (11264 bytes) \u2014 source: sushi npm package evm/config/features/sushiswap-v2 (BASE factory)",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:sushiswap_v3",
+   "ok": true,
+   "detail": "0xc35DADB65012eC5796536bD9864eD8773aBc74C4 (24535 bytes) \u2014 source: sushi npm package: SushiSwap V3 factory on BASE / V2 factory on ARBITRUM",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:pancakeswap_v3",
+   "ok": true,
+   "detail": "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865 (5151 bytes) \u2014 source: @pancakeswap/v3-sdk FACTORY_ADDRESSES (BASE, ARBITRUM_ONE)",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:pancakeswap_v2",
+   "ok": true,
+   "detail": "0x02a84c1b3BBD7401a5f7fa98a384EBC70bB5749E (14075 bytes) \u2014 source: @pancakeswap/v2-sdk FACTORY_ADDRESS_MAP (BASE, ARBITRUM_ONE)",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:aerodrome",
+   "ok": true,
+   "detail": "0x420DD381b31aEf6683db6B902084cB0FFECe40Da (3516 bytes) \u2014 source: aerodrome-finance/contracts README (PoolFactory)",
+   "blocking": true
+  },
+  {
+   "name": "code:dex:aerodrome_slipstream",
+   "ok": true,
+   "detail": "0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A (4958 bytes) \u2014 source: aerodrome-finance/slipstream README (CL PoolFactory, Base)",
+   "blocking": true
+  },
+  {
+   "name": "code:flash:MORPHO",
+   "ok": true,
+   "detail": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb (15623 bytes) \u2014 source: @morpho-org/morpho-ts addresses (BaseMainnet.blue / EthMainnet.blue)",
+   "blocking": true
+  },
+  {
+   "name": "code:flash:BALANCER_V2",
+   "ok": true,
+   "detail": "0xBA12222222228d8Ba445958a75a0704d566BF2C8 (24512 bytes) \u2014 source: balancer/balancer-deployments addresses/base.json 20210418-vault",
+   "blocking": true
+  },
+  {
+   "name": "code:flash:AAVE_V3",
+   "ok": true,
+   "detail": "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5 (1933 bytes) \u2014 source: bgd-labs/aave-address-book AaveV3Base.POOL",
+   "blocking": true
+  },
+  {
+   "name": "code:token:WETH",
+   "ok": true,
+   "detail": "0x4200000000000000000000000000000000000006 (2041 bytes) \u2014 source: OP-stack WETH predeploy; bgd-labs/aave-address-book AaveV3Base WETH_UNDERLYING",
+   "blocking": true
+  },
+  {
+   "name": "code:token:USDC",
+   "ok": true,
+   "detail": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 (1852 bytes) \u2014 source: bgd-labs/aave-address-book AaveV3Base USDC_UNDERLYING (Circle native USDC)",
+   "blocking": true
+  },
+  {
+   "name": "code:token:USDbC",
+   "ok": true,
+   "detail": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA (2096 bytes) \u2014 source: bgd-labs/aave-address-book AaveV3Base USDbC_UNDERLYING; sushi npm tokens/base/USDbC",
+   "blocking": true
+  },
+  {
+   "name": "code:token:DAI",
+   "ok": true,
+   "detail": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb (5835 bytes) \u2014 source: sushi npm package evm/config/tokens/DAI (BASE)",
+   "blocking": true
+  },
+  {
+   "name": "code:token:cbETH",
+   "ok": true,
+   "detail": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22 (2096 bytes) \u2014 source: bgd-labs/aave-address-book AaveV3Base cbETH_UNDERLYING",
+   "blocking": true
+  },
+  {
+   "name": "code:token:cbBTC",
+   "ok": true,
+   "detail": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf (1550 bytes) \u2014 source: bgd-labs/aave-address-book AaveV3Base cbBTC_UNDERLYING",
+   "blocking": true
+  },
+  {
+   "name": "code:token:AERO",
+   "ok": true,
+   "detail": "0x940181a94A35A4569E4529A3CDfB74e38FD98631 (4736 bytes) \u2014 source: sushi npm package evm/config/tokens/AERO (BASE)",
+   "blocking": true
+  },
+  {
+   "name": "code:opstack_gas_oracle",
+   "ok": true,
+   "detail": "0x420000000000000000000000000000000000000F (2055 bytes) \u2014 source: OP-stack GasPriceOracle predeploy",
+   "blocking": true
+  },
+  {
+   "name": "token:WETH",
+   "ok": true,
+   "detail": "on-chain symbol=WETH decimals=18 / config WETH/18",
+   "blocking": true
+  },
+  {
+   "name": "token:USDC",
+   "ok": true,
+   "detail": "on-chain symbol=USDC decimals=6 / config USDC/6",
+   "blocking": true
+  },
+  {
+   "name": "token:USDbC",
+   "ok": true,
+   "detail": "on-chain symbol=USDbC decimals=6 / config USDbC/6",
+   "blocking": true
+  },
+  {
+   "name": "token:DAI",
+   "ok": true,
+   "detail": "on-chain symbol=DAI decimals=18 / config DAI/18",
+   "blocking": true
+  },
+  {
+   "name": "token:cbETH",
+   "ok": true,
+   "detail": "on-chain symbol=cbETH decimals=18 / config cbETH/18",
+   "blocking": true
+  },
+  {
+   "name": "token:cbBTC",
+   "ok": true,
+   "detail": "on-chain symbol=cbBTC decimals=8 / config cbBTC/8",
+   "blocking": true
+  },
+  {
+   "name": "token:AERO",
+   "ok": true,
+   "detail": "on-chain symbol=AERO decimals=18 / config AERO/18",
+   "blocking": true
+  },
+  {
+   "name": "factory:uniswap_v3",
+   "ok": true,
+   "detail": "V3 feeAmountTickSpacing(3000)=60",
+   "blocking": true
+  },
+  {
+   "name": "factory:uniswap_v2",
+   "ok": true,
+   "detail": "V2 allPairsLength=3069354",
+   "blocking": true
+  },
+  {
+   "name": "factory:sushiswap_v2",
+   "ok": true,
+   "detail": "V2 allPairsLength=6129",
+   "blocking": true
+  },
+  {
+   "name": "factory:sushiswap_v3",
+   "ok": true,
+   "detail": "V3 feeAmountTickSpacing(3000)=60",
+   "blocking": true
+  },
+  {
+   "name": "factory:pancakeswap_v3",
+   "ok": true,
+   "detail": "V3 feeAmountTickSpacing(2500)=50",
+   "blocking": true
+  },
+  {
+   "name": "factory:pancakeswap_v2",
+   "ok": true,
+   "detail": "V2 allPairsLength=33513",
+   "blocking": true
+  },
+  {
+   "name": "factory:aerodrome",
+   "ok": true,
+   "detail": "Solidly allPoolsLength=29750",
+   "blocking": true
+  },
+  {
+   "name": "factory:aerodrome_slipstream",
+   "ok": true,
+   "detail": "Slipstream tickSpacingToFee(100)=500",
+   "blocking": true
+  },
+  {
+   "name": "l1_fee_oracle",
+   "ok": true,
+   "detail": "getL1FeeUpperBound(900 B) = 0.000000012 ETH",
+   "blocking": true
+  },
+  {
+   "name": "pool_discovery",
+   "ok": true,
+   "detail": "251 pools: {'uniswap_v3': 69, 'uniswap_v2': 17, 'sushiswap_v2': 10, 'sushiswap_v3': 38, 'pancakeswap_v3': 53, 'pancakeswap_v2': 12, 'aerodrome': 31, 'aerodrome_slipstream': 21}",
+   "blocking": true
+  },
+  {
+   "name": "pools_with_depth",
+   "ok": true,
+   "detail": "50 pools \u2265 20 000 $ (deepest: WETH/USDC uniswap_v3 150656715.1 $)",
+   "blocking": true
+  },
+  {
+   "name": "native_price",
+   "ok": true,
+   "detail": "ETH \u2248 2513.5856725312055 $ (from the deepest WETH/stable pool)",
+   "blocking": true
+  },
+  {
+   "name": "flash:MORPHO",
+   "ok": true,
+   "detail": "fee 0.0 bps, capacity WETH 82,909.00, USDC 235,192,453.97",
+   "blocking": false
+  },
+  {
+   "name": "flash:BALANCER_V2",
+   "ok": true,
+   "detail": "fee 0.0 bps, capacity WETH 18.69, USDC 69,790.24",
+   "blocking": false
+  },
+  {
+   "name": "flash:AAVE_V3",
+   "ok": true,
+   "detail": "fee 5.0 bps, capacity WETH 16,775.03, USDC 16,921,256.60",
+   "blocking": false
+  },
+  {
+   "name": "flash_any_capacity",
+   "ok": true,
+   "detail": "at least one provider can lend a borrowable token",
+   "blocking": true
+  }
+ ],
+ "pools": [
+  {
+   "address": "0x6c561B446416E1A00E8E93E221854d6eA4171372",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 150656715.1,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x6cDcb1C4A4D1C3C6d054b27AC5B77e89eAFb971d",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "USDC/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 40631244.29,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x7AeA2E8A3843516afa07293a10Ac8E49906dabD1",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 18314356.98,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x70aCDF2Ad0bf2402C957154f944c19Ef4e1cbAE1",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 16182772.02,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x8c7080564B5A792A33Ef2FD473fbA6364d5495e5",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 10729173.37,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xd0b53D9277642d899DF5C87A3966A349A798F224",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 9577550.3,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xfBB6Eed8e7aa03B138556eeDaF5D271A5E1e43ef",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 9370069.77,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xcDAC0d6c6C59727a65F871236188350531885C43",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 9130198.32,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 332,
+   "stable": false,
+   "depth_usd": 8480974.18,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 684,
+   "stable": false,
+   "depth_usd": 8045977.02,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4e962BB3889Bf030368F56810A9c96B83CB3E778",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 400,
+   "stable": false,
+   "depth_usd": 7532972.45,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xC211e1f853A898Bd1302385CCdE55f33a8C4B3f3",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 5575013.99,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xBE00fF35AF70E8415D0eB605a286D8A45466A4c1",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 5168261.45,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x72AB388E2E2F6FaceF59E3C3FA2C4E29011c2D38",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 4460468.27,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x7f670f78B17dEC44d5Ef68a48740b6f8849cc2e6",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 3709091.04,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x47cA96Ea59C13F72745928887f84C9F52C3D7348",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 60,
+   "stable": false,
+   "depth_usd": 3041357.18,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xeC558e484cC9f2210714E345298fdc53B253c27D",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2865300.99,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xdFe5F275020def30993f042174Fc2D335678b626",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "AERO/cbBTC",
+   "fee_ppm": 750,
+   "stable": false,
+   "depth_usd": 2682969.7,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xb94b22332ABf5f89877A14Cc88f2aBC48c34B3Df",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 1713030.28,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3d5D143381916280ff91407FeBEB52f2b60f33Cf",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1574748.95,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x82321f3BEB69f503380D6B233857d5C43562e2D0",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 3020,
+   "stable": false,
+   "depth_usd": 1382365.23,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xB775272E537cc670C65DC852908aD47015244EaF",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 1284431.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2578365B3dfA7FfE60108e181EFb79FeDdec2319",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1081094.53,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x0b1C2DCbBfA744ebD3fC17fF1A96A1E1Eb4B2d69",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 915109.36,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x88A43bbDF9D098eEC7bCEda4e2494615dfD9bB9C",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 894069.2,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xa4FDd479eda160671636e2eCF8f993Cbf86258a8",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 823015.13,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x0D5959a52E7004b601f0bE70618D01aC3cDce976",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 604208.8,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xb4CB800910B228ED3d0834cF79D697127BBB00e5",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 499775.91,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xd974D59e30054cf1aBedeD0C9947B0D8Baf90029",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 421141.92,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xCCd9cC53b63662088c738B8BC06E9078Fb8D9ad4",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 337339.95,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2223F9FE624F69Da4D8256A7bCc9104FBA7F8f75",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 300436.27,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9c38b55f9A9Aba91BbCEDEb12bf4428f47A6a0B8",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 263919.65,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xB4885Bc63399BF5518b994c1d0C153334Ee579D0",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 255288.45,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xE5B5f522E98B5a2baAe212d4dA66b865B781DB97",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 249672.6,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x233571eAE953D9d59eEFc0769F71Dc19287DDCCB",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 213875.54,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x26e263efdc91f0d3279E2Ec2Bd58A7Ca5C2fCE62",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 213504.81,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x20CB8f872ae894F7c9e32e621C186e5AFCe82Fd0",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 170357.54,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x44Ecc644449fC3a9858d2007CaA8CFAa4C561f91",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 148088.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x98c7A2338336d2d354663246F64676009c7bDa97",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 140664.88,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xdbc6998296caA1652A810dc8D3BaF4A8294330f1",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 80,
+   "stable": false,
+   "depth_usd": 134606.81,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x5b3613ef9a535b48e82e2800aCb77053DFeC93b1",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 107114.83,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x257FCbAE4Ac6B26A02E4FC5e1a11e4174B5ce395",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 94967.14,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x57713F7716e0b0F65ec116912F834E49805480d2",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 90322.85,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x22AEe3699b6A0fEd71490C103Bd4E5f3309891D5",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 85,
+   "stable": false,
+   "depth_usd": 86285.27,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x10648BA41B8565907Cfa1496765fA4D95390aa0d",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 54088.91,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xA9DaFa443a02FBc907Cb0093276B3E6F4ef02A46",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 40091.56,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4C36388bE6F416A29C8d8Eee81C771cE6bE14B18",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 39152.36,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x714f049CaC863036F207a8BD6b283f822f61D079",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "AERO/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 32350.39,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x748Bb91Fc5F4200302D9A79185bC161260a1B461",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 30828.33,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3548029694fbB241D45FB24Ba0cd9c9d4E745f16",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/USDC",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 22000.35,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x861Ee8B9F7e42eDCF4f1B5614c6595F71A879f3f",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "USDC/AERO",
+   "fee_ppm": 20000,
+   "stable": true,
+   "depth_usd": 18618.85,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xC18F50d6A832f12F6DcAaeEe8D0c87A65B96787E",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 17311.75,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x22F9623817F152148B4E080E98Af66FBE9C5AdF8",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 15895.35,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 109,
+   "stable": false,
+   "depth_usd": 15315.39,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x29Ed55B18Af0Add137952CB3E29FB77B32fCE426",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 14833.35,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xc0efC182479319ff258EcA420e2647cD82D3790c",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 13862.29,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x27a8Afa3Bd49406e48a074350fB7b2020c43B2bD",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 13207.19,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x0652202C4b2D09CB93aEDeFAdc14B36869483a98",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 444,
+   "stable": false,
+   "depth_usd": 12611.85,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x06959273E9A65433De71F5A452D529544E07dDD0",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 12032.79,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x41595326AaBe6132FC6C7aE71Af087A3A9DBC9F6",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 11329.06,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xe4eFf19c7AcE186ba39fD3eD639B2D34171f7efF",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 11225.29,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xE9d76696f8A35e2E2520e3125875C3af23f1E69c",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 11188.87,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x29a857629E58C531f351Bb7fbd86aa46Ef6aF0B7",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 10185.82,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x345825A980BD94e1480bC4f20FE4e3DAE2F23Dd3",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 9657.63,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x019efF8E9B225D8Cbc6127748f5F47eA3e2F28E5",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 8009.67,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xa002b68292131d2f70518d7dFf63bd9D99d189F2",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 7582.68,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xe58b73fF901325b8b2056B29712C50237242F520",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 7315.07,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x22ca6d83aB887A535ae1C6011cc36eA9D1255C31",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 6397.74,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2426DC0A657BD481ab48f86C1616431905901238",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 5963.64,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3DdF264AC95D19e81f8c25f4c300C4e59e424d43",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 5472.68,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x67b00B46FA4f4F24c03855c5C8013C0B938B3eEc",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "DAI/USDC",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 5339.48,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3e7586D52A9D07F8611B8ecf6CCc8a689c34a659",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 4534.37,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x92722287D2819012dD8EC07b4e426AC00Dd11103",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 4448.68,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xb81B9Aef36c76d740850C31C45697c83468DCB54",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 3849.24,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3BD740dc10864f35001AAB7771C56a85C48c901B",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 3807.66,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xa8E4C55D6dAf4D768aeBa2378c1AD94c112Ef48a",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 3647.52,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2F8818D1B0f3e3E295440c1C0cDDf40aAA21fA87",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 3566.93,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x611374654470457AF78aA4056f34E64B9acbEc8B",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 3483.15,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9E8bfEB5c73F3f897BebdB49CC4161FecE0B0c55",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 3417.75,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xE5947c01fb3A4B6703f9416c29Ff736285BFd403",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 3396.35,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x7B9636266734270DE5bE02544c04E27046903ff8",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 3369.51,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3B8000CD10625ABdC7370fb47eD4D4a9C6311fD5",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 3249.8,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x93e8542E6CA0eFFfb9D57a270b76712b968A38f5",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 3177.06,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9BFa331679b307Cf358438F45f6413a205FD3EBf",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 2930.55,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xe65ef07833bE37659919Bbe7eC366a2EC889c884",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 2869.69,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x80aBe24A3ef1fc593aC5Da960F232ca23B2069d0",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/AERO",
+   "fee_ppm": 20000,
+   "stable": true,
+   "depth_usd": 2835.06,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x482Fe995c4a52bc79271aB29A53591363Ee30a89",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 2720.57,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4fE4a5F570B046e3704Acd72fef6c508a310D3aA",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2581.07,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xF6C0A374a483101e04EF5F7Ac9Bd15d9142BAC95",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 2541.53,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x44d7Dd237001AeF7fC7D8CB13ab4452f65CE5E40",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 2194.93,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xc11821470AA1ef276dE8c5c3D0dB84EFC806fA11",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 1683.34,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x081eC5d6b68A28C9e3a73eC97E351161dBB5e8ef",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1541.05,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xB304b47e039E20AFAd75FA2ada6CD8D95a9eea41",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 10000,
+   "stable": true,
+   "depth_usd": 1446.7,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x1244264AEc147f26b056d00d265eea0BC46db83C",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "AERO/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1439.86,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x052D5A0EDDDdCF486eBa3C5B3257f19955b9abFA",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1294.72,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9287C921f5d920cEeE0d07d7c58d476E46aCC640",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1235.94,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x7563D4945dB69A206F15Ca97B18dd44CACB84Ec5",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "AERO/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 1213.76,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xEDc8F86740DAAfED0a38f1b73F9964aa5C80901C",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1114.95,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xDcf81663E68f076EF9763442DE134Fd0699de4ef",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1011.92,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4D734eAF2102407825f45571D51FC7C4DaE86fF8",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 919.7,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xa1d2ee6212D4375F154393E59895A5D27859C4e4",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 845.93,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x31789CBCcE6C48881be05A21f165A13DaC41DA7b",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 800.28,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x79474223AEdD0339780baCcE75aBDa0BE84dcBF9",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/USDC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 784.74,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xAaD23a67F2AC693ABBe543489aeB3F24F561D517",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 707.77,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x99D160CDBd429c86A3DB32906000a2CfD4C3120c",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 640.9,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xBC533343834eaeE1077838a3F6A979688C834D76",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 638.97,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x6EAB8c1B93f5799daDf2C687a30230a540DbD636",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 593.45,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xD3f749adA01aF29a713545Fb6b8E782B49A75a20",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 589.43,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x118EFEF7DB0712F03E067122b8F89E7a4B79262f",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 565.46,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xe584Fe0C7505025c3819C82C99944b79a7cc009D",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 521.33,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xE9e25E35aa99A2A60155010802b81A25C45bA185",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 506.71,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x148BC43946a902258916e580B0e6D92Aaa74746F",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 452.25,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x103E501A688FFa9533DBAfBc763Ac8f022e578df",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 386.98,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4c1e404a013bF1917fAf2dBF5E5cEf3E9Bafb5aa",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 369.25,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x19a8B1542B807Cd6a76fcbb5fF5F53c6169F36d7",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 360.39,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xF4DFb8647C3Ef75c5A71b7B0ee9240BdccCe8697",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 353.08,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x00efd5FCF7EB40D6aF892bDEC9e62bA3bA50e6d9",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 333.05,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x469869821505249869Ae8af9Aa503a1fd51e7F23",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 200.5,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xF39Bb887261cAed35790c8CBe7Da6b38DA1aAE70",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 197.22,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xe902EF54E437967c8b37D30E80ff887955c90DB6",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 173.42,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x358228caAf6C235CDF982bb99E919f6e1028905b",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 123.92,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xc078E01B31a3db4AF0ED218c028c32BCEFC00A40",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "WETH/DAI",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 123.01,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xdb96bDfdA012aA9292E1D44FEBAd2C7C7c279A4e",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 113.21,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xd035d4c8f848ddE156ba097fA33DF20f6068E29D",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 102.98,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x27D8d938d9cfb97A85CA70DefA4D44762A2e1884",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 100.98,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x48424F43A7239a01831ca4FBF98A6a553d66d49d",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 90.96,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x99Dc44b6b406491Cad1Dd60AaF8992c498D4d5ba",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 79.63,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x325a5FC7a92d3166ffabe7233c992143CF5EDd2c",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbETH/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 77.79,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x55B40f8911402568414ec6e7e0d2D87c3D19e65C",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbBTC/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 73.99,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x486D1e5e5F97F44ea8dB217598c1e61e21f54084",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 70.18,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xFe8A89A48A242953481f41cd106f7672A1c0472e",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 68.04,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xE2D3b2f9d4bAAb9A0de671E95FeBAc27E37050f2",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "DAI/AERO",
+   "fee_ppm": 500,
+   "stable": true,
+   "depth_usd": 61.02,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xdfBEAF8f80955B9a2Bd1e3d7E1D68Fafd3aF130F",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 55.26,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x92363F9817f92a7ae0592A4cb29959A88d885cc8",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 52.32,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xC986BD739c99F4fda7b82a8BcB49cb159bF5c993",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 45.09,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x6fb974DcEa795d10AdE524bcc3fC9e3E9D29EA87",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 44.04,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xe513d88B4894ea0281B3DBE0066B8A72F103c125",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 41.62,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x5b91f52c98942884030A2bB6d70afF872d035373",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 41.57,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xcBe12d2C0d16F1868EBf68040c28DE86aE28e61b",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 41.35,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x917baB0544BEB0e681D02CC159f50446A7A38633",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 40.15,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xDeAbDc16042b871934B6ea2afdB2da824c9cD315",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 39.13,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x77BC7BFb2a37a3bC583117E05fAb2Ae4526e7102",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 36.45,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x6fa08690355261b5360b2302bbF78f63e2B014f5",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/USDC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 35.53,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x48ad1e2E7C447f6814e69aefE3f0203A0cC128aF",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 34.41,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xEa34EA0D44b035ce1B7D87D47a77E3B251013b06",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 34.37,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x16DE087BB1a220c7Fc388F3F0dfd38EB1FCdf8b0",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 32.31,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9c15578cCC8e6530DD1C282e679aa2D63F1be607",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 26.85,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x751864805acCC54ce46E09fB7F6c46c907Ac8590",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 18.73,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xb2839134B8151964f19f6f3c7D59C70ae52852F5",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 18.69,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xE63174BC0EE37B76D28956B680AF6BA4c508F48A",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 18.63,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x47C59970b19c1274f4E82F5852CA61bFf50796e6",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 15.2,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x533315F9a0d817d6D1cc6145F44B17d9Ed8C0812",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "WETH/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 11.56,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x88476f48939c802eA75eEd438A3576EFc202b5DD",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/DAI",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 10.02,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4f5f4B7381b2445937dab831Fc1952eCBB834e53",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "DAI/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 9.4,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x67C247EA8ac79cBa228d0fD9Ec3C884C9DC58271",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 9.4,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xf12084A6393B01C1Bf7490cf2430CFD5d390ba5D",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "DAI/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 8.69,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xA97C08bc49C246e583a3557f2922DaA9e5D1b404",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 8.64,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4F964c5637F9052DC03eAf4308D0EE32D0A3b044",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 7.46,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x72D0c3728EF9AF20EF0a1736cf6C21962d9b9873",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbBTC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 7.34,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x18eC0aFa38E54850f51f03A673352DDd0FFFD8BA",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 7.23,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xC5ACcD3e4f6dF1912498775807e0972B3ec43F29",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 7.08,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x950847d1dd451B67a2fC1795C0C9a53Cf88E63A2",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "DAI/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 7.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xb3dfC382FF41A76A0DB72E1D87c2A831cAeacE5E",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 6.94,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x98D2e8e18De100Ff872eAa60392D580146a9d606",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 6.39,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2d6d32d343423Dc3057Aa8571a072a40FfBE126d",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "DAI/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 6.38,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x002F9EAf6a8655185d0dBe083c961D660026Be48",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 6.21,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x8d297E4bb28a0ECc9616E1f53213953C5a18bA11",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 6.01,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x396267f256F219CF2507908A50B89B30Dad94abf",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 5.36,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xF7b681d2f89BffF22B79809e28108733F5d62cC8",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "AERO/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 4.89,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x95b216ACDdf0Bfc55A9060c8068f44e96EF861B7",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "DAI/AERO",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 4.28,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4fEfC6745c3CBdc8069f6133F61a0951467ddf3F",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 3.73,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x042F52Ec1e6FdE6d764d3dD350e19093ACeAcEc9",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 3.55,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9Df7BfBa5f054f2526fF57a272D02B2f4667dEb7",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 3.14,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xcB5efa901172C092fac066f3773Ad0e022A87D72",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 2.94,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xDe3fC25C6f79f87c6f84B31C3E3842d89a1BF611",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2.75,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xf336D4b2CAE611133Bb72bA6f68F73d12B160a48",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2.74,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x5E29096E17506105bFEC3CA29Ebf2385EEAaA4D1",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2.66,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2A88aD25aF542F6485b54709991D758c4F411d8f",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbBTC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 2.24,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x05F9A288Af51fe8227aB0759fDefAe28d464424c",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 1.97,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9d3cE9845668Cb5405884Bf1895f6216a8306251",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 1.93,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x7D41D5003DcD7351C8dbBd156b166A42399a3151",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 1.71,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xb13a01382ff777b8BcF051a512A72f3316a31010",
+   "dex": "aerodrome",
+   "kind": "SOLIDLY",
+   "pair": "cbETH/DAI",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 1.11,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x199ab79C1ee086f00c9676740cad4491ab50bE2A",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/AERO",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.94,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xFeD5DBF6f60E8C137e8577Ab021bD1A6c0DAB70c",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.92,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x8Bf27127e1fA0244A94812C0Dffc8D85639D8F87",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.86,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xB49fB93cC7d718B37567e1eebb52a88890a014a1",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.73,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xAD762F6C35a1d871508831eDD568E497e27Cf87e",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/DAI",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.67,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xD9e63c5ac122c231947cE9E61e421CE9CbA5926d",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.65,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xCA99c89b041C5DA128Ae2C98a326135e0ee08f14",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.47,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x7Fe00CBF5edA14406c7595a3f8DAa5bFed324dC8",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/DAI",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.46,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x0B33D266D56BF96e180976Ae56Bf3016676e4f56",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.42,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xa46291B5Cf3dC937C07b743A3D6fC6a0B768972e",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.4,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2963c3E74e865b8684EdaB7E78AEb0D0Bc13256e",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.37,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xdee40d2c0855557d174Cdd8b0862fD24A65423ee",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.36,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x15426543176C59D240cC02C65c1dA2650D84E492",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.36,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9ded8B880fa4128ba9C564823E403C1ea5E04b8D",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.35,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x37145882193C7c6Ae08b61c597B4563D3Bf016eB",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.34,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9C80747982ef7aa5b33e27B3766363dB2a54e139",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.31,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9Ed0F0f21B83D1595147dC6B32B5607647BDcD56",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.28,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x015E02B9B3cEED65ef5a4a21ee11C27573Ee9A29",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.23,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x34b6927565bEF0Be15634778f711BEc10DE21F44",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.23,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x7b0167b54294f8Fe6b14AAF70cc934D0D4f3F8db",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.21,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x3C6f1d8E8426F89D8c085DCC3E09c6977731F662",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/AERO",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.15,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xf1571874D93c41710Ec8434699e100e0475aDBcC",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.14,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x5bD15d58E55F46cDc49093B8d99C75E385Cb4Ef9",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/AERO",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.12,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x833173d11a5A3730893E6414A390890687f56011",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.12,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x0d00ae15444e5aa81a7B3340946488D1FEBE5CA9",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbBTC/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.08,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x5Dd2c409580f566bB9e6A95143AaDDFC6d6FAD7B",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.08,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xBD65764C8Eb1b8858D323066F488b73f6fe22DC9",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.04,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xFdebEDc97D56EDd31AbdcB887570546B257964f2",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xC5cB2554A3cD47B71766F709141eC49e40448202",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xCfd5DC3811D82C1097821d95214Ad5Ea44B964Df",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xc0E3D8EBFFb13eDf41430af5B456631F2C8A0a33",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x798a3AE1563C47a310541Cc6277Ee879cD1be667",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.03,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x0269014dDb6bfaaf5FD9c8A4aCc5250dd68350D9",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.02,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x50932AA803448CaCC9AfA4D659C5944DC87Db697",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/DAI",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.01,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x60824b0543410d824291c29be32284456Fcf1F8e",
+   "dex": "pancakeswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.01,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x579B8F41101A5FeB60F8b2908E85251E6628CEd6",
+   "dex": "aerodrome_slipstream",
+   "kind": "UNIV3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.01,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x9E88239ac8c225e4Fe63c72A4c7fc9D1c9Ef7e24",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x6EF112968283869e99dC8a6BcCc7346302c3BdbA",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xf0913aF89C3CF89256196fE5Ea3E5370Dc90c026",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xB7727BF6a431072041835eb3f2F5F85999758407",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x59c1991CB22e9c1454d5D061e1e16FDcADf185D5",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x4aF882a4D9C657d3c92aeb6126f5901699693417",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbBTC/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x8F5fE1AA4F82f26eBFE73663EbaC0800B9e7686d",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xc32493Df87bdD8B8db551A6312a7e6940DB0a399",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2891a4Ad99014B8020AD80335330f00f8aEfD787",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xbb47d29995B721b82D638A81784E310c75aAC82a",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "AERO/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xba4dFF8eaA91Ec7fc4DEef98E593F035895AA107",
+   "dex": "uniswap_v3",
+   "kind": "UNIV3",
+   "pair": "AERO/cbBTC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xcEC60680894DFfC387568d0e4D67C1C16958663d",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xfD58d5253a497BAb25D3f3E998617F9011D30f65",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xfBece45140d1F42d2531399F9dD15c3276eF4372",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xAcEFAc2Ce3c18eEA30Cf292a48E83D2daF75dCA0",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x63dc40427266EB899a9305383761647b4604690e",
+   "dex": "uniswap_v2",
+   "kind": "UNIV2",
+   "pair": "DAI/cbBTC",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xC8d3Aa9182C29a0BD8cf71Da3e6C2a35C05bBdbB",
+   "dex": "sushiswap_v2",
+   "kind": "UNIV2",
+   "pair": "cbETH/WETH",
+   "fee_ppm": 3000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x40d9447E958f636aA8fbFCB8210115BF45c96CB9",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/cbBTC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x520eDCFA713B32219B73177ae388F9Bd61Dea2aF",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x86DFdB3F47e4255A6a702c490E65B40B275EF95C",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "WETH/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xF66dC6C9c8083f1CbC3bDe0d3FEf206c15a4B64e",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xB3360950fF03cf21A9F856402DC3c4BeB98824D9",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "DAI/USDC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x2C041E8923550dCD8500818804801cFf968799C1",
+   "dex": "sushiswap_v3",
+   "kind": "UNIV3",
+   "pair": "USDC/AERO",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x5b2C49f59e2fE626435bB2698b62908EE5563C42",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 100,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x576bcf3E94890B2dF7eBf38B0021B297Bb81f4f6",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/USDC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x622e7f08240DF5F294E6088456eB893105f3e179",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x181CC997f11cD872099aacA04b8a34B5990A447d",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "DAI/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x11b33f64cf3831c15c8B984011514720D3F02A20",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbBTC/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x989a25b1F6d94ddB6638E2A95D5EB4c32C0652Fb",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x150349C18b80b34576AB0BF9B6CcC73652Fb3357",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 2500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x779f6620D61c4fe04e2E3daC19A03d0F0123546f",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "AERO/USDbC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0xBc23F0ee31C9f251aEc3CBc47a9d4FcC97411E9E",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "DAI/AERO",
+   "fee_ppm": 500,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  },
+  {
+   "address": "0x21A2baF7cB4e905866327d62E356223E703C2Ce0",
+   "dex": "pancakeswap_v3",
+   "kind": "PANCAKE_V3",
+   "pair": "cbETH/cbBTC",
+   "fee_ppm": 10000,
+   "stable": false,
+   "depth_usd": 0.0,
+   "quarantined": false,
+   "reason": ""
+  }
+ ],
+ "providers": {
+  "MORPHO": {
+   "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+   "fee_bps": 0.0,
+   "verified": true,
+   "capacity": {
+    "WETH": 82909.0028019276,
+    "USDC": 235192453.972014
+   }
+  },
+  "BALANCER_V2": {
+   "address": "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+   "fee_bps": 0.0,
+   "verified": true,
+   "capacity": {
+    "WETH": 18.68990216820595,
+    "USDC": 69790.239985
+   }
+  },
+  "AAVE_V3": {
+   "address": "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5",
+   "fee_bps": 5.0,
+   "verified": true,
+   "capacity": {
+    "WETH": 16775.027452939,
+    "USDC": 16921256.602259
+   }
+  }
+ },
+ "network": {
+  "block": 52560515,
+  "block_time_measured_s": 2.0,
+  "block_time_config_s": 2.0,
+  "base_fee_gwei": 0.005,
+  "priority_fee_gwei": 0.001,
+  "latency_p50_ms": 100.0,
+  "latency_max_ms": 288.7,
+  "head_age_s": 3.3,
+  "l1_fee_900B_eth": 1.2061863864e-08,
+  "native_price_usd": 2513.5856725312055
+ },
+ "config_digest": "5ac48b43cfe8a100",
+ "ok": true
+}
