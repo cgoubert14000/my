@@ -131,7 +131,22 @@ export default function App() {
         </div>
       </div>
 
-      {s?.chain.is_devnet && <div className="devnet-banner">⚠️ Réseau de développement local (anvil, chain id 31337) : les pools, prix et opportunités affichés sont générés par le simulateur de marché local. Ce ne sont PAS des marchés réels. Aucun gain affiché ici n'est réel.</div>}
+      {s?.chain.is_devnet && (
+        <div className="devnet-banner">
+          ⚠️ Réseau de développement local (anvil, chain id 31337) : pools, prix et opportunités proviennent du simulateur de marché local, pas d'un marché réel. Pour passer en réel : <code>ARB_CHAIN=base</code> + <code>ARB_RPC_HTTP_URL=…</code> dans <code>.env</code>, puis <code>arbbot verify-chain</code> et <code>arbbot serve</code> (docs/04).
+        </div>
+      )}
+      {s && !s.chain.is_devnet && s.chain.verified && (
+        <div className="real-banner">
+          ● RÉSEAU RÉEL — {s.chain.name} (chain id {s.chain.chain_id}) · données de marché en direct via <code>{s.chain.rpc_host}</code> · adresses vérifiées on-chain
+          {s.chain.verification?.ts ? ` le ${new Date(Number(s.chain.verification.ts) * 1000).toLocaleString("fr-FR")}` : ""} · {s.mode === "live" ? "MODE RÉEL ACTIF (politique signée)" : "mode ghost : aucune transaction signée, aucun gain réel"}
+        </div>
+      )}
+      {s && !s.chain.is_devnet && !s.chain.verified && (
+        <div className="devnet-banner">
+          ⚠️ {s.chain.name} (chain id {s.chain.chain_id}) via <code>{s.chain.rpc_host}</code> : les adresses de cette configuration n'ont PAS encore été vérifiées sur ce RPC. Lancez <code>arbbot verify-chain</code> puis redémarrez ; le passage en réel est bloqué tant que ce critère est rouge.
+        </div>
+      )}
       {error && <div className="notice warn">Erreur API : {error}</div>}
 
       {s && (

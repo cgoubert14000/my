@@ -126,13 +126,25 @@ def diagnose(obs: dict, t: TunableParams) -> Diagnosis:
         d.findings.append(f"{unquotable} unquotable sizes (tick window / liquidity exhausted)")
         d.changes["max_borrow_fraction_of_depth"] = new_frac
         d.rationale.append(f"max_borrow_fraction_of_depth {t.max_borrow_fraction_of_depth} → {new_frac}")
-    if ghost_n >= 20 and ghost_rate is not None and ghost_rate < 0.6:
-        new_spread = round(t.min_spread_bps * 1.2, 2)
-        new_age = max(int(t.max_data_age_ms * 0.75), 1000)
-        d.findings.append(f"ghost positive rate {ghost_rate:.0%} over {ghost_n} labels: opportunities vanish before N+1")
+    threshold = obs.get("threshold", 0.75)
+    if ghost_n >= 20 and ghost_rate is not None and ghost_rate < threshold:
+        # Opportunities vanish before N+1 more often than the required success probability allows. Favour wider gaps
+        # (they survive competition longer) and fresher data. The A/B window then measures whether the stricter
+        # screen actually yields a better net at N+1 — if not, the change is rolled back.
+        factor = 1.2 if ghost_rate >= 0.6 else 1.5
+        new_spread = round(t.min_spread_bps * factor, 2)
+        d.findings.append(f"ghost positive rate {ghost_rate:.0%} over {ghost_n} labels < required {threshold:.0%}: opportunities vanish before N+1")
         d.changes["min_spread_bps"] = new_spread
-        d.changes["max_data_age_ms"] = new_age
-        d.rationale.append(f"min_spread_bps → {new_spread}, max_data_age_ms → {new_age}: favour wider, fresher gaps")
+        d.rationale.append(f"min_spread_bps {t.min_spread_bps} → {new_spread}: favour gaps wide enough to survive one block")
+        if ghost_rate < 0.6:
+            new_age = max(int(t.max_data_age_ms * 0.75), 1000)
+            d.changes["max_data_age_ms"] = new_age
+            d.rationale.append(f"max_data_age_ms {t.max_data_age_ms} → {new_age}: reject stale state")
+        rates = obs.get("bucket_rates") or {}
+        small = [(n, m) for k, (n, m) in rates.items() if k.startswith(("m[0-3]", "m[3-8]")) and n and n >= 10]
+        if small and all(m is not None and m < threshold for _, m in small) and t.safety_margin_bps < 8:
+            d.changes["safety_margin_bps"] = 8.0
+            d.rationale.append(f"safety_margin_bps {t.safety_margin_bps} → 8: thin-margin segments measured below the threshold")
     if cycle_ms is not None and cycle_ms > block_ms / 2 and t.grid_points > 8:
         d.findings.append(f"cycle p95 {cycle_ms:.0f} ms > half block time {block_ms / 2:.0f} ms")
         d.changes["grid_points"] = max(t.grid_points - 4, 8)

@@ -271,9 +271,10 @@ class ReliabilityModel:
             return False, "not enough recent data"
         observed = sum(o.label for o in rec) / len(rec)
         predicted = float(np.mean([o.features.get("p_at_decision", observed) for o in rec]))
+        # `p_at_decision` is the conservative lower bound used at decision time; drift = reality below even that bound.
         if predicted - observed > tolerance:
-            return True, f"recent success {observed:.0%} vs predicted {predicted:.0%}"
-        return False, f"recent success {observed:.0%} vs predicted {predicted:.0%}"
+            return True, f"recent success {observed:.0%} BELOW the lower bound assumed at decision time ({predicted:.0%}): optimistic drift"
+        return False, f"recent success {observed:.0%} vs lower bound assumed at decision time {predicted:.0%} (no optimistic drift)"
 
 
 def _ece(p: np.ndarray, y: np.ndarray, bins: int = 5) -> float:

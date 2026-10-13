@@ -281,9 +281,10 @@ class LabRunner:
     # ------------------------------------------------------------------ A/B evaluation
 
     async def _ab_window(self, ref: TunableParams, cand: TunableParams, deadline: float, max_blocks: int = 60) -> dict:
-        """Evaluate two parameter sets on the SAME blocks: for each new block run both detectors on the shared pool
-        state, simulate the best positive of each at that block, and accumulate simulated net (token→EUR) minus the
-        expected failure cost for failed simulations."""
+        """Evaluate two parameter sets on the SAME blocks, scored the way reality scores them: the best candidate each
+        detector picks at block N is re-simulated at block N+1 (the earliest block a real transaction could land in).
+        Score = simulated net at N+1 (token→EUR) when the route is still profitable, minus the expected failure cost
+        (gas of a reverted tx) when it is not. Nothing is signed."""
         rt = self.rt
 
         def mk(t: TunableParams):
@@ -294,7 +295,8 @@ class LabRunner:
 
         det_ref, det_cand = mk(ref), mk(cand)
         score = {"ref": 0.0, "cand": 0.0}
-        counts = {"ref": {"positives": 0, "sim_ok": 0, "sim_fail": 0, "blocks": 0}, "cand": {"positives": 0, "sim_ok": 0, "sim_fail": 0, "blocks": 0}}
+        counts = {n: {"positives": 0, "picked": 0, "ok_next": 0, "fail_next": 0, "blocks": 0} for n in ("ref", "cand")}
+        pending: dict[str, tuple] = {}
         q = rt.collector.subscribe()
         blocks = 0
         try:
@@ -304,6 +306,22 @@ class LabRunner:
                 except asyncio.TimeoutError:
                     continue
                 blocks += 1
+                # 1) settle last block's picks against the new state (N+1)
+                for name, (best, b0) in list(pending.items()):
+                    if block <= b0:
+                        continue
+                    sim = await rt.simulator.simulate(best, min_profit=1, block=block)
+                    usd = rt.fees.token_price_usd(best.route.token) or 0
+                    scale = usd * rt.settings.eur_per_usd / 10**best.route.token.decimals
+                    net_after = (sim.profit - best.profit.fees.gas_cost_token) if (sim.ok and sim.profit is not None) else None
+                    if net_after is not None and net_after > 0:
+                        counts[name]["ok_next"] += 1
+                        score[name] += net_after * scale
+                    else:
+                        counts[name]["fail_next"] += 1
+                        score[name] -= best.profit.fees.failure_cost_wei / 1e18 * (rt.collector.native_price_usd or 0) * rt.settings.eur_per_usd
+                    del pending[name]
+                # 2) each detector picks its best candidate on the shared state of this block
                 for name, det in (("ref", det_ref), ("cand", det_cand)):
                     opps = await det.scan(rt.routes, block, max_borrow_usd=rt.policy.max_borrow_usd or None, only_positive=True)
                     counts[name]["blocks"] += 1
@@ -312,17 +330,13 @@ class LabRunner:
                         continue
                     best = max(opps, key=lambda o: o.profit.expected_net)
                     sim = await rt.simulator.simulate(best, min_profit=1, block=block)
-                    usd = rt.fees.token_price_usd(best.route.token) or 0
-                    scale = usd * rt.settings.eur_per_usd / 10**best.route.token.decimals
-                    if sim.ok and sim.profit is not None:
-                        counts[name]["sim_ok"] += 1
-                        score[name] += (sim.profit - best.profit.fees.gas_cost_token) * scale
-                    else:
-                        counts[name]["sim_fail"] += 1
-                        score[name] -= best.profit.fees.failure_cost_wei / 1e18 * (rt.collector.native_price_usd or 0) * rt.settings.eur_per_usd
+                    if not sim.ok:  # would never be sent: a failed simulation at N is a rejection, not a loss
+                        continue
+                    counts[name]["picked"] += 1
+                    pending[name] = (best, block)
         finally:
             rt.collector._subscribers.remove(q)
-        return {"blocks": blocks, "score_eur": score, "counts": counts}
+        return {"blocks": blocks, "score_eur": score, "counts": counts, "metric": "simulated net at N+1 minus failure cost (EUR)"}
 
     async def phase_self_correction(self, deadline: float) -> dict:
         rt = self.rt
@@ -332,6 +346,12 @@ class LabRunner:
         rej = search.get("rejections", {}) or {}
         obs["unquotable"] = rej.get("unquotable", 0) + rej.get("borrow_bound_too_small", 0)
         obs["spread_near_threshold"] = rej.get("spread_below_threshold", 0) // 20  # conservative proxy
+        obs["threshold"] = rt.policy.min_success_probability
+        try:
+            rel = rt.reliability.calibration_report()
+        except Exception:  # noqa: BLE001
+            rel = {}
+        obs["bucket_rates"] = {k: (v.get("n"), v.get("mean")) for k, v in (rel.get("buckets") or {}).items()}
         reference = rt.tunables
         self.repo.set_reference(reference, f"reference v{reference.version} before lab self-correction")
         diag = diagnose(obs, reference)
@@ -353,7 +373,7 @@ class LabRunner:
         ab = await self._ab_window(reference, candidate, deadline - 5)
         res["iterations"].append({"branch": branch, "ab": ab})
         ref_s, cand_s = ab["score_eur"]["ref"], ab["score_eur"]["cand"]
-        safer = ab["counts"]["cand"]["sim_fail"] <= ab["counts"]["ref"]["sim_fail"]
+        safer = ab["counts"]["cand"]["fail_next"] <= ab["counts"]["ref"]["fail_next"]
         better = cand_s > ref_s * 1.01 + 1e-9 if ref_s > 0 else cand_s > ref_s
         if ab["blocks"] >= 5 and better and safer:
             git_ref = self.repo.accept(branch)

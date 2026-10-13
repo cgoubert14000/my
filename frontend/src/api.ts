@@ -4,7 +4,7 @@
 export type Criterion = { name: string; ok: boolean; detail: string };
 
 export type Status = {
-  chain: { id: string; chain_id: number; name: string; verified: boolean; is_devnet: boolean };
+  chain: { id: string; chain_id: number; name: string; verified: boolean; is_devnet: boolean; rpc_host?: string; verification?: { ts: number; pools: number; rpc_host: string } | null };
   uptime_s: number;
   mode: "ghost" | "live";
   paused: boolean;

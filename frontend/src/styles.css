@@ -36,6 +36,8 @@ button.danger { background: #3a1216; border-color: var(--red); color: #ffd4d4; }
 button.danger:hover { background: #5a1a20; }
 button.ok { border-color: var(--green); color: var(--green); }
 .devnet-banner { margin: 12px 0; padding: 10px 14px; border-radius: 10px; background: rgba(255, 181, 71, 0.12); border: 1px solid var(--amber); color: #ffe1b0; font-weight: 600; }
+.real-banner { margin: 12px 0; padding: 10px 14px; border-radius: 10px; background: rgba(46, 204, 113, 0.1); border: 1px solid var(--green); color: #c9f5da; font-weight: 600; }
+.real-banner code, .devnet-banner code { font-family: var(--mono); background: rgba(0,0,0,0.25); padding: 1px 5px; border-radius: 4px; font-weight: 500; }
 .grid { display: grid; gap: 12px; }
 .kpis { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); margin-top: 12px; }
 .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }

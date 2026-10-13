@@ -1,4 +1,4 @@
-# Rapport d'exécution des tests — 2026-10-13 13:09:56
+# Rapport d'exécution des tests — 2026-10-13 13:31:27
 
 ## Contrats (Foundry)
 - **36 réussis / 0 échoués** (code de sortie 0)
@@ -44,16 +44,16 @@
   - ✅ test_real_v3_pool_as_flash_source() — gaz 120842
 
 ## Backend (pytest)
-- **59 réussis / 0 échoués / 0 ignorés / 0 erreurs** (code de sortie 0)
+- **64 réussis / 0 échoués / 0 ignorés / 0 erreurs** (code de sortie 0)
 - tests.test_api_selfcorr_ghost
-  - ✅ test_param_repo_propose_accept_rollback_are_git_isolated (0.07s)
+  - ✅ test_param_repo_propose_accept_rollback_are_git_isolated (0.06s)
   - ✅ test_self_correction_cannot_touch_financial_controls (0.00s)
-  - ✅ test_ghost_dedup_one_observation_per_route_per_window (0.45s)
-  - ✅ test_api_status_opportunities_emergency_stop_and_tunable_guard (0.58s)
+  - ✅ test_ghost_dedup_one_observation_per_route_per_window (0.30s)
+  - ✅ test_api_status_opportunities_emergency_stop_and_tunable_guard (0.48s)
 - tests.test_devnet_e2e
-  - ✅ test_detection_simulation_exact_and_ghost_label (2.38s)
-  - ✅ test_preflight_refuses_without_signer_and_emergency_stop (1.59s)
-  - ✅ test_live_execution_under_policy_with_isolated_signer (2.23s)
+  - ✅ test_detection_simulation_exact_and_ghost_label (2.26s)
+  - ✅ test_preflight_refuses_without_signer_and_emergency_stop (1.58s)
+  - ✅ test_live_execution_under_policy_with_isolated_signer (2.05s)
 - tests.test_engine_units
   - ✅ test_build_routes_2_and_3_hops_no_pool_reuse (0.00s)
   - ✅ test_quarantined_pool_excluded (0.00s)
@@ -70,9 +70,11 @@
   - ✅ test_negative_net_never_eligible_and_ev_ranking (0.00s)
   - ✅ test_decode_custom_errors (0.00s)
   - ✅ test_rpc_client_surfaces_connection_errors (2.01s)
+- tests.test_factory_discovery_devnet
+  - ✅ test_factory_discovery_matches_deployed_pools (0.01s)
 - tests.test_math_units
   - ✅ test_v2_matches_reference_formula (0.00s)
-  - ✅ test_v2_output_never_breaks_k (0.42s)
+  - ✅ test_v2_output_never_breaks_k (0.28s)
   - ✅ test_v2_fee_on_input_reduces_output (0.00s)
   - ✅ test_v3_tick_sqrt_roundtrip (0.00s)
   - ✅ test_solidly_stable_close_to_peg_and_volatile_equals_v2_shape (0.00s)
@@ -80,9 +82,9 @@
   - ✅ test_quote_rejects_zero_and_token_not_in_pool (0.00s)
   - ✅ test_price_impact_grows_with_size (0.00s)
 - tests.test_math_vs_chain
-  - ✅ test_v3_simulation_matches_real_pool_bytecode (1.32s)
+  - ✅ test_v3_simulation_matches_real_pool_bytecode (1.31s)
   - ✅ test_v2_quote_is_maximal_against_real_pair (0.03s)
-  - ✅ test_solidly_matches_onchain_getAmountOut (0.63s)
+  - ✅ test_solidly_matches_onchain_getAmountOut (0.62s)
 - tests.test_policy_risk_signer
   - ✅ test_policy_is_frozen_and_rejects_unknown_fields (0.00s)
   - ✅ test_policy_disabled_or_expired_is_invalid (0.00s)
@@ -93,7 +95,7 @@
   - ✅ test_reliability_never_fabricates_from_other_buckets (0.00s)
   - ✅ test_status_learning_without_data (0.00s)
   - ✅ test_status_reliability_insufficient (0.00s)
-  - ✅ test_status_ready_but_authorization_missing (0.01s)
+  - ✅ test_status_ready_but_authorization_missing (0.00s)
   - ✅ test_status_ready_then_live_then_suspended_on_losses (0.01s)
   - ✅ test_budget_checks_and_kill_switch (0.00s)
   - ✅ test_cumulative_loss_limit (0.01s)
@@ -109,6 +111,11 @@
   - ✅ test_signer_refuses[bad8-not in policy] (0.00s)
   - ✅ test_signer_refuses[bad9-deadline] (0.00s)
   - ✅ test_signer_enforces_cumulative_budget_and_count (0.01s)
-  - ✅ test_signer_refuses_when_policy_wallet_differs (0.00s)
+  - ✅ test_signer_refuses_when_policy_wallet_differs (0.01s)
+- tests.test_verify_chain
+  - ✅ test_every_mainnet_address_has_a_documented_source (0.00s)
+  - ✅ test_digest_changes_with_any_address_and_revokes_verification (0.00s)
+  - ✅ test_real_chain_config_with_unreachable_rpc_fails_closed (1.76s)
+  - ✅ test_verify_chain_passes_on_devnet_and_records_digest (0.84s)
 
 Les tests `devnet` sont ignorés si anvil n'est pas démarré ; ils ont été exécutés ici si leur statut est ✅.

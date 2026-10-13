@@ -82,46 +82,20 @@ def lab(minutes: float = typer.Option(60.0), out: pathlib.Path = typer.Option(RE
 
 
 @app.command("verify-chain")
-def verify_chain():
-    """Verify configured addresses on the connected RPC (code present, factories/pools answer) — prints a report."""
-    from .config.chains import get_chain
-    from .data.rpc import RpcClient, RpcError, decode_result, encode_call
+def verify_chain(no_pools: bool = typer.Option(False, help="skip pool discovery / depth measurement")):
+    """Verify the configured chain on the connected RPC: addresses, tokens, factories, flash-loan capacity, pools,
+    L1 fee oracle, RPC features. Writes docs/reports/verify_chain_<chain>_<ts>.md and data/verified_<chain>.json."""
+    from .ops.verify import verify_chain as _verify
 
     s = get_settings()
     _logging("WARNING")
-    chain = get_chain(s.chain, s.devnet_deployments)
-
-    async def _run():
-        rpc = RpcClient(s.rpc_http_url, s.fallback_urls, s.rpc_timeout_s, s.rpc_max_rps, chain.multicall3)
-        await rpc.open()
-        rows = []
-        try:
-            cid = int(await rpc.request("eth_chainId"), 16)
-            rows.append(("chain_id", str(cid), cid == chain.chain_id))
-            for name, addr in [("multicall3", chain.multicall3), ("wrapped_native", chain.wrapped_native)] + \
-                    [(f"dex:{d.id}", d.factory) for d in chain.dexes if d.factory] + \
-                    [(f"flash:{p.source.name}", p.address) for p in chain.flash_providers] + \
-                    [(f"token:{k}", t.address) for k, t in chain.tokens.items()]:
-                try:
-                    code = await rpc.get_code(addr)
-                    ok = len(code) > 0
-                    extra = f"{len(code)} bytes"
-                    if name.startswith("token:") and ok:
-                        raw = await rpc.call(addr, encode_call("decimals()"))
-                        extra += f", decimals={decode_result(['uint8'], raw)[0]}"
-                except RpcError as e:
-                    ok, extra = False, str(e)
-                rows.append((name, f"{addr} ({extra})", ok))
-        finally:
-            await rpc.close()
-        allok = all(r[2] for r in rows)
-        for n, v, ok in rows:
-            typer.echo(f"{'OK ' if ok else 'KO '} {n:22s} {v}")
-        typer.echo(f"\n{'ALL VERIFIED' if allok else 'SOME CHECKS FAILED'} — chain={chain.id}")
-        return allok
-
-    ok = asyncio.run(_run())
-    raise typer.Exit(code=0 if ok else 1)
+    rep = asyncio.run(_verify(s, discover_pools=not no_pools, log=typer.echo))
+    for c in rep.checks:
+        typer.echo(f"{'OK ' if c.ok else ('KO ' if c.blocking else 'WARN')} {c.name:28s} {c.detail}")
+    for k, v in rep.network.items():
+        typer.echo(f"    {k}: {v}")
+    typer.echo(f"\n{'ALL BLOCKING CHECKS PASSED' if rep.ok else 'SOME BLOCKING CHECKS FAILED'} — chain={rep.chain} ({rep.chain_id}) rpc={rep.rpc_host} pools={len(rep.pools)}")
+    raise typer.Exit(code=0 if rep.ok else 1)
 
 
 @app.command("policy-example")

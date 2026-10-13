@@ -155,9 +155,11 @@ class RiskManager:
 
     # ------------------------------------------------------------------ maturity decision
 
-    def evaluate(self, *, policy_signer_ok: bool, data_age_ms: float | None, rpc_ok: bool) -> RiskState:
+    def evaluate(self, *, policy_signer_ok: bool, data_age_ms: float | None, rpc_ok: bool, chain_verified: bool = True,
+                 chain_detail: str = "") -> RiskState:
         rel = self.rel.calibration_report()
         crit: list[Criterion] = []
+        crit.append(Criterion("chain_verified", chain_verified, chain_detail or "addresses verified live (arbbot verify-chain)"))
         crit.append(Criterion("tests_passed", self.flags["tests_passed"], "pytest + forge suites green"))
         crit.append(Criterion("contract_tested", self.flags["contract_tested"], "unit/fuzz/invariant + real-V3 tests"))
         crit.append(Criterion("financial_math_validated", self.flags["financial_math_validated"], "bit-exact vs chain + sim≈estimate"))

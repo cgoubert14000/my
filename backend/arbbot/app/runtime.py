@@ -69,6 +69,13 @@ class Runtime:
     def __init__(self, settings: Settings, chain: ChainConfig | None = None):
         self.settings = settings
         self.chain = chain or get_chain(settings.chain, settings.devnet_deployments)
+        # Real networks: "verified" is only true when `arbbot verify-chain` passed for exactly this configuration.
+        self.verification: dict | None = None
+        if self.chain.id != "local":
+            from ..ops.verify import load_verification
+
+            self.verification = load_verification(settings, self.chain)
+            self.chain.verified = self.verification is not None
         self.tunables = TunableParams.load(settings.tunables_path)
         self.policy: AuthorizationPolicy = load_policy(settings.policy_path)
         self.db = Database(settings.db_path)
@@ -345,7 +352,10 @@ class Runtime:
                 age = self.collector.data_age_ms(self.pools) if self.collector else None
                 rpc_ok = self.rpc.metrics.summary().get("error_rate", 1.0) < 0.2 if hasattr(self.rpc, "metrics") else True
                 self.risk.flags["data_stale"] = age is not None and age > 15_000
-                self.risk.evaluate(policy_signer_ok=signer_ok, data_age_ms=age, rpc_ok=rpc_ok)
+                self.risk.evaluate(policy_signer_ok=signer_ok, data_age_ms=age, rpc_ok=rpc_ok, chain_verified=self.chain.verified,
+                                   chain_detail=("devnet (generated addresses)" if self.chain.id == "local" else
+                                                 (f"verified {time.strftime('%Y-%m-%d %H:%M', time.localtime(self.verification['ts']))} on {self.verification.get('rpc_host')}"
+                                                  if self.verification else "NOT verified for this configuration — run `arbbot verify-chain`")))
                 # continuous post-activation protection
                 if self.risk.state.status == BotStatus.LIVE_ACTIVE:
                     drift, msg = self.reliability.drift_detected()
@@ -365,7 +375,9 @@ class Runtime:
         col = self.collector.stats.as_dict() if self.collector else {}
         return {
             "chain": {"id": self.chain.id, "chain_id": self.chain.chain_id, "name": self.chain.name, "verified": self.chain.verified,
-                      "is_devnet": self.chain.id == "local"},
+                      "is_devnet": self.chain.id == "local", "rpc_host": self.settings.rpc_http_url.split("//")[-1].split("/")[0],
+                      "verification": None if not self.verification else {"ts": self.verification.get("ts"), "pools": self.verification.get("pools"),
+                                                                            "rpc_host": self.verification.get("rpc_host")}},
             "uptime_s": time.time() - self.started_at if self.started_at else 0,
             "mode": "live" if self.risk.state.status == BotStatus.LIVE_ACTIVE else "ghost",
             "paused": self.paused,

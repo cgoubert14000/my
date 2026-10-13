@@ -1,0 +1,52 @@
+{
+  "enabled": false,
+  "wallet_address": "0x0000000000000000000000000000000000000000",
+  "chain_ids": [
+    8453
+  ],
+  "executor_contract": "0x0000000000000000000000000000000000000000",
+  "allowed_flash_providers": [
+    "MORPHO",
+    "BALANCER_V2",
+    "AAVE_V3"
+  ],
+  "allowed_dexes": [
+    "uniswap_v3",
+    "aerodrome",
+    "uniswap_v2",
+    "sushiswap_v2",
+    "pancakeswap_v3"
+  ],
+  "allowed_tokens": [
+    "WETH",
+    "USDC"
+  ],
+  "tokens": {
+    "WETH": {
+      "address": "0x4200000000000000000000000000000000000006",
+      "decimals": 18,
+      "max_borrow": 12.0
+    },
+    "USDC": {
+      "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "decimals": 6,
+      "max_borrow": 25000.0
+    }
+  },
+  "max_total_budget_native": 0.004,
+  "max_gas_per_tx_native": 0.0004,
+  "max_gas_limit": 900000,
+  "max_fee_per_gas_gwei": 0.2,
+  "max_transactions": 10,
+  "min_net_profit_native": 0.0005,
+  "max_slippage_bps": 30,
+  "max_cumulative_loss_native": 0.003,
+  "max_consecutive_failures": 2,
+  "min_success_probability": 0.75,
+  "max_borrow_usd": 25000,
+  "valid_from": 0,
+  "valid_until": 0,
+  "auto_resume_after_suspension": false,
+  "submission": "public_rpc",
+  "private_rpc_url": ""
+}
