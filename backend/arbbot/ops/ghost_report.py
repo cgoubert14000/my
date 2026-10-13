@@ -7,6 +7,7 @@ line can be checked against a block explorer.
 from __future__ import annotations
 
 import csv
+import logging
 import gzip
 import datetime as dt
 import json
@@ -15,6 +16,9 @@ import time
 from typing import Any
 
 from ..core.types import DexKind
+
+
+log = logging.getLogger("arbbot.ghost_report")
 
 
 def _fmt(x: Any, nd: int = 4) -> str:
@@ -252,6 +256,11 @@ def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, t
     with (out_dir / f"history_{rt.chain.id}_{tag}.jsonl").open("a") as f:
         f.write(json.dumps(point) + "\n")
     files = {"json": str(base.with_suffix(".json")), "md": str(base.with_suffix(".md"))}
+    if rt.chain.id != "local" and hasattr(rt, "export_observations"):
+        try:
+            rt.export_observations()
+        except Exception as e:  # noqa: BLE001
+            log.warning("observations export failed: %s", e)
     if not with_csv:
         return files
     opps = rt.db.iter_export(started_at, max_rows=30_000)  # streamed; positives/simulated/labelled first (full set: SQLite)

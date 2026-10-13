@@ -4,6 +4,6 @@
   "minutes": 340,
   "max_rps": 12,
   "run": 9,
-  "note": "run 9+ (sessions de 340 min enchaînées tant que continuous=true) : univers élargi (listes de jetons publiques + énumération Aerodrome/Slipstream + paires hub×jeton sur 8 DEX, profondeur mesurée on-chain, 1 500 pools max), table de routes compacte, quarantaine automatique des pools dont les simulations échouent, cbBTC empruntable",
+  "note": "run 9 : univers élargi (listes de jetons + énumération Aerodrome/Slipstream, ≤1 500 pools), mémoire inter-sessions des observations, enchaînement continu (340 min par session)",
   "continuous": true
 }

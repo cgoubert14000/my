@@ -413,3 +413,34 @@ async def test_collector_tracks_dynamic_lp_fee_changes():
     assert not any(d == encode_call("fee()") for _, d in rpc.calls)
     await c2.refresh(block=300)
     assert any(d == encode_call("fee()") for _, d in rpc.calls)
+
+
+def test_observations_survive_sessions_via_jsonl_export_import(tmp_path):
+    """The CI runner is ephemeral: ghost labels are appended to docs/reports/real/observations_<chain>.jsonl at each
+    snapshot and merged back (dedup on ts/source/route_key) at the next start-up, so the maturity decision accumulates."""
+    from arbbot.app.runtime import Runtime
+    from arbbot.config.chains import BASE
+    from arbbot.config.settings import Settings
+    from arbbot.storage.db import Database
+
+    f = tmp_path / "obs.jsonl"
+    db1 = Database(str(tmp_path / "s1.sqlite"))
+    for i in range(5):
+        db1.add_observation(1000.0 + i, "ghost", f"r{i}", i % 2, 0.1 * i, 0.2, {"margin_bps": 10 + i, "hops": 2})
+    rt = Runtime.__new__(Runtime)
+    rt.db, rt.chain = db1, BASE
+    rt.settings = Settings(observations_file=str(f))
+    assert rt.export_observations() == 5
+    assert rt.export_observations() == 0            # idempotent: nothing new
+    db1.add_observation(2000.0, "ghost", "r9", 1, 0.3, 0.2, {"margin_bps": 12, "hops": 3})
+    assert rt.export_observations() == 1
+    assert len(f.read_text().splitlines()) == 6
+    # next session: fresh DB imports the history exactly once
+    db2 = Database(str(tmp_path / "s2.sqlite"))
+    rt2 = Runtime.__new__(Runtime)
+    rt2.db, rt2.chain, rt2.settings = db2, BASE, rt.settings
+    assert db2.import_observations(rt2._read_observations_file()) == 6
+    assert db2.import_observations(rt2._read_observations_file()) == 0
+    rows = db2.observations()
+    assert len(rows) == 6 and rows[-1]["route_key"] == "r9" and rows[-1]["features"]["hops"] == 3
+    assert len(db2.observations(since=1003.0)) == 3

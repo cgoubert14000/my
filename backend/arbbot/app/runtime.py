@@ -142,7 +142,14 @@ class Runtime:
                                      self.signer, sender, dry_run=self.signer is None)
         start_tokens = [self.chain.tokens[s] for s in self.chain.borrowable if s in self.chain.tokens]
         self.routes = RouteTable.build(self.pools, start_tokens, self.tunables.max_hops, self.settings.discovery_max_routes)
-        # reload observations
+        # reload observations (this DB + the file exported by previous sessions of this chain)
+        if self.chain.id != "local":
+            try:
+                n_imp = self.db.import_observations(self._read_observations_file())
+                if n_imp:
+                    log.info("imported %d observations from previous sessions", n_imp)
+            except Exception as e:  # noqa: BLE001 - never block start-up on the history file
+                log.warning("observations import failed: %s", e)
         obs = self.db.observations()
         self.reliability.extend([Observation(o["ts"], o["features"], o["label"], o["source"], o["route_key"], o["net_after"], o["net_expected"]) for o in obs])
         self.risk.flags.update(self.db.kv_get("verification_flags", {}))
@@ -152,6 +159,50 @@ class Runtime:
         self._tasks = [asyncio.create_task(self.collector.run(), name="collector"),
                        asyncio.create_task(self._engine_loop(), name="engine"),
                        asyncio.create_task(self._housekeeping(), name="housekeeping")]
+
+    def observations_path(self):
+        import pathlib
+
+        from ..config.settings import REPO_ROOT
+
+        return pathlib.Path(self.settings.observations_file) if self.settings.observations_file else \
+            REPO_ROOT / "docs" / "reports" / "real" / f"observations_{self.chain.id}.jsonl"
+
+    def _read_observations_file(self) -> list[dict]:
+        import json
+
+        f = self.observations_path()
+        if not f.exists():
+            return []
+        rows = []
+        for line in f.read_text().splitlines():
+            line = line.strip()
+            if line:
+                try:
+                    rows.append(json.loads(line))
+                except ValueError:
+                    continue
+        return rows
+
+    def export_observations(self) -> int:
+        """Append this DB's observations that are not yet in the chain's history file (called at every snapshot)."""
+        import json
+
+        f = self.observations_path()
+        f.parent.mkdir(parents=True, exist_ok=True)
+        have = {(float(r["ts"]), r.get("source", "ghost"), r["route_key"]) for r in self._read_observations_file()}
+        n = 0
+        with f.open("a") as out:
+            for r in self.db.observations():
+                key = (float(r["ts"]), r["source"], r["route_key"])
+                if key in have:
+                    continue
+                have.add(key)
+                out.write(json.dumps({"ts": r["ts"], "source": r["source"], "route_key": r["route_key"], "label": r["label"],
+                                      "net_after": r["net_after"], "net_expected": r["net_expected"], "features": r["features"],
+                                      "chain_id": self.chain.chain_id}) + "\n")
+                n += 1
+        return n
 
     def _load_test_reports(self) -> None:
         """Maturity flags come from the *executed* test reports written by scripts/run_tests.py (never asserted by hand)."""

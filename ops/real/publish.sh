@@ -24,9 +24,11 @@ collect() {
     find docs/reports/real -type f -mmin -600 2>/dev/null
   fi
   # fichiers à nom stable : uniquement s'ils viennent d'être (ré)écrits par cette session
-  find docs/reports/real -maxdepth 1 -name 'latest_*' -mmin -15 2>/dev/null
+  find docs/reports/real -maxdepth 1 \( -name 'latest_*' -o -name 'sessions_*' -o -name 'observations_*' \) -mmin -15 2>/dev/null
   find docs/reports -maxdepth 1 -name 'verify_chain_*' -mmin -600 2>/dev/null
 }
+# tableau inter-sessions (lecture seule des rapports déjà écrits)
+python3 scripts/sessions_summary.py "${ARB_CHAIN:-base}" >/dev/null 2>&1 || true
 for i in 1 2 3 4 5; do
   git fetch -q origin "$BRANCH" || { sleep 8; continue; }
   git reset -q --mixed "origin/$BRANCH"

@@ -181,11 +181,33 @@ class Database:
             (ts, source, route_key, int(label), net_after, net_expected, json.dumps(features)),
         )
 
-    def observations(self, limit: int = 100_000) -> list[dict]:
-        rows = self._rows("SELECT * FROM observations ORDER BY ts ASC LIMIT ?", (limit,))
+    def observations(self, limit: int = 100_000, since: float | None = None) -> list[dict]:
+        if since:
+            rows = self._rows("SELECT * FROM observations WHERE ts >= ? ORDER BY ts ASC LIMIT ?", (since, limit))
+        else:
+            rows = self._rows("SELECT * FROM observations ORDER BY ts ASC LIMIT ?", (limit,))
         for r in rows:
             r["features"] = json.loads(r["features"])
         return rows
+
+    def import_observations(self, rows: list[dict]) -> int:
+        """Merge observations exported by earlier sessions (ghost labels survive the ephemeral CI runner this way).
+        Dedup key: (ts, source, route_key)."""
+        have = {(float(r["ts"]), r["source"], r["route_key"]) for r in self._rows("SELECT ts, source, route_key FROM observations", ())}
+        n = 0
+        for r in rows:
+            key = (float(r["ts"]), r.get("source", "ghost"), r["route_key"])
+            if key in have:
+                continue
+            have.add(key)
+            feats = r.get("features") or {}
+            self._exec(
+                "INSERT INTO observations (ts,source,route_key,label,net_after,net_expected,features) VALUES (?,?,?,?,?,?,?)",
+                (key[0], key[1], key[2], int(r["label"]), r.get("net_after"), r.get("net_expected"),
+                 json.dumps(feats) if not isinstance(feats, str) else feats),
+            )
+            n += 1
+        return n
 
     # ------------------------------------------------------------------ executions / metrics / events
 

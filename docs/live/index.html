@@ -55,7 +55,7 @@
 <footer>
   Source des données : <code id="src"></code> — produite par le moteur connecté au réseau indiqué (JSON-RPC public), publiée toutes les ~2 minutes par le job GitHub Actions
   <code>real-market-ghost</code>. Aucune donnée n'est générée côté navigateur. Si l'âge dépasse 5 minutes, la session est terminée ou le job ne publie plus.
-  Aucune transaction n'est signée en mode ghost. Rapports complets : <a id="mdlink" href="#">Markdown</a> · <a id="jsonlink" href="#">JSON</a>.
+  Aucune transaction n'est signée en mode ghost. Rapports complets : <a id="mdlink" href="#">Markdown</a> · <a id="jsonlink" href="#">JSON</a> · <a id="sessionslink" href="#">toutes les sessions</a>.
 </footer>
 <script>
 const CHAIN = new URLSearchParams(location.search).get("chain") || "base";
@@ -81,6 +81,7 @@ function render(r) {
   document.getElementById("src").textContent = SRC;
   document.getElementById("mdlink").href = `../reports/real/latest_${CHAIN}.md`;
   document.getElementById("jsonlink").href = SRC;
+  document.getElementById("sessionslink").href = `../reports/real/sessions_${CHAIN}.md`;
 
   const o = r.opportunities || {}, d = r.detector || {}, g = r.ghost || {}, rel = r.reliability || {}, rk = r.risk || {};
   document.getElementById("kpis").innerHTML = [
