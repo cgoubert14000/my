@@ -68,11 +68,14 @@ def pool_rows(rt) -> list[dict]:
 def build(rt, *, started_at: float, started_block: int, extra: dict | None = None) -> dict:
     st = rt.status()
     since = started_at
+    total = rt.db.count_opportunities(since=since)
     opps = rt.db.opportunities(limit=20000, since=since)
     sims = [o for o in opps if o.get("sim_ok") is not None]
     labeled = [o for o in opps if o.get("ghost_next_block_net") is not None]
     positives = [o for o in opps if (o.get("expected_net") is not None and int(o["expected_net"]) > 0)]
     best = sorted(positives, key=lambda o: -(o.get("expected_net_eur") or 0))[:25]
+    # the candidates closest to profitability (even negative): shows how far the market is from an executable edge
+    closest = sorted((o for o in opps if o.get("expected_net_eur") is not None), key=lambda o: -(o.get("expected_net_eur") or -1e18))[:10]
     decisions: dict[str, int] = {}
     reasons: dict[str, int] = {}
     for o in opps:
@@ -84,6 +87,9 @@ def build(rt, *, started_at: float, started_block: int, extra: dict | None = Non
     rep = {
         "kind": "ghost_session",
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "generated_ts": round(now, 3),
+        "started_at": round(started_at, 3),
+        "head_block_ts": st["collector"].get("last_block_ts") or None,
         "chain": st["chain"],
         "is_devnet": st["chain"].get("is_devnet"),
         "duration_min": round((now - started_at) / 60, 2),
@@ -99,10 +105,10 @@ def build(rt, *, started_at: float, started_block: int, extra: dict | None = Non
         "ghost": st["ghost"],
         "reliability": st["reliability"],
         "risk": st["risk"],
-        "opportunities": {"total": len(opps), "positive_expected_net": len(positives), "simulated": len(sims),
+        "opportunities": {"total": total, "analysed_rows": len(opps), "positive_expected_net": len(positives), "simulated": len(sims),
                           "sim_ok": sum(1 for o in sims if o.get("sim_ok")), "sim_failed": sum(1 for o in sims if o.get("sim_ok") is False),
                           "ghost_labeled": len(labeled), "ghost_positive": sum(1 for o in labeled if int(o["ghost_next_block_net"]) > 0),
-                          "decisions": decisions, "reject_reasons": reasons, "best": best},
+                          "decisions": decisions, "reject_reasons": reasons, "best": best, "closest": closest},
         "extra": extra or {},
     }
     return _json_safe(rep)
@@ -163,6 +169,19 @@ def render_markdown(rep: dict) -> str:
                      f"{amt(fees.get('flash_fee'))} | {amt(fees.get('gas_cost_token'))} | {amt(b.get('expected_net'))} ({_fmt(b.get('expected_net_eur'), 4)} €) | "
                      f"{amt(b.get('simulated_net'))} | {_fmt(b.get('margin_bps'), 2)} | {_fmt(b.get('p_lower'), 3)} (n={b.get('p_n')}) | {b.get('decision')} | "
                      f"{', '.join(b.get('reasons') or [])} |")
+    if not o["best"] and o.get("closest"):
+        lines += ["", "_Aucun candidat à net positif. Les 10 plus proches de la rentabilité (net attendu négatif) :_", ""]
+        lines += ["| Bloc | Route | Montant | Brut | Frais flash | Gaz (dont L1) | Net attendu (€) | Marge (bps) |", "|---:|---|---:|---:|---:|---:|---:|---:|"]
+        for b in o["closest"]:
+            dec = b.get("token_decimals") or 18
+            tok = b.get("token")
+            fees = b.get("fees") or {}
+
+            def amt2(v):
+                return "—" if v is None else f"{int(v) / 10**dec:,.6f} {tok}"
+
+            lines.append(f"| {b.get('block_number')} | {b.get('route')} | {amt2(b.get('amount_in'))} | {amt2(b.get('gross_profit'))} | "
+                         f"{amt2(fees.get('flash_fee'))} | {amt2(fees.get('gas_cost_token'))} | {_fmt(b.get('expected_net_eur'), 4)} | {_fmt(b.get('margin_bps'), 2)} |")
     r = rep["reliability"]
     rk = rep["risk"]
     lines += [
@@ -184,8 +203,13 @@ def write(rt, out_dir: pathlib.Path, *, started_at: float, started_block: int, t
     out_dir.mkdir(parents=True, exist_ok=True)
     rep = build(rt, started_at=started_at, started_block=started_block, extra=extra)
     base = out_dir / f"ghost_{rt.chain.id}_{tag}"
-    (base.with_suffix(".json")).write_text(json.dumps(rep, indent=1, ensure_ascii=False))
-    (base.with_suffix(".md")).write_text(render_markdown(rep))
+    js = json.dumps(rep, indent=1, ensure_ascii=False)
+    md = render_markdown(rep)
+    (base.with_suffix(".json")).write_text(js)
+    (base.with_suffix(".md")).write_text(md)
+    # stable names for live dashboards (GitHub Pages / local mirror)
+    (out_dir / f"latest_{rt.chain.id}.json").write_text(js)
+    (out_dir / f"latest_{rt.chain.id}.md").write_text(md)
     opps = rt.db.opportunities(limit=20000, since=started_at)
     cols = ["ts", "block_number", "route", "token", "flash_source", "amount_in", "amount_out", "gross_profit", "expected_net", "expected_net_eur",
             "simulated_net", "ghost_next_block_net", "margin_bps", "price_impact_bps", "spread_bps", "p_success", "p_lower", "p_upper", "p_n",

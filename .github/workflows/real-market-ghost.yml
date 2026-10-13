@@ -82,11 +82,14 @@ jobs:
       - name: Session de marché réel (pré-vol RPC → verify-chain → ghost)
         env:
           PYTHONUNBUFFERED: "1"
+          ARB_SNAPSHOT_HOOK: "bash ops/real/publish.sh"
         run: |
           set -o pipefail
           mkdir -p docs/reports/real
+          git config user.name "real-market-bot"
+          git config user.email "actions@users.noreply.github.com"
           python scripts/real_market_session.py --chain "${{ steps.cfg.outputs.chain }}" --minutes "${{ steps.cfg.outputs.minutes }}" \
-            --max-rps "${{ steps.cfg.outputs.max_rps }}" --tag "${{ github.run_id }}" 2>&1 | tee docs/reports/real/session_${{ github.run_id }}.log
+            --max-rps "${{ steps.cfg.outputs.max_rps }}" --snapshot-every 2 --tag "${{ github.run_id }}" 2>&1 | tee docs/reports/real/session_${{ github.run_id }}.log
 
       - name: Résumé
         if: always()

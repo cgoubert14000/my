@@ -90,6 +90,19 @@ class Database:
         placeholders = ",".join("?" * (len(cols) + 1))
         self._exec(f"INSERT OR REPLACE INTO opportunities ({','.join(cols)},payload) VALUES ({placeholders})", vals)
 
+    def count_opportunities(self, since: float | None = None, decision: str | None = None) -> int:
+        sql, params = "SELECT COUNT(*) FROM opportunities", []
+        where = []
+        if since:
+            where.append("ts >= ?")
+            params.append(since)
+        if decision:
+            where.append("decision = ?")
+            params.append(decision)
+        if where:
+            sql += " WHERE " + " AND ".join(where)
+        return int(self._exec(sql, params).fetchone()[0])
+
     def opportunities(self, limit: int = 200, decision: str | None = None, since: float | None = None) -> list[dict]:
         sql = "SELECT payload FROM opportunities"
         where, params = [], []

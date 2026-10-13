@@ -64,6 +64,7 @@ class CollectorStats:
             "last_refresh_ms": round(self.last_refresh_ms, 1),
             "last_block": self.last_block,
             "block_age_s": round(time.time() - self.last_block_ts, 2) if self.last_block_ts else None,
+            "last_block_ts": self.last_block_ts or None,
             "ws_connected": self.ws_connected,
             "ws_reconnects": self.ws_reconnects,
             "errors": self.errors,

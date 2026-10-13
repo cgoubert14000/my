@@ -42,7 +42,8 @@ def signer():
 def ghost(minutes: float = typer.Option(0, help="0 = run until Ctrl-C"),
           report_dir: pathlib.Path = typer.Option(None, help="write ghost_<chain>_<ts>.{json,md} + opportunities CSV here"),
           snapshot_every: float = typer.Option(5.0, help="minutes between intermediate report snapshots"),
-          tag: str = typer.Option("", help="report file tag (default: start timestamp)")):
+          tag: str = typer.Option("", help="report file tag (default: start timestamp)"),
+          on_snapshot: str = typer.Option("", help="shell command run after each snapshot (e.g. publish to git)")):
     """Headless ghost mode (no API): detect, simulate, label, persist — and optionally report everything observed."""
     from .app.runtime import Runtime
     from .ops import ghost_report
@@ -69,14 +70,26 @@ def ghost(minutes: float = typer.Option(0, help="0 = run until Ctrl-C"),
                 if report_dir and time.time() >= next_snap:
                     files = ghost_report.write(rt, report_dir, started_at=started_at, started_block=started_block, tag=run_tag)
                     next_snap = time.time() + snapshot_every * 60
+                    if on_snapshot:
+                        await _run_hook(on_snapshot)
         finally:
             if report_dir:
                 try:
                     files = ghost_report.write(rt, report_dir, started_at=started_at, started_block=started_block, tag=run_tag)
                     typer.echo("report: " + json.dumps(files))
+                    if on_snapshot:
+                        await _run_hook(on_snapshot)
                 except Exception as e:  # noqa: BLE001
                     typer.echo(f"report failed: {e!r}")
             await rt.stop()
+
+    async def _run_hook(cmd: str) -> None:
+        try:
+            proc = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
+            out, _ = await asyncio.wait_for(proc.communicate(), timeout=180)
+            typer.echo(f"snapshot hook rc={proc.returncode}: {out.decode(errors='replace')[-400:].strip()}")
+        except Exception as e:  # noqa: BLE001
+            typer.echo(f"snapshot hook failed: {e!r}")
 
     asyncio.run(_run())
 

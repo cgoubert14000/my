@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>arbbot — session de marché réel (lecture seule)</title>
+<style>
+  :root { --bg:#0b1020; --card:#121a33; --line:#24305a; --txt:#e6ecff; --mut:#93a1c8; --ok:#2ecc71; --warn:#f1c40f; --bad:#e74c3c; --acc:#4da3ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif; }
+  header { padding:14px 20px; border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  h1 { font-size:18px; margin:0; }
+  .badge { padding:4px 10px; border-radius:999px; font-weight:600; font-size:12px; }
+  .real { background:#0f3d2a; color:var(--ok); border:1px solid var(--ok); }
+  .dev { background:#3d2a0f; color:var(--warn); border:1px solid var(--warn); }
+  .stale { background:#3d0f0f; color:var(--bad); border:1px solid var(--bad); }
+  main { padding:16px 20px; display:grid; gap:16px; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .kpi .l { color:var(--mut); font-size:12px; }
+  .kpi .v { font-size:20px; font-weight:600; margin-top:2px; }
+  .kpi .s { color:var(--mut); font-size:11px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; overflow:auto; }
+  h2 { font-size:14px; margin:0 0 8px; color:var(--acc); }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th, td { padding:5px 8px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; }
+  th:first-child, td:first-child, td.l, th.l { text-align:left; }
+  code { color:var(--mut); font-size:11px; }
+  .mut { color:var(--mut); }
+  .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+  footer { padding:12px 20px; color:var(--mut); font-size:12px; border-top:1px solid var(--line); }
+  a { color:var(--acc); }
+</style>
+</head>
+<body>
+<header>
+  <h1>arbbot — flash-loan arbitrage · session de marché réel (ghost, lecture seule)</h1>
+  <span id="net" class="badge">chargement…</span>
+  <span id="fresh" class="badge"></span>
+  <span class="mut" id="meta"></span>
+</header>
+<main>
+  <div class="kpis" id="kpis"></div>
+  <section><h2>Statut de maturité et critères</h2><div id="risk"></div></section>
+  <section><h2>Opportunités de la session (toutes charges déduites : frais LP, frais flash, gaz L2 + données L1)</h2><div id="opps"></div></section>
+  <section><h2>Pools réels suivis — avoirs réels (balanceOf) et prix au bloc</h2><div id="pools"></div></section>
+  <section><h2>Connexion, fiabilité, rejets</h2><div id="misc"></div></section>
+</main>
+<footer>
+  Source des données : <code id="src"></code> — produite par le moteur connecté au réseau indiqué (JSON-RPC public), publiée toutes les ~2 minutes par le job GitHub Actions
+  <code>real-market-ghost</code>. Aucune donnée n'est générée côté navigateur. Si l'âge dépasse 5 minutes, la session est terminée ou le job ne publie plus.
+  Aucune transaction n'est signée en mode ghost. Rapports complets : <a id="mdlink" href="#">Markdown</a> · <a id="jsonlink" href="#">JSON</a>.
+</footer>
+<script>
+const CHAIN = new URLSearchParams(location.search).get("chain") || "base";
+const SRC = `../reports/real/latest_${CHAIN}.json`;
+const fmt = (x, d=2) => (x===null||x===undefined||Number.isNaN(x)) ? "—" : Number(x).toLocaleString("fr-FR",{maximumFractionDigits:d, minimumFractionDigits:0});
+const tok = (v, dec, sym) => (v===null||v===undefined) ? "—" : `${fmt(Number(v)/10**dec, 6)} ${sym}`;
+const ago = s => s<60 ? `${Math.round(s)} s` : s<3600 ? `${Math.floor(s/60)} min ${Math.round(s%60)} s` : `${(s/3600).toFixed(1)} h`;
+
+function kpi(l, v, s="") { return `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`; }
+
+function render(r) {
+  const ch = r.chain || {};
+  const devnet = !!r.is_devnet;
+  const net = document.getElementById("net");
+  net.textContent = devnet ? "⚠️ DEVNET LOCAL — données non réelles" : `RÉSEAU RÉEL — ${ch.name} (chain id ${ch.chain_id}) — adresses vérifiées : ${ch.verified ? "oui" : "NON"}`;
+  net.className = "badge " + (devnet ? "dev" : "real");
+  const now = Date.now()/1000, lag = now - (r.generated_ts||0);
+  const fr = document.getElementById("fresh");
+  fr.textContent = `instantané il y a ${ago(lag)} · bloc ${r.blocks?.last} (tête il y a ${r.head_block_ts ? ago(r.generated_ts - r.head_block_ts) : "—"} au moment de l'instantané)`;
+  fr.className = "badge " + (lag > 300 ? "stale" : "real");
+  document.getElementById("meta").textContent = `généré ${r.generated_at} · durée ${r.duration_min} min · RPC ${ch.rpc_host} · WS ${r.collector?.ws_connected ? "connecté" : "non"}`;
+  document.getElementById("src").textContent = SRC;
+  document.getElementById("mdlink").href = `../reports/real/latest_${CHAIN}.md`;
+  document.getElementById("jsonlink").href = SRC;
+
+  const o = r.opportunities || {}, d = r.detector || {}, g = r.ghost || {}, rel = r.reliability || {}, rk = r.risk || {};
+  document.getElementById("kpis").innerHTML = [
+    kpi("Prix ETH (pool le plus profond)", `${fmt(r.native_price_usd, 2)} $`),
+    kpi("Base fee", `${fmt(r.gas?.base_fee_gwei, 6)} gwei`, `priorité ${fmt(r.gas?.priority_fee_gwei, 6)} gwei`),
+    kpi("Pools / routes", `${(r.pools||[]).length} / ${fmt(r.routes,0)}`),
+    kpi("Blocs vus", fmt(r.blocks?.seen,0), `${r.blocks?.first} → ${r.blocks?.last}`),
+    kpi("Routes dimensionnées", fmt(d.candidates,0), `dernier cycle ${fmt(d.last_cycle_ms,0)} ms`),
+    kpi("Net attendu > 0", fmt(d.positive_net,0), `${fmt(o.simulated,0)} simulées (eth_call réel), ${fmt(o.sim_failed,0)} échecs`),
+    kpi("Étiquettes ghost (N+1)", `${fmt(o.ghost_positive,0)} / ${fmt(o.ghost_labeled,0)}`, g.rate!=null ? `taux ${fmt(g.rate*100,1)} %` : "—"),
+    kpi("Fiabilité", rel.global_lower!=null ? `${fmt(rel.global_lower*100,1)} %` : "—", `borne inf. (${rel.credible_level}) · n=${fmt(rel.n,0)} · seuil ${fmt((rel.threshold||0)*100,0)} %`),
+    kpi("Requêtes RPC", fmt(r.rpc?.requests,0), `erreurs ${fmt(r.rpc?.errors,0)} · p50 ${fmt(r.rpc?.latency_p50_ms,0)} ms · p95 ${fmt(r.rpc?.latency_p95_ms,0)} ms`),
+  ].join("");
+
+  document.getElementById("risk").innerHTML = `<p><b>${rk.status || "—"}</b> — ${rk.sub_status || ""}</p>` +
+    `<div>${(rk.criteria||[]).map(c => `<span class="${c.ok?"ok":"bad"}">${c.ok?"✅":"❌"} ${c.name}</span> <span class="mut">${c.detail||""}</span><br>`).join("")}</div>`;
+
+  const rows = (o.best && o.best.length) ? o.best : (o.closest || []);
+  const title = (o.best && o.best.length) ? `<p class="ok">${o.best.length} candidats à net attendu positif (meilleurs d'abord)</p>` :
+    `<p class="warn">Aucun candidat à net attendu positif pendant la session — ci-dessous les ${rows.length} plus proches de la rentabilité (net négatif).</p>`;
+  document.getElementById("opps").innerHTML = title + `<table><thead><tr><th>Bloc</th><th class="l">Route</th><th>Emprunt</th><th>Brut</th><th>Frais flash</th><th>Gaz (dont L1)</th><th>Net attendu</th><th>Net (€)</th><th>Net simulé</th><th>Marge bps</th><th>p inf.</th><th class="l">Décision / motifs</th></tr></thead><tbody>` +
+    rows.map(b => { const f=b.fees||{}, dec=b.token_decimals||18, s=b.token; return `<tr><td>${b.block_number}</td><td class="l">${b.route}</td><td>${tok(b.amount_in,dec,s)}</td><td>${tok(b.gross_profit,dec,s)}</td><td>${tok(f.flash_fee,dec,s)}</td><td>${tok(f.gas_cost_token,dec,s)}</td><td>${tok(b.expected_net,dec,s)}</td><td>${fmt(b.expected_net_eur,4)}</td><td>${tok(b.simulated_net,dec,s)}</td><td>${fmt(b.margin_bps,2)}</td><td>${b.p_lower!=null?fmt(b.p_lower,3):"—"} (n=${b.p_n??0})</td><td class="l">${b.decision} <span class="mut">${(b.reasons||[]).join(", ")}</span></td></tr>`; }).join("") +
+    `</tbody></table><p class="mut">Total enregistré : ${fmt(o.total,0)} candidats · décisions ${JSON.stringify(o.decisions||{})}</p>`;
+
+  const pools = (r.pools||[]).slice(0, 80);
+  document.getElementById("pools").innerHTML = `<table><thead><tr><th class="l">DEX</th><th class="l">Paire</th><th>Frais ppm</th><th>Avoirs réels ($)</th><th>Prix token1/token0</th><th>Bloc</th><th class="l">Adresse</th></tr></thead><tbody>` +
+    pools.map(p => `<tr><td class="l">${p.dex}</td><td class="l">${p.pair}${p.stable?" (stable)":""}</td><td>${p.fee_ppm}</td><td>${fmt(p.depth_usd,0)}${p.depth_is_real_balance===false?' <span class="warn" title="réserves virtuelles">~</span>':""}</td><td>${fmt(p.price_token1_per_token0,6)}</td><td>${p.updated_block}</td><td class="l"><code>${p.address}</code></td></tr>`).join("") + `</tbody></table>`;
+
+  document.getElementById("misc").innerHTML =
+    `<p>Fournisseurs de flash loan : ${Object.entries(r.flash_providers||{}).map(([k,v])=>`${k} ${v.fee_bps} bps (vérifié ${v.verified})`).join(" · ")}</p>` +
+    `<p>Rejets moteur : <code>${JSON.stringify(d.rejections||{})}</code></p>` +
+    `<p>Motifs de rejet (sélecteur) : <code>${JSON.stringify(o.reject_reasons||{})}</code></p>` +
+    `<p>Collecteur : rafraîchissements ${fmt(r.collector?.refreshes,0)} · p50 ${fmt(r.collector?.refresh_p50_ms,0)} ms · p95 ${fmt(r.collector?.refresh_p95_ms,0)} ms · pools périmés ${fmt(r.collector?.stale_pools,0)} · erreurs ${fmt(r.collector?.errors,0)}</p>` +
+    `<p>Fiabilité : ${rel.label || "—"} · récent ${rel.recent ? `n=${rel.recent.n} taux ${fmt((rel.recent.observed_rate||0)*100,1)} %` : "—"}</p>`;
+}
+
+async function load() {
+  try {
+    const res = await fetch(`${SRC}?t=${Date.now()}`, {cache:"no-store"});
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    render(await res.json());
+  } catch (e) {
+    document.getElementById("net").textContent = `aucun instantané disponible (${e.message}) — la première session n'a pas encore publié`;
+    document.getElementById("net").className = "badge stale";
+  }
+}
+load(); setInterval(load, 30000);
+</script>
+</body>
+</html>
