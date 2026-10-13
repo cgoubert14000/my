@@ -57,6 +57,14 @@ Pour un réseau réel (Base/Arbitrum) en **lecture seule** : `ARB_CHAIN=base`, `
 `arbbot verify-chain` et `arbbot serve`. Aucune transaction n'est possible tant qu'aucun signer n'est configuré :
 l'interface affiche alors « PRÊT POUR TEST RÉEL — AUTORISATION FINANCIÈRE MANQUANTE » avec la marche à suivre.
 
+Session de marché réel tout-en-un (lecture seule, aucun secret), et suivi en direct :
+
+```powershell
+python scripts\real_market_session.py --chain base --minutes 60      # pré-vol RPC/WebSocket → verify-chain → ghost
+arbbot serve                                                         # interface en direct bloc par bloc (http://localhost:8000)
+python scripts\live_mirror.py --branch arena/9aff96cd-my --port 8090  # page docs/live alimentée par les sessions GitHub Actions
+```
+
 Guide complet : `docs/04_installation_windows.md`.
 
 ## Documentation (français)
