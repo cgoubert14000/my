@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-13T23:52:06Z)
+# Sessions de marché réel — base (généré 2026-10-13T23:55:16Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -11,8 +11,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38445117116](https://github.com/cgoubert14000/my/actions/runs/38445117116) | 2026-10-13T20:00:30+00:00 | 60 | 1779 | 251 / — / 192222 | 840 | 43218 | 65 | 0 / 17 | 0 / 15 | 15 / 0.1 % | APPRENTISSAGE |
 | [38452875318](https://github.com/cgoubert14000/my/actions/runs/38452875318) | 2026-10-13T21:06:26+00:00 | 60 | 1519 | 251 / — / 192222 | 266 | 47798 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
-| [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-13T23:52:06+00:00 | 99 | 2927 | 579 / 328 / 21606 | 155 | 640195 | 11 | 5 / 2 | 0 / 4 | 4 / 0.2 % | APPRENTISSAGE |
+| [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-13T23:55:16+00:00 | 102 | 3021 | 579 / 328 / 21606 | 227 | 653497 | 11 | 5 / 2 | 0 / 4 | 4 / 0.2 % | APPRENTISSAGE |
 
-**Totaux** : 371 min, 7218 blocs, 766960 candidats, 76 à net attendu > 0, 5 simulations réussies / 19 échouées, 0/19 étiquettes N+1 positives.
+**Totaux** : 374 min, 7312 blocs, 780262 candidats, 76 à net attendu > 0, 5 simulations réussies / 19 échouées, 0/19 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
