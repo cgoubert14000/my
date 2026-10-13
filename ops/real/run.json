@@ -4,8 +4,8 @@
   "minutes": 330,
   "max_rps": 12,
   "run": 9,
-  "note": "run 9 : univers élargi (listes + énumération Aerodrome/Slipstream pré-filtrée par solde, cache d'univers), mémoire inter-sessions, enchaînement continu (330 min/session). Arrêt : stop=true (toutes) ou stop_run_id=<id> (une session), continuous=false (pas de suivante).",
+  "note": "run 10 (38473562031) = univers élargi seul, arrêté proprement après ~25 min pour servir de référence ; la session suivante ajoute le flux d'événements WebSocket (détection à l'inclusion du swap). Arrêt : stop=true (toutes) ou stop_run_id=<id> (une session), continuous=false (pas de suivante).",
   "continuous": true,
   "stop": false,
-  "stop_run_id": ""
+  "stop_run_id": "38473562031"
 }
