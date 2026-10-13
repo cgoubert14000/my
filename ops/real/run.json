@@ -3,6 +3,6 @@
   "chain": "base",
   "minutes": 60,
   "max_rps": 12,
-  "run": 7,
-  "note": "run 7 (60 min) : publication sans conflit (fetch + reset + fichiers de la session uniquement), historique par session, filtre vectorisé, ticks étalés, WebSocket"
+  "run": 8,
+  "note": "run 8 (60 min) : frais LP dynamiques Slipstream relus à chaque bloc (les 15 « positifs » du run 7 passaient tous par le pool AERO/cbBTC Slipstream et échouaient en simulation : FlashRepaymentImpossible)"
 }

@@ -21,6 +21,8 @@ log = logging.getLogger("arbbot.collector")
 SIG_RESERVES = encode_call("getReserves()")
 SIG_SLOT0 = encode_call("slot0()")
 SIG_LIQ = encode_call("liquidity()")
+SIG_FEE = encode_call("fee()")
+FEE_RECHECK_BLOCKS = 300  # immutable V3 fee tiers are still re-read now and then (cheap safety net)
 
 
 @dataclass
@@ -54,6 +56,7 @@ class CollectorStats:
     ws_reconnects: int = 0
     errors: int = 0
     stale_pools: int = 0
+    fee_changes: int = 0  # dynamic LP fee changes observed (Slipstream fee modules)
     refresh_latencies: list[float] = field(default_factory=list)
 
     def as_dict(self) -> dict:
@@ -69,6 +72,7 @@ class CollectorStats:
             "ws_reconnects": self.ws_reconnects,
             "errors": self.errors,
             "stale_pools": self.stale_pools,
+            "fee_changes": self.fee_changes,
             "refresh_p50_ms": lat[len(lat) // 2] if lat else None,
             "refresh_p95_ms": lat[int(0.95 * (len(lat) - 1))] if lat else None,
         }
@@ -83,6 +87,7 @@ class StateCollector:
         self.tick_words = tick_words_each_side
         self.tick_refresh_blocks = tick_refresh_blocks
         self.balance_refresh_blocks = 30
+        self._dynamic_fee_dexes = {d.id for d in chain.dexes if getattr(d, "dynamic_fee", False)}
         self.poll_interval = poll_interval_s
         self.ws_url = ws_url
         self.gas = GasSnapshot()
@@ -190,6 +195,8 @@ class StateCollector:
         subset = pools if pools is not None else self.pools
         calls: list[tuple[str, bytes]] = []
         idx: list[tuple[Pool, str]] = []
+        dynamic = self._dynamic_fee_dexes
+        recheck_fees = block % FEE_RECHECK_BLOCKS == 0
         for p in subset:
             if p.kind in (DexKind.UNIV2, DexKind.SOLIDLY):
                 calls.append((p.address, SIG_RESERVES))
@@ -199,6 +206,9 @@ class StateCollector:
                 idx.append((p, "slot0"))
                 calls.append((p.address, SIG_LIQ))
                 idx.append((p, "liquidity"))
+                if p.dex in dynamic or recheck_fees:
+                    calls.append((p.address, SIG_FEE))
+                    idx.append((p, "fee"))
         # gas: block header for base fee (one call) — fetched in the same loop iteration
         results, header = await asyncio.gather(self.rpc.multicall(calls, block), self.rpc.get_block(block))
         now = time.time()
@@ -216,6 +226,15 @@ class StateCollector:
             elif what == "slot0":
                 sqrt_p, tick = decode_result(["uint160", "int24"], data[:64])
                 slot_cache[p.address] = (int(sqrt_p), int(tick))
+            elif what == "fee":
+                (fee,) = decode_result(["uint24"], data[:32])
+                fee = int(fee)
+                if 0 < fee < 1_000_000 and fee != p.fee_ppm:
+                    log.info("pool %s (%s) fee changed %d → %d ppm", p.address, p.dex, p.fee_ppm, fee)
+                    self.stats.fee_changes += 1
+                    p.fee_ppm = fee
+                    if p.v3 is not None:
+                        p.v3.fee_pips = fee
             elif what == "liquidity":
                 (liq,) = decode_result(["uint128"], data[:32])
                 sqrt_p, tick = slot_cache.get(p.address, (0, 0))

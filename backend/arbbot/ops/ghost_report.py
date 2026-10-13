@@ -126,7 +126,7 @@ def render_markdown(rep: dict) -> str:
         "## Connexion",
         f"- Requêtes RPC : {rep['rpc'].get('requests')} ; erreurs : {rep['rpc'].get('errors')} ; latence p50/p95 : "
         f"{_fmt(rep['rpc'].get('latency_p50_ms'), 1)}/{_fmt(rep['rpc'].get('latency_p95_ms'), 1)} ms",
-        f"- Rafraîchissements d'état : {rep['collector'].get('refreshes')} ; âge des données au dernier bloc : {rep['collector'].get('block_age_s')} s",
+        f"- Rafraîchissements d'état : {rep['collector'].get('refreshes')} ; âge des données au dernier bloc : {rep['collector'].get('block_age_s')} s ; changements de frais LP observés (pools à frais dynamiques) : {rep['collector'].get('fee_changes', 0)}",
         f"- Gaz : base fee {_fmt(rep['gas'].get('base_fee_gwei'), 6)} gwei ; prix ETH (pool le plus profond) : {_fmt(rep.get('native_price_usd'), 2)} $",
         f"- Fournisseurs de flash loan : " + ", ".join(f"{k} {v['fee_bps']} bps (vérifié={v['verified']})" for k, v in rep["flash_providers"].items()),
         "",

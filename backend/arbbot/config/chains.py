@@ -21,6 +21,7 @@ class DexConfig:
     fee_ppm: int = 3000  # default LP fee for V2-style factories (V3 fee tiers are per pool)
     fee_tiers: tuple[int, ...] = ()  # V3: tiers to scan
     solidly_fee_from_factory: bool = False  # Aerodrome: getFee(pool, stable)
+    dynamic_fee: bool = False  # pool.fee() can change between blocks (Slipstream fee modules) → re-read every refresh
     enabled: bool = True
     notes: str = ""
 
@@ -98,7 +99,8 @@ BASE = ChainConfig(
         DexConfig("aerodrome", DexKind.SOLIDLY, "0x420DD381b31aEf6683db6B902084cB0FFECe40Da", solidly_fee_from_factory=True),
         DexConfig(
             "aerodrome_slipstream", DexKind.UNIV3, "0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A", fee_tiers=(),
-            notes="CL pools keyed by tickSpacing (1,50,100,200,2000); fee read from pool.fee()",
+            dynamic_fee=True,
+            notes="CL pools keyed by tickSpacing (1,50,100,200,2000); fee read from pool.fee() — dynamic (fee module), re-read every block",
         ),
     ],
     flash_providers=[

@@ -21,7 +21,6 @@ import numpy as np
 
 from ..core.pricing import _mid_price
 from ..core.types import Pool, Route
-from .routes import route_fee_bps
 
 
 @dataclass
@@ -47,12 +46,17 @@ class RouteScreen:
         H = max((len(r.hops) for r in routes), default=1)
         self.idx = np.full((R, H), dummy, dtype=np.int64)
         self.sign = np.zeros((R, H), dtype=np.float64)
-        self.fee_bps = np.zeros(R, dtype=np.float64)
         for ri, r in enumerate(routes):
             for k, h in enumerate(r.hops):
                 self.idx[ri, k] = index[h.pool.address]
                 self.sign[ri, k] = 1.0 if h.pool.is_token0(h.token_in.address) else -1.0
-            self.fee_bps[ri] = route_fee_bps(r)
+        self.fee_bps = self._route_fees()  # recomputed every run: LP fees can change (Slipstream dynamic fee modules)
+
+    def _route_fees(self) -> np.ndarray:
+        fee_pool = np.zeros(self.n_pools + 1, dtype=np.float64)
+        for i, p in enumerate(self.pools):
+            fee_pool[i] = p.fee_ppm / 100.0
+        return fee_pool[self.idx].sum(axis=1)
 
     # ------------------------------------------------------------------ per-cycle inputs
 
@@ -91,6 +95,7 @@ class RouteScreen:
 
     def run(self, *, min_spread_bps: float, min_liquidity_usd: float, price_usd) -> ScreenResult:
         logp, depth, quarantined, valid = self.pool_vectors(price_usd)
+        self.fee_bps = self._route_fees()
         s = (self.sign * logp[self.idx]).sum(axis=1)
         spread = np.expm1(np.clip(s, -50, 50)) * 10_000.0
         edge = spread - self.fee_bps

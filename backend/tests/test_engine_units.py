@@ -329,8 +329,83 @@ def test_vectorised_screen_matches_per_route_formulas_and_is_fast():
     reps = max(1, 200_000 // len(routes))
     big.idx = np.tile(big.idx, (reps, 1))
     big.sign = np.tile(big.sign, (reps, 1))
-    big.fee_bps = np.tile(big.fee_bps, reps)
     t0 = _t.perf_counter()
     out = big.run(min_spread_bps=1.0, min_liquidity_usd=20_000, price_usd=price)
     assert (_t.perf_counter() - t0) < 1.0
     assert len(out.edge_bps) == len(routes) * reps
+    # dynamic LP fees (Slipstream fee modules): a fee change on a pool is reflected at the next run, not cached
+    pool0 = sc.pools[0]
+    before = sc.run(min_spread_bps=-1e9, min_liquidity_usd=0, price_usd=price)
+    pool0.fee_ppm += 1000  # +10 bps
+    after = sc.run(min_spread_bps=-1e9, min_liquidity_usd=0, price_usd=price)
+    uses = [i for i, r in enumerate(routes) if any(h.pool.address == pool0.address for h in r.hops)]
+    assert uses, "fixture must contain routes through pool0"
+    for i in uses:
+        n_hops = sum(1 for h in routes[i].hops if h.pool.address == pool0.address)
+        assert abs((before.edge_bps[i] - after.edge_bps[i]) - 10.0 * n_hops) < 1e-9
+    pool0.fee_ppm -= 1000
+
+
+async def test_collector_tracks_dynamic_lp_fee_changes():
+    """Slipstream pools expose a dynamic fee(): the collector re-reads it every block and the pool/V3 state follow."""
+    from arbbot.config.chains import get_chain
+    from arbbot.core.math_v3 import V3PoolState
+    from arbbot.data.collector import StateCollector
+    from arbbot.data.rpc import encode_call
+
+    chain = get_chain("base")
+    pool = Pool("0x" + "aa" * 20, "aerodrome_slipstream", DexKind.UNIV3, WETH, USDC, 500, False, 100)
+    pool.v3 = V3PoolState(2**96, 0, 10**18, 500, 100)
+
+    class _Rpc:
+        calls: list[tuple[str, bytes]] = []
+        fee = 3000
+
+        async def multicall(self, calls, block=None):
+            self.calls = list(calls)
+            out = []
+            for _, data in calls:
+                if data == encode_call("slot0()"):
+                    out.append((True, abi_encode(["uint160", "int24"], [2**96, 0]) + b"\x00" * 160))
+                elif data == encode_call("liquidity()"):
+                    out.append((True, abi_encode(["uint128"], [10**18])))
+                elif data == encode_call("fee()"):
+                    out.append((True, abi_encode(["uint24"], [self.fee])))
+                else:
+                    out.append((True, abi_encode(["uint256"], [0])))
+            return out
+
+        async def get_block(self, block):
+            return {"timestamp": hex(int(time.time())), "baseFeePerGas": hex(5_000_000)}
+
+        async def block_number(self):
+            return 1
+
+    rpc = _Rpc()
+    c = StateCollector(rpc, chain, [pool])  # type: ignore[arg-type]
+
+    async def _noop(block, subset=None):
+        return None
+
+    c._refresh_ticks = _noop  # type: ignore[method-assign]
+    c._refresh_balances = _noop  # type: ignore[method-assign]
+    c._update_native_price = lambda: None  # type: ignore[method-assign]
+    await c.refresh(block=101)
+    assert any(d == encode_call("fee()") for _, d in rpc.calls), "dynamic-fee pools must be re-read every refresh"
+    assert pool.fee_ppm == 3000 and pool.v3.fee_pips == 3000 and c.stats.fee_changes == 1
+    rpc.fee = 3000
+    await c.refresh(block=102)
+    assert c.stats.fee_changes == 1  # unchanged fee → no event
+    rpc.fee = 0  # invalid value is ignored, never applied
+    await c.refresh(block=103)
+    assert pool.fee_ppm == 3000
+    # an immutable Uniswap V3 pool is only re-read on the periodic recheck block
+    uni = Pool("0x" + "bb" * 20, "uniswap_v3", DexKind.UNIV3, WETH, USDC, 500, False, 10)
+    c2 = StateCollector(rpc, chain, [uni])  # type: ignore[arg-type]
+    c2._refresh_ticks = _noop  # type: ignore[method-assign]
+    c2._refresh_balances = _noop  # type: ignore[method-assign]
+    c2._update_native_price = lambda: None  # type: ignore[method-assign]
+    await c2.refresh(block=101)
+    assert not any(d == encode_call("fee()") for _, d in rpc.calls)
+    await c2.refresh(block=300)
+    assert any(d == encode_call("fee()") for _, d in rpc.calls)
