@@ -39,23 +39,43 @@ def signer():
 
 
 @app.command()
-def ghost(minutes: float = typer.Option(0, help="0 = run until Ctrl-C")):
-    """Headless ghost mode (no API): detect, simulate, label, persist."""
+def ghost(minutes: float = typer.Option(0, help="0 = run until Ctrl-C"),
+          report_dir: pathlib.Path = typer.Option(None, help="write ghost_<chain>_<ts>.{json,md} + opportunities CSV here"),
+          snapshot_every: float = typer.Option(5.0, help="minutes between intermediate report snapshots"),
+          tag: str = typer.Option("", help="report file tag (default: start timestamp)")):
+    """Headless ghost mode (no API): detect, simulate, label, persist — and optionally report everything observed."""
     from .app.runtime import Runtime
+    from .ops import ghost_report
 
     _logging()
 
     async def _run():
         rt = Runtime(get_settings())
         await rt.start()
-        t_end = time.time() + minutes * 60 if minutes else None
+        started_at = time.time()
+        started_block = rt.last_block or rt.collector.stats.last_block
+        t_end = started_at + minutes * 60 if minutes else None
+        run_tag = tag or time.strftime("%Y%m%d-%H%M%S", time.gmtime(started_at))
+        next_snap = started_at + snapshot_every * 60
+        files: dict[str, str] = {}
         try:
             while t_end is None or time.time() < t_end:
                 await asyncio.sleep(5)
+                started_block = started_block or rt.last_block
                 st = rt.status()
                 typer.echo(f"block {rt.last_block} | {st['risk']['status']} | candidates {st['detector'].get('candidates')} "
-                           f"| ghost {st['ghost']} | rel n={st['reliability'].get('n')}")
+                           f"| positive {st['detector'].get('positive_net')} | ghost {st['ghost']} | rel n={st['reliability'].get('n')} "
+                           f"| rpc err {st['rpc'].get('errors')} p50 {st['rpc'].get('latency_p50_ms', 0):.0f} ms")
+                if report_dir and time.time() >= next_snap:
+                    files = ghost_report.write(rt, report_dir, started_at=started_at, started_block=started_block, tag=run_tag)
+                    next_snap = time.time() + snapshot_every * 60
         finally:
+            if report_dir:
+                try:
+                    files = ghost_report.write(rt, report_dir, started_at=started_at, started_block=started_block, tag=run_tag)
+                    typer.echo("report: " + json.dumps(files))
+                except Exception as e:  # noqa: BLE001
+                    typer.echo(f"report failed: {e!r}")
             await rt.stop()
 
     asyncio.run(_run())
