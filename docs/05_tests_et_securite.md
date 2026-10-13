@@ -36,18 +36,20 @@ absents, rouges ou vieux de plus de 7 jours ⇒ critères `tests_passed` / `cont
 
 Aucune réécriture n'a été jugée nécessaire après triage ; les findings restent listés pour audit.
 
-## 2. Backend Python — pytest : 64 tests, 0 échec (dont 9 bout-en-bout sur devnet)
+## 2. Backend Python — pytest : 72 tests, 0 échec (dont 10 bout-en-bout sur devnet)
 
 | Fichier | Tests | Exigences couvertes |
 |---|---|---|
 | `test_math_vs_chain.py` | 3 | **bit-exact** vs vrai bytecode : V3 62 swaps multi-ticks, V2 12/12, Solidly 36/36 |
 | `test_math_units.py` | 8 (+300 cas Hypothesis) | frais, conversions de décimales, monotonie, impact de prix, quote impossible (ticks manquants) → `QuoteError` |
 | `test_engine_units.py` | 15 | optimiseur vs formule fermée (±1 %), sélection avec motifs (données périmées, impact, liquidité, net négatif), classement par espérance, erreurs RPC remontées (pas de silence) |
-| `test_policy_risk_signer.py` | 26 | politique : budget, nb de tx, gaz, slippage, validité, listes, mauvais contrat, `value≠0`, `minProfit=0`, mauvais portefeuille ; risque : dépassement de budget, échecs consécutifs → SUSPENDU, retour en simulation, arrêt d'urgence ; signer : refus, comptabilité indépendante |
+| `test_policy_risk_signer.py` | 27 | politique : budget, nb de tx, gaz, slippage, validité, listes, mauvais contrat, `value≠0`, `minProfit=0`, mauvais portefeuille, **clé uniquement depuis un keystore chiffré** (mauvais mot de passe ⇒ erreur, clé brute refusée hors devnet) ; risque : dépassement de budget, échecs consécutifs → SUSPENDU, retour en simulation, arrêt d'urgence ; signer : refus, comptabilité indépendante |
 | `test_devnet_e2e.py` | 3 | détection → simulation exacte (profit `eth_call` = brut − frais flash) → étiquette ghost ; refus de pré-vol sans signer ; **exécution réelle sur devnet** par le signer sous politique (tx minée, net réalisé, compteurs), revert comptabilisé si l'état a bougé |
 | `test_api_selfcorr_ghost.py` | 4 | dépôt git d'auto-correction (propose/accepte/rollback isolés), interdiction des clés financières, dédup ghost, API : statut, opportunités, fiabilité, **arrêt d'urgence via l'API**, reprise, garde des tunables (403) |
 | `test_factory_discovery_devnet.py` | 1 | chemin « réseau réel » : découverte des pools via les **factories** (vrai bytecode V2/V3), métadonnées on-chain |
 | `test_verify_chain.py` | 4 | provenance documentée de chaque adresse mainnet ; empreinte de configuration et révocation ; RPC injoignable ⇒ échec fermé ; vérification complète sur devnet |
+| `test_state_override_sim_devnet.py` | 1 | mode lecture seule sans contrat déployé : la simulation par **state override** (bytecode injecté à une adresse fictive) donne le même profit, au wei, que le contrat déployé, et revert de la même façon |
+| `test_l1_fee_opstack.py` | 6 | frais de données L1 (Base) : `getL1FeeUpperBound` (Fjord), repli `getL1Fee(bytes)`, oracle indisponible ⇒ coût **inconnu** (candidat rejeté, jamais 0 optimiste), une lecture par bloc et par taille (pas de rafale RPC), Arbitrum sans composante séparée |
 
 Cas de la liste d'exigences et où ils sont testés : frais (`test_math_units`, `test_engine_units`) ; conversions
 (`test_math_units`) ; chemins (`test_engine_units::routes`) ; montants de prêt (`optimizer`, `BorrowCap`) ;
@@ -57,6 +59,23 @@ changements de liquidité (ghost N+1, e2e revert) ; données périmées (`stale_
 cyclique, callbacks directs) ; dépassement de budget (`test_signer_enforces_cumulative_budget_and_count`) ; erreurs de
 signature (signer refuse / injoignable → `signer_unavailable`) ; tx échouée (e2e revert comptabilisé) ; retour en
 simulation (`test_risk_returns_to_simulation`) ; arrêt d'urgence (API + CLI).
+
+### Validation « maths vs chaîne » pendant le laboratoire — un faux positif analysé
+
+Le laboratoire compare, sur les pools vivants, la sortie calculée en Python à celle du vrai bytecode. Une première
+version comparait au bloc « latest » : avec le simulateur de marché qui échange toutes les ~1,4 s, quelques écarts
+apparaissaient (0,02–0,09 %). Analyse (scripts conservés dans l'historique de la session, résultats reproduits
+ci-dessous) :
+
+* 9 352 puis 22 008 comparaisons épinglées au bloc de l'instantané : 0 écart dû aux maths — les sorties sont
+  identiques au wei, y compris en franchissant 1 ou 2 ticks V3 ;
+* les 2 écarts restants (1 sur ~8 000) ont été rejoués **au même bloc** : le nœud renvoyait alors exactement notre
+  valeur, et la première réponse correspondait au bloc suivant. Il s'agit d'un artefact d'anvil (résolution de
+  « bloc = latest » sur l'état vivant pendant le scellement d'un bloc), pas d'une erreur de calcul.
+
+Le laboratoire compte désormais ces cas à part (`transient`) et ne garde dans `mismatch` que les écarts reproduits au
+même bloc. Sur un nœud de production (geth/reth, fournisseurs RPC) un `eth_call` à un numéro de bloc donné est
+déterministe.
 
 ## 3. Forks mainnet
 

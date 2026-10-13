@@ -9,7 +9,7 @@
 >   être observée depuis cet environnement : il n'a accès à aucun RPC public.** Toutes les mesures « réseau réel »
 >   restent donc à produire **sur votre machine** avec la procédure fournie.
 > * Preuves disponibles (reproductibles) : `docs/reports/tests_latest.md` — **36/36 tests Foundry** (unitaires, fuzz,
->   invariants, Uniswap V3 réel), **59/59 tests Python** dont 6 tests bout-en-bout sur le devnet avec **une vraie
+>   invariants, Uniswap V3 réel), **72/72 tests Python** dont 10 tests bout-en-bout sur le devnet avec **une vraie
 >   transaction signée et minée** par le signer isolé sous politique ; `docs/reports/slither.json` (analyse statique) ;
 >   `docs/reports/lab_*.md` (laboratoire autonome). Le statut de maturité affiché par le bot est calculé à partir de
 >   ces rapports, jamais déclaré à la main.
