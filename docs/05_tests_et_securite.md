@@ -36,12 +36,13 @@ absents, rouges ou vieux de plus de 7 jours ⇒ critères `tests_passed` / `cont
 
 Aucune réécriture n'a été jugée nécessaire après triage ; les findings restent listés pour audit.
 
-## 2. Backend Python — pytest : 85 tests, 0 échec (dont 11 bout-en-bout sur devnet)
+## 2. Backend Python — pytest : 86 tests, 0 échec (dont 11 bout-en-bout sur devnet)
 
 | Fichier | Tests | Exigences couvertes |
 |---|---|---|
 | `test_math_vs_chain.py` | 3 | **bit-exact** vs vrai bytecode : V3 62 swaps multi-ticks, V2 12/12, Solidly 36/36 |
 | `test_math_units.py` | 8 (+300 cas Hypothesis) | frais, conversions de décimales, monotonie, impact de prix, quote impossible (ticks manquants) → `QuoteError` |
+| `test_memecoin_check_devnet.py` | 1 | vérification « bot memecoin » de bout en bout sur le devnet (PairCreated + Sync) : toutes les paires WETH retrouvées, P&L du sniper borné par la mise, rapports écrits |
 | `test_universe_discovery.py` | 4 | construction de l'univers réel contre un RPC scripté : listes de jetons + énumération des factories + paires hub×jeton, `decimals()` vérifié (rejet si incohérent), prix des hubs amorcés depuis `slot0`, profondeur en $ par `balanceOf`, plancher et plafond de pools, provenance de chaque jeton |
 | `test_engine_units.py` | 22 | optimiseur vs formule fermée (±1 %), sélection avec motifs (données périmées, impact, liquidité, net négatif, **plancher de sécurité on-chain** `below_safety_margin`), classement par espérance, erreurs RPC remontées (pas de silence), comptages de session exacts en SQL, collecteur : un rafraîchissement par tête de bloc (WebSocket + sondage), **filtre vectorisé** identique aux formules par route (200 000 routes < 1 s) et sensible aux frais dynamiques, **frais LP dynamiques** (Slipstream `fee()`) relus à chaque bloc |
 | `test_policy_risk_signer.py` | 27 | politique : budget, nb de tx, gaz, slippage, validité, listes, mauvais contrat, `value≠0`, `minProfit=0`, mauvais portefeuille, **clé uniquement depuis un keystore chiffré** (mauvais mot de passe ⇒ erreur, clé brute refusée hors devnet) ; risque : dépassement de budget, échecs consécutifs → SUSPENDU, retour en simulation, arrêt d'urgence ; signer : refus, comptabilité indépendante |
