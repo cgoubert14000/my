@@ -679,3 +679,17 @@ block 52569944 | APPRENTISSAGE | candidates 15134 | positive 0 | ghost {'pending
 2026-10-13 22:07:21,347 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 609 → 594 ppm
 2026-10-13 22:07:21,348 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2928 → 2925 ppm
 block 52569946 | APPRENTISSAGE | candidates 15380 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=0 | rpc err 0 p50 276 ms
+snapshot hook rc=0: publish: arrêt demandé via ops/real/run.json (stop)
+publish: pushed to arena/9aff96cd-my (1d44cee)
+2026-10-13 22:07:25,570 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 750 → 2700 ppm
+2026-10-13 22:07:25,570 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2925 → 2922 ppm
+2026-10-13 22:07:25,571 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2703 → 2709 ppm
+2026-10-13 22:07:25,573 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 445 ppm
+2026-10-13 22:07:27,627 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 594 → 579 ppm
+2026-10-13 22:07:27,628 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 2700 → 750 ppm
+2026-10-13 22:07:27,628 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2922 → 2919 ppm
+2026-10-13 22:07:27,629 INFO arbbot.collector: pool 0xB099C658e784b41EE435d48a8eb67e8f27285C93 (aerodrome_slipstream) fee changed 3084 → 3081 ppm
+2026-10-13 22:07:27,632 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 445 → 436 ppm
+2026-10-13 22:07:27,635 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 2603 → 2600 ppm
+stop requested (data/STOP_SESSION): ending the session, final report follows
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_38473562031.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_38473562031.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_38473562031_opportunities.csv.gz"}
