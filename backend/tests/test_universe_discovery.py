@@ -128,17 +128,19 @@ async def test_universe_discovery_tokens_pools_depth_and_sources(chain):
     pools = await idx.discover()
     by_addr = {p.address.lower(): p for p in pools}
     st = idx.stats
-    # tokens: 2 hubs + TOK (list) + ENU (enumeration); BAD rejected (decimals mismatch); NOHUB never considered
-    assert st["tokens_config"] == 2 and st["tokens_tokenlist"] == 2 and st["tokens_factory_enum"] == 1
-    assert st["tokens_rejected"] == 1 and st["tokens_total"] == 4
+    # tokens: 2 hubs + TOK (list); BAD rejected (decimals mismatch); NOHUB never considered; ENU's only pool holds
+    # 500 USDC → screened out at enumeration (hub-side balance) so its token never costs pair-discovery requests
+    assert st["tokens_config"] == 2 and st["tokens_tokenlist"] == 2 and st["tokens_factory_enum"] == 0
+    assert st["tokens_rejected"] == 1 and st["tokens_total"] == 3
     assert any("decimals mismatch" in n for n in st["notes"])
+    assert st["per_dex"]["aerodrome"] == {"enumerated": 3, "with_hub_side": 2, "deep_enough": 1, "kept": 1}
     # the fake-symbol collision rule: a long-tail token is registered under a distinct key, never by symbol alone
     assert chain.tokens["TOK"].address.lower() == TOK.lower()
     assert chain.extra["token_sources"][TOK.lower()].startswith("tokenlist: test-list")
-    assert chain.extra["token_sources"][ENU.lower()].startswith("on-chain: aerodrome factory allPools")
-    # pools: WETH/USDC (hub/hub, 50 M$), WETH/TOK aerodrome (40 WETH ≈ 200 k$ ×2), TOK/USDC (180 k$); USDC/ENU dropped (1 k$)
+    assert ENU.lower() not in chain.extra["token_sources"]
+    # pools: WETH/USDC (hub/hub, 50 M$), WETH/TOK aerodrome (40 WETH ≈ 200 k$ ×2), TOK/USDC (180 k$)
     assert set(by_addr) == {P_UNI.lower(), P_AERO_TOK.lower(), P_PAIR_TOK.lower()}
-    assert st["pools_below_min_depth"] == 1 and st["pools_kept"] == 3 and st["pools_enumerated"] == 2
+    assert st["pools_below_min_depth"] == 0 and st["pools_kept"] == 3 and st["pools_enumerated"] == 1
     assert st["hub_prices"]["WETH"] == pytest.approx(2500, rel=1e-3) and st["hub_prices"]["USDC"] == 1.0
     assert by_addr[P_UNI.lower()].depth_usd_hint == pytest.approx(10_000 * 2500 + 25_000_000, rel=1e-6)
     assert by_addr[P_AERO_TOK.lower()].depth_usd_hint == pytest.approx(2 * 40 * 2500, rel=1e-6)
@@ -154,8 +156,43 @@ async def test_universe_discovery_tokens_pools_depth_and_sources(chain):
 async def test_universe_without_filters_keeps_everything_measured(chain):
     idx = PoolIndexer(ScriptedRpc(), chain)  # type: ignore[arg-type]  (min_pool_usd=0, max_pools=0: devnet/verify behaviour)
     pools = await idx.discover()
-    assert len(pools) == 4  # the shallow USDC/ENU pool is kept too
-    assert idx.stats["pools_below_min_depth"] == 0
+    assert len(pools) == 4  # the shallow USDC/ENU pool is kept too, and its token registered with its provenance
+    assert idx.stats["pools_below_min_depth"] == 0 and idx.stats["tokens_factory_enum"] == 1
+    assert chain.extra["token_sources"][ENU.lower()].startswith("on-chain: aerodrome factory allPools")
+    assert {p.address.lower(): p.depth_usd_hint for p in pools}[P_AERO_ENU.lower()] == pytest.approx(1_000)
+
+
+async def test_universe_cache_is_reused_then_expires(chain, tmp_path):
+    """verify-chain and the ghost process that follows share one discovery: the second start rebuilds the universe
+    from data/universe_<chain>.json (depths re-measured, same floor/cap), a stale cache is ignored."""
+    cache = tmp_path / "universe_base.json"
+    rpc = ScriptedRpc()
+    idx = PoolIndexer(rpc, chain, min_pool_usd=10_000, max_pools=100, cache_path=cache)  # type: ignore[arg-type]
+    pools = await idx.discover()
+    assert cache.exists() and len(pools) == 3
+    fresh = dataclasses.replace(chain, tokens={"WETH": WETH, "USDC": USDC}, extra={})
+    rpc2 = ScriptedRpc()
+    calls_seen: list[bytes] = []
+    orig = rpc2.multicall
+
+    async def spy(calls, block="latest", chunk=300):
+        calls_seen.extend(d[:4] for _, d in calls)
+        return await orig(calls, block, chunk)
+
+    rpc2.multicall = spy  # type: ignore[method-assign]
+    idx2 = PoolIndexer(rpc2, fresh, min_pool_usd=10_000, max_pools=100, cache_path=cache)  # type: ignore[arg-type]
+    pools2 = await idx2.discover()
+    assert [p.address.lower() for p in pools2] == [p.address.lower() for p in pools]
+    assert sel("getPool(address,address,uint24)") not in calls_seen and sel("allPools(uint256)") not in calls_seen
+    assert sel("balanceOf(address)") in calls_seen  # depths are measured again, never trusted from the cache
+    assert any("reloaded from" in n for n in idx2.stats["notes"]) and idx2.stats["pools_kept"] == 3
+    assert fresh.tokens["TOK"].address.lower() == TOK.lower() and fresh.extra["token_sources"][TOK.lower()].startswith("tokenlist")
+    assert {p.address.lower(): p.depth_usd_hint for p in pools2}[P_UNI.lower()] == pytest.approx(10_000 * 2500 + 25_000_000, rel=1e-6)
+    # stale cache → full discovery again
+    fresh3 = dataclasses.replace(chain, tokens={"WETH": WETH, "USDC": USDC}, extra={})
+    idx3 = PoolIndexer(ScriptedRpc(), fresh3, min_pool_usd=10_000, max_pools=100, cache_path=cache, cache_max_age_s=0)  # type: ignore[arg-type]
+    pools3 = await idx3.discover()
+    assert len(pools3) == 3 and not any("reloaded from" in n for n in idx3.stats["notes"])
 
 
 async def test_max_pools_keeps_the_deepest(chain):

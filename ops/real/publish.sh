@@ -29,6 +29,19 @@ collect() {
 }
 # tableau inter-sessions (lecture seule des rapports déjà écrits)
 python3 scripts/sessions_summary.py "${ARB_CHAIN:-base}" >/dev/null 2>&1 || true
+# arrêt à distance : si ops/real/run.json sur la branche contient "stop": true ou "stop_run_id": "<cet id>", la session
+# ghost se termine proprement (rapport final écrit) au prochain tour de boucle — seule façon d'arrêter un job GitHub
+# sans le bouton « Cancel » (qui, lui, saute le rapport final).
+if git fetch -q origin "$BRANCH" 2>/dev/null; then
+  remote_cfg="$(git show "origin/$BRANCH:ops/real/run.json" 2>/dev/null || true)"
+  if [ -n "$remote_cfg" ] && printf '%s' "$remote_cfg" | RUN_ID="${GITHUB_RUN_ID:-}" python3 -c '
+import json, os, sys
+d = json.load(sys.stdin)
+stop = bool(d.get("stop")) or (str(d.get("stop_run_id", "")) and str(d.get("stop_run_id")) == os.environ.get("RUN_ID", ""))
+sys.exit(0 if stop else 1)'; then
+    mkdir -p data && touch data/STOP_SESSION && echo "publish: arrêt demandé via ops/real/run.json (stop)"
+  fi
+fi
 for i in 1 2 3 4 5; do
   git fetch -q origin "$BRANCH" || { sleep 8; continue; }
   git reset -q --mixed "origin/$BRANCH"

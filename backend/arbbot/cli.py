@@ -59,9 +59,16 @@ def ghost(minutes: float = typer.Option(0, help="0 = run until Ctrl-C"),
         run_tag = tag or time.strftime("%Y%m%d-%H%M%S", time.gmtime(started_at))
         next_snap = started_at + snapshot_every * 60
         files: dict[str, str] = {}
+        stop_file = rt.settings.data_dir / "STOP_SESSION"  # remote/operator stop: finish the loop, write the final report
+        if stop_file.exists():
+            stop_file.unlink()
         try:
             while t_end is None or time.time() < t_end:
                 await asyncio.sleep(5)
+                if stop_file.exists():
+                    typer.echo("stop requested (data/STOP_SESSION): ending the session, final report follows")
+                    stop_file.unlink()
+                    break
                 started_block = started_block or rt.last_block
                 st = rt.status()
                 typer.echo(f"block {rt.last_block} | {st['risk']['status']} | candidates {st['detector'].get('candidates')} "

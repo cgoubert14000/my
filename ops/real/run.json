@@ -1,9 +1,11 @@
 {
   "_comment": "Changer ce fichier (et pousser) déclenche une session de marché réel sur GitHub Actions (lecture seule, aucune clé). continuous=true : chaque session relance la suivante ; mettre false pour arrêter la chaîne.",
   "chain": "base",
-  "minutes": 340,
+  "minutes": 330,
   "max_rps": 12,
   "run": 9,
-  "note": "run 9 : univers élargi (listes de jetons + énumération Aerodrome/Slipstream, ≤1 500 pools), mémoire inter-sessions des observations, enchaînement continu (340 min par session)",
-  "continuous": true
+  "note": "run 9 : univers élargi (listes + énumération Aerodrome/Slipstream pré-filtrée par solde, cache d'univers), mémoire inter-sessions, enchaînement continu (330 min/session). Arrêt : stop=true (toutes) ou stop_run_id=<id> (une session), continuous=false (pas de suivante).",
+  "continuous": true,
+  "stop": false,
+  "stop_run_id": ""
 }

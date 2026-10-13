@@ -84,7 +84,9 @@ class Runtime:
                              self.chain.multicall3)
         self.indexer = PoolIndexer(self.rpc, self.chain, use_tokenlists=settings.discovery_tokenlists,
                                    factory_enum=settings.discovery_factory_enum, factory_enum_max=settings.discovery_factory_enum_max,
-                                   min_pool_usd=settings.discovery_min_pool_usd, max_pools=settings.discovery_max_pools)
+                                   min_pool_usd=settings.discovery_min_pool_usd, max_pools=settings.discovery_max_pools,
+                                   max_tokens=settings.discovery_max_tokens, cache_path=settings.data_dir / f"universe_{self.chain.id}.json",
+                                   cache_max_age_s=settings.discovery_cache_max_age_s)
         self.pools = []
         self.routes = []
         self.sim_fail_counts: dict[str, int] = {}

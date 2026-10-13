@@ -48,6 +48,8 @@ class Settings(BaseSettings):
     discovery_min_pool_usd: float = 10_000.0  # pools shallower than this are not watched (re-measured at each start)
     discovery_max_pools: int = 1_500  # deepest pools kept (RPC budget on public endpoints)
     discovery_max_routes: int = 1_500_000
+    discovery_max_tokens: int = 1_200  # candidate tokens (lists first, then factory-enumerated) — RPC budget
+    discovery_cache_max_age_s: float = 3600.0  # data/universe_<chain>.json written by verify-chain, reused by ghost/serve
     # ghost observations (reliability model inputs) exported/imported across sessions — the CI runner is ephemeral,
     # the maturity decision must not restart from zero at every session. Empty ⇒ docs/reports/real/observations_<chain>.jsonl
     observations_file: str = ""

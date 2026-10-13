@@ -236,7 +236,9 @@ async def verify_chain(settings: Settings, *, discover_pools: bool = True, write
                                           factory_enum=settings.discovery_factory_enum,
                                           factory_enum_max=settings.discovery_factory_enum_max,
                                           min_pool_usd=settings.discovery_min_pool_usd,
-                                          max_pools=settings.discovery_max_pools).discover()
+                                          max_pools=settings.discovery_max_pools, max_tokens=settings.discovery_max_tokens,
+                                          cache_path=settings.data_dir / f"universe_{chain.id}.json",
+                                          cache_max_age_s=settings.discovery_cache_max_age_s).discover()
                 by_dex: dict[str, int] = {}
                 for p in pools:
                     by_dex[p.dex] = by_dex.get(p.dex, 0) + 1

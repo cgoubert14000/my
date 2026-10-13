@@ -85,6 +85,7 @@ jobs:
 
       - name: Session de marché réel (pré-vol RPC → verify-chain → ghost)
         id: session
+        timeout-minutes: 350
         env:
           PYTHONUNBUFFERED: "1"
           ARB_SNAPSHOT_HOOK: "bash ops/real/publish.sh"
@@ -127,7 +128,7 @@ jobs:
         run: |
           git fetch -q origin "${GITHUB_REF_NAME}"
           cfg="$(git show "origin/${GITHUB_REF_NAME}:ops/real/run.json" 2>/dev/null || cat ops/real/run.json)"
-          cont="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(str(json.load(sys.stdin).get("continuous", False)).lower())')"
+          cont="$(printf '%s' "$cfg" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(str(bool(d.get("continuous", False)) and not bool(d.get("stop", False))).lower())')"
           minutes="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("minutes", 340))')"
           chain="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("chain", "base"))')"
           rps="$(printf '%s' "$cfg" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("max_rps", 12))')"

@@ -18,6 +18,7 @@ import logging
 import math
 import pathlib
 import re
+import time
 from itertools import combinations
 
 from eth_utils import to_checksum_address
@@ -47,8 +48,11 @@ class DiscoveryStats(dict):
 
 class PoolIndexer:
     def __init__(self, rpc: RpcClient, chain: ChainConfig, *, use_tokenlists: bool = True, factory_enum: bool = True,
-                 factory_enum_max: int = 60_000, min_pool_usd: float = 0.0, max_pools: int = 0):
-        """min_pool_usd=0 / max_pools=0 ⇒ no depth filtering (devnet, verification). The runtime passes Settings."""
+                 factory_enum_max: int = 60_000, min_pool_usd: float = 0.0, max_pools: int = 0, max_tokens: int = 1_200,
+                 cache_path: pathlib.Path | None = None, cache_max_age_s: float = 3600.0):
+        """min_pool_usd=0 / max_pools=0 ⇒ no depth filtering (devnet, verification). The runtime passes Settings.
+        cache_path: universe written after a full discovery and reused (depths re-measured, never trusted) while younger
+        than cache_max_age_s — verify-chain and the ghost/serve process that follows it share one discovery."""
         self.rpc = rpc
         self.chain = chain
         self.use_tokenlists = use_tokenlists
@@ -56,9 +60,13 @@ class PoolIndexer:
         self.factory_enum_max = factory_enum_max
         self.min_pool_usd = min_pool_usd
         self.max_pools = max_pools
+        self.max_tokens = max_tokens
+        self.cache_path = cache_path
+        self.cache_max_age_s = cache_max_age_s
         self.pools: dict[str, Pool] = {}
         self.stats = DiscoveryStats()
         self.token_sources: dict[str, str] = {}  # address → provenance
+        self._last_prices: dict[str, float] = {}  # hub address → USD, filled by the first depth measurement
 
     # ------------------------------------------------------------------ helpers
 
@@ -77,9 +85,77 @@ class PoolIndexer:
             pools = self._from_static()
             pools = await self._load_metadata(pools)
         else:
-            pools = await self._from_universe()
+            pools = await self._from_cache()
+            if pools is None:
+                pools = await self._from_universe()
+                self._write_cache(pools)
         self.pools = {p.address.lower(): p for p in pools}
         log.info("indexed %d pools on %s", len(pools), self.chain.name)
+        return pools
+
+    # ------------------------------------------------------------------ universe cache (verify-chain → ghost/serve)
+
+    def _write_cache(self, pools: list[Pool]) -> None:
+        if not self.cache_path:
+            return
+        try:
+            doc = {
+                "chain_id": self.chain.chain_id, "ts": time.time(),
+                "tokens": [{"key": k, "address": t.address, "decimals": t.decimals, "source": self.token_sources.get(t.address.lower(), "")}
+                           for k, t in self.chain.tokens.items()],
+                "pools": [{"address": p.address, "dex": p.dex, "kind": p.kind.name, "token0": p.token0.address, "token1": p.token1.address,
+                           "fee_ppm": p.fee_ppm, "stable": p.stable, "tick_spacing": p.tick_spacing, "source": p.source} for p in pools],
+                "stats": dict(self.stats),
+            }
+            self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+            self.cache_path.write_text(json.dumps(doc))
+        except (OSError, TypeError, ValueError) as e:  # pragma: no cover
+            log.warning("universe cache not written: %s", e)
+
+    async def _from_cache(self) -> list[Pool] | None:
+        """Rebuild the universe discovered by a previous process (< cache_max_age_s) — depths are re-measured and the
+        same floor/cap applied, so the cache only saves the factory/pair discovery requests, never the measurement."""
+        f = self.cache_path
+        if not f or not f.exists():
+            return None
+        try:
+            doc = json.loads(f.read_text())
+        except (OSError, ValueError):
+            return None
+        age = time.time() - float(doc.get("ts", 0))
+        if int(doc.get("chain_id", -1)) != self.chain.chain_id or age > self.cache_max_age_s:
+            return None
+        hubs = {t.address.lower(): t for t in self.chain.hub_tokens()}
+        for t in doc.get("tokens", []):
+            if t["address"].lower() not in hubs:
+                self._register_token(t["address"], t["key"], int(t["decimals"]), t.get("source", "cache"))
+        for a in hubs:
+            self.token_sources[a] = "chain config (verified, see ADDRESS_SOURCES)"
+        pools: list[Pool] = []
+        for d in doc.get("pools", []):
+            t0, t1 = self.chain.token_by_address(d["token0"]), self.chain.token_by_address(d["token1"])
+            if not t0 or not t1:
+                continue
+            pools.append(Pool(address=to_checksum_address(d["address"]), dex=d["dex"], kind=DexKind[d["kind"]], token0=t0, token1=t1,
+                              fee_ppm=int(d["fee_ppm"]), stable=bool(d.get("stable")), tick_spacing=int(d.get("tick_spacing", 0)),
+                              source=d.get("source", "")))
+        saved = doc.get("stats", {})
+        for k in ("tokens_config", "tokens_tokenlist", "tokens_factory_enum", "tokens_rejected", "tokens_total", "pools_enumerated",
+                  "pools_candidates", "per_dex"):
+            if k in saved:
+                self.stats[k] = saved[k]
+        self.stats["min_pool_usd"], self.stats["max_pools"] = self.min_pool_usd, self.max_pools
+        self.stats["notes"] = list(saved.get("notes", [])) + [f"universe reloaded from {f.name} (age {age:.0f} s); depths re-measured now"]
+        pools = await self._measure_and_filter(pools, hubs)
+        per_dex: dict[str, dict] = self.stats["per_dex"]
+        for d in per_dex.values():
+            d.pop("kept", None)
+        for p in pools:
+            per_dex.setdefault(p.dex, {})["kept"] = per_dex.get(p.dex, {}).get("kept", 0) + 1
+        self.stats["pools_kept"] = len(pools)
+        self.chain.extra["token_sources"] = dict(self.token_sources)
+        self.chain.extra["discovery"] = dict(self.stats)
+        log.info("universe reloaded from cache (%d pools after re-measurement)", len(pools))
         return pools
 
     # ------------------------------------------------------------------ devnet
@@ -121,7 +197,7 @@ class PoolIndexer:
             return []
         return [t for t in doc.get("tokens", []) if _ADDR.match(str(t.get("address", "")))]
 
-    async def _enumerate_factories(self, hubs: dict[str, Token]) -> list[tuple[DexConfig, str, str, str]]:
+    async def _enumerate_factories(self, hubs: dict[str, Token], prices: dict[str, float]) -> list[tuple[DexConfig, str, str, str]]:
         """(dex, pool, token0, token1) for every enumerable factory pool that has a hub on one side."""
         out: list[tuple[DexConfig, str, str, str]] = []
         for dex in self.chain.dexes:
@@ -142,7 +218,7 @@ class PoolIndexer:
                 calls.append((a, encode_call("token0()")))
                 calls.append((a, encode_call("token1()")))
             res = await self._mc(calls)
-            kept = 0
+            with_hub: list[tuple[str, str, str]] = []
             for i, a in enumerate(addrs):
                 ok0, d0 = res[2 * i]
                 ok1, d1 = res[2 * i + 1]
@@ -151,11 +227,27 @@ class PoolIndexer:
                 t0 = decode_result(["address"], d0)[0].lower()
                 t1 = decode_result(["address"], d1)[0].lower()
                 if t0 in hubs or t1 in hubs:
-                    out.append((dex, a, t0, t1))
-                    kept += 1
+                    with_hub.append((a, t0, t1))
+            # pre-screen on the hub-side balance alone (one balanceOf per pool): factories hold tens of thousands of
+            # abandoned long-tail pools whose tokens would otherwise cost millions of getPool calls downstream
+            bal_calls = []
+            for a, t0, t1 in with_hub:
+                h = t0 if t0 in hubs else t1
+                bal_calls.append((hubs[h].address, encode_call("balanceOf(address)", [a])))
+            bres = await self._mc(bal_calls)
+            kept = 0
+            for (a, t0, t1), (okb, db) in zip(with_hub, bres):
+                h = t0 if t0 in hubs else t1
+                bal = int.from_bytes(db[:32], "big") if okb and len(db) >= 32 else 0
+                usd = 2.0 * bal / 10**hubs[h].decimals * prices.get(h, 0.0)
+                if self.min_pool_usd and usd < self.min_pool_usd:
+                    continue
+                out.append((dex, a, t0, t1))
+                kept += 1
             self.stats["per_dex"].setdefault(dex.id, {})["enumerated"] = n
-            self.stats["per_dex"][dex.id]["with_hub_side"] = kept
-            log.info("%s: %d pools enumerated, %d with a hub side", dex.id, n, kept)
+            self.stats["per_dex"][dex.id]["with_hub_side"] = len(with_hub)
+            self.stats["per_dex"][dex.id]["deep_enough"] = kept
+            log.info("%s: %d pools enumerated, %d with a hub side, %d deep enough (≥ %.0f $)", dex.id, n, len(with_hub), kept, self.min_pool_usd)
         self.stats["pools_enumerated"] = len(out)
         return out
 
@@ -214,7 +306,11 @@ class PoolIndexer:
             if a not in hubs and a not in candidates:
                 candidates[a] = (str(t.get("symbol", ""))[:16], t.get("decimals"), "tokenlist: " + "; ".join(t.get("sources", [])))
         self.stats["tokens_tokenlist"] = len(candidates)
-        enumerated = await self._enumerate_factories(hubs)
+        # hub×hub pools first: they give the USD prices every depth measurement below relies on
+        hub_list = list(hubs.values())
+        hub_pools = await self._load_metadata(await self._pools_for_pairs(list(combinations(hub_list, 2))))
+        prices = await self._hub_prices(hub_pools, hubs)
+        enumerated = await self._enumerate_factories(hubs, prices)
         n_enum_tokens = 0
         for dex, pool, t0, t1 in enumerated:
             for a in (t0, t1):
@@ -222,6 +318,9 @@ class PoolIndexer:
                     candidates[a] = ("", None, f"on-chain: {dex.id} factory allPools → pool {pool}")
                     n_enum_tokens += 1
         self.stats["tokens_factory_enum"] = n_enum_tokens
+        if self.max_tokens and len(candidates) > self.max_tokens:  # RPC budget: list tokens first, then enumerated ones
+            self.stats["notes"].append(f"{len(candidates)} candidate tokens capped to {self.max_tokens}")
+            candidates = dict(list(candidates.items())[: self.max_tokens])
         # 2) validate tokens on-chain (decimals/symbol) and register them ------------------------------------------
         meta = await self._token_metadata([to_checksum_address(a) for a in candidates])
         tokens: dict[str, Token] = dict(hubs)
@@ -243,8 +342,9 @@ class PoolIndexer:
                 pools[addr.lower()] = Pool(address=addr, dex=dex.id, kind=dex.kind, token0=tokens[t0], token1=tokens[t1],
                                            fee_ppm=0 if dex.kind == DexKind.SOLIDLY else dex.fee_ppm, stable=False,
                                            tick_spacing=0, source=f"{dex.id} allPools")
-        hub_list = list(hubs.values())
-        pairs: list[tuple[Token, Token]] = list(combinations(hub_list, 2))
+        for p in hub_pools:
+            pools.setdefault(p.address.lower(), p)
+        pairs: list[tuple[Token, Token]] = []
         for a, tok in tokens.items():
             if a in hubs:
                 continue
@@ -366,10 +466,22 @@ class PoolIndexer:
             p.balance1 = int.from_bytes(d1[:32], "big") if ok1 and len(d1) >= 32 else 0
             p.balances_block = 1  # "measured once" — the collector refreshes with the real block number
         self.stats["pools_measured"] = len(pools)
+        prices = self._prices_from(pools, hubs, stables, res[len(calls):], price_idx)
+        return self._filter_by_depth(pools, prices)
+
+    async def _hub_prices(self, hub_pools: list[Pool], hubs: dict[str, Token]) -> dict[str, float]:
+        """USD prices of the hubs from the hub/stable pools (balances + slot0/reserves); stables = 1 by definition."""
+        if not hub_pools:
+            return {a: 1.0 for a in self.chain.stable_addresses() if a in hubs}
+        await self._measure_and_filter(hub_pools, hubs)  # fills balances of the hub pools and self._last_prices
+        self.stats["pools_below_min_depth"] = 0  # the hub pools are measured again with the whole universe
+        return dict(self._last_prices)
+
+    def _prices_from(self, pools: list[Pool], hubs: dict[str, Token], stables: set[str], price_res, price_idx: list[int]) -> dict[str, float]:
         # hub prices in USD: stables = 1; others from the hub/stable pool holding the most stable units
         prices: dict[str, float] = {a: 1.0 for a in stables if a in hubs}
         best_depth: dict[str, float] = {}
-        for (ok, d), i in zip(res[len(calls):], price_idx):
+        for (ok, d), i in zip(price_res, price_idx):
             p = pools[i]
             if not ok or len(d) < 64:
                 continue
@@ -397,7 +509,13 @@ class PoolIndexer:
                 continue
             if depth > best_depth.get(tok, 0.0):
                 best_depth[tok], prices[tok] = depth, px
+        for a, v in self._last_prices.items():  # keep prices found earlier (hub pools) when this batch has none
+            prices.setdefault(a, v)
+        self._last_prices = dict(prices)
         self.stats["hub_prices"] = {hubs[a].symbol: round(v, 6) for a, v in prices.items() if a in hubs}
+        return prices
+
+    def _filter_by_depth(self, pools: list[Pool], prices: dict[str, float]) -> list[Pool]:
         # depth in USD: hub-side balances valued (both sides when both are hubs)
         kept: list[Pool] = []
         for p in pools:
