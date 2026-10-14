@@ -114,10 +114,14 @@ def backtest(instrument: str = "XAUUSD", start: str = "2022-01-01", end: str = "
     keys = [k for k in [ev["selected"]["key"] if ev["selected"] else None, VIDEO_CLAIM.key()] if k]
     for k in dict.fromkeys(keys):
         p = _variant_from_key(k)
-        for mult in (1.0, 1.5, 2.0):
+        for mult in (0.0, 1.0, 1.5, 2.0):   # 0 = sans aucun coût : mesure l'avantage brut de la règle elle-même
             c2 = Costs(costs.spread * mult, costs.slippage * mult, costs.min_risk)
             tr = run_variants(sessions, [p], c2)[k]
-            sens.append({"key": k, "spread": round(c2.spread, 6), "slippage": round(c2.slippage, 6), "summary": summarize(tr)})
+            sens.append({"key": k, "spread": round(c2.spread, 6), "slippage": round(c2.slippage, 6), "min_risk": round(c2.min_risk, 6), "summary": summarize(tr)})
+        for mr in (5.0, 10.0):             # stop minimal = 5× / 10× le spread : on refuse les stops trop serrés pour être tradés
+            c2 = Costs(costs.spread, costs.slippage, costs.spread * mr)
+            tr = run_variants(sessions, [p], c2)[k]
+            sens.append({"key": k, "spread": round(c2.spread, 6), "slippage": round(c2.slippage, 6), "min_risk": round(c2.min_risk, 6), "summary": summarize(tr)})
     tag = tag or dt.datetime.now(dt.UTC).strftime("%Y%m%d-%H%M%S")
     note = ("DONNÉES SYNTHÉTIQUES (marche aléatoire) : démonstration du pipeline uniquement, aucun résultat n'a de valeur." if synthetic
             else f"Source : {LAST_SOURCE['note']} (téléchargement du {dt.date.today().isoformat()}).")

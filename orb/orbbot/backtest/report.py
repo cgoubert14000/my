@@ -212,11 +212,13 @@ def to_markdown(ev: dict, instrument: str, costs: dict, sensitivity: list[dict] 
         L += [_row_line(r) for r in ev["best_oos_hindsight"]]
         L.append("")
     if sensitivity:
-        L += ["## Sensibilité aux coûts (variante sélectionnée et variante « vidéo »)", "",
-              "| variante | spread | slippage | trades | win rate | PF | espérance (R) |", "|---|---|---|---|---|---|---|"]
+        L += ["## Sensibilité aux coûts et au stop minimal (variante sélectionnée et variante « vidéo »)", "",
+              "Ligne « spread 0 » = aucun coût : c'est l'avantage brut de la règle ; « stop min. » = distance entrée-stop minimale acceptée "
+              "(les trades au stop plus serré sont ignorés).", "",
+              "| variante | spread | slippage | stop min. | trades | win rate | PF | espérance (R) | max DD (R) |", "|---|---|---|---|---|---|---|---|---|"]
         for s in sensitivity:
             m = s["summary"]
-            L.append(f"| `{s['key']}` | {s['spread']} | {s['slippage']} | {m['n']} | {_pct(m['win_rate'])} | {_fmt(m['profit_factor'])} | {_fmt(m['expectancy_r'], 3)} |")
+            L.append(f"| `{s['key']}` | {s['spread']} | {s['slippage']} | {s.get('min_risk', '—')} | {m['n']} | {_pct(m['win_rate'])} | {_fmt(m['profit_factor'])} | {_fmt(m['expectancy_r'], 3)} | {_fmt(m['max_drawdown_r'], 1)} |")
         L.append("")
     L += ["## Méthode", "",
           "- Bougies 1 minute BID Dukascopy (flux public), séances New York 09:30–16:00 (heure d'été/hiver gérée), journées < 200 bougies ignorées.",
