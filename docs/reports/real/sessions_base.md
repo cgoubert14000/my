@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-14T08:40:05Z)
+# Sessions de marché réel — base (généré 2026-10-14T08:43:18Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -12,8 +12,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38452875318](https://github.com/cgoubert14000/my/actions/runs/38452875318) | 2026-10-13T21:06:26+00:00 | 60 | 1519 | 251 / — / 192222 | 266 | 47798 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-14T03:43:15+00:00 | 330 | 8902 | 579 / 328 / 21606 | 130 | 2146414 | 357 | 9 / 10 | 0 / 9 | 9 / 0.1 % | APPRENTISSAGE |
-| [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T08:40:05+00:00 | 290 | 8524 | 582 / 328 / 21942 | 577 | 1087671 | 123 | 7 / 14 | 3 / 12 | 21 / 6.9 % | APPRENTISSAGE |
+| [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T08:43:18+00:00 | 293 | 8612 | 582 / 328 / 21942 | 61 | 1112111 | 141 | 7 / 14 | 3 / 12 | 21 / 6.9 % | APPRENTISSAGE |
 
-**Totaux** : 892 min, 21717 blocs, 3360850 candidats, 545 à net attendu > 0, 16 simulations réussies / 41 échouées, 3/36 étiquettes N+1 positives.
+**Totaux** : 895 min, 21805 blocs, 3385290 candidats, 563 à net attendu > 0, 16 simulations réussies / 41 échouées, 3/36 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
