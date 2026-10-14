@@ -1,8 +1,8 @@
 # Backtest ORB — XAUUSD
 
-Généré le 2026-10-14T01:51:22+00:00 · données : 1247 séances New York du 2022-01-03 au 2026-10-13 (in-sample 748 séances < 2024-11-14 ; out-of-sample 499 séances) · 1080 variantes · coûts : spread 0.3 , slippage 0.05 (unités de prix, par exécution au marché/stop).
+Généré le 2026-10-14T02:06:35+00:00 · données : 1247 séances New York du 2022-01-03 au 2026-10-13 (in-sample 748 séances < 2024-11-14 ; out-of-sample 499 séances) · 1080 variantes · coûts : spread 0.3 , slippage 0.05 (unités de prix, par exécution au marché/stop).
 
-> Source : Dukascopy 1 min BID, 2155680 bougies (1497 jours), statut téléchargement {'requested': 1497, 'downloaded': 20, 'cached': 1477} (téléchargement du 2026-10-14).
+> Source : Dukascopy 1 min BID, 2155680 bougies (1497 jours), statut téléchargement {'requested': 1497, 'cached': 1497} (téléchargement du 2026-10-14).
 
 ## Verdict : **FIABILITÉ NON DÉMONTRÉE**
 
@@ -95,16 +95,24 @@ IC bootstrap 95 % du PF (toutes périodes) : [0.33 ; 0.45] — probabilité que 
 | `R30_close_rr2_opposite_ma200_p0_n1_cut1130` | 670 / 42.5 % / 0.89 / -0.045 / 43.8 | 453 / 43.0 % / 1.07 / 0.031 / 13.6 |
 | `R30_close_rr2_opposite_ma0_p0_n2_cut1300` | 883 / 43.8 % / 0.97 / -0.013 / 36.9 | 614 / 43.3 % / 1.07 / 0.029 / 17.8 |
 
-## Sensibilité aux coûts (variante sélectionnée et variante « vidéo »)
+## Sensibilité aux coûts et au stop minimal (variante sélectionnée et variante « vidéo »)
 
-| variante | spread | slippage | trades | win rate | PF | espérance (R) |
-|---|---|---|---|---|---|---|
-| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.3 | 0.05 | 1123 | 31.2 % | 0.97 | -0.017 |
-| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.45 | 0.075 | 1123 | 29.9 % | 0.90 | -0.072 |
-| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.6 | 0.1 | 1123 | 28.9 % | 0.84 | -0.114 |
-| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.3 | 0.05 | 871 | 29.0 % | 0.38 | -0.469 |
-| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.45 | 0.075 | 871 | 24.5 % | 0.30 | -0.582 |
-| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.6 | 0.1 | 871 | 20.4 % | 0.23 | -0.689 |
+Ligne « spread 0 » = aucun coût : c'est l'avantage brut de la règle ; « stop min. » = distance entrée-stop minimale acceptée (les trades au stop plus serré sont ignorés).
+
+| variante | spread | slippage | stop min. | trades | win rate | PF | espérance (R) | max DD (R) |
+|---|---|---|---|---|---|---|---|---|
+| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.0 | 0.0 | 0.3 | 1123 | 33.1 % | 1.14 | 0.088 | 38.9 |
+| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.3 | 0.05 | 0.3 | 1123 | 31.2 % | 0.97 | -0.017 | 58.4 |
+| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.45 | 0.075 | 0.3 | 1123 | 29.9 % | 0.90 | -0.072 | 98.3 |
+| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.6 | 0.1 | 0.3 | 1123 | 28.9 % | 0.84 | -0.114 | 142.1 |
+| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.3 | 0.05 | 1.5 | 1105 | 31.1 % | 0.97 | -0.022 | 64.5 |
+| `R5_fvg_rr3_opposite_ma200_p0_n1_cut1300` | 0.3 | 0.05 | 3.0 | 946 | 33.2 % | 0.98 | -0.014 | 52.9 |
+| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.0 | 0.0 | 0.3 | 792 | 42.6 % | 0.74 | -0.149 | 120.0 |
+| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.3 | 0.05 | 0.3 | 871 | 29.0 % | 0.38 | -0.469 | 409.4 |
+| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.45 | 0.075 | 0.3 | 871 | 24.5 % | 0.30 | -0.582 | 507.0 |
+| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.6 | 0.1 | 0.3 | 871 | 20.4 % | 0.23 | -0.689 | 600.2 |
+| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.3 | 0.05 | 1.5 | 301 | 43.9 % | 0.77 | -0.134 | 41.2 |
+| `R30_fvg_rr1_structure_ma0_p0_n1_cut1130` | 0.3 | 0.05 | 3.0 | 120 | 42.5 % | 0.73 | -0.156 | 20.7 |
 
 ## Méthode
 
