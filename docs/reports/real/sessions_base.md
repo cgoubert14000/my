@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-14T14:13:02Z)
+# Sessions de marché réel — base (généré 2026-10-14T14:16:16Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -13,8 +13,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-14T03:43:15+00:00 | 330 | 8902 | 579 / 328 / 21606 | 130 | 2146414 | 357 | 9 / 10 | 0 / 9 | 9 / 0.1 % | APPRENTISSAGE |
 | [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T09:20:18+00:00 | 330 | 9662 | 582 / 328 / 21942 | 150 | 1259229 | 141 | 7 / 14 | 3 / 12 | 21 / 6.9 % | APPRENTISSAGE |
-| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T14:13:02+00:00 | 287 | 8439 | 584 / 329 / 21950 | 261 | 2228504 | 3480 | 91 / 54 | 23 / 107 | 128 / 16.1 % | FIABILITÉ INSUFFISANTE |
+| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T14:16:16+00:00 | 290 | 8529 | 584 / 329 / 21950 | 304 | 2270974 | 3480 | 91 / 54 | 23 / 107 | 128 / 16.1 % | FIABILITÉ INSUFFISANTE |
 
-**Totaux** : 1219 min, 31294 blocs, 5760912 candidats, 4043 à net attendu > 0, 107 simulations réussies / 95 échouées, 26/143 étiquettes N+1 positives.
+**Totaux** : 1222 min, 31384 blocs, 5803382 candidats, 4043 à net attendu > 0, 107 simulations réussies / 95 échouées, 26/143 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
