@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-14T14:49:12Z)
+# Sessions de marché réel — base (généré 2026-10-14T14:52:29Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -13,8 +13,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-14T03:43:15+00:00 | 330 | 8902 | 579 / 328 / 21606 | 130 | 2146414 | 357 | 9 / 10 | 0 / 9 | 9 / 0.1 % | APPRENTISSAGE |
 | [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T09:20:18+00:00 | 330 | 9662 | 582 / 328 / 21942 | 150 | 1259229 | 141 | 7 / 14 | 3 / 12 | 21 / 6.9 % | APPRENTISSAGE |
-| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T14:49:12+00:00 | 323 | 9453 | 584 / 329 / 21950 | 105 | 2600083 | 3977 | 93 / 71 | 26 / 114 | 135 / 17.3 % | FIABILITÉ INSUFFISANTE |
+| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T14:52:28+00:00 | 326 | 9544 | 584 / 329 / 21950 | 123 | 2621364 | 3992 | 93 / 77 | 26 / 116 | 137 / 17.0 % | FIABILITÉ INSUFFISANTE |
 
-**Totaux** : 1255 min, 32308 blocs, 6132491 candidats, 4540 à net attendu > 0, 109 simulations réussies / 112 échouées, 29/150 étiquettes N+1 positives.
+**Totaux** : 1258 min, 32399 blocs, 6153772 candidats, 4555 à net attendu > 0, 109 simulations réussies / 118 échouées, 29/152 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
