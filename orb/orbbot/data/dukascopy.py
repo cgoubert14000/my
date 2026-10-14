@@ -135,30 +135,39 @@ def fetch_day(client: httpx.Client, instrument: str, day: dt.date, root: pathlib
     return pd.DataFrame(columns=COLUMNS)
 
 
-def load_minutes(instrument: str, start: dt.date, end: dt.date, root: pathlib.Path, progress: bool = False) -> pd.DataFrame:
-    """Bougies 1 min BID entre `start` et `end` inclus (UTC), téléchargées si absentes du cache."""
+def load_minutes(instrument: str, start: dt.date, end: dt.date, root: pathlib.Path, progress: bool = False,
+                 max_seconds: float = 2400.0, newest_first: bool = True) -> pd.DataFrame:
+    """Bougies 1 min BID entre `start` et `end` inclus (UTC), téléchargées si absentes du cache.
+    Budget de temps `max_seconds` : au-delà, on s'arrête et on garde ce qui est acquis (couverture rapportée dans
+    LAST_STATS) ; les jours sont parcourus du plus récent au plus ancien pour que l'historique obtenu soit contigu."""
     if instrument not in INSTRUMENTS:
         raise KeyError(f"instrument inconnu {instrument} (connus : {', '.join(INSTRUMENTS)})")
     frames: list[pd.DataFrame] = []
-    day = start
-    n = 0
-    stats: dict = {"requested": 0}
     LAST_STATS.clear()
-    LAST_STATS.update(stats)
+    LAST_STATS.update({"requested": 0})
+    days = [start + dt.timedelta(days=i) for i in range((end - start).days + 1) if (start + dt.timedelta(days=i)).weekday() != 5]
+    if newest_first:
+        days.reverse()
+    t0 = time.time()
     with httpx.Client(headers=HEADERS, follow_redirects=True, http2=False) as client:
-        while day <= end:
-            if day.weekday() != 5:  # samedi : aucune donnée ; dimanche : ouverture asiatique (on garde)
-                LAST_STATS["requested"] += 1
-                df = fetch_day(client, instrument, day, root, stats=LAST_STATS)
-                if not df.empty:
-                    frames.append(df)
-                if LAST_STATS.get("unavailable", 0) >= 25 and LAST_STATS.get("downloaded", 0) == 0 and LAST_STATS.get("cached", 0) == 0:
-                    log.error("%s: 25 jours consécutifs indisponibles sans aucun succès — source probablement bloquée, arrêt", instrument)
-                    break
-            n += 1
+        for n, day in enumerate(days, 1):
+            LAST_STATS["requested"] += 1
+            # source défaillante : moins d'essais pour ne pas consommer tout le budget en attentes
+            bad = LAST_STATS.get("unavailable", 0)
+            retries = 4 if bad < 10 else 2
+            df = fetch_day(client, instrument, day, root, retries=retries, stats=LAST_STATS)
+            if not df.empty:
+                frames.append(df)
+            if bad >= 25 and LAST_STATS.get("downloaded", 0) == 0 and LAST_STATS.get("cached", 0) == 0:
+                log.error("%s: 25 jours indisponibles sans aucun succès — source probablement bloquée, arrêt", instrument)
+                LAST_STATS["stopped"] = "source bloquée"
+                break
+            if time.time() - t0 > max_seconds:
+                log.error("%s: budget de temps épuisé après %d jours (%s)", instrument, n, LAST_STATS)
+                LAST_STATS["stopped"] = f"budget de temps ({int(max_seconds)} s) épuisé au jour {day}"
+                break
             if progress and n % 50 == 0:
-                print(f"  {instrument}: {day} ({sum(len(f) for f in frames)} bougies ; {LAST_STATS})", flush=True)
-            day += dt.timedelta(days=1)
+                print(f"  {instrument}: {day} ({sum(len(f) for f in frames)} bougies ; {int(time.time() - t0)} s ; {LAST_STATS})", flush=True)
     if not frames:
         return pd.DataFrame(columns=COLUMNS)
     out = pd.concat(frames).sort_index()
