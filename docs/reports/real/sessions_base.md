@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-14T12:42:39Z)
+# Sessions de marché réel — base (généré 2026-10-14T12:45:51Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -13,8 +13,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-14T03:43:15+00:00 | 330 | 8902 | 579 / 328 / 21606 | 130 | 2146414 | 357 | 9 / 10 | 0 / 9 | 9 / 0.1 % | APPRENTISSAGE |
 | [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T09:20:18+00:00 | 330 | 9662 | 582 / 328 / 21942 | 150 | 1259229 | 141 | 7 / 14 | 3 / 12 | 21 / 6.9 % | APPRENTISSAGE |
-| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T12:42:39+00:00 | 196 | 5845 | 584 / 329 / 21950 | 81 | 1423515 | 2336 | 48 / 27 | 12 / 58 | 79 / 13.9 % | FIABILITÉ INSUFFISANTE |
+| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T12:45:51+00:00 | 200 | 5938 | 584 / 329 / 21950 | 288 | 1441907 | 2336 | 48 / 27 | 12 / 58 | 79 / 13.9 % | FIABILITÉ INSUFFISANTE |
 
-**Totaux** : 1128 min, 28700 blocs, 4955923 candidats, 2899 à net attendu > 0, 64 simulations réussies / 68 échouées, 15/94 étiquettes N+1 positives.
+**Totaux** : 1132 min, 28793 blocs, 4974315 candidats, 2899 à net attendu > 0, 64 simulations réussies / 68 échouées, 15/94 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
