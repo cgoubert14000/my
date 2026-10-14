@@ -18592,3 +18592,30 @@ block 52579994 | APPRENTISSAGE | candidates 2145290 | positive 357 | ghost {'pen
 block 52579995 | APPRENTISSAGE | candidates 2145405 | positive 357 | ghost {'pending': 0, 'labeled': 9, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=9 | rpc err 801 p50 232 ms
 2026-10-14 03:42:39,642 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
 2026-10-14 03:42:39,646 WARNING arbbot.rpc: rpc error () → switching to https://base.drpc.org
+2026-10-14 03:42:40,989 WARNING arbbot.rpc: rpc error (Request timeout on the free plan, please upgrade to paid plan) → switching to https://base-mainnet.public.blastapi.io
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (831f293)
+2026-10-14 03:42:41,854 INFO arbbot.collector: pool 0x82321f3BEB69f503380D6B233857d5C43562e2D0 (aerodrome_slipstream) fee changed 3020 → 3016 ppm
+2026-10-14 03:42:41,855 INFO arbbot.collector: pool 0xB099C658e784b41EE435d48a8eb67e8f27285C93 (aerodrome_slipstream) fee changed 3255 → 3204 ppm
+2026-10-14 03:42:41,857 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 430 → 100 ppm
+2026-10-14 03:42:41,862 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 127 → 118 ppm
+2026-10-14 03:42:41,863 INFO arbbot.collector: pool 0x50F8F7fFBD70c6C87b1668EEe4E03F5AC057DE3F (aerodrome_slipstream) fee changed 9508 → 9507 ppm
+2026-10-14 03:42:42,456 WARNING arbbot.collector: ws disconnected (sent 1011 (internal error) keepalive ping timeout; no close frame received); reconnecting in 1.0s
+2026-10-14 03:42:42,886 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 424 → 436 ppm
+2026-10-14 03:42:42,888 INFO arbbot.collector: pool 0xB099C658e784b41EE435d48a8eb67e8f27285C93 (aerodrome_slipstream) fee changed 3204 → 3216 ppm
+2026-10-14 03:42:42,890 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 2609 → 2606 ppm
+2026-10-14 03:42:42,893 INFO arbbot.collector: pool 0x46D710c35BdfB800a18A820712310048Ef8B5256 (aerodrome_slipstream) fee changed 2546 → 2542 ppm
+2026-10-14 03:42:42,896 INFO arbbot.collector: pool 0x50F8F7fFBD70c6C87b1668EEe4E03F5AC057DE3F (aerodrome_slipstream) fee changed 9507 → 9500 ppm
+block 52579996 | APPRENTISSAGE | candidates 2145518 | positive 357 | ghost {'pending': 0, 'labeled': 9, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=9 | rpc err 804 p50 254 ms
+2026-10-14 03:42:48,103 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 594 → 609 ppm
+2026-10-14 03:42:49,442 INFO arbbot.collector: pool 0xB099C658e784b41EE435d48a8eb67e8f27285C93 (aerodrome_slipstream) fee changed 3216 → 3189 ppm
+2026-10-14 03:42:49,444 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 424 ppm
+2026-10-14 03:42:49,448 INFO arbbot.collector: pool 0x46D710c35BdfB800a18A820712310048Ef8B5256 (aerodrome_slipstream) fee changed 2542 → 2540 ppm
+2026-10-14 03:42:51,388 INFO arbbot.collector: pool 0xB099C658e784b41EE435d48a8eb67e8f27285C93 (aerodrome_slipstream) fee changed 3189 → 3279 ppm
+2026-10-14 03:42:51,390 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 424 → 100 ppm
+block 52580012 | APPRENTISSAGE | candidates 2145966 | positive 357 | ghost {'pending': 0, 'labeled': 9, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=9 | rpc err 804 p50 240 ms
+2026-10-14 03:42:53,432 INFO arbbot.collector: pool 0xB099C658e784b41EE435d48a8eb67e8f27285C93 (aerodrome_slipstream) fee changed 3279 → 3216 ppm
+2026-10-14 03:42:53,434 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 421 ppm
+2026-10-14 03:42:55,437 INFO arbbot.collector: pool 0xB099C658e784b41EE435d48a8eb67e8f27285C93 (aerodrome_slipstream) fee changed 3216 → 3231 ppm
+2026-10-14 03:42:55,439 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 421 → 100 ppm
+block 52580014 | APPRENTISSAGE | candidates 2146414 | positive 357 | ghost {'pending': 0, 'labeled': 9, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=9 | rpc err 804 p50 235 ms
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_38475616089.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_38475616089.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_38475616089_opportunities.csv.gz"}
