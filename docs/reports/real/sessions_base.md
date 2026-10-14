@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-14T04:02:17Z)
+# Sessions de marché réel — base (généré 2026-10-14T04:05:23Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -12,8 +12,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38452875318](https://github.com/cgoubert14000/my/actions/runs/38452875318) | 2026-10-13T21:06:26+00:00 | 60 | 1519 | 251 / — / 192222 | 266 | 47798 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-14T03:43:15+00:00 | 330 | 8902 | 579 / 328 / 21606 | 130 | 2146414 | 357 | 9 / 10 | 0 / 9 | 9 / 0.1 % | APPRENTISSAGE |
-| [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T04:02:17+00:00 | 12 | 365 | 582 / 328 / 21942 | 238 | 66686 | 0 | 0 / 0 | 0 / 0 | 9 / 0.1 % | APPRENTISSAGE |
+| [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T04:05:22+00:00 | 15 | 458 | 582 / 328 / 21942 | 313 | 83032 | 0 | 0 / 0 | 0 / 0 | 9 / 0.1 % | APPRENTISSAGE |
 
-**Totaux** : 614 min, 13558 blocs, 2339865 candidats, 422 à net attendu > 0, 9 simulations réussies / 27 échouées, 0/24 étiquettes N+1 positives.
+**Totaux** : 617 min, 13651 blocs, 2356211 candidats, 422 à net attendu > 0, 9 simulations réussies / 27 échouées, 0/24 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
