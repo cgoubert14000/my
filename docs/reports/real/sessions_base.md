@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-14T09:53:44Z)
+# Sessions de marché réel — base (généré 2026-10-14T09:56:50Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -13,8 +13,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-14T03:43:15+00:00 | 330 | 8902 | 579 / 328 / 21606 | 130 | 2146414 | 357 | 9 / 10 | 0 / 9 | 9 / 0.1 % | APPRENTISSAGE |
 | [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T09:20:18+00:00 | 330 | 9662 | 582 / 328 / 21942 | 150 | 1259229 | 141 | 7 / 14 | 3 / 12 | 21 / 6.9 % | APPRENTISSAGE |
-| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T09:53:44+00:00 | 27 | 823 | 584 / 329 / 21950 | 321 | 165522 | 10 | 0 / 2 | 0 / 2 | 23 / 6.3 % | APPRENTISSAGE |
+| [38541720121](https://github.com/cgoubert14000/my/actions/runs/38541720121) | 2026-10-14T09:56:50+00:00 | 31 | 916 | 584 / 329 / 21950 | 330 | 221487 | 10 | 0 / 2 | 0 / 2 | 23 / 6.3 % | APPRENTISSAGE |
 
-**Totaux** : 960 min, 23678 blocs, 3697930 candidats, 573 à net attendu > 0, 16 simulations réussies / 43 échouées, 3/38 étiquettes N+1 positives.
+**Totaux** : 963 min, 23771 blocs, 3753895 candidats, 573 à net attendu > 0, 16 simulations réussies / 43 échouées, 3/38 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
