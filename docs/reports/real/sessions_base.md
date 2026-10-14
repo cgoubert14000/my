@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-14T04:26:58Z)
+# Sessions de marché réel — base (généré 2026-10-14T04:30:04Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -12,8 +12,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [38452875318](https://github.com/cgoubert14000/my/actions/runs/38452875318) | 2026-10-13T21:06:26+00:00 | 60 | 1519 | 251 / — / 192222 | 266 | 47798 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38473562031](https://github.com/cgoubert14000/my/actions/runs/38473562031) | 2026-10-13T22:07:31+00:00 | 6 | 169 | 579 / 328 / 21722 | 480 | 15749 | 0 | 0 / 0 | 0 / 0 | 0 / — | APPRENTISSAGE |
 | [38475616089](https://github.com/cgoubert14000/my/actions/runs/38475616089) | 2026-10-14T03:43:15+00:00 | 330 | 8902 | 579 / 328 / 21606 | 130 | 2146414 | 357 | 9 / 10 | 0 / 9 | 9 / 0.1 % | APPRENTISSAGE |
-| [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T04:26:58+00:00 | 37 | 1102 | 582 / 328 / 21942 | 347 | 276326 | 24 | 0 / 6 | 3 / 3 | 12 / 12.4 % | APPRENTISSAGE |
+| [38507809632](https://github.com/cgoubert14000/my/actions/runs/38507809632) | 2026-10-14T04:30:04+00:00 | 40 | 1192 | 582 / 328 / 21942 | 450 | 310233 | 26 | 1 / 7 | 3 / 4 | 13 / 11.4 % | APPRENTISSAGE |
 
-**Totaux** : 639 min, 14295 blocs, 2549505 candidats, 446 à net attendu > 0, 9 simulations réussies / 33 échouées, 3/27 étiquettes N+1 positives.
+**Totaux** : 642 min, 14385 blocs, 2583412 candidats, 448 à net attendu > 0, 10 simulations réussies / 34 échouées, 3/28 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
