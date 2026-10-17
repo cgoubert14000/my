@@ -8,8 +8,9 @@ echo =====================================================
 echo   Configuration securisee du bot Madame Portugais
 echo =====================================================
 echo.
-echo Le jeton ne sera pas affiche pendant que vous le collez.
+echo Le jeton sera lu automatiquement depuis le presse-papiers.
 echo Il sera conserve uniquement dans le fichier local .env.
+echo Il ne sera jamais affiche dans cette fenetre.
 echo.
 
 set "PYTHON_CMD="
@@ -38,7 +39,12 @@ echo Installation ou mise a jour du bot...
 if errorlevel 1 goto :failure
 
 echo.
-".venv\Scripts\python.exe" -m facebook_bot setup
+echo Dans Meta, creez un NOUVEAU jeton pour Madame Portugais.
+echo Cliquez sur la petite icone Copier a droite du jeton.
+echo Ne collez pas le jeton ici : laissez-le simplement dans le presse-papiers.
+echo.
+pause
+".venv\Scripts\python.exe" -m facebook_bot setup --clipboard
 if errorlevel 1 goto :failure
 
 echo.

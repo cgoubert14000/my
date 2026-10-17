@@ -5,6 +5,7 @@ import getpass
 import logging
 import shutil
 import sqlite3
+import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -78,9 +79,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--days", type=int, default=2, help="Nombre de jours à afficher (1 à 31, défaut : 2)."
     )
 
-    commands.add_parser(
+    setup_parser = commands.add_parser(
         "setup",
         help="Enregistrer un nouveau jeton de façon masquée puis vérifier la Page.",
+    )
+    setup_parser.add_argument(
+        "--clipboard",
+        action="store_true",
+        help="Lire le jeton depuis le presse-papiers Windows, puis vider celui-ci.",
     )
     commands.add_parser("doctor", help="Vérifier les dossiers, le jeton et la Page Facebook.")
     commands.add_parser("queue", help="Compter les images encore à publier.")
@@ -98,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "setup":
             env_path = args.env_file or Path.cwd() / ".env"
-            return _setup(env_path)
+            return _setup(env_path, from_clipboard=args.clipboard)
 
         config = Config.from_env(args.env_file, require_facebook=require_facebook)
         if args.command == "run":
@@ -124,20 +130,26 @@ def main(argv: list[str] | None = None) -> int:
     return 1
 
 
-def _setup(env_path: Path) -> int:
+def _setup(env_path: Path, *, from_clipboard: bool = False) -> int:
     """Vérifie puis enregistre un jeton sans jamais l'afficher dans le terminal."""
     env_path = env_path.expanduser().resolve()
     if env_path.name == ".env.example":
         raise ConfigError("Le jeton ne doit jamais être enregistré dans .env.example.")
 
     print("Configuration sécurisée de la Page Madame Portugais")
-    print("Le jeton saisi sera masqué et ne sera jamais affiché dans les logs.")
-    try:
-        prompt = "Collez le NOUVEAU jeton de Page puis appuyez sur Entrée : "
-        token = getpass.getpass(prompt).strip()
-    except (EOFError, KeyboardInterrupt):
-        print("\nConfiguration annulée.")
-        return 1
+    if from_clipboard:
+        print("Lecture du nouveau jeton depuis le presse-papiers…")
+        token = _read_clipboard_token()
+        _clear_clipboard()
+        print("✓ Presse-papiers vidé par sécurité.")
+    else:
+        print("Le jeton saisi sera masqué et ne sera jamais affiché dans les logs.")
+        try:
+            prompt = "Collez le NOUVEAU jeton de Page puis appuyez sur Entrée : "
+            token = getpass.getpass(prompt).strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nConfiguration annulée.")
+            return 1
 
     if len(token) < 40 or any(character.isspace() for character in token):
         raise ConfigError("Le jeton saisi paraît incomplet ou contient un espace.")
@@ -173,6 +185,50 @@ def _setup(env_path: Path) -> int:
     print(f"✓ Configuration enregistrée localement dans {env_path}")
     print("Vous pouvez maintenant lancer : python -m facebook_bot doctor")
     return 0
+
+
+def _read_clipboard_token() -> str:
+    if sys.platform != "win32":
+        raise ConfigError("La lecture automatique du presse-papiers est réservée à Windows.")
+    powershell = shutil.which("powershell.exe") or shutil.which("powershell")
+    if powershell is None:
+        raise ConfigError("PowerShell est introuvable ; impossible de lire le presse-papiers.")
+    try:
+        result = subprocess.run(
+            [powershell, "-NoProfile", "-NonInteractive", "-Command", "Get-Clipboard -Raw"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise ConfigError("Impossible de lire le presse-papiers Windows.") from exc
+    if result.returncode != 0:
+        raise ConfigError("Impossible de lire le presse-papiers Windows.")
+    token = result.stdout.strip()
+    if not token:
+        raise ConfigError(
+            "Le presse-papiers est vide. Cliquez d'abord sur l'icône Copier de Meta."
+        )
+    return token
+
+
+def _clear_clipboard() -> None:
+    if sys.platform != "win32":
+        return
+    powershell = shutil.which("powershell.exe") or shutil.which("powershell")
+    if powershell is None:
+        return
+    try:
+        subprocess.run(
+            [powershell, "-NoProfile", "-NonInteractive", "-Command", "Set-Clipboard -Value ''"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        pass
 
 
 def _show_schedule(config: Config, days: int) -> int:

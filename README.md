@@ -65,7 +65,7 @@ Après avoir extrait ou cloné ce projet, double-cliquez sur :
 CONFIGURER.bat
 ```
 
-Le fichier installe le bot, demande le nouveau jeton dans une saisie invisible, vérifie qu’il appartient à Madame Portugais et l’enregistre localement. Ensuite, double-cliquez sur :
+Le fichier installe le bot puis vous demande de copier un nouveau jeton dans Meta. Il le lit automatiquement dans le presse-papiers, vide ensuite celui-ci, vérifie que le jeton appartient à Madame Portugais et l’enregistre localement. Vous n’avez rien à coller dans la fenêtre noire. Ensuite, double-cliquez sur :
 
 ```text
 LANCER_BOT.bat
@@ -97,13 +97,21 @@ cp .env.example .env
 
 ### Enregistrer le jeton sans l’afficher
 
-La méthode recommandée demande le jeton dans une saisie masquée, vérifie immédiatement qu’il appartient à **Madame Portugais**, puis l’enregistre uniquement dans le fichier local `.env` :
+Sous Windows, copiez le **nouveau** jeton avec l’icône de Meta, puis lancez :
+
+```powershell
+python -m facebook_bot setup --clipboard
+```
+
+Le bot lit le presse-papiers sans afficher le jeton, vide immédiatement le presse-papiers, vérifie que le jeton appartient à **Madame Portugais**, puis l’enregistre uniquement dans le fichier local `.env`.
+
+Sur un autre système, utilisez la saisie masquée :
 
 ```bash
 python -m facebook_bot setup
 ```
 
-Collez le **nouveau** jeton quand le programme le demande : aucun caractère ne s’affichera pendant la saisie. Ne passez jamais le jeton comme argument d’une commande et ne l’envoyez jamais dans une discussion.
+Ne passez jamais le jeton comme argument d’une commande et ne l’envoyez jamais dans une discussion.
 
 La configuration enregistrée sera :
 
