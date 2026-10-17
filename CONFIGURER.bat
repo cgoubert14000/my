@@ -1,6 +1,6 @@
 @echo off
-chcp 65001 >nul
-setlocal
+chcp 65001 >nul 2>&1
+setlocal EnableExtensions
 cd /d "%~dp0"
 title Configuration du bot Madame Portugais
 

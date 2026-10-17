@@ -69,6 +69,8 @@ Python **3.10 ou plus récent** est nécessaire.
 
 ### Windows — méthode simple
 
+> **Obligatoire :** faites d’abord un clic droit sur le ZIP puis **Extraire tout**. Ne lancez jamais un fichier `.bat` directement depuis l’aperçu du ZIP, car Windows ne trouverait pas les autres fichiers.
+
 Après avoir extrait ou cloné ce projet, double-cliquez sur :
 
 ```text

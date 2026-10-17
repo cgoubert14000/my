@@ -1,11 +1,11 @@
 @echo off
-chcp 65001 >nul
-setlocal
+chcp 65001 >nul 2>&1
+setlocal EnableExtensions
 cd /d "%~dp0"
-title Programmer sur Facebook - Madame Portugais
+title Planifier sur Facebook - Madame Portugais
 
 if not exist ".venv\Scripts\python.exe" (
-    echo Le bot n'est pas encore configuré.
+    echo Le bot n'est pas encore configure.
     echo Double-cliquez d'abord sur CONFIGURER.bat.
     echo.
     pause
@@ -21,7 +21,7 @@ if not exist ".env" (
 )
 
 echo =====================================================
-echo   Programmer les images - Madame Portugais
+echo   Planifier les images - Madame Portugais
 echo =====================================================
 echo.
 echo Le bot va lire horraire1.txt, horraire2.txt, horraire3.txt
@@ -30,22 +30,23 @@ echo Il demandera la date et proposera :
 echo   1 = horraire1.txt
 echo   2 = horraire2.txt
 echo   3 = horraire3.txt
-echo   4 = les trois plannings avec répartition égale.
+echo   4 = les trois plannings avec repartition egale.
 echo.
-echo Après votre confirmation, tout le planning sera envoyé immédiatement
-echo à Facebook. Vous n'aurez pas à laisser ce PC allumé.
+echo Apres votre confirmation, tout le planning sera envoye immediatement
+echo a Facebook. Vous n'aurez pas a laisser ce PC allume.
 echo.
 ".venv\Scripts\python.exe" -m facebook_bot plan
+set "BOT_RESULT=%ERRORLEVEL%"
 
-if errorlevel 1 (
-    echo.
-    echo Le planning complet n'a pas été confirmé par Facebook.
+echo.
+if not "%BOT_RESULT%"=="0" (
+    echo Le planning complet n'a pas ete confirme par Facebook.
     echo Lisez le message ci-dessus. S'il reste des envois en attente,
-    echo utilisez ENVOYER_PLANNING.bat après avoir corrigé le problème.
+    echo utilisez ENVOYER_PLANNING.bat apres avoir corrige le probleme.
 ) else (
-    echo.
-    echo SUCCÈS : Facebook possède le planning complet.
-    echo Vous pouvez fermer cette fenêtre et éteindre le PC.
+    echo SUCCES : Facebook possede le planning complet.
+    echo Vous pouvez fermer cette fenetre et eteindre le PC.
 )
 echo.
 pause
+exit /b %BOT_RESULT%
