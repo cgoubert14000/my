@@ -215,6 +215,8 @@ class FacebookPublisher:
                 "Permission Facebook refusée (code 200). Vérifiez pages_manage_posts, "
                 "pages_read_engagement et que ce jeton appartient bien à la Page."
             )
+            if graph_message:
+                message = f"{message} Détail Meta : {graph_message}"
         elif graph_message:
             message = f"Facebook a refusé la requête : {graph_message}"
         else:

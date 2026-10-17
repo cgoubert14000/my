@@ -158,9 +158,11 @@ Le bot analyse les documents et propose :
 4. Utiliser les trois et répartir les images également
 ```
 
-Si vous choisissez `1`, toutes les images possibles utilisent uniquement les heures de `horraire1.txt`. Si vous choisissez `4`, les images sont réparties équitablement entre les trois documents ; avec 45 images et les fichiers fournis, cela donne 15 publications dans chaque planning.
+Si vous choisissez `1`, toutes les images possibles utilisent uniquement les heures de `horraire1.txt`. Pour obtenir **entre 15 et 17 images dans chacun des trois plannings**, choisissez `4` et placez entre 45 et 51 images : 45 donne 15 par planning, 48 donne 16 par planning et 51 donne 17 par planning.
 
 Le bot n’utilise jamais plus d’images que le nombre d’heures disponible dans le ou les documents sélectionnés. Les images restantes attendent une autre date. Après vérification, répondez `o` à la demande de confirmation. Une copie est créée dans `data/planning-AAAA-MM-JJ.csv`.
+
+Si un planning de cette date existe déjà et que toutes ses publications sont encore à l’état « prévu », le bot propose de le remplacer. Il refuse tout autre état afin d’éviter les doublons.
 
 Le bot vérifie alors une dernière fois la Page **Madame Portugais**, téléverse toutes les images retenues et crée tous les posts programmés chez Facebook. Attendez le bilan final avant de fermer la fenêtre. Après le message de succès, aucune tâche ne reste à exécuter sur le PC.
 

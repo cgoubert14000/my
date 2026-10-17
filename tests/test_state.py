@@ -182,6 +182,34 @@ def test_uncertain_facebook_schedule_cannot_be_claimed_again(tmp_path) -> None:
     assert store.is_unavailable(item.fingerprint)
 
 
+def test_replacement_can_reuse_only_images_reserved_on_that_day(tmp_path) -> None:
+    store = StateStore(tmp_path / "state.sqlite3")
+    store.initialize()
+    path = tmp_path / "photo.jpg"
+    path.write_bytes(b"photo")
+    item = ImageItem(path, None, "", "replacement-fingerprint")
+    day = date(2026, 10, 20)
+    plan = build_plan(
+        day=day,
+        items=[item],
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
+    store.create_plan(day, plan)
+
+    assert store.is_unavailable(item.fingerprint)
+    assert not store.is_unavailable_except_day(item.fingerprint, day)
+
+    publication = store.pending_publications(day)[0]
+    assert store.claim_for_facebook_scheduling(publication)
+    store.record_facebook_scheduled(
+        publication,
+        PublishReceipt(photo_id="media-id", post_id="post-id"),
+    )
+
+    assert store.is_unavailable_except_day(item.fingerprint, day)
+
+
 def test_interrupted_facebook_scheduling_becomes_uncertain(tmp_path) -> None:
     store = StateStore(tmp_path / "state.sqlite3")
     store.initialize()
@@ -201,6 +229,24 @@ def test_interrupted_facebook_scheduling_becomes_uncertain(tmp_path) -> None:
     assert recovered == 1
     assert store.scheduled_for_day(date(2026, 10, 20))[0].status == "uncertain"
     assert store.pending_publications() == []
+
+
+def test_refuses_to_replace_plan_being_sent_to_facebook(tmp_path) -> None:
+    store = StateStore(tmp_path / "state.sqlite3")
+    store.initialize()
+    item = ImageItem(tmp_path / "photo.jpg", None, "", "protected-fingerprint")
+    day = date(2026, 10, 20)
+    plan = build_plan(
+        day=day,
+        items=[item],
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
+    store.create_plan(day, plan)
+    assert store.claim_for_facebook_scheduling(store.pending_publications(day)[0])
+
+    with pytest.raises(StateError, match="ne peut plus être remplacé"):
+        store.create_plan(day, plan, replace=True)
 
 
 def test_refuses_second_plan_for_same_day(tmp_path) -> None:

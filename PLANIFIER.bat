@@ -31,6 +31,7 @@ echo   1 = horraire1.txt
 echo   2 = horraire2.txt
 echo   3 = horraire3.txt
 echo   4 = les trois plannings avec repartition egale.
+echo       45 images = 15 par planning, 48 = 16, 51 = 17.
 echo.
 echo Apres votre confirmation, tout le planning sera envoye immediatement
 echo a Facebook. Vous n'aurez pas a laisser ce PC allume.

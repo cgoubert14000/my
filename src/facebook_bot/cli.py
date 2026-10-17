@@ -108,6 +108,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Enregistrer le planning sans demander de confirmation.",
     )
+    plan_parser.add_argument(
+        "--replace",
+        action="store_true",
+        help="Remplacer un planning local non envoyé existant pour cette date.",
+    )
 
     schedule_parser = commands.add_parser(
         "schedule", help="Afficher les publications déjà planifiées."
@@ -177,6 +182,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.date,
                 schedule_choice=args.schedule,
                 assume_yes=args.yes,
+                replace_existing=args.replace,
             )
         if args.command == "schedule":
             return _show_schedule(config, args.days)
@@ -350,6 +356,7 @@ def _plan_publications(
     *,
     schedule_choice: str | None = None,
     assume_yes: bool = False,
+    replace_existing: bool = False,
 ) -> int:
     config.prepare_directories()
     state = StateStore(config.state_db)
@@ -363,13 +370,52 @@ def _plan_publications(
     now = datetime.now(config.timezone)
     if day < now.date():
         raise ConfigError("La date de publication ne peut pas être dans le passé.")
-    if state.scheduled_for_day(day):
-        raise StateError(
-            f"Un planning existe déjà pour le {day.strftime('%d/%m/%Y')}."
-        )
+
+    existing_publications = state.scheduled_for_day(day)
+    replace_plan = False
+    if existing_publications:
+        protected = [
+            publication
+            for publication in existing_publications
+            if publication.status != "pending"
+        ]
+        if protected:
+            statuses = ", ".join(
+                sorted({STATUS_LABELS.get(item.status, item.status) for item in protected})
+            )
+            raise StateError(
+                f"Le planning du {day:%d/%m/%Y} contient des publications « {statuses} ». "
+                "Il ne peut pas être remplacé automatiquement afin d'éviter un doublon."
+            )
+
+        if not replace_existing:
+            if assume_yes:
+                raise StateError(
+                    f"Un planning local existe déjà pour le {day:%d/%m/%Y}. "
+                    "Utilisez --replace pour autoriser son remplacement."
+                )
+            print(
+                f"\nUn planning local de {len(existing_publications)} publication(s) "
+                f"existe déjà pour le {day:%d/%m/%Y}."
+            )
+            print("Aucune de ces publications n'a été acceptée par Facebook.")
+            try:
+                answer = input("Remplacer ce planning local ? [o/N] : ").strip().casefold()
+            except (EOFError, KeyboardInterrupt):
+                print("\nRemplacement annulé.")
+                return 1
+            if answer not in {"o", "oui", "y", "yes"}:
+                print("Remplacement annulé ; le planning existant est conservé.")
+                return 2
+        replace_plan = True
 
     queue = _make_image_queue(config, hashtags=hashtags)
-    items = queue.available_items(state.is_unavailable)
+    if replace_plan:
+        items = queue.available_items(
+            lambda fingerprint: state.is_unavailable_except_day(fingerprint, day)
+        )
+    else:
+        items = queue.available_items(state.is_unavailable)
     if not items:
         raise StateError(f"Aucune nouvelle image trouvée dans {config.image_dir}.")
 
@@ -429,7 +475,7 @@ def _plan_publications(
             print("Planification annulée ; aucune donnée n'a été enregistrée.")
             return 2
 
-    state.create_plan(day, plan)
+    state.create_plan(day, plan, replace=replace_plan)
     csv_path = _write_plan_csv(config, day, plan)
     print(f"\n✓ {len(plan)} publication(s) enregistrée(s) pour le {day:%d/%m/%Y}.")
     print(f"✓ Copie lisible du planning : {csv_path}")
@@ -483,7 +529,10 @@ def _choose_schedules(
             f"  {definition.index}. {definition.filename} "
             f"({len(definition.times)} heures) : {formatted}"
         )
-    print("  4. Utiliser les trois plannings et répartir les images également")
+    print(
+        "  4. Utiliser les trois plannings également "
+        "(45 images = 15 par planning, 48 = 16, 51 = 17)"
+    )
 
     selected = choice
     if selected is None:

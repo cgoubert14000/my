@@ -172,6 +172,33 @@ def test_destination_name_comparison_ignores_case_and_extra_spaces() -> None:
     assert page.name == "Madame   Portugais"
 
 
+def test_permission_error_keeps_the_exact_meta_explanation() -> None:
+    session = FakeSession(
+        FakeResponse(
+            {
+                "error": {
+                    "message": "Requires pages_manage_posts or CREATE_CONTENT",
+                    "code": 200,
+                }
+            },
+            ok=False,
+            status_code=403,
+        )
+    )
+    publisher = FacebookPublisher(
+        page_id="1",
+        access_token="token",
+        api_version="v26.0",
+        session=session,
+    )
+
+    with pytest.raises(FacebookError) as caught:
+        publisher.get_page_info()
+
+    assert "Détail Meta" in str(caught.value)
+    assert "Requires pages_manage_posts or CREATE_CONTENT" in str(caught.value)
+
+
 def test_token_error_has_actionable_message() -> None:
     session = FakeSession(
         FakeResponse(

@@ -6,6 +6,7 @@ import pytest
 
 from facebook_bot import cli
 from facebook_bot.config import Config, ConfigError
+from facebook_bot.state import StateStore
 
 
 class FakePublisher:
@@ -154,3 +155,17 @@ def test_plan_immediately_hands_saved_plan_to_facebook_sender(tmp_path, monkeypa
 
     assert exit_code == 0
     assert calls == [(config, future_day, 1)]
+
+    answers = iter(["o", "o"])
+    monkeypatch.setattr("builtins.input", lambda _prompt: next(answers))
+    replacement_exit_code = cli._plan_publications(
+        config,
+        future_day.strftime("%d/%m/%Y"),
+        schedule_choice="1",
+        assume_yes=False,
+    )
+
+    assert replacement_exit_code == 0
+    assert calls == [(config, future_day, 1), (config, future_day, 1)]
+    store = StateStore(config.state_db)
+    assert len(store.scheduled_for_day(future_day)) == 1

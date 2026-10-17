@@ -300,6 +300,28 @@ class StateStore:
         with self._connect() as connection:
             return self._fingerprint_unavailable(connection, fingerprint)
 
+    def is_unavailable_except_day(self, fingerprint: str, day: date) -> bool:
+        """Ignore les réservations du jour remplacé, mais aucune autre réservation."""
+        with self._connect() as connection:
+            posted = connection.execute(
+                "SELECT 1 FROM posted_images WHERE fingerprint = ?",
+                (fingerprint,),
+            ).fetchone()
+            if posted is not None:
+                return True
+            scheduled = connection.execute(
+                """
+                SELECT 1 FROM scheduled_publications
+                WHERE fingerprint = ? AND day <> ?
+                  AND status IN (
+                      'pending', 'running', 'scheduling', 'completed',
+                      'facebook_scheduled', 'uncertain'
+                  )
+                """,
+                (fingerprint, day.isoformat()),
+            ).fetchone()
+            return scheduled is not None
+
     def expire_scheduled(self, now: datetime, *, max_late: timedelta) -> int:
         expired_ids: list[int] = []
         threshold = now - max_late
