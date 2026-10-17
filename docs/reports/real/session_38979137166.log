@@ -17150,3 +17150,14 @@ block 52711207 | FIABILITÉ INSUFFISANTE | candidates 1299128 | positive 26 | gh
 block 52711210 | FIABILITÉ INSUFFISANTE | candidates 1299678 | positive 26 | ghost {'pending': 0, 'labeled': 6, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=664 | rpc err 215 p50 216 ms
 2026-10-17 04:36:09,455 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 472 → 463 ppm
 block 52711210 | FIABILITÉ INSUFFISANTE | candidates 1299678 | positive 26 | ghost {'pending': 0, 'labeled': 6, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=664 | rpc err 215 p50 235 ms
+2026-10-17 04:36:26,283 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 463 → 454 ppm
+2026-10-17 04:36:27,040 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 454 → 100 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (543bcb93)
+2026-10-17 04:36:28,537 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 180 → 160 ppm
+2026-10-17 04:36:29,225 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 594 → 609 ppm
+2026-10-17 04:36:29,225 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 406 → 409 ppm
+block 52711220 | FIABILITÉ INSUFFISANTE | candidates 1300798 | positive 26 | ghost {'pending': 0, 'labeled': 6, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=664 | rpc err 215 p50 245 ms
+2026-10-17 04:36:35,260 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 609 → 594 ppm
+2026-10-17 04:36:35,269 INFO arbbot.collector: pool 0x0652202C4b2D09CB93aEDeFAdc14B36869483a98 (aerodrome_slipstream) fee changed 430 → 458 ppm
+block 52711225 | FIABILITÉ INSUFFISANTE | candidates 1301551 | positive 26 | ghost {'pending': 0, 'labeled': 6, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=664 | rpc err 215 p50 252 ms
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_38979137166.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_38979137166.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_38979137166_opportunities.csv.gz"}
