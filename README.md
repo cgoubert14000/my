@@ -275,6 +275,7 @@ Sous macOS/Linux, un service `systemd`, `launchd` ou une tâche de démarrage é
 
 ## Comportement en cas de problème
 
+- **Le journal indique que le bot attend :** ce n’est pas une erreur. Lancez d’abord `PLANIFIER.bat`, choisissez une date future et confirmez avec `o`. La nouvelle version affiche ensuite la date et l’heure de la prochaine publication.
 - **Dossier vide au moment de planifier :** aucun planning n’est créé.
 - **Image déplacée ou modifiée après la planification :** cette publication passe en échec afin de ne pas envoyer le mauvais fichier.
 - **Bot lancé avec plus de 15 minutes de retard :** les heures dépassées sont marquées comme manquées au lieu d’être publiées en rafale.

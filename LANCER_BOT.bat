@@ -20,6 +20,9 @@ if not exist ".env" (
     exit /b 1
 )
 
+echo Verification du planning enregistre...
+".venv\Scripts\python.exe" -m facebook_bot schedule --days 31
+echo.
 echo Demarrage du bot Madame Portugais...
 echo Cette fenetre doit rester ouverte. Utilisez Ctrl+C pour arreter.
 echo.

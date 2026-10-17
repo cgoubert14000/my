@@ -111,6 +111,7 @@ def test_multi_image_plan_is_reserved_claimed_and_completed(tmp_path) -> None:
 
     assert len(saved) == 3
     assert all(store.is_unavailable(item.fingerprint) for item in items)
+    assert store.next_pending_publication() == saved[0]
     claimed = store.claim_due_publication(saved[0].scheduled_at)
     assert claimed is not None
     assert claimed.item.path == items[0].path

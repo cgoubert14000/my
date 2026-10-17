@@ -54,7 +54,20 @@ class BotRunner:
             self.config.timezone_name,
             " [SIMULATION]" if self.dry_run else "",
         )
-        LOGGER.info("Le bot attend les publications créées avec PLANIFIER.bat.")
+        next_publication = self.state.next_pending_publication()
+        if next_publication is None:
+            LOGGER.warning(
+                "AUCUNE PUBLICATION PLANIFIÉE. Laissez cette fenêtre ouverte ou "
+                "arrêtez-la avec Ctrl+C, puis lancez PLANIFIER.bat."
+            )
+        else:
+            LOGGER.info(
+                "Prochaine publication : %s à %s — %s (planning %d).",
+                next_publication.scheduled_at.strftime("%d/%m/%Y"),
+                next_publication.scheduled_at.strftime("%H:%M"),
+                next_publication.item.path.name,
+                next_publication.window_index,
+            )
 
         try:
             while True:

@@ -179,6 +179,19 @@ class StateStore:
             ).fetchall()
         return [_scheduled_from_row(row) for row in rows]
 
+    def next_pending_publication(self) -> ScheduledPost | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                f"""
+                SELECT {_SCHEDULED_COLUMNS}
+                FROM scheduled_publications
+                WHERE status = 'pending'
+                ORDER BY scheduled_at
+                LIMIT 1
+                """
+            ).fetchone()
+        return _scheduled_from_row(row) if row is not None else None
+
     def is_unavailable(self, fingerprint: str) -> bool:
         with self._connect() as connection:
             return self._fingerprint_unavailable(connection, fingerprint)
