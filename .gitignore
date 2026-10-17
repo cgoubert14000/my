@@ -1,0 +1,28 @@
+# Secrets (ne jamais versionner)
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Bot runtime data
+data/
+images/to_post/*
+images/posted/*
+!images/to_post/.gitkeep
+!images/posted/.gitkeep
+
+# Archives générées
+*.zip
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
