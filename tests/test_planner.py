@@ -32,7 +32,7 @@ def test_distribute_count_balances_three_schedules(total, expected) -> None:
     assert distribute_count(total) == expected
 
 
-def test_nine_images_follow_requested_hourly_examples() -> None:
+def test_nine_images_are_spread_from_morning_until_night() -> None:
     plan = build_plan(
         day=date(2026, 10, 20),
         items=_items(9),
@@ -48,13 +48,13 @@ def test_nine_images_follow_requested_hourly_examples() -> None:
         for schedule in (1, 2, 3)
     }
     assert by_schedule == {
-        1: ["07:30", "08:30", "09:30"],
-        2: ["07:15", "08:15", "09:15"],
-        3: ["07:45", "08:45", "09:45"],
+        1: ["07:30", "15:30", "23:30"],
+        2: ["07:15", "15:15", "23:15"],
+        3: ["07:45", "15:45", "23:45"],
     }
 
 
-def test_45_images_make_15_hourly_posts_in_each_interleaved_schedule() -> None:
+def test_45_images_make_15_full_day_posts_in_each_interleaved_schedule() -> None:
     plan = build_plan(
         day=date(2026, 10, 20),
         items=_items(45),
@@ -70,9 +70,9 @@ def test_45_images_make_15_hourly_posts_in_each_interleaved_schedule() -> None:
         for schedule in (1, 2, 3)
     }
     assert len(by_schedule[1]) == len(by_schedule[2]) == len(by_schedule[3]) == 15
-    assert (by_schedule[1][0], by_schedule[1][-1]) == ("07:30", "21:30")
-    assert (by_schedule[2][0], by_schedule[2][-1]) == ("07:15", "21:15")
-    assert (by_schedule[3][0], by_schedule[3][-1]) == ("07:45", "21:45")
+    assert (by_schedule[1][0], by_schedule[1][-1]) == ("07:30", "23:30")
+    assert (by_schedule[2][0], by_schedule[2][-1]) == ("07:15", "23:15")
+    assert (by_schedule[3][0], by_schedule[3][-1]) == ("07:45", "23:45")
     assert len({entry.scheduled_at for entry in plan}) == 45
 
 

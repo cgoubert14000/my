@@ -92,14 +92,18 @@ def _times_for_schedule(
     if count == 1:
         return [first]
 
-    # Jusqu'à 17 publications, l'exemple demandé est suivi à la lettre : une par
-    # heure (07:15, 08:15... ou :30 / :45). Au-delà, l'intervalle est réduit
-    # régulièrement afin de conserver les 30 publications sur la même date.
+    # Les publications occupent toute la journée, de 07 h à 23 h. Jusqu'à 17,
+    # elles utilisent des cases horaires entières réparties le plus régulièrement
+    # possible. Au-delà, l'intervalle est réduit pour conserver jusqu'à 30 images.
     hourly_capacity = SCHEDULE_END_HOUR - SCHEDULE_START_HOUR + 1
-    if count <= hourly_capacity:
-        return [first + timedelta(hours=index) for index in range(count)]
-
     last = datetime.combine(day, time(SCHEDULE_END_HOUR, minute), tzinfo=timezone)
+    if count <= hourly_capacity:
+        indexes = [
+            round(index * (hourly_capacity - 1) / (count - 1))
+            for index in range(count)
+        ]
+        return [first + timedelta(hours=index) for index in indexes]
+
     total_minutes = int((last - first).total_seconds() // 60)
     return [
         first + timedelta(minutes=round(index * total_minutes / (count - 1)))

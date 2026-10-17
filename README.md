@@ -8,7 +8,7 @@ Le bot demande une date, compte les images du dossier et les répartit entre tro
 2. horaire 2 : `07:15`, `08:15`, `09:15`… ;
 3. horaire 3 : `07:45`, `08:45`, `09:45`…
 
-Chaque horaire accepte au maximum 30 publications, soit 90 images par date. Jusqu’à 17 publications par horaire, l’intervalle reste exactement d’une heure. Au-delà, le bot réduit régulièrement l’intervalle afin de terminer avant minuit. Le planning est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
+Chaque horaire accepte au maximum 30 publications, soit 90 images par date. Les images sont réparties sur toute la journée entre 07 h et 23 h. Avec 17 images dans un horaire, il y en a exactement une par heure ; avec moins de 17, certaines heures sont sautées régulièrement pour conserver le début et la fin de journée. Au-delà de 17, le bot réduit l’intervalle afin de terminer avant minuit. Le planning est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
 
 > **Important :** l’API officielle permet ce fonctionnement pour une **Page Facebook**, pas pour un profil personnel. Le PC doit rester allumé, connecté à Internet et sans mise en veille pendant les horaires choisis.
 
@@ -68,7 +68,7 @@ Après avoir extrait ou cloné ce projet, double-cliquez sur :
 CONFIGURER.bat
 ```
 
-Le fichier installe le bot puis vous demande de copier un nouveau jeton dans Meta. Il le lit automatiquement dans le presse-papiers, vide ensuite celui-ci, vérifie que le jeton appartient à Madame Portugais et l’enregistre localement. Vous n’avez rien à coller dans la fenêtre noire.
+Le fichier installe le bot puis ouvre automatiquement **`token madame portugais.txt`** dans le Bloc-notes. Remplacez la première ligne par un nouveau jeton Meta, enregistrez et fermez le document. Le bot vérifie que le jeton appartient à Madame Portugais, le transfère dans le fichier local `.env`, puis efface le jeton du document texte pour éviter une fuite. Vous n’avez rien à coller dans la fenêtre noire.
 
 Ensuite :
 
@@ -101,21 +101,21 @@ python -m pip install -e .
 cp .env.example .env
 ```
 
-### Enregistrer le jeton sans l’afficher
+### Enregistrer le jeton avec le document texte
 
-Sous Windows, copiez le **nouveau** jeton avec l’icône de Meta, puis lancez :
+Le ZIP contient le document :
+
+```text
+token madame portugais.txt
+```
+
+`CONFIGURER.bat` l’ouvre automatiquement. Remplacez `COLLEZ_VOTRE_NOUVEAU_JETON_ICI` par un **nouveau** jeton, enregistrez et fermez le Bloc-notes. La commande exécutée automatiquement est :
 
 ```powershell
-python -m facebook_bot setup --clipboard
+python -m facebook_bot setup --token-file "token madame portugais.txt"
 ```
 
-Le bot lit le presse-papiers sans afficher le jeton, vide immédiatement le presse-papiers, vérifie que le jeton appartient à **Madame Portugais**, puis l’enregistre uniquement dans le fichier local `.env`.
-
-Sur un autre système, utilisez la saisie masquée :
-
-```bash
-python -m facebook_bot setup
-```
+Après vérification, le jeton est enregistré dans `.env` et retiré du document texte. Le bot le retrouvera ensuite automatiquement dans `.env` à chaque démarrage. Le mode presse-papiers reste disponible avec `setup --clipboard`, et macOS/Linux peuvent utiliser la saisie masquée avec `setup`.
 
 Ne passez jamais le jeton comme argument d’une commande et ne l’envoyez jamais dans une discussion.
 
@@ -143,9 +143,9 @@ Date de publication (JJ/MM/AAAA) :
 Il compte les images et les partage automatiquement à parts égales entre les trois séries. Pour **45 images**, il crée exactement 15 publications dans chacune :
 
 ```text
-Horaire 1 — 15 images : 07:30, 08:30, 09:30 … 21:30
-Horaire 2 — 15 images : 07:15, 08:15, 09:15 … 21:15
-Horaire 3 — 15 images : 07:45, 08:45, 09:45 … 21:45
+Horaire 1 — 15 images : 07:30 … heures réparties … 23:30
+Horaire 2 — 15 images : 07:15 … heures réparties … 23:15
+Horaire 3 — 15 images : 07:45 … heures réparties … 23:45
 ```
 
 Les 45 heures sont toutes différentes : les trois séries s’entrelacent dans la même journée sans jamais publier deux images à la même minute. Avec un nombre non divisible par trois, l’écart entre les séries est au maximum d’une image.
@@ -158,7 +158,9 @@ Règles :
 - 30 publications maximum par horaire ;
 - 90 publications maximum pour une date ;
 - les images au-delà de 90 restent dans le dossier pour une autre date ;
-- si un horaire contient plus de 17 images, son intervalle est réduit afin que tout reste sur la date choisie ;
+- chaque série couvre toute la journée : horaire 1 de 07:30 à 23:30, horaire 2 de 07:15 à 23:15 et horaire 3 de 07:45 à 23:45 ;
+- avec moins de 17 images, le bot répartit les publications sur les cases horaires disponibles ;
+- avec plus de 17 images, l’intervalle est réduit afin que tout reste sur la date choisie ;
 - une date déjà planifiée ne peut pas être créée une seconde fois par erreur.
 
 ## 4. Ajouter les images et légendes

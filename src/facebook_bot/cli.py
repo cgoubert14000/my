@@ -33,6 +33,12 @@ from facebook_bot.runner import BotRunner
 from facebook_bot.state import StateError, StateStore
 
 LOGGER = logging.getLogger(__name__)
+TOKEN_FILE_TEMPLATE = """COLLEZ_VOTRE_NOUVEAU_JETON_ICI
+
+Après avoir collé le jeton, enregistrez et fermez ce document.
+CONFIGURER.bat le vérifiera, le transférera dans .env puis effacera cette valeur.
+"""
+
 STATUS_LABELS = {
     "pending": "prévu",
     "running": "en cours",
@@ -101,10 +107,16 @@ def build_parser() -> argparse.ArgumentParser:
         "setup",
         help="Enregistrer un nouveau jeton de façon masquée puis vérifier la Page.",
     )
-    setup_parser.add_argument(
+    setup_source = setup_parser.add_mutually_exclusive_group()
+    setup_source.add_argument(
         "--clipboard",
         action="store_true",
         help="Lire le jeton depuis le presse-papiers Windows, puis vider celui-ci.",
+    )
+    setup_source.add_argument(
+        "--token-file",
+        type=Path,
+        help="Lire le jeton depuis un fichier texte local, puis effacer sa valeur.",
     )
     commands.add_parser("doctor", help="Vérifier les dossiers, le jeton et la Page Facebook.")
     commands.add_parser("queue", help="Compter les images encore à publier.")
@@ -122,7 +134,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "setup":
             env_path = args.env_file or Path.cwd() / ".env"
-            return _setup(env_path, from_clipboard=args.clipboard)
+            return _setup(
+                env_path,
+                from_clipboard=args.clipboard,
+                token_file=args.token_file,
+            )
 
         config = Config.from_env(args.env_file, require_facebook=require_facebook)
         if args.command == "run":
@@ -152,14 +168,25 @@ def main(argv: list[str] | None = None) -> int:
     return 1
 
 
-def _setup(env_path: Path, *, from_clipboard: bool = False) -> int:
+def _setup(
+    env_path: Path,
+    *,
+    from_clipboard: bool = False,
+    token_file: Path | None = None,
+) -> int:
     """Vérifie puis enregistre un jeton sans jamais l'afficher dans le terminal."""
     env_path = env_path.expanduser().resolve()
     if env_path.name == ".env.example":
         raise ConfigError("Le jeton ne doit jamais être enregistré dans .env.example.")
 
     print("Configuration sécurisée de la Page Madame Portugais")
-    if from_clipboard:
+    if token_file is not None:
+        token_path = token_file.expanduser().resolve()
+        print(f"Lecture du nouveau jeton depuis {token_path.name}…")
+        token = _read_token_file(token_path)
+        _reset_token_file(token_path)
+        print("✓ Jeton retiré du document texte après lecture.")
+    elif from_clipboard:
         print("Lecture du nouveau jeton depuis le presse-papiers…")
         token = _read_clipboard_token()
         _clear_clipboard()
@@ -207,6 +234,38 @@ def _setup(env_path: Path, *, from_clipboard: bool = False) -> int:
     print(f"✓ Configuration enregistrée localement dans {env_path}")
     print("Vous pouvez maintenant lancer : python -m facebook_bot doctor")
     return 0
+
+
+def _read_token_file(path: Path) -> str:
+    if not path.is_file():
+        raise ConfigError(f"Document de jeton introuvable : {path}")
+    try:
+        lines = path.read_text(encoding="utf-8-sig").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise ConfigError(f"Impossible de lire le document {path.name}.") from exc
+
+    for raw_line in lines:
+        candidate = raw_line.strip()
+        if candidate.startswith("FACEBOOK_PAGE_ACCESS_TOKEN="):
+            candidate = candidate.split("=", 1)[1].strip().strip("'\"")
+        if (
+            len(candidate) >= 40
+            and not any(character.isspace() for character in candidate)
+            and candidate != "COLLEZ_VOTRE_NOUVEAU_JETON_ICI"
+        ):
+            return candidate
+    raise ConfigError(
+        f"Aucun jeton valide trouvé dans {path.name}. Remplacez la première ligne."
+    )
+
+
+def _reset_token_file(path: Path) -> None:
+    try:
+        path.write_text(TOKEN_FILE_TEMPLATE, encoding="utf-8")
+    except OSError as exc:
+        raise ConfigError(
+            "Le jeton a été lu, mais le document texte n'a pas pu être nettoyé."
+        ) from exc
 
 
 def _read_clipboard_token() -> str:

@@ -48,6 +48,32 @@ def test_setup_can_read_and_clear_clipboard(tmp_path, monkeypatch, capsys) -> No
     assert token not in capsys.readouterr().out
 
 
+def test_setup_reads_token_file_then_removes_secret_from_it(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    token = "EAA" + "z" * 80
+    token_file = tmp_path / "token madame portugais.txt"
+    token_file.write_text(token, encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "FacebookPublisher", FakePublisher)
+
+    result = cli._setup(tmp_path / ".env", token_file=token_file)
+
+    assert result == 0
+    assert token in (tmp_path / ".env").read_text()
+    assert token not in token_file.read_text()
+    assert "COLLEZ_VOTRE_NOUVEAU_JETON_ICI" in token_file.read_text()
+    assert token not in capsys.readouterr().out
+
+
+def test_token_template_is_not_accepted_as_a_token(tmp_path) -> None:
+    path = tmp_path / "token madame portugais.txt"
+    path.write_text(cli.TOKEN_FILE_TEMPLATE, encoding="utf-8")
+
+    with pytest.raises(ConfigError, match="Aucun jeton valide"):
+        cli._read_token_file(path)
+
+
 def test_setup_never_writes_secret_to_example_file(tmp_path) -> None:
     with pytest.raises(ConfigError, match=".env.example"):
         cli._setup(tmp_path / ".env.example")

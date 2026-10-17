@@ -8,8 +8,9 @@ echo =====================================================
 echo   Configuration securisee du bot Madame Portugais
 echo =====================================================
 echo.
-echo Le jeton sera lu automatiquement depuis le presse-papiers.
-echo Il sera conserve uniquement dans le fichier local .env.
+echo Le jeton sera lu depuis le document :
+echo   token madame portugais.txt
+echo Il sera ensuite conserve uniquement dans le fichier local .env.
 echo Il ne sera jamais affiche dans cette fenetre.
 echo.
 
@@ -39,12 +40,15 @@ echo Installation ou mise a jour du bot...
 if errorlevel 1 goto :failure
 
 echo.
+if not exist "token madame portugais.txt" (
+    >"token madame portugais.txt" echo COLLEZ_VOTRE_NOUVEAU_JETON_ICI
+)
 echo Dans Meta, creez un NOUVEAU jeton pour Madame Portugais.
-echo Cliquez sur la petite icone Copier a droite du jeton.
-echo Ne collez pas le jeton ici : laissez-le simplement dans le presse-papiers.
+echo Le Bloc-notes va s'ouvrir : remplacez la premiere ligne par le jeton,
+echo enregistrez le document, puis fermez le Bloc-notes.
 echo.
-pause
-".venv\Scripts\python.exe" -m facebook_bot setup --clipboard
+start "" /wait notepad.exe "token madame portugais.txt"
+".venv\Scripts\python.exe" -m facebook_bot setup --token-file "token madame portugais.txt"
 if errorlevel 1 goto :failure
 
 echo.
