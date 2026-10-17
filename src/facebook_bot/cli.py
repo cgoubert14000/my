@@ -305,7 +305,8 @@ def _plan_publications(
         print(
             f"Il restera {len(items) - capacity} image(s) à planifier sur une autre date."
         )
-    print(f"Hashtags automatiques : {config.fixed_hashtags}\n")
+    print(f"Hashtags automatiques : {config.fixed_hashtags}")
+    print("Répartition automatique égale ; aucune publication à la même minute.\n")
 
     for schedule_index, minute in enumerate(SCHEDULE_MINUTES, start=1):
         entries = [entry for entry in plan if entry.window_index == schedule_index]

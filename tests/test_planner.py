@@ -54,6 +54,28 @@ def test_nine_images_follow_requested_hourly_examples() -> None:
     }
 
 
+def test_45_images_make_15_hourly_posts_in_each_interleaved_schedule() -> None:
+    plan = build_plan(
+        day=date(2026, 10, 20),
+        items=_items(45),
+        timezone=TZ,
+    )
+
+    by_schedule = {
+        schedule: [
+            entry.scheduled_at.strftime("%H:%M")
+            for entry in plan
+            if entry.window_index == schedule
+        ]
+        for schedule in (1, 2, 3)
+    }
+    assert len(by_schedule[1]) == len(by_schedule[2]) == len(by_schedule[3]) == 15
+    assert (by_schedule[1][0], by_schedule[1][-1]) == ("07:30", "21:30")
+    assert (by_schedule[2][0], by_schedule[2][-1]) == ("07:15", "21:15")
+    assert (by_schedule[3][0], by_schedule[3][-1]) == ("07:45", "21:45")
+    assert len({entry.scheduled_at for entry in plan}) == 45
+
+
 def test_plan_fits_90_images_on_same_date_with_distinct_times() -> None:
     day = date(2026, 10, 20)
     plan = build_plan(day=day, items=_items(90), timezone=TZ)

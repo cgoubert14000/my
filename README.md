@@ -140,13 +140,15 @@ Déposez d’abord les images dans `images/to_post`, puis double-cliquez sur `PL
 Date de publication (JJ/MM/AAAA) :
 ```
 
-Il compte les images et affiche un résultat de ce type pour 9 images :
+Il compte les images et les partage automatiquement à parts égales entre les trois séries. Pour **45 images**, il crée exactement 15 publications dans chacune :
 
 ```text
-Horaire 1 — 07:30, 08:30, 09:30
-Horaire 2 — 07:15, 08:15, 09:15
-Horaire 3 — 07:45, 08:45, 09:45
+Horaire 1 — 15 images : 07:30, 08:30, 09:30 … 21:30
+Horaire 2 — 15 images : 07:15, 08:15, 09:15 … 21:15
+Horaire 3 — 15 images : 07:45, 08:45, 09:45 … 21:45
 ```
+
+Les 45 heures sont toutes différentes : les trois séries s’entrelacent dans la même journée sans jamais publier deux images à la même minute. Avec un nombre non divisible par trois, l’écart entre les séries est au maximum d’une image.
 
 Après vérification, répondez `o` à la demande de confirmation. Une copie du planning est également créée dans `data/planning-AAAA-MM-JJ.csv`.
 
