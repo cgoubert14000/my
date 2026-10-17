@@ -24,15 +24,15 @@ def _items(count: int) -> list[ImageItem]:
         (2, (1, 1, 0)),
         (3, (1, 1, 1)),
         (4, (2, 1, 1)),
-        (89, (30, 30, 29)),
-        (90, (30, 30, 30)),
+        (50, (17, 17, 16)),
+        (51, (17, 17, 17)),
     ],
 )
 def test_distribute_count_balances_three_schedules(total, expected) -> None:
     assert distribute_count(total) == expected
 
 
-def test_nine_images_are_spread_from_morning_until_night() -> None:
+def test_nine_images_start_at_seven_and_advance_hourly() -> None:
     plan = build_plan(
         day=date(2026, 10, 20),
         items=_items(9),
@@ -48,13 +48,13 @@ def test_nine_images_are_spread_from_morning_until_night() -> None:
         for schedule in (1, 2, 3)
     }
     assert by_schedule == {
-        1: ["07:30", "15:30", "23:30"],
-        2: ["07:15", "15:15", "23:15"],
-        3: ["07:45", "15:45", "23:45"],
+        1: ["07:30", "08:30", "09:30"],
+        2: ["07:15", "08:15", "09:15"],
+        3: ["07:45", "08:45", "09:45"],
     }
 
 
-def test_45_images_make_15_full_day_posts_in_each_interleaved_schedule() -> None:
+def test_45_images_make_15_hourly_posts_in_each_interleaved_schedule() -> None:
     plan = build_plan(
         day=date(2026, 10, 20),
         items=_items(45),
@@ -70,32 +70,31 @@ def test_45_images_make_15_full_day_posts_in_each_interleaved_schedule() -> None
         for schedule in (1, 2, 3)
     }
     assert len(by_schedule[1]) == len(by_schedule[2]) == len(by_schedule[3]) == 15
-    assert (by_schedule[1][0], by_schedule[1][-1]) == ("07:30", "23:30")
-    assert (by_schedule[2][0], by_schedule[2][-1]) == ("07:15", "23:15")
-    assert (by_schedule[3][0], by_schedule[3][-1]) == ("07:45", "23:45")
+    assert (by_schedule[1][0], by_schedule[1][-1]) == ("07:30", "21:30")
+    assert (by_schedule[2][0], by_schedule[2][-1]) == ("07:15", "21:15")
+    assert (by_schedule[3][0], by_schedule[3][-1]) == ("07:45", "21:45")
     assert len({entry.scheduled_at for entry in plan}) == 45
 
 
-def test_plan_fits_90_images_on_same_date_with_distinct_times() -> None:
+def test_51_images_fill_every_hour_until_23() -> None:
     day = date(2026, 10, 20)
-    plan = build_plan(day=day, items=_items(90), timezone=TZ)
+    plan = build_plan(day=day, items=_items(51), timezone=TZ)
 
-    assert len(plan) == 90
+    assert len(plan) == 51
     assert [sum(entry.window_index == index for entry in plan) for index in (1, 2, 3)] == [
-        30,
-        30,
-        30,
+        17,
+        17,
+        17,
     ]
-    assert len({entry.scheduled_at for entry in plan}) == 90
-    assert all(entry.scheduled_at.date() == day for entry in plan)
+    assert len({entry.scheduled_at for entry in plan}) == 51
     assert min(entry.scheduled_at for entry in plan).strftime("%H:%M") == "07:15"
     assert max(entry.scheduled_at for entry in plan).strftime("%H:%M") == "23:45"
 
 
-def test_plan_refuses_more_than_90_images() -> None:
-    with pytest.raises(ValueError, match="90"):
+def test_plan_refuses_more_than_51_images() -> None:
+    with pytest.raises(ValueError, match="51"):
         build_plan(
             day=date(2026, 10, 20),
-            items=_items(91),
+            items=_items(52),
             timezone=TZ,
         )

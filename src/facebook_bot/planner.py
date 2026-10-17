@@ -26,9 +26,12 @@ def build_plan(
     day: date,
     items: list[ImageItem],
     timezone: ZoneInfo,
-    max_per_schedule: int = 30,
+    max_per_schedule: int = 17,
 ) -> list[PlannedPost]:
-    """Répartit jusqu'à 90 images entre trois horaires qui se chevauchent."""
+    """Répartit jusqu'à 51 images entre trois séries horaires fixes."""
+    hourly_capacity = SCHEDULE_END_HOUR - SCHEDULE_START_HOUR + 1
+    if max_per_schedule > hourly_capacity:
+        raise ValueError(f"Maximum possible par horaire : {hourly_capacity} images.")
     capacity = max_per_schedule * len(SCHEDULE_MINUTES)
     if len(items) > capacity:
         raise ValueError(f"Le planning accepte au maximum {capacity} images par date.")
@@ -64,7 +67,7 @@ def build_plan(
     ]
 
 
-def distribute_count(total: int, *, max_per_schedule: int = 30) -> tuple[int, int, int]:
+def distribute_count(total: int, *, max_per_schedule: int = 17) -> tuple[int, int, int]:
     if total < 0:
         raise ValueError("Le nombre d'images ne peut pas être négatif.")
     if total > max_per_schedule * 3:
@@ -89,26 +92,13 @@ def _times_for_schedule(
     if count == 0:
         return []
     first = datetime.combine(day, time(SCHEDULE_START_HOUR, minute), tzinfo=timezone)
-    if count == 1:
-        return [first]
-
-    # Les publications occupent toute la journée, de 07 h à 23 h. Jusqu'à 17,
-    # elles utilisent des cases horaires entières réparties le plus régulièrement
-    # possible. Au-delà, l'intervalle est réduit pour conserver jusqu'à 30 images.
     hourly_capacity = SCHEDULE_END_HOUR - SCHEDULE_START_HOUR + 1
-    last = datetime.combine(day, time(SCHEDULE_END_HOUR, minute), tzinfo=timezone)
-    if count <= hourly_capacity:
-        indexes = [
-            round(index * (hourly_capacity - 1) / (count - 1))
-            for index in range(count)
-        ]
-        return [first + timedelta(hours=index) for index in indexes]
+    if count > hourly_capacity:
+        raise ValueError(f"Maximum possible par horaire : {hourly_capacity} images.")
 
-    total_minutes = int((last - first).total_seconds() // 60)
-    return [
-        first + timedelta(minutes=round(index * total_minutes / (count - 1)))
-        for index in range(count)
-    ]
+    # Le bot commence toujours à 07 h et utilise une case par heure jusqu'à ce
+    # qu'il n'y ait plus d'images. Avec 17 images, la dernière part à 23 h.
+    return [first + timedelta(hours=index) for index in range(count)]
 
 
 def _make_times_distinct(

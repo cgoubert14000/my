@@ -8,7 +8,7 @@ Le bot demande une date, compte les images du dossier et les répartit entre tro
 2. horaire 2 : `07:15`, `08:15`, `09:15`… ;
 3. horaire 3 : `07:45`, `08:45`, `09:45`…
 
-Chaque horaire accepte au maximum 30 publications, soit 90 images par date. Les images sont réparties sur toute la journée entre 07 h et 23 h. Avec 17 images dans un horaire, il y en a exactement une par heure ; avec moins de 17, certaines heures sont sautées régulièrement pour conserver le début et la fin de journée. Au-delà de 17, le bot réduit l’intervalle afin de terminer avant minuit. Le planning est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
+Chaque horaire contient 17 cases fixes, de 07 h à 23 h inclus, soit 51 publications maximum par date. Le bot commence toujours à 07 h et utilise ensuite une case toutes les heures jusqu’à épuisement des images. Par exemple, avec 15 images par horaire, les publications vont de 07 h à 21 h ; avec 17 images, elles vont jusqu’à 23 h. Le planning est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
 
 > **Important :** l’API officielle permet ce fonctionnement pour une **Page Facebook**, pas pour un profil personnel. Le PC doit rester allumé, connecté à Internet et sans mise en veille pendant les horaires choisis.
 
@@ -16,7 +16,7 @@ Chaque horaire accepte au maximum 30 publications, soit 90 images par date. Les 
 
 - compte automatiquement les images de `images/to_post` ;
 - demande la date et affiche toutes les heures avant confirmation ;
-- répartit jusqu’à 90 images entre les trois horaires (30 maximum chacun) ;
+- répartit jusqu’à 51 images entre les trois horaires (17 maximum chacun) ;
 - choisit les images par ancienneté (modifiable) ;
 - lit la légende dans un fichier `.txt` du même nom ;
 - ajoute toujours `#portugal #portugais #france #francais #cours #apprendre #quiz` ;
@@ -143,9 +143,9 @@ Date de publication (JJ/MM/AAAA) :
 Il compte les images et les partage automatiquement à parts égales entre les trois séries. Pour **45 images**, il crée exactement 15 publications dans chacune :
 
 ```text
-Horaire 1 — 15 images : 07:30 … heures réparties … 23:30
-Horaire 2 — 15 images : 07:15 … heures réparties … 23:15
-Horaire 3 — 15 images : 07:45 … heures réparties … 23:45
+Horaire 1 — 15 images : 07:30, 08:30, 09:30 … 21:30
+Horaire 2 — 15 images : 07:15, 08:15, 09:15 … 21:15
+Horaire 3 — 15 images : 07:45, 08:45, 09:45 … 21:45
 ```
 
 Les 45 heures sont toutes différentes : les trois séries s’entrelacent dans la même journée sans jamais publier deux images à la même minute. Avec un nombre non divisible par trois, l’écart entre les séries est au maximum d’une image.
@@ -155,12 +155,12 @@ Après vérification, répondez `o` à la demande de confirmation. Une copie du 
 Règles :
 
 - départ toujours à 07 h ;
-- 30 publications maximum par horaire ;
-- 90 publications maximum pour une date ;
-- les images au-delà de 90 restent dans le dossier pour une autre date ;
-- chaque série couvre toute la journée : horaire 1 de 07:30 à 23:30, horaire 2 de 07:15 à 23:15 et horaire 3 de 07:45 à 23:45 ;
-- avec moins de 17 images, le bot répartit les publications sur les cases horaires disponibles ;
-- avec plus de 17 images, l’intervalle est réduit afin que tout reste sur la date choisie ;
+- 17 publications maximum par horaire ;
+- 51 publications maximum pour une date ;
+- les images au-delà de 51 restent dans le dossier pour une autre date ;
+- chaque série commence à 07 h et avance exactement d’une heure à chaque image ;
+- avec 15 images par série, les publications se terminent à 21 h ;
+- avec 17 images par série, les horaires 1, 2 et 3 se terminent respectivement à 23:30, 23:15 et 23:45 ;
 - une date déjà planifiée ne peut pas être créée une seconde fois par erreur.
 
 ## 4. Ajouter les images et légendes
@@ -293,7 +293,7 @@ Les réglages correspondants se trouvent dans `.env.example`.
 ## Sécurité et bonnes pratiques
 
 - Utilisez uniquement l’API Graph officielle et respectez les règles de la Plateforme Meta et la fréquence attendue par les abonnés de la Page.
-- La capacité de 90 publications est une limite technique du bot, pas une recommandation : une fréquence élevée peut être considérée comme indésirable par l’audience ou par Meta.
+- La capacité de 51 publications est une limite technique du bot, pas une recommandation : une fréquence élevée peut être considérée comme indésirable par l’audience ou par Meta.
 - Ne versionnez jamais `.env`, un jeton, un App Secret ou un export de la base locale.
 - Révoquez immédiatement un jeton qui aurait été exposé.
 - Donnez uniquement les permissions nécessaires.

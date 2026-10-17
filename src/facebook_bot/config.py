@@ -124,7 +124,7 @@ class Config:
                 or DEFAULT_FIXED_HASHTAGS
             ),
             max_posts_per_schedule=_int_env(
-                "MAX_POSTS_PER_SCHEDULE", 30, minimum=1, maximum=30
+                "MAX_POSTS_PER_SCHEDULE", 17, minimum=1, maximum=17
             ),
             max_late_minutes=_int_env("MAX_LATE_MINUTES", 15, minimum=1),
             poll_interval_seconds=_int_env("POLL_INTERVAL_SECONDS", 15, minimum=2),
