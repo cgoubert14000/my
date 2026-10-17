@@ -158,11 +158,18 @@ Le bot analyse les documents et propose :
 4. Utiliser les trois et répartir les images également
 ```
 
-Si vous choisissez `1`, toutes les images possibles utilisent uniquement les heures de `horraire1.txt`. Pour obtenir **entre 15 et 17 images dans chacun des trois plannings**, choisissez `4` et placez entre 45 et 51 images : 45 donne 15 par planning, 48 donne 16 par planning et 51 donne 17 par planning.
+Vous pouvez travailler avec seulement 15 images à la fois :
 
-Le bot n’utilise jamais plus d’images que le nombre d’heures disponible dans le ou les documents sélectionnés. Les images restantes attendent une autre date. Après vérification, répondez `o` à la demande de confirmation. Une copie est créée dans `data/planning-AAAA-MM-JJ.csv`.
+1. placez les 15 premières images et choisissez `1` ;
+2. attendez que Facebook accepte tout le lot et que le bot archive les images ;
+3. placez les 15 images suivantes, reprenez la même date et choisissez `2` ;
+4. après le deuxième succès, placez les 15 dernières images et choisissez `3`.
 
-Si un planning de cette date existe déjà et que toutes ses publications sont encore à l’état « prévu », le bot propose de le remplacer. Il refuse tout autre état afin d’éviter les doublons.
+Le bot ajoute chaque nouveau lot aux publications déjà programmées pour cette date, sans effacer les lots précédents et sans utiliser deux fois la même minute. Ne changez jamais les images tant que le lot précédent n’a pas été accepté par Facebook. Si ce lot est encore « prévu », lancez d’abord `ENVOYER_PLANNING.bat`.
+
+Le choix `4` reste disponible pour fournir les 45 à 51 images en une seule fois. Le bot n’utilise jamais plus d’images que le nombre d’heures encore libres. Les images restantes attendent une autre date. Après vérification, répondez `o` à la demande de confirmation. La copie `data/planning-AAAA-MM-JJ.csv` contient le planning complet cumulé.
+
+Si toutes les publications existantes sont encore à l’état « prévu », le bot peut proposer de remplacer ce lot au lieu de le compléter. Il refuse toute opération risquant d’effacer une publication acceptée ou au résultat incertain.
 
 Le bot vérifie alors une dernière fois la Page **Madame Portugais**, téléverse toutes les images retenues et crée tous les posts programmés chez Facebook. Attendez le bilan final avant de fermer la fenêtre. Après le message de succès, aucune tâche ne reste à exécuter sur le PC.
 

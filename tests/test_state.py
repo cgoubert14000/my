@@ -182,6 +182,45 @@ def test_uncertain_facebook_schedule_cannot_be_claimed_again(tmp_path) -> None:
     assert store.is_unavailable(item.fingerprint)
 
 
+def test_append_plan_adds_new_schedule_without_changing_existing_posts(tmp_path) -> None:
+    store = StateStore(tmp_path / "state.sqlite3")
+    store.initialize()
+    day = date(2026, 10, 20)
+    first_item = ImageItem(tmp_path / "first.jpg", None, "", "first-fingerprint")
+    second_item = ImageItem(tmp_path / "second.jpg", None, "", "second-fingerprint")
+    first_plan = build_plan(
+        day=day,
+        items=[first_item],
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
+    second_plan = build_plan(
+        day=day,
+        items=[second_item],
+        timezone=TZ,
+        schedules=(SCHEDULES[1],),
+    )
+    store.create_plan(day, first_plan)
+
+    store.create_plan(day, second_plan, append=True)
+
+    saved = store.scheduled_for_day(day)
+    assert len(saved) == 2
+    assert {publication.window_index for publication in saved} == {1, 2}
+
+    duplicate_time_item = ImageItem(
+        tmp_path / "duplicate.jpg", None, "", "duplicate-fingerprint"
+    )
+    duplicate_plan = build_plan(
+        day=day,
+        items=[duplicate_time_item],
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
+    with pytest.raises(StateError, match="07:30"):
+        store.create_plan(day, duplicate_plan, append=True)
+
+
 def test_replacement_can_reuse_only_images_reserved_on_that_day(tmp_path) -> None:
     store = StateStore(tmp_path / "state.sqlite3")
     store.initialize()

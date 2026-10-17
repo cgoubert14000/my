@@ -8,6 +8,7 @@ import shutil
 import sqlite3
 import subprocess
 import sys
+from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -25,7 +26,7 @@ from facebook_bot.facebook import FacebookError, FacebookPublisher
 from facebook_bot.images import ImageQueue
 from facebook_bot.planner import PlannedPost, build_plan
 from facebook_bot.runner import BotRunner
-from facebook_bot.state import StateError, StateStore
+from facebook_bot.state import ScheduledPost, StateError, StateStore
 from facebook_bot.text_settings import (
     ScheduleDefinition,
     load_hashtags,
@@ -373,41 +374,79 @@ def _plan_publications(
 
     existing_publications = state.scheduled_for_day(day)
     replace_plan = False
+    append_plan = False
     if existing_publications:
-        protected = [
-            publication
-            for publication in existing_publications
-            if publication.status != "pending"
-        ]
-        if protected:
-            statuses = ", ".join(
-                sorted({STATUS_LABELS.get(item.status, item.status) for item in protected})
+        existing_statuses = {publication.status for publication in existing_publications}
+        if existing_statuses == {"pending"}:
+            if not replace_existing:
+                if assume_yes:
+                    raise StateError(
+                        f"Un planning local existe déjà pour le {day:%d/%m/%Y}. "
+                        "Envoyez-le d'abord avec ENVOYER_PLANNING.bat ou utilisez "
+                        "--replace pour le remplacer."
+                    )
+                print(
+                    f"\nUn planning local de {len(existing_publications)} publication(s) "
+                    f"est encore en attente pour le {day:%d/%m/%Y}."
+                )
+                print(
+                    "Pour le conserver, répondez non puis lancez ENVOYER_PLANNING.bat. "
+                    "Ne changez pas encore ces images."
+                )
+                try:
+                    answer = input(
+                        "Remplacer réellement ce planning local ? [o/N] : "
+                    ).strip().casefold()
+                except (EOFError, KeyboardInterrupt):
+                    print("\nRemplacement annulé.")
+                    return 1
+                if answer not in {"o", "oui", "y", "yes"}:
+                    print("Le planning existant est conservé.")
+                    return 2
+            replace_plan = True
+        elif existing_statuses <= {"facebook_scheduled", "completed"}:
+            append_plan = True
+            occupied_minutes = {
+                (publication.scheduled_at.hour, publication.scheduled_at.minute)
+                for publication in existing_publications
+            }
+            selected_schedules = tuple(
+                ScheduleDefinition(
+                    index=schedule.index,
+                    filename=schedule.filename,
+                    times=tuple(
+                        value
+                        for value in schedule.times
+                        if (value.hour, value.minute) not in occupied_minutes
+                    ),
+                )
+                for schedule in selected_schedules
             )
-            raise StateError(
-                f"Le planning du {day:%d/%m/%Y} contient des publications « {statuses} ». "
-                "Il ne peut pas être remplacé automatiquement afin d'éviter un doublon."
+            selected_schedules = tuple(
+                schedule for schedule in selected_schedules if schedule.times
             )
-
-        if not replace_existing:
-            if assume_yes:
+            if not selected_schedules:
                 raise StateError(
-                    f"Un planning local existe déjà pour le {day:%d/%m/%Y}. "
-                    "Utilisez --replace pour autoriser son remplacement."
+                    "Toutes les heures du planning choisi sont déjà utilisées pour cette date."
                 )
             print(
-                f"\nUn planning local de {len(existing_publications)} publication(s) "
-                f"existe déjà pour le {day:%d/%m/%Y}."
+                f"\nLe {day:%d/%m/%Y} contient déjà "
+                f"{len(existing_publications)} publication(s) acceptée(s) par Facebook."
             )
-            print("Aucune de ces publications n'a été acceptée par Facebook.")
-            try:
-                answer = input("Remplacer ce planning local ? [o/N] : ").strip().casefold()
-            except (EOFError, KeyboardInterrupt):
-                print("\nRemplacement annulé.")
-                return 1
-            if answer not in {"o", "oui", "y", "yes"}:
-                print("Remplacement annulé ; le planning existant est conservé.")
-                return 2
-        replace_plan = True
+            print("Le nouveau lot sera ajouté aux heures encore libres.")
+        else:
+            statuses = ", ".join(
+                sorted(
+                    {
+                        STATUS_LABELS.get(publication.status, publication.status)
+                        for publication in existing_publications
+                    }
+                )
+            )
+            raise StateError(
+                f"Le planning du {day:%d/%m/%Y} contient des états « {statuses} ». "
+                "Terminez ou vérifiez d'abord ce lot avant de changer les images."
+            )
 
     queue = _make_image_queue(config, hashtags=hashtags)
     if replace_plan:
@@ -475,10 +514,12 @@ def _plan_publications(
             print("Planification annulée ; aucune donnée n'a été enregistrée.")
             return 2
 
-    state.create_plan(day, plan, replace=replace_plan)
-    csv_path = _write_plan_csv(config, day, plan)
-    print(f"\n✓ {len(plan)} publication(s) enregistrée(s) pour le {day:%d/%m/%Y}.")
-    print(f"✓ Copie lisible du planning : {csv_path}")
+    state.create_plan(day, plan, replace=replace_plan, append=append_plan)
+    complete_plan = state.scheduled_for_day(day)
+    csv_path = _write_plan_csv(config, day, complete_plan)
+    print(f"\n✓ {len(plan)} nouvelle(s) publication(s) enregistrée(s).")
+    print(f"✓ Total pour le {day:%d/%m/%Y} : {len(complete_plan)} publication(s).")
+    print(f"✓ Copie lisible du planning complet : {csv_path}")
     print("\nEnvoi immédiat du planning complet à Facebook…")
     return _send_pending_schedule(config, day=day, expected_count=len(plan))
 
@@ -533,6 +574,10 @@ def _choose_schedules(
         "  4. Utiliser les trois plannings également "
         "(45 images = 15 par planning, 48 = 16, 51 = 17)"
     )
+    print(
+        "  Astuce : pour travailler par lots de 15, choisissez 1, puis relancez "
+        "plus tard avec 2, puis avec 3 pour la même date."
+    )
 
     selected = choice
     if selected is None:
@@ -569,7 +614,11 @@ def _get_plan_date(value: str | None) -> date:
     raise ConfigError("Date invalide. Utilisez le format JJ/MM/AAAA.")
 
 
-def _write_plan_csv(config: Config, day: date, plan: list[PlannedPost]) -> Path:
+def _write_plan_csv(
+    config: Config,
+    day: date,
+    plan: Sequence[PlannedPost | ScheduledPost],
+) -> Path:
     path = config.state_db.parent / f"planning-{day.isoformat()}.csv"
     with path.open("w", encoding="utf-8-sig", newline="") as file:
         writer = csv.writer(file, delimiter=";")

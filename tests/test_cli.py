@@ -6,6 +6,7 @@ import pytest
 
 from facebook_bot import cli
 from facebook_bot.config import Config, ConfigError
+from facebook_bot.facebook import PublishReceipt
 from facebook_bot.state import StateStore
 
 
@@ -169,3 +170,28 @@ def test_plan_immediately_hands_saved_plan_to_facebook_sender(tmp_path, monkeypa
     assert calls == [(config, future_day, 1), (config, future_day, 1)]
     store = StateStore(config.state_db)
     assert len(store.scheduled_for_day(future_day)) == 1
+
+    first_publication = store.pending_publications(future_day)[0]
+    assert store.claim_for_facebook_scheduling(first_publication)
+    store.record_facebook_scheduled(
+        first_publication,
+        PublishReceipt(photo_id="media-1", post_id="post-1"),
+    )
+    (image_dir / "photo-2.jpg").write_bytes(b"second photo")
+
+    append_exit_code = cli._plan_publications(
+        config,
+        future_day.strftime("%d/%m/%Y"),
+        schedule_choice="2",
+        assume_yes=True,
+    )
+
+    assert append_exit_code == 0
+    assert calls == [
+        (config, future_day, 1),
+        (config, future_day, 1),
+        (config, future_day, 1),
+    ]
+    saved = store.scheduled_for_day(future_day)
+    assert len(saved) == 2
+    assert {publication.window_index for publication in saved} == {1, 2}

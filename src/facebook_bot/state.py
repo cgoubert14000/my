@@ -118,17 +118,21 @@ class StateStore:
         entries: Sequence[PlannedPost],
         *,
         replace: bool = False,
+        append: bool = False,
     ) -> None:
+        if replace and append:
+            raise StateError("Un planning ne peut pas être remplacé et complété simultanément.")
+
         with self._transaction() as connection:
             existing = connection.execute(
-                "SELECT status FROM scheduled_publications WHERE day = ?",
+                "SELECT status, scheduled_at FROM scheduled_publications WHERE day = ?",
                 (day.isoformat(),),
             ).fetchall()
-            if existing and not replace:
+            if existing and not replace and not append:
                 raise StateError(
                     f"Un planning existe déjà pour le {day.strftime('%d/%m/%Y')}."
                 )
-            if existing:
+            if existing and replace:
                 protected = {
                     "running",
                     "scheduling",
@@ -145,8 +149,16 @@ class StateStore:
                     "DELETE FROM scheduled_publications WHERE day = ?",
                     (day.isoformat(),),
                 )
+                existing = []
 
+            occupied_times = {str(row[1]) for row in existing}
             for entry in entries:
+                scheduled_at = entry.scheduled_at.isoformat()
+                if scheduled_at in occupied_times:
+                    raise StateError(
+                        f"Une publication existe déjà le {day:%d/%m/%Y} à "
+                        f"{entry.scheduled_at:%H:%M}."
+                    )
                 if self._fingerprint_unavailable(connection, entry.item.fingerprint):
                     raise StateError(
                         f"L'image {entry.item.path.name} est déjà publiée ou planifiée."
@@ -171,6 +183,7 @@ class StateStore:
                         _utc_now_iso(),
                     ),
                 )
+                occupied_times.add(scheduled_at)
 
     def scheduled_for_day(self, day: date) -> list[ScheduledPost]:
         with self._connect() as connection:
