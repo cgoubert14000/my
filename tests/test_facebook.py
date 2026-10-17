@@ -1,8 +1,16 @@
+import json
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pytest
+import requests
 
-from facebook_bot.facebook import FacebookError, FacebookPublisher
+from facebook_bot.facebook import (
+    FacebookError,
+    FacebookPublisher,
+    FacebookSchedulingUncertain,
+)
 
 
 class FakeResponse:
@@ -18,12 +26,15 @@ class FakeResponse:
 class FakeSession:
     def __init__(self, response):
         self.headers = {}
-        self.response = response
+        self.responses = response if isinstance(response, list) else [response]
         self.calls = []
 
     def request(self, method, url, **kwargs):
         self.calls.append((method, url, kwargs))
-        return self.response
+        response = self.responses.pop(0)
+        if isinstance(response, BaseException):
+            raise response
+        return response
 
 
 def test_publish_uses_bearer_header_not_query_string(tmp_path: Path) -> None:
@@ -43,6 +54,95 @@ def test_publish_uses_bearer_header_not_query_string(tmp_path: Path) -> None:
     assert session.headers["Authorization"] == "Bearer secret-token"
     assert "secret-token" not in session.calls[0][1]
     assert session.calls[0][2]["data"]["caption"] == "Bonjour"
+
+
+def test_schedule_photo_uploads_temporary_media_then_creates_scheduled_post(tmp_path) -> None:
+    image = tmp_path / "photo.jpg"
+    image.write_bytes(b"photo")
+    session = FakeSession(
+        [
+            FakeResponse({"id": "photo-42"}),
+            FakeResponse({"id": "page_scheduled-post-99"}),
+        ]
+    )
+    publisher = FacebookPublisher(
+        page_id="page",
+        access_token="token",
+        api_version="v26.0",
+        session=session,
+    )
+    scheduled_at = datetime(2026, 10, 19, 7, 15, tzinfo=ZoneInfo("Europe/Paris"))
+
+    receipt = publisher.schedule_photo(image, "Bonjour", scheduled_at)
+
+    assert receipt.photo_id == "photo-42"
+    assert receipt.post_id == "page_scheduled-post-99"
+    assert session.calls[0][1].endswith("/page/photos")
+    assert session.calls[0][2]["data"] == {"published": "false", "temporary": "true"}
+    assert session.calls[1][1].endswith("/page/feed")
+    feed_data = session.calls[1][2]["data"]
+    assert feed_data["message"] == "Bonjour"
+    assert feed_data["published"] == "false"
+    assert feed_data["unpublished_content_type"] == "SCHEDULED"
+    assert json.loads(feed_data["attached_media"]) == [{"media_fbid": "photo-42"}]
+    assert feed_data["scheduled_publish_time"] == str(int(scheduled_at.timestamp()))
+
+
+def test_schedule_photo_marks_lost_feed_response_as_uncertain(tmp_path) -> None:
+    image = tmp_path / "photo.jpg"
+    image.write_bytes(b"photo")
+    session = FakeSession(
+        [
+            FakeResponse({"id": "photo-42"}),
+            requests.Timeout("response lost"),
+        ]
+    )
+    publisher = FacebookPublisher(
+        page_id="page",
+        access_token="token",
+        api_version="v26.0",
+        session=session,
+    )
+
+    with pytest.raises(FacebookSchedulingUncertain) as error:
+        publisher.schedule_photo(
+            image,
+            "Bonjour",
+            datetime(2026, 10, 19, 7, 15, tzinfo=ZoneInfo("Europe/Paris")),
+        )
+
+    assert error.value.photo_id == "photo-42"
+    assert len(session.calls) == 2
+
+
+def test_schedule_photo_can_retry_after_definite_feed_rejection(tmp_path) -> None:
+    image = tmp_path / "photo.jpg"
+    image.write_bytes(b"photo")
+    session = FakeSession(
+        [
+            FakeResponse({"id": "photo-42"}),
+            FakeResponse(
+                {"error": {"code": 100, "message": "invalid time"}},
+                ok=False,
+                status_code=400,
+            ),
+        ]
+    )
+    publisher = FacebookPublisher(
+        page_id="page",
+        access_token="token",
+        api_version="v26.0",
+        session=session,
+    )
+
+    with pytest.raises(FacebookError) as error:
+        publisher.schedule_photo(
+            image,
+            "Bonjour",
+            datetime(2026, 10, 19, 7, 15, tzinfo=ZoneInfo("Europe/Paris")),
+        )
+
+    assert not isinstance(error.value, FacebookSchedulingUncertain)
 
 
 def test_destination_is_locked_to_expected_page_name() -> None:

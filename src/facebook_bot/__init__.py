@@ -1,3 +1,3 @@
-"""Bot de publication d'images sur une Page Facebook."""
+"""Bot de programmation d'images sur une Page Facebook."""
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"

@@ -126,6 +126,83 @@ def test_multi_image_plan_is_reserved_claimed_and_completed(tmp_path) -> None:
     assert store.scheduled_for_day(date(2026, 10, 20))[0].status == "completed"
 
 
+def test_records_facebook_scheduled_post_without_leaving_it_pending(tmp_path) -> None:
+    store = StateStore(tmp_path / "state.sqlite3")
+    store.initialize()
+    path = tmp_path / "photo.jpg"
+    path.write_bytes(b"photo")
+    item = ImageItem(path, None, "bonjour", "facebook-fingerprint")
+    plan = build_plan(
+        day=date(2026, 10, 20),
+        items=[item],
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
+    store.create_plan(date(2026, 10, 20), plan)
+    publication = store.pending_publications(date(2026, 10, 20))[0]
+
+    assert store.claim_for_facebook_scheduling(publication)
+    store.record_facebook_scheduled(
+        publication,
+        PublishReceipt(photo_id="media-id", post_id="page_post-id"),
+    )
+
+    saved = store.scheduled_for_day(date(2026, 10, 20))[0]
+    assert saved.status == "facebook_scheduled"
+    assert store.pending_publications(date(2026, 10, 20)) == []
+    assert store.was_posted(item.fingerprint)
+    assert store.is_unavailable(item.fingerprint)
+
+
+def test_uncertain_facebook_schedule_cannot_be_claimed_again(tmp_path) -> None:
+    store = StateStore(tmp_path / "state.sqlite3")
+    store.initialize()
+    path = tmp_path / "photo.jpg"
+    item = ImageItem(path, None, "", "uncertain-fingerprint")
+    plan = build_plan(
+        day=date(2026, 10, 20),
+        items=[item],
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
+    store.create_plan(date(2026, 10, 20), plan)
+    publication = store.pending_publications()[0]
+
+    assert store.claim_for_facebook_scheduling(publication)
+    store.release_facebook_scheduling(
+        publication,
+        status="uncertain",
+        error="réponse perdue",
+        photo_id="temporary-media-id",
+    )
+
+    saved = store.scheduled_for_day(date(2026, 10, 20))[0]
+    assert saved.status == "uncertain"
+    assert store.pending_publications() == []
+    assert store.is_unavailable(item.fingerprint)
+
+
+def test_interrupted_facebook_scheduling_becomes_uncertain(tmp_path) -> None:
+    store = StateStore(tmp_path / "state.sqlite3")
+    store.initialize()
+    item = ImageItem(tmp_path / "photo.jpg", None, "", "interrupted-fingerprint")
+    plan = build_plan(
+        day=date(2026, 10, 20),
+        items=[item],
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
+    store.create_plan(date(2026, 10, 20), plan)
+    publication = store.pending_publications()[0]
+    assert store.claim_for_facebook_scheduling(publication)
+
+    recovered = store.recover_stale_running(older_than=timedelta(0))
+
+    assert recovered == 1
+    assert store.scheduled_for_day(date(2026, 10, 20))[0].status == "uncertain"
+    assert store.pending_publications() == []
+
+
 def test_refuses_second_plan_for_same_day(tmp_path) -> None:
     store = StateStore(tmp_path / "state.sqlite3")
     store.initialize()

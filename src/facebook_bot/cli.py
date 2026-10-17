@@ -42,6 +42,8 @@ CONFIGURER.bat le vérifiera, le transférera dans .env puis effacera cette vale
 STATUS_LABELS = {
     "pending": "prévu",
     "running": "en cours",
+    "scheduling": "envoi à Facebook",
+    "facebook_scheduled": "programmé sur Facebook",
     "completed": "publié",
     "simulated": "simulé",
     "empty": "sans image",
@@ -70,7 +72,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     commands = parser.add_subparsers(dest="command", required=True)
 
-    commands.add_parser("run", help="Lancer le bot en continu.")
+    commands.add_parser(
+        "run",
+        help="Compatibilité : envoyer les publications en attente à Facebook puis quitter.",
+    )
 
     post_parser = commands.add_parser(
         "post-now", help="Publier immédiatement la prochaine image de la file."
@@ -83,7 +88,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     plan_parser = commands.add_parser(
         "plan",
-        help="Demander une date, compter les images et proposer les horaires.",
+        help=(
+            "Demander une date, créer le planning puis le programmer immédiatement "
+            "sur Facebook."
+        ),
     )
     plan_parser.add_argument(
         "--date",
@@ -106,6 +114,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     schedule_parser.add_argument(
         "--days", type=int, default=7, help="Nombre de jours à afficher (1 à 31, défaut : 7)."
+    )
+
+    send_parser = commands.add_parser(
+        "send-schedule",
+        help="Envoyer à Facebook les publications futures encore en attente.",
+    )
+    send_parser.add_argument(
+        "--date",
+        help="Limiter l'envoi à cette date (JJ/MM/AAAA).",
     )
 
     setup_parser = commands.add_parser(
@@ -133,7 +150,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     _configure_logging(args.verbose)
 
-    require_facebook = args.command in {"doctor", "run"} or (
+    require_facebook = args.command in {"doctor", "run", "plan", "send-schedule"} or (
         args.command == "post-now" and not args.dry_run
     )
     try:
@@ -147,8 +164,10 @@ def main(argv: list[str] | None = None) -> int:
 
         config = Config.from_env(args.env_file, require_facebook=require_facebook)
         if args.command == "run":
-            BotRunner(config).run_forever()
-            return 0
+            LOGGER.warning(
+                "Le mode d'attente local n'est plus utilisé : envoi du planning à Facebook."
+            )
+            return _send_pending_schedule(config)
         if args.command == "post-now":
             result = BotRunner(config, dry_run=args.dry_run).post_now()
             return 0 if result is not None else 2
@@ -161,6 +180,9 @@ def main(argv: list[str] | None = None) -> int:
             )
         if args.command == "schedule":
             return _show_schedule(config, args.days)
+        if args.command == "send-schedule":
+            selected_day = _get_plan_date(args.date) if args.date else None
+            return _send_pending_schedule(config, day=selected_day)
         if args.command == "doctor":
             return _doctor(config)
         if args.command == "queue":
@@ -339,15 +361,8 @@ def _plan_publications(
     day = _get_plan_date(date_text)
     selected_schedules = _choose_schedules(definitions, schedule_choice)
     now = datetime.now(config.timezone)
-    earliest_time = min(schedule.first for schedule in selected_schedules)
-    first_publication = datetime.combine(day, earliest_time, tzinfo=config.timezone)
     if day < now.date():
         raise ConfigError("La date de publication ne peut pas être dans le passé.")
-    if first_publication <= now + timedelta(minutes=2):
-        raise ConfigError(
-            "Pour conserver le planning complet, choisissez une date future "
-            "(généralement demain ou plus tard)."
-        )
     if state.scheduled_for_day(day):
         raise StateError(
             f"Un planning existe déjà pour le {day.strftime('%d/%m/%Y')}."
@@ -366,6 +381,16 @@ def _plan_publications(
         timezone=config.timezone,
         schedules=selected_schedules,
     )
+    if plan[0].scheduled_at <= now + timedelta(minutes=15):
+        raise ConfigError(
+            "Facebook exige au moins 10 minutes d'avance. Choisissez une date/heure "
+            "laissant au moins 15 minutes afin d'envoyer le planning en sécurité."
+        )
+    if plan[-1].scheduled_at > now + timedelta(days=75):
+        raise ConfigError(
+            "Facebook n'accepte pas les publications programmées à plus de 75 jours. "
+            "Choisissez une date plus proche."
+        )
 
     print(f"\nDate choisie : {day.strftime('%d/%m/%Y')}")
     print(f"Images détectées et disponibles : {len(items)}")
@@ -402,14 +427,49 @@ def _plan_publications(
             return 1
         if answer not in {"o", "oui", "y", "yes"}:
             print("Planification annulée ; aucune donnée n'a été enregistrée.")
-            return 0
+            return 2
 
     state.create_plan(day, plan)
     csv_path = _write_plan_csv(config, day, plan)
-    print(f"\n✓ {len(plan)} publication(s) planifiée(s) pour le {day:%d/%m/%Y}.")
+    print(f"\n✓ {len(plan)} publication(s) enregistrée(s) pour le {day:%d/%m/%Y}.")
     print(f"✓ Copie lisible du planning : {csv_path}")
-    print("Laissez maintenant LANCER_BOT.bat ouvert aux heures prévues.")
-    return 0
+    print("\nEnvoi immédiat du planning complet à Facebook…")
+    return _send_pending_schedule(config, day=day, expected_count=len(plan))
+
+
+def _send_pending_schedule(
+    config: Config,
+    *,
+    day: date | None = None,
+    expected_count: int | None = None,
+) -> int:
+    result = BotRunner(config).schedule_pending_on_facebook(day=day)
+    if result.scheduled:
+        print(
+            f"\n✓ Facebook a accepté {result.scheduled} publication(s) programmée(s)."
+        )
+
+    if result.uncertain:
+        print(
+            "\n⚠ ARRÊT DE SÉCURITÉ : au moins un envoi est à vérifier dans "
+            "Meta Business Suite. Ne le renvoyez pas, afin d'éviter un doublon."
+        )
+    if result.pending:
+        print(
+            f"⚠ {result.pending} publication(s) restent en attente locale. "
+            "Corrigez l'erreur puis lancez ENVOYER_PLANNING.bat."
+        )
+
+    sent_everything_expected = expected_count is None or result.scheduled == expected_count
+    if result.succeeded and sent_everything_expected:
+        if result.scheduled == 0:
+            print("Aucune publication future n'attend d'être envoyée à Facebook.")
+        else:
+            print("✓ Le planning est maintenant enregistré chez Facebook.")
+            print("✓ Vous pouvez fermer cette fenêtre et éteindre le PC.")
+            print("Facebook publiera automatiquement aux dates et heures prévues.")
+        return 0
+    return 1
 
 
 def _choose_schedules(

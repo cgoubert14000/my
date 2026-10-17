@@ -10,9 +10,11 @@ Les fichiers fournis contiennent par défaut :
 2. `horraire2.txt` : `07:15`, `08:15`, `09:15`… `23:15` ;
 3. `horraire3.txt` : `07:45`, `08:45`, `09:45`… `23:45`.
 
-Les heures et hashtags peuvent être modifiés directement dans ces fichiers sans toucher au code. Le planning confirmé est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
+Les heures et hashtags peuvent être modifiés directement dans ces fichiers sans toucher au code. Après confirmation, le bot **envoie immédiatement tout le planning futur à Facebook**. Facebook conserve alors les dates et heures et effectue les publications : le programme peut être fermé et le PC peut être éteint.
 
-> **Important :** l’API officielle permet ce fonctionnement pour une **Page Facebook**, pas pour un profil personnel. Le PC doit rester allumé, connecté à Internet et sans mise en veille pendant les horaires choisis.
+Le planning et les identifiants renvoyés par Facebook sont aussi enregistrés dans SQLite. Une publication déjà acceptée par Facebook n’est jamais envoyée une seconde fois.
+
+> **Important :** l’API officielle permet ce fonctionnement pour une **Page Facebook**, pas pour un profil personnel. Au moment de la programmation, Meta impose actuellement une heure située au moins 10 minutes et au plus 75 jours dans le futur. Le bot utilise une marge de 15 minutes lors de la création du planning.
 
 ## Fonctionnement
 
@@ -23,17 +25,19 @@ Les heures et hashtags peuvent être modifiés directement dans ces fichiers san
 - choisit les images par ancienneté (modifiable) ;
 - lit la légende dans un fichier `.txt` du même nom ;
 - ajoute à chaque publication les mots-dièse présents dans `hashtags.txt` ;
-- publie via `/{PAGE_ID}/photos` ;
-- mémorise l’empreinte SHA-256 pour empêcher les doublons ;
-- déplace l’image publiée dans `images/posted/AAAA-MM-JJ` ;
-- retente les erreurs réseau temporaires, mais pas un jeton expiré ;
+- téléverse chaque photo en média temporaire non publié via `/{PAGE_ID}/photos` ;
+- crée ensuite le post programmé via `/{PAGE_ID}/feed`, avec son heure future ;
+- mémorise l’identifiant du post et l’empreinte SHA-256 pour empêcher les doublons ;
+- déplace l’image acceptée dans `images/posted/AAAA-MM-JJ` ;
+- arrête le lot si Facebook refuse un envoi, tout en conservant le reste à reprendre ;
+- bloque toute répétition si la réponse de Facebook a été perdue et que le résultat est incertain ;
 - conserve son planning et son historique dans `data/facebook_bot.sqlite3`.
 
 Formats acceptés par la file locale : `.jpg`, `.jpeg`, `.png`, `.gif` et `.webp`. JPEG ou PNG sont conseillés.
 
 ## 1. Préparer Meta for Developers
 
-Vous devez être administrateur de la Page **Madame Portugais** et avoir une application sur [Meta for Developers](https://developers.facebook.com/apps/).
+Vous devez être administrateur de la Page **Madame Portugais**, disposer de la tâche de Page **CREATE_CONTENT** et avoir une application sur [Meta for Developers](https://developers.facebook.com/apps/).
 
 1. Ouvrez votre application Meta (une application de type **Business** convient).
 2. Dans l’[Explorateur de l’API Graph](https://developers.facebook.com/tools/explorer/), sélectionnez cette application.
@@ -78,9 +82,9 @@ Ensuite :
 1. placez les images dans `images\to_post` ;
 2. double-cliquez sur **`PLANIFIER.bat`**, saisissez la date et choisissez 1, 2, 3 ou 4 ;
 3. vérifiez les heures et hashtags proposés, puis répondez `o` pour confirmer ;
-4. double-cliquez sur **`LANCER_BOT.bat`**.
+4. attendez le message **« Facebook possède le planning complet »**.
 
-La fenêtre de `LANCER_BOT.bat` doit rester ouverte pour que les publications programmées fonctionnent.
+C’est terminé : fermez la fenêtre et éteignez le PC si vous le souhaitez. Il n’est pas nécessaire de lancer un programme aux heures prévues. `LANCER_BOT.bat` sert désormais seulement à envoyer d’éventuels éléments restés en attente et à afficher leur état.
 
 ### Windows — méthode PowerShell
 
@@ -156,7 +160,9 @@ Si vous choisissez `1`, toutes les images possibles utilisent uniquement les heu
 
 Le bot n’utilise jamais plus d’images que le nombre d’heures disponible dans le ou les documents sélectionnés. Les images restantes attendent une autre date. Après vérification, répondez `o` à la demande de confirmation. Une copie est créée dans `data/planning-AAAA-MM-JJ.csv`.
 
-Vous pouvez modifier les heures, mais une même heure ne doit pas apparaître dans deux documents : le diagnostic bloquera la configuration pour empêcher deux publications au même moment.
+Le bot vérifie alors une dernière fois la Page **Madame Portugais**, téléverse toutes les images retenues et crée tous les posts programmés chez Facebook. Attendez le bilan final avant de fermer la fenêtre. Après le message de succès, aucune tâche ne reste à exécuter sur le PC.
+
+La première publication doit laisser une marge d’au moins 15 minutes et la dernière ne peut pas dépasser 75 jours. Vous pouvez modifier les heures, mais une même heure ne doit pas apparaître dans deux documents : le diagnostic bloquera la configuration pour empêcher deux publications au même moment.
 
 ## 4. Ajouter les images et légendes
 
@@ -184,12 +190,18 @@ Modifiez `hashtags.txt` pour choisir les hashtags ajoutés à toutes les publica
 
 Vous pouvez les remplacer librement. Écrivez-les avec ou sans `#` : le bot normalise automatiquement la liste et retire les doublons. Le texte UTF-8 du fichier `.txt` associé à une image devient la première partie de sa légende. Sans légende individuelle, `DEFAULT_CAPTION` est utilisé. Avec `QUEUE_ORDER=oldest`, l’image la plus ancienne part en premier.
 
-## 5. Tester sans publier
+## 5. Commandes de contrôle
 
-Créer interactivement un planning :
+Créer interactivement un planning **et l’envoyer immédiatement à Facebook** :
 
 ```bash
 facebook-image-bot plan
+```
+
+Reprendre uniquement les publications qui sont encore en attente locale, sans renvoyer celles déjà acceptées :
+
+```bash
+facebook-image-bot send-schedule
 ```
 
 Afficher les publications déjà planifiées sur les 7 prochains jours :
@@ -217,7 +229,7 @@ Le diagnostic doit finir par :
 Le bot est prêt. Ce test n'a rien publié.
 ```
 
-## 6. Lancer le bot
+## 6. Programmer puis fermer le bot
 
 Ordre recommandé sous Windows :
 
@@ -225,20 +237,17 @@ Ordre recommandé sous Windows :
 1. CONFIGURER.bat
 2. placer les images dans images\to_post
 3. PLANIFIER.bat
-4. LANCER_BOT.bat
+4. attendre la confirmation complète de Facebook
+5. fermer la fenêtre et, si souhaité, éteindre le PC
 ```
+
+Il n’existe plus de processus à laisser en attente jusqu’aux heures choisies. `LANCER_BOT.bat` et `ENVOYER_PLANNING.bat` peuvent reprendre les éléments encore marqués « prévu » après une erreur certaine, puis afficher le résultat. Les posts déjà acceptés ne sont pas renvoyés.
 
 En ligne de commande :
 
 ```bash
 facebook-image-bot plan
-facebook-image-bot run
-```
-
-Laissez la fenêtre ouverte. `Ctrl+C` arrête proprement le bot ; le planning enregistré sera repris au prochain lancement. Pour voir davantage de détails :
-
-```bash
-facebook-image-bot -v run
+facebook-image-bot schedule --days 31
 ```
 
 Compter les images qui ne sont ni publiées ni déjà réservées dans un planning :
@@ -257,34 +266,19 @@ Si la commande `facebook-image-bot` n’est pas reconnue, utilisez l’équivale
 
 ```bash
 python -m facebook_bot plan
-python -m facebook_bot run
+python -m facebook_bot send-schedule
 ```
-
-## Démarrage automatique sur un PC
-
-Le plus simple sous Windows est le **Planificateur de tâches** :
-
-1. créer une tâche « au démarrage » ou « à l’ouverture de session » ;
-2. programme : chemin complet vers `.venv\Scripts\pythonw.exe` (ou `python.exe` pour conserver la console) ;
-3. arguments : `-m facebook_bot run` ;
-4. « Démarrer dans » : chemin complet de ce projet ;
-5. autoriser le redémarrage de la tâche en cas d’échec ;
-6. désactiver la mise en veille automatique du PC pendant les horaires concernés.
-
-Sous macOS/Linux, un service `systemd`, `launchd` ou une tâche de démarrage équivalente peut lancer `python -m facebook_bot run` avec le dossier du projet comme répertoire de travail.
 
 ## Comportement en cas de problème
 
-- **Le journal indique que le bot attend :** ce n’est pas une erreur. Lancez d’abord `PLANIFIER.bat`, choisissez une date future et confirmez avec `o`. La nouvelle version affiche ensuite la date et l’heure de la prochaine publication.
 - **Dossier vide au moment de planifier :** aucun planning n’est créé.
-- **Image déplacée ou modifiée après la planification :** cette publication passe en échec afin de ne pas envoyer le mauvais fichier.
-- **Bot lancé avec plus de 15 minutes de retard :** les heures dépassées sont marquées comme manquées au lieu d’être publiées en rafale.
-- **Coupure réseau / erreur Meta temporaire :** jusqu’à 3 tentatives espacées de 10 minutes, si elles restent possibles avant minuit.
-- **Jeton expiré ou permission refusée :** la publication passe en échec et le message indique quoi corriger ; aucun essai en boucle.
-- **Arrêt pendant l’appel de publication :** après 15 minutes, la publication passe à « à vérifier » et n’est pas retentée automatiquement, afin d’éviter un doublon éventuel.
-- **Échec d’archivage après publication :** l’empreinte est déjà enregistrée, donc le fichier resté dans l’entrée ne sera pas republié.
-
-Les réglages correspondants se trouvent dans `.env.example`.
+- **Image déplacée ou modifiée avant l’envoi :** le lot est arrêté avant de contacter Facebook afin de ne pas envoyer le mauvais fichier.
+- **Date trop proche ou trop lointaine :** la création est refusée en respectant la fenêtre Meta de 10 minutes à 75 jours et la marge locale de 15 minutes.
+- **Facebook refuse clairement une requête :** l’élément et les suivants restent « prévu ». Corrigez la cause puis utilisez `ENVOYER_PLANNING.bat` ; les éléments déjà acceptés ne repartent pas.
+- **Réponse perdue après la demande de création du post :** l’élément passe à « à vérifier » et n’est jamais retenté automatiquement. Contrôlez Meta Business Suite avant toute action afin d’éviter un doublon.
+- **Jeton expiré ou permission refusée :** le lot s’arrête et le message indique quoi corriger ; aucun essai en boucle.
+- **Interruption brutale pendant un envoi :** l’état « envoi à Facebook » est conservé puis devient « à vérifier » après le délai de sécurité ; il n’est pas repris aveuglément.
+- **Échec d’archivage après acceptation :** l’empreinte et l’identifiant Facebook sont déjà enregistrés, donc le fichier resté dans l’entrée ne sera pas republié.
 
 ## Sécurité et bonnes pratiques
 

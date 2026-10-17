@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +24,14 @@ class FacebookError(RuntimeError):
         self.retryable = retryable
         self.code = code
         self.subcode = subcode
+
+
+class FacebookSchedulingUncertain(FacebookError):
+    """Facebook a peut-être accepté le post ; une répétition risquerait un doublon."""
+
+    def __init__(self, message: str, *, photo_id: str) -> None:
+        super().__init__(message)
+        self.photo_id = photo_id
 
 
 @dataclass(frozen=True)
@@ -107,6 +117,70 @@ class FacebookPublisher:
             raise FacebookError("Facebook n'a pas renvoyé l'identifiant de la photo.")
         post_id = payload.get("post_id")
         return PublishReceipt(photo_id=photo_id, post_id=str(post_id) if post_id else None)
+
+    def schedule_photo(
+        self,
+        image_path: Path,
+        caption: str,
+        scheduled_at: datetime,
+    ) -> PublishReceipt:
+        """Téléverse une photo temporaire puis crée un Page Post programmé."""
+        try:
+            with image_path.open("rb") as image_file:
+                upload_response = self._request(
+                    "POST",
+                    f"{self.base_url}/{self.page_id}/photos",
+                    data={"published": "false", "temporary": "true"},
+                    files={"source": (image_path.name, image_file)},
+                    timeout=(10, self.timeout_seconds),
+                )
+        except OSError as exc:
+            raise FacebookError(f"Impossible de lire l'image {image_path.name} : {exc}") from exc
+
+        upload_payload = self._json(upload_response)
+        photo_id = str(upload_payload.get("id", ""))
+        if not photo_id:
+            raise FacebookError("Facebook n'a pas renvoyé l'identifiant de la photo temporaire.")
+
+        try:
+            feed_response = self._request(
+                "POST",
+                f"{self.base_url}/{self.page_id}/feed",
+                data={
+                    "message": caption,
+                    "attached_media": json.dumps([{"media_fbid": photo_id}]),
+                    "published": "false",
+                    "scheduled_publish_time": str(int(scheduled_at.timestamp())),
+                    "unpublished_content_type": "SCHEDULED",
+                },
+                timeout=(10, self.timeout_seconds),
+            )
+        except FacebookError as exc:
+            if not exc.retryable:
+                raise
+            raise FacebookSchedulingUncertain(
+                "Réponse perdue après l'envoi du post programmé. Vérifiez-le dans "
+                "Meta Business Suite avant toute nouvelle tentative.",
+                photo_id=photo_id,
+            ) from exc
+
+        try:
+            feed_payload = self._json(feed_response)
+        except FacebookError as exc:
+            raise FacebookSchedulingUncertain(
+                "Réponse illisible après l'envoi du post programmé. Vérifiez-le dans "
+                "Meta Business Suite avant toute nouvelle tentative.",
+                photo_id=photo_id,
+            ) from exc
+
+        post_id = str(feed_payload.get("id", ""))
+        if not post_id:
+            raise FacebookSchedulingUncertain(
+                "Facebook a répondu sans identifiant de post. Vérifiez la programmation "
+                "dans Meta Business Suite avant toute nouvelle tentative.",
+                photo_id=photo_id,
+            )
+        return PublishReceipt(photo_id=photo_id, post_id=post_id)
 
     def _request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
         try:

@@ -129,7 +129,13 @@ class StateStore:
                     f"Un planning existe déjà pour le {day.strftime('%d/%m/%Y')}."
                 )
             if existing:
-                protected = {"running", "completed", "uncertain"}
+                protected = {
+                    "running",
+                    "scheduling",
+                    "completed",
+                    "facebook_scheduled",
+                    "uncertain",
+                }
                 if any(str(row[0]) in protected for row in existing):
                     raise StateError(
                         "Ce planning contient une publication en cours, publiée ou à vérifier ; "
@@ -191,6 +197,104 @@ class StateStore:
                 """
             ).fetchone()
         return _scheduled_from_row(row) if row is not None else None
+
+    def pending_publications(self, day: date | None = None) -> list[ScheduledPost]:
+        with self._connect() as connection:
+            if day is None:
+                rows = connection.execute(
+                    f"""
+                    SELECT {_SCHEDULED_COLUMNS}
+                    FROM scheduled_publications
+                    WHERE status = 'pending'
+                    ORDER BY scheduled_at
+                    """
+                ).fetchall()
+            else:
+                rows = connection.execute(
+                    f"""
+                    SELECT {_SCHEDULED_COLUMNS}
+                    FROM scheduled_publications
+                    WHERE status = 'pending' AND day = ?
+                    ORDER BY scheduled_at
+                    """,
+                    (day.isoformat(),),
+                ).fetchall()
+        return [_scheduled_from_row(row) for row in rows]
+
+    def publication_status_counts(self, day: date | None = None) -> dict[str, int]:
+        with self._connect() as connection:
+            if day is None:
+                rows = connection.execute(
+                    "SELECT status, COUNT(*) FROM scheduled_publications GROUP BY status"
+                ).fetchall()
+            else:
+                rows = connection.execute(
+                    """
+                    SELECT status, COUNT(*) FROM scheduled_publications
+                    WHERE day = ? GROUP BY status
+                    """,
+                    (day.isoformat(),),
+                ).fetchall()
+        return {str(status): int(count) for status, count in rows}
+
+    def claim_for_facebook_scheduling(self, publication: ScheduledPost) -> bool:
+        with self._connect() as connection:
+            changed = connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET status = 'scheduling', updated_at = ?
+                WHERE id = ? AND status = 'pending'
+                """,
+                (_utc_now_iso(), publication.id),
+            ).rowcount
+        return changed == 1
+
+    def release_facebook_scheduling(
+        self,
+        publication: ScheduledPost,
+        *,
+        status: str,
+        error: str,
+        photo_id: str | None = None,
+    ) -> None:
+        if status not in {"pending", "failed", "uncertain"}:
+            raise StateError(f"Statut de programmation Facebook invalide : {status}")
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET status = ?, last_error = ?, facebook_photo_id = ?, updated_at = ?
+                WHERE id = ? AND status = 'scheduling'
+                """,
+                (status, error, photo_id, _utc_now_iso(), publication.id),
+            )
+
+    def record_facebook_scheduled(
+        self,
+        publication: ScheduledPost,
+        receipt: PublishReceipt,
+    ) -> None:
+        with self._transaction() as connection:
+            changed = connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET status = 'facebook_scheduled', facebook_photo_id = ?,
+                    last_error = NULL, updated_at = ?
+                WHERE id = ? AND status = 'scheduling'
+                """,
+                (receipt.photo_id, _utc_now_iso(), publication.id),
+            ).rowcount
+            if changed != 1:
+                raise StateError(
+                    "L'état local a changé pendant la programmation Facebook ; "
+                    "vérification manuelle requise."
+                )
+            self._insert_posted(
+                connection,
+                publication.item,
+                receipt,
+                publication.scheduled_at,
+            )
 
     def is_unavailable(self, fingerprint: str) -> bool:
         with self._connect() as connection:
@@ -339,7 +443,10 @@ class StateStore:
             """
             SELECT 1 FROM scheduled_publications
             WHERE fingerprint = ?
-              AND status IN ('pending', 'running', 'completed', 'uncertain')
+              AND status IN (
+                  'pending', 'running', 'scheduling', 'completed',
+                  'facebook_scheduled', 'uncertain'
+              )
             """,
             (fingerprint,),
         ).fetchone()
@@ -567,13 +674,16 @@ class StateStore:
                     recovered_legacy.append((day, index))
 
             scheduled_rows = connection.execute(
-                "SELECT id, updated_at FROM scheduled_publications WHERE status = 'running'"
+                """
+                SELECT id, updated_at FROM scheduled_publications
+                WHERE status IN ('running', 'scheduling')
+                """
             ).fetchall()
             for publication_id, updated_at in scheduled_rows:
                 if datetime.fromisoformat(updated_at) < threshold:
                     recovered_scheduled.append(int(publication_id))
 
-            error = "Arrêt pendant une publication ; non retentée pour éviter un doublon"
+            error = "Arrêt pendant un envoi Facebook ; non retenté pour éviter un doublon"
             connection.executemany(
                 """
                 UPDATE daily_slots
@@ -589,7 +699,7 @@ class StateStore:
                 """
                 UPDATE scheduled_publications
                 SET status = 'uncertain', last_error = ?, updated_at = ?
-                WHERE id = ? AND status = 'running'
+                WHERE id = ? AND status IN ('running', 'scheduling')
                 """,
                 [
                     (error, _utc_now_iso(), publication_id)

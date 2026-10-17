@@ -1,17 +1,33 @@
 from __future__ import annotations
 
 import logging
-import time
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from facebook_bot.config import Config
-from facebook_bot.facebook import FacebookError, FacebookPublisher, PublishReceipt
+from facebook_bot.facebook import (
+    FacebookError,
+    FacebookPublisher,
+    FacebookSchedulingUncertain,
+    PublishReceipt,
+)
 from facebook_bot.images import ImageItem, ImageQueue, file_sha256
-from facebook_bot.state import ScheduledPost, StateStore
+from facebook_bot.state import ScheduledPost, StateError, StateStore
 from facebook_bot.text_settings import load_hashtags
 
 LOGGER = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class AdvanceScheduleResult:
+    scheduled: int
+    pending: int
+    uncertain: int
+
+    @property
+    def succeeded(self) -> bool:
+        return self.pending == 0 and self.uncertain == 0
 
 
 class BotRunner:
@@ -35,60 +51,15 @@ class BotRunner:
         )
 
     def run_forever(self) -> None:
-        self.config.prepare_directories()
-        self.state.initialize()
-        if not self.dry_run:
-            page = self.publisher.verify_destination(self.config.expected_page_name)
-            LOGGER.info("Destination vérifiée : %s (ID %s).", page.name, page.id)
-        stale_count = self.state.recover_stale_running()
-        if stale_count:
-            LOGGER.warning(
-                "%d publication(s) interrompue(s) ont été marquées « uncertain » pour éviter "
-                "des doublons.",
-                stale_count,
-            )
-
-        LOGGER.info(
-            "Bot démarré — Page %s, fuseau %s%s",
-            self.config.page_id or "(simulation)",
-            self.config.timezone_name,
-            " [SIMULATION]" if self.dry_run else "",
+        """Ancien point d'entrée : programme désormais le lot chez Facebook puis quitte."""
+        LOGGER.warning(
+            "Le mode d'attente local est désactivé ; le planning est envoyé à Facebook."
         )
-        next_publication = self.state.next_pending_publication()
-        if next_publication is None:
-            LOGGER.warning(
-                "AUCUNE PUBLICATION PLANIFIÉE. Laissez cette fenêtre ouverte ou "
-                "arrêtez-la avec Ctrl+C, puis lancez PLANIFIER.bat."
+        result = self.schedule_pending_on_facebook()
+        if not result.succeeded:
+            raise StateError(
+                "Le planning complet n'est pas confirmé par Facebook ; consultez les états."
             )
-        else:
-            LOGGER.info(
-                "Prochaine publication : %s à %s — %s (planning %d).",
-                next_publication.scheduled_at.strftime("%d/%m/%Y"),
-                next_publication.scheduled_at.strftime("%H:%M"),
-                next_publication.item.path.name,
-                next_publication.window_index,
-            )
-
-        try:
-            while True:
-                now = datetime.now(self.config.timezone)
-                expired_count = self.state.expire_scheduled(
-                    now,
-                    max_late=timedelta(minutes=self.config.max_late_minutes),
-                )
-                if expired_count:
-                    LOGGER.warning(
-                        "%d publication(s) trop en retard ont été marquées comme manquées.",
-                        expired_count,
-                    )
-
-                publication = self.state.claim_due_publication(now)
-                if publication is not None:
-                    self._process_publication(publication, now)
-                    continue
-                time.sleep(self.config.poll_interval_seconds)
-        except KeyboardInterrupt:
-            LOGGER.info("Arrêt demandé. Le planning sera repris au prochain lancement.")
 
     def post_now(self) -> PublishReceipt | None:
         self.config.prepare_directories()
@@ -111,6 +82,126 @@ class BotRunner:
         self._archive_after_success(item, posted_at)
         LOGGER.info("Photo publiée avec succès (ID Facebook : %s).", receipt.photo_id)
         return receipt
+
+    def schedule_pending_on_facebook(
+        self,
+        *,
+        day: date | None = None,
+    ) -> AdvanceScheduleResult:
+        """Envoie maintenant les publications futures afin que Facebook les exécute."""
+        self.config.prepare_directories()
+        self.state.initialize()
+        stale_count = self.state.recover_stale_running()
+        if stale_count:
+            LOGGER.warning(
+                "%d envoi(s) interrompu(s) ont été marqués « à vérifier » pour éviter "
+                "un doublon.",
+                stale_count,
+            )
+        publications = self.state.pending_publications(day)
+        if not publications:
+            counts = self.state.publication_status_counts(day)
+            return AdvanceScheduleResult(
+                scheduled=0,
+                pending=0,
+                uncertain=counts.get("uncertain", 0) + counts.get("scheduling", 0),
+            )
+
+        now = datetime.now(self.config.timezone)
+        earliest = now + timedelta(minutes=10)
+        latest = now + timedelta(days=75)
+        too_soon = [post for post in publications if post.scheduled_at < earliest]
+        too_late = [post for post in publications if post.scheduled_at > latest]
+        if too_soon:
+            first = too_soon[0]
+            raise StateError(
+                f"{first.item.path.name} est prévu à {first.scheduled_at:%d/%m/%Y %H:%M}. "
+                "Facebook exige au moins 10 minutes d'avance."
+            )
+        if too_late:
+            first = too_late[0]
+            raise StateError(
+                f"{first.item.path.name} est prévu à {first.scheduled_at:%d/%m/%Y %H:%M}. "
+                "Facebook n'accepte pas une programmation à plus de 75 jours."
+            )
+
+        for publication in publications:
+            item = publication.item
+            if not item.path.is_file():
+                raise StateError(f"Image planifiée introuvable : {item.path}")
+            try:
+                current_fingerprint = file_sha256(item.path)
+            except OSError as exc:
+                raise StateError(
+                    f"Impossible de lire l'image planifiée {item.path.name} : {exc}"
+                ) from exc
+            if current_fingerprint != item.fingerprint:
+                raise StateError(
+                    f"{item.path.name} a été modifiée après la création du planning."
+                )
+
+        page = self.publisher.verify_destination(self.config.expected_page_name)
+        LOGGER.info("Destination vérifiée : %s (ID %s).", page.name, page.id)
+        scheduled_count = 0
+        for publication in publications:
+            if not self.state.claim_for_facebook_scheduling(publication):
+                LOGGER.warning(
+                    "%s n'est plus en attente ; elle n'est pas renvoyée.",
+                    publication.item.path.name,
+                )
+                continue
+
+            LOGGER.info(
+                "Programmation de %s pour le %s à %s…",
+                publication.item.path.name,
+                publication.scheduled_at.strftime("%d/%m/%Y"),
+                publication.scheduled_at.strftime("%H:%M"),
+            )
+            try:
+                receipt = self.publisher.schedule_photo(
+                    publication.item.path,
+                    publication.item.caption,
+                    publication.scheduled_at,
+                )
+            except FacebookSchedulingUncertain as exc:
+                self.state.release_facebook_scheduling(
+                    publication,
+                    status="uncertain",
+                    error=str(exc),
+                    photo_id=exc.photo_id,
+                )
+                LOGGER.error("ARRÊT DE SÉCURITÉ pour %s : %s", publication.item.path.name, exc)
+                break
+            except FacebookError as exc:
+                self.state.release_facebook_scheduling(
+                    publication,
+                    status="pending",
+                    error=str(exc),
+                )
+                LOGGER.error(
+                    "Facebook a refusé %s ; les envois suivants restent en attente : %s",
+                    publication.item.path.name,
+                    exc,
+                )
+                break
+
+            # Le succès est mémorisé avant l'archivage : si le déplacement local échoue,
+            # cette image ne sera jamais renvoyée à Facebook.
+            self.state.record_facebook_scheduled(publication, receipt)
+            self._archive_after_success(publication.item, publication.scheduled_at)
+            scheduled_count += 1
+            LOGGER.info(
+                "✓ %s programmée sur Facebook (post %s).",
+                publication.item.path.name,
+                receipt.post_id,
+            )
+
+        counts = self.state.publication_status_counts(day)
+        return AdvanceScheduleResult(
+            scheduled=scheduled_count,
+            pending=counts.get("pending", 0),
+            uncertain=counts.get("uncertain", 0) + counts.get("scheduling", 0),
+        )
 
     def _process_publication(self, publication: ScheduledPost, now: datetime) -> None:
         item = publication.item
@@ -198,7 +289,10 @@ class BotRunner:
         try:
             archived_path = self.queue.archive(item, posted_at)
         except OSError as exc:
-            LOGGER.warning("La photo est publiée mais son archivage local a échoué : %s", exc)
+            LOGGER.warning(
+                "La photo est acceptée par Facebook mais son archivage a échoué : %s",
+                exc,
+            )
             return
         self.state.update_archive_path(item.fingerprint, archived_path)
         LOGGER.info("Image archivée dans %s", archived_path)

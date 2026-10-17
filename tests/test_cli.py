@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
 from types import SimpleNamespace
+from zoneinfo import ZoneInfo
 
 import pytest
 
 from facebook_bot import cli
-from facebook_bot.config import ConfigError
+from facebook_bot.config import Config, ConfigError
 
 
 class FakePublisher:
@@ -77,3 +79,78 @@ def test_token_template_is_not_accepted_as_a_token(tmp_path) -> None:
 def test_setup_never_writes_secret_to_example_file(tmp_path) -> None:
     with pytest.raises(ConfigError, match=".env.example"):
         cli._setup(tmp_path / ".env.example")
+
+
+def test_send_schedule_confirms_that_pc_can_be_turned_off(monkeypatch, capsys) -> None:
+    result = SimpleNamespace(scheduled=12, pending=0, uncertain=0, succeeded=True)
+    runner = SimpleNamespace(schedule_pending_on_facebook=lambda day=None: result)
+    monkeypatch.setattr(cli, "BotRunner", lambda _config: runner)
+
+    exit_code = cli._send_pending_schedule(SimpleNamespace(), expected_count=12)
+
+    assert exit_code == 0
+    output = capsys.readouterr().out
+    assert "Facebook a accepté 12" in output
+    assert "éteindre le PC" in output
+
+
+def test_send_schedule_reports_pending_and_uncertain_items(monkeypatch, capsys) -> None:
+    result = SimpleNamespace(scheduled=2, pending=3, uncertain=1, succeeded=False)
+    runner = SimpleNamespace(schedule_pending_on_facebook=lambda day=None: result)
+    monkeypatch.setattr(cli, "BotRunner", lambda _config: runner)
+
+    exit_code = cli._send_pending_schedule(SimpleNamespace())
+
+    assert exit_code == 1
+    output = capsys.readouterr().out
+    assert "ARRÊT DE SÉCURITÉ" in output
+    assert "3 publication(s) restent" in output
+
+
+def test_plan_immediately_hands_saved_plan_to_facebook_sender(tmp_path, monkeypatch) -> None:
+    timezone = ZoneInfo("Europe/Paris")
+    image_dir = tmp_path / "images" / "to_post"
+    image_dir.mkdir(parents=True)
+    (image_dir / "photo.jpg").write_bytes(b"photo")
+    (tmp_path / "horraire1.txt").write_text("07h30\n", encoding="utf-8")
+    (tmp_path / "horraire2.txt").write_text("07h15\n", encoding="utf-8")
+    (tmp_path / "horraire3.txt").write_text("07h45\n", encoding="utf-8")
+    (tmp_path / "hashtags.txt").write_text("#portugal", encoding="utf-8")
+    config = Config(
+        page_id="1098568206676051",
+        page_access_token="token",
+        expected_page_name="Madame Portugais",
+        api_version="v26.0",
+        timezone=timezone,
+        timezone_name="Europe/Paris",
+        image_dir=image_dir,
+        archive_dir=tmp_path / "images" / "posted",
+        state_db=tmp_path / "data" / "state.sqlite3",
+        queue_order="alphabetical",
+        default_caption="",
+        fixed_hashtags="",
+        max_late_minutes=15,
+        poll_interval_seconds=15,
+        retry_interval_minutes=10,
+        max_post_attempts=3,
+        http_timeout_seconds=120,
+    )
+    calls = []
+
+    def fake_send(config_arg, *, day=None, expected_count=None):
+        calls.append((config_arg, day, expected_count))
+        return 0
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "_send_pending_schedule", fake_send)
+    future_day = datetime.now(timezone).date() + timedelta(days=2)
+
+    exit_code = cli._plan_publications(
+        config,
+        future_day.strftime("%d/%m/%Y"),
+        schedule_choice="1",
+        assume_yes=True,
+    )
+
+    assert exit_code == 0
+    assert calls == [(config, future_day, 1)]
