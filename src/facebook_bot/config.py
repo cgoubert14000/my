@@ -14,6 +14,9 @@ _API_VERSION_RE = re.compile(r"^v\d+\.\d+$")
 DEFAULT_PAGE_ID = "1098568206676051"
 DEFAULT_PAGE_NAME = "Madame Portugais"
 DEFAULT_API_VERSION = "v26.0"
+DEFAULT_FIXED_HASHTAGS = (
+    "#portugal #portugais #france #francais #cours #apprendre #quiz"
+)
 
 
 class ConfigError(ValueError):
@@ -43,14 +46,15 @@ class Config:
     api_version: str
     timezone: ZoneInfo
     timezone_name: str
-    posting_windows: tuple[PostingWindow, PostingWindow, PostingWindow]
     image_dir: Path
     archive_dir: Path
     state_db: Path
     queue_order: str
     default_caption: str
+    fixed_hashtags: str
+    max_posts_per_schedule: int
+    max_late_minutes: int
     poll_interval_seconds: int
-    empty_queue_recheck_minutes: int
     retry_interval_minutes: int
     max_post_attempts: int
     http_timeout_seconds: int
@@ -90,13 +94,6 @@ class Config:
         except ZoneInfoNotFoundError as exc:
             raise ConfigError(f"Fuseau horaire inconnu : {timezone_name}") from exc
 
-        windows = parse_posting_windows(
-            os.getenv(
-                "POSTING_WINDOWS",
-                "07:00-10:00,12:00-15:00,18:00-22:00",
-            )
-        )
-
         base_dir = Path.cwd()
         image_dir = _path_from_env("IMAGE_DIR", "images/to_post", base_dir)
         archive_dir = _path_from_env("ARCHIVE_DIR", "images/posted", base_dir)
@@ -117,16 +114,20 @@ class Config:
             api_version=api_version,
             timezone=timezone,
             timezone_name=timezone_name,
-            posting_windows=windows,
             image_dir=image_dir,
             archive_dir=archive_dir,
             state_db=state_db,
             queue_order=queue_order,
             default_caption=os.getenv("DEFAULT_CAPTION", ""),
-            poll_interval_seconds=_int_env("POLL_INTERVAL_SECONDS", 15, minimum=2),
-            empty_queue_recheck_minutes=_int_env(
-                "EMPTY_QUEUE_RECHECK_MINUTES", 5, minimum=1
+            fixed_hashtags=(
+                os.getenv("FIXED_HASHTAGS", DEFAULT_FIXED_HASHTAGS).strip()
+                or DEFAULT_FIXED_HASHTAGS
             ),
+            max_posts_per_schedule=_int_env(
+                "MAX_POSTS_PER_SCHEDULE", 30, minimum=1, maximum=30
+            ),
+            max_late_minutes=_int_env("MAX_LATE_MINUTES", 15, minimum=1),
+            poll_interval_seconds=_int_env("POLL_INTERVAL_SECONDS", 15, minimum=2),
             retry_interval_minutes=_int_env("RETRY_INTERVAL_MINUTES", 10, minimum=1),
             max_post_attempts=_int_env("MAX_POST_ATTEMPTS", 3, minimum=1, maximum=10),
             http_timeout_seconds=_int_env("HTTP_TIMEOUT_SECONDS", 120, minimum=10),

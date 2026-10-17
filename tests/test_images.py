@@ -36,6 +36,26 @@ def test_queue_reads_sidecar_and_archives(tmp_path) -> None:
     assert not image.exists()
 
 
+def test_queue_appends_fixed_hashtags_to_every_caption(tmp_path) -> None:
+    inbox = tmp_path / "inbox"
+    inbox.mkdir()
+    (inbox / "photo.jpg").write_bytes(b"image")
+    (inbox / "photo.txt").write_text("Une leçon", encoding="utf-8")
+    hashtags = "#portugal #portugais #france #francais #cours #apprendre #quiz"
+    queue = ImageQueue(
+        image_dir=inbox,
+        archive_dir=tmp_path / "archive",
+        queue_order="oldest",
+        default_caption="",
+        fixed_hashtags=hashtags,
+    )
+
+    item = queue.next_item(lambda _fingerprint: False)
+
+    assert item is not None
+    assert item.caption == f"Une leçon\n\n{hashtags}"
+
+
 def test_queue_ignores_already_posted_hash(tmp_path) -> None:
     inbox = tmp_path / "inbox"
     inbox.mkdir()

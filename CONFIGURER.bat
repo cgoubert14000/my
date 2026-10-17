@@ -55,7 +55,9 @@ if errorlevel 1 goto :failure
 echo.
 echo =====================================================
 echo   Configuration terminee avec succes.
-echo   Utilisez maintenant LANCER_BOT.bat
+echo   1. Placez vos images dans images\to_post
+echo   2. Utilisez PLANIFIER.bat
+echo   3. Puis utilisez LANCER_BOT.bat
 echo =====================================================
 echo.
 pause

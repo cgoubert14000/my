@@ -29,50 +29,38 @@ class ImageQueue:
         archive_dir: Path,
         queue_order: str,
         default_caption: str,
+        fixed_hashtags: str = "",
     ) -> None:
         self.image_dir = image_dir
         self.archive_dir = archive_dir
         self.queue_order = queue_order
         self.default_caption = default_caption
+        self.fixed_hashtags = " ".join(fixed_hashtags.split())
 
-    def next_item(self, was_posted: Callable[[str], bool]) -> ImageItem | None:
+    def next_item(self, is_unavailable: Callable[[str], bool]) -> ImageItem | None:
+        items = self.available_items(is_unavailable, limit=1)
+        return items[0] if items else None
+
+    def available_items(
+        self,
+        is_unavailable: Callable[[str], bool],
+        *,
+        limit: int | None = None,
+    ) -> list[ImageItem]:
+        items: list[ImageItem] = []
+        seen_fingerprints: set[str] = set()
         for path in self._ordered_images():
-            try:
-                if path.stat().st_size == 0:
-                    LOGGER.warning("Image vide ignorée : %s", path.name)
-                    continue
-                fingerprint = file_sha256(path)
-            except OSError as exc:
-                LOGGER.warning("Impossible de lire %s : %s", path.name, exc)
+            item = self._load_item(path)
+            if item is None:
                 continue
-
-            if was_posted(fingerprint):
-                LOGGER.debug("Image déjà publiée, ignorée : %s", path.name)
+            if item.fingerprint in seen_fingerprints or is_unavailable(item.fingerprint):
+                LOGGER.debug("Image déjà publiée, planifiée ou dupliquée : %s", path.name)
                 continue
-
-            caption_path = path.with_suffix(".txt")
-            if caption_path.is_file():
-                try:
-                    caption = caption_path.read_text(encoding="utf-8").strip()
-                except (OSError, UnicodeError) as exc:
-                    LOGGER.warning(
-                        "Légende %s illisible (%s), légende par défaut utilisée.",
-                        caption_path.name,
-                        exc,
-                    )
-                    caption = self.default_caption
-                    caption_path = None
-            else:
-                caption = self.default_caption
-                caption_path = None
-
-            return ImageItem(
-                path=path,
-                caption_path=caption_path,
-                caption=caption,
-                fingerprint=fingerprint,
-            )
-        return None
+            seen_fingerprints.add(item.fingerprint)
+            items.append(item)
+            if limit is not None and len(items) >= limit:
+                break
+        return items
 
     def archive(self, item: ImageItem, posted_at: datetime) -> Path:
         destination_dir = self.archive_dir / posted_at.strftime("%Y-%m-%d")
@@ -87,21 +75,50 @@ class ImageQueue:
             try:
                 shutil.move(str(item.caption_path), str(caption_destination))
             except OSError as exc:
-                # La photo est déjà enregistrée en base comme publiée : ne jamais la republier
+                # La photo est déjà enregistrée comme publiée : ne jamais la republier
                 # uniquement parce que l'archivage de sa légende a échoué.
                 LOGGER.warning("Impossible d'archiver la légende %s : %s", item.caption_path, exc)
 
         return destination
 
-    def count_available(self, was_posted: Callable[[str], bool]) -> int:
-        count = 0
-        for path in self._ordered_images():
+    def count_available(self, is_unavailable: Callable[[str], bool]) -> int:
+        return len(self.available_items(is_unavailable))
+
+    def _load_item(self, path: Path) -> ImageItem | None:
+        try:
+            if path.stat().st_size == 0:
+                LOGGER.warning("Image vide ignorée : %s", path.name)
+                return None
+            fingerprint = file_sha256(path)
+        except OSError as exc:
+            LOGGER.warning("Impossible de lire %s : %s", path.name, exc)
+            return None
+
+        caption_path = path.with_suffix(".txt")
+        if caption_path.is_file():
             try:
-                if path.stat().st_size and not was_posted(file_sha256(path)):
-                    count += 1
-            except OSError:
-                continue
-        return count
+                base_caption = caption_path.read_text(encoding="utf-8").strip()
+            except (OSError, UnicodeError) as exc:
+                LOGGER.warning(
+                    "Légende %s illisible (%s), légende par défaut utilisée.",
+                    caption_path.name,
+                    exc,
+                )
+                base_caption = self.default_caption.strip()
+                caption_path = None
+        else:
+            base_caption = self.default_caption.strip()
+            caption_path = None
+
+        caption_parts = [base_caption] if base_caption else []
+        if self.fixed_hashtags and self.fixed_hashtags not in base_caption:
+            caption_parts.append(self.fixed_hashtags)
+        return ImageItem(
+            path=path,
+            caption_path=caption_path,
+            caption="\n\n".join(caption_parts),
+            fingerprint=fingerprint,
+        )
 
     def _ordered_images(self) -> list[Path]:
         try:

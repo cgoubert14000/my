@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 
 from facebook_bot.config import Config
 from facebook_bot.facebook import FacebookError, FacebookPublisher, PublishReceipt
-from facebook_bot.images import ImageItem, ImageQueue
-from facebook_bot.state import Slot, StateStore
+from facebook_bot.images import ImageItem, ImageQueue, file_sha256
+from facebook_bot.state import ScheduledPost, StateStore
 
 LOGGER = logging.getLogger(__name__)
 
@@ -16,15 +16,13 @@ class BotRunner:
     def __init__(self, config: Config, *, dry_run: bool = False) -> None:
         self.config = config
         self.dry_run = dry_run
-        state_path = config.state_db
-        if dry_run:
-            state_path = state_path.with_name(f"{state_path.stem}.dry-run{state_path.suffix}")
-        self.state = StateStore(state_path)
+        self.state = StateStore(config.state_db)
         self.queue = ImageQueue(
             image_dir=config.image_dir,
             archive_dir=config.archive_dir,
             queue_order=config.queue_order,
             default_caption=config.default_caption,
+            fixed_hashtags=config.fixed_hashtags,
         )
         self.publisher = FacebookPublisher(
             page_id=config.page_id,
@@ -48,41 +46,40 @@ class BotRunner:
             )
 
         LOGGER.info(
-            "Bot démarré — Page %s, fuseau %s, plages %s%s",
+            "Bot démarré — Page %s, fuseau %s%s",
             self.config.page_id or "(simulation)",
             self.config.timezone_name,
-            ", ".join(str(window) for window in self.config.posting_windows),
             " [SIMULATION]" if self.dry_run else "",
         )
-        LOGGER.info("Dossier surveillé : %s", self.config.image_dir)
+        LOGGER.info("Le bot attend les publications créées avec PLANIFIER.bat.")
 
         try:
             while True:
                 now = datetime.now(self.config.timezone)
-                self.state.ensure_day(
-                    now.date(),
-                    self.config.posting_windows,
-                    self.config.timezone,
-                    now=now,
+                expired_count = self.state.expire_scheduled(
+                    now,
+                    max_late=timedelta(minutes=self.config.max_late_minutes),
                 )
-                expired_count = self.state.expire_pending(now)
                 if expired_count:
-                    LOGGER.warning("%d créneau(x) dépassé(s) sans publication.", expired_count)
+                    LOGGER.warning(
+                        "%d publication(s) trop en retard ont été marquées comme manquées.",
+                        expired_count,
+                    )
 
-                slot = self.state.claim_due_slot(now)
-                if slot is not None:
-                    self._process_slot(slot, now)
+                publication = self.state.claim_due_publication(now)
+                if publication is not None:
+                    self._process_publication(publication, now)
                     continue
                 time.sleep(self.config.poll_interval_seconds)
         except KeyboardInterrupt:
-            LOGGER.info("Arrêt demandé. Le planning enregistré sera repris au prochain lancement.")
+            LOGGER.info("Arrêt demandé. Le planning sera repris au prochain lancement.")
 
     def post_now(self) -> PublishReceipt | None:
         self.config.prepare_directories()
         self.state.initialize()
-        item = self.queue.next_item(self.state.was_posted)
+        item = self.queue.next_item(self.state.is_unavailable)
         if item is None:
-            LOGGER.warning("Aucune nouvelle image dans %s", self.config.image_dir)
+            LOGGER.warning("Aucune image non planifiée dans %s", self.config.image_dir)
             return None
 
         if self.dry_run:
@@ -99,81 +96,93 @@ class BotRunner:
         LOGGER.info("Photo publiée avec succès (ID Facebook : %s).", receipt.photo_id)
         return receipt
 
-    def _process_slot(self, slot: Slot, now: datetime) -> None:
-        item = self.queue.next_item(self.state.was_posted)
-        if item is None:
-            retry_at = now + timedelta(minutes=self.config.empty_queue_recheck_minutes)
-            if retry_at < slot.window_end:
-                self.state.reschedule(slot, retry_at, "File d'images vide")
-                LOGGER.warning(
-                    "Créneau %d : aucune nouvelle image ; nouvel essai à %s.",
-                    slot.index,
-                    retry_at.strftime("%H:%M:%S"),
-                )
-            else:
-                self.state.finish_slot(slot, "empty", "Aucune image disponible")
-                LOGGER.warning("Créneau %d terminé : aucune image disponible.", slot.index)
+    def _process_publication(self, publication: ScheduledPost, now: datetime) -> None:
+        item = publication.item
+        if self.state.was_posted(item.fingerprint):
+            self.state.finish_publication(
+                publication,
+                "skipped",
+                "Image déjà publiée",
+            )
+            LOGGER.warning("%s est déjà publiée ; créneau ignoré.", item.path.name)
+            return
+
+        if not item.path.is_file():
+            self.state.finish_publication(publication, "failed", "Fichier image introuvable")
+            LOGGER.error("Image planifiée introuvable : %s", item.path)
+            return
+        try:
+            current_fingerprint = file_sha256(item.path)
+        except OSError as exc:
+            self.state.finish_publication(publication, "failed", str(exc))
+            LOGGER.error("Impossible de lire l'image planifiée %s : %s", item.path.name, exc)
+            return
+        if current_fingerprint != item.fingerprint:
+            error = "Le fichier a été modifié après la création du planning"
+            self.state.finish_publication(publication, "failed", error)
+            LOGGER.error("%s : %s.", item.path.name, error)
             return
 
         if self.dry_run:
-            self._log_simulation(item, prefix=f"Créneau {slot.index}")
-            self.state.finish_slot(slot, "simulated")
+            self._log_simulation(item, prefix=f"Publication {publication.id}")
+            self.state.finish_publication(publication, "simulated")
             return
 
-        attempts = self.state.mark_post_attempt(slot)
+        attempts = self.state.mark_scheduled_attempt(publication)
         LOGGER.info(
-            "Créneau %d : publication de %s (tentative %d/%d)…",
-            slot.index,
+            "Publication de %s (horaire %d, tentative %d/%d)…",
             item.path.name,
+            publication.window_index,
             attempts,
             self.config.max_post_attempts,
         )
         try:
             receipt = self.publisher.publish_photo(item.path, item.caption)
         except FacebookError as exc:
-            self._handle_publish_error(slot, now, attempts, exc)
+            self._handle_publish_error(publication, now, attempts, exc)
             return
 
         posted_at = datetime.now(self.config.timezone)
-        # Enregistrer le succès avant de déplacer le fichier empêche une seconde publication si
-        # l'archivage local échoue après que Facebook a accepté la photo.
-        self.state.record_slot_success(slot, item, receipt, posted_at)
+        # Enregistrer le succès avant l'archivage empêche une seconde publication si le
+        # déplacement local échoue après que Facebook a accepté la photo.
+        self.state.record_scheduled_success(publication, receipt, posted_at)
         self._archive_after_success(item, posted_at)
         LOGGER.info(
-            "Créneau %d terminé : %s publiée (ID Facebook : %s).",
-            slot.index,
+            "%s publiée avec succès (ID Facebook : %s).",
             item.path.name,
             receipt.photo_id,
         )
 
     def _handle_publish_error(
-        self, slot: Slot, now: datetime, attempts: int, error: FacebookError
+        self,
+        publication: ScheduledPost,
+        now: datetime,
+        attempts: int,
+        error: FacebookError,
     ) -> None:
         retry_at = now + timedelta(minutes=self.config.retry_interval_minutes)
         may_retry = (
             error.retryable
             and attempts < self.config.max_post_attempts
-            and retry_at < slot.window_end
+            and retry_at < publication.window_end
         )
         if may_retry:
-            self.state.reschedule(slot, retry_at, str(error))
+            self.state.reschedule_publication(publication, retry_at, str(error))
             LOGGER.warning(
-                "Échec temporaire du créneau %d : %s Nouvel essai à %s.",
-                slot.index,
+                "Échec temporaire de %s : %s Nouvel essai à %s.",
+                publication.item.path.name,
                 error,
                 retry_at.strftime("%H:%M:%S"),
             )
         else:
-            self.state.finish_slot(slot, "failed", str(error))
-            LOGGER.error("Échec définitif du créneau %d : %s", slot.index, error)
+            self.state.finish_publication(publication, "failed", str(error))
+            LOGGER.error("Échec définitif de %s : %s", publication.item.path.name, error)
 
     def _archive_after_success(self, item: ImageItem, posted_at: datetime) -> None:
         try:
             archived_path = self.queue.archive(item, posted_at)
         except OSError as exc:
-            LOGGER.warning(
-                "La photo est publiée mais son archivage local a échoué : %s", exc
-            )
+            LOGGER.warning("La photo est publiée mais son archivage local a échoué : %s", exc)
             return
         self.state.update_archive_path(item.fingerprint, archived_path)
         LOGGER.info("Image archivée dans %s", archived_path)

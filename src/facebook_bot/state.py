@@ -12,8 +12,18 @@ from zoneinfo import ZoneInfo
 from facebook_bot.config import PostingWindow
 from facebook_bot.facebook import PublishReceipt
 from facebook_bot.images import ImageItem
+from facebook_bot.planner import PlannedPost
 
 UTC = timezone.utc
+_SCHEDULED_COLUMNS = """
+    id, day, window_index, scheduled_at, window_end,
+    image_path, caption_path, caption, fingerprint,
+    status, attempts, last_error
+"""
+
+
+class StateError(RuntimeError):
+    """Opération impossible sur le planning local."""
 
 
 @dataclass(frozen=True)
@@ -25,6 +35,19 @@ class Slot:
     scheduled_at: datetime
     status: str
     attempts: int
+    last_error: str | None = None
+
+
+@dataclass(frozen=True)
+class ScheduledPost:
+    id: int
+    day: date
+    window_index: int
+    scheduled_at: datetime
+    window_end: datetime
+    status: str
+    attempts: int
+    item: ImageItem
     last_error: str | None = None
 
 
@@ -64,8 +87,250 @@ class StateStore:
 
                 CREATE INDEX IF NOT EXISTS idx_daily_slots_status_time
                     ON daily_slots(status, scheduled_at);
+
+                CREATE TABLE IF NOT EXISTS scheduled_publications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    day TEXT NOT NULL,
+                    window_index INTEGER NOT NULL,
+                    scheduled_at TEXT NOT NULL,
+                    window_end TEXT NOT NULL,
+                    image_path TEXT NOT NULL,
+                    caption_path TEXT,
+                    caption TEXT NOT NULL,
+                    fingerprint TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    attempts INTEGER NOT NULL DEFAULT 0,
+                    last_error TEXT,
+                    facebook_photo_id TEXT,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_scheduled_publications_status_time
+                    ON scheduled_publications(status, scheduled_at);
+                CREATE INDEX IF NOT EXISTS idx_scheduled_publications_fingerprint
+                    ON scheduled_publications(fingerprint, status);
                 """
             )
+
+    def create_plan(
+        self,
+        day: date,
+        entries: Sequence[PlannedPost],
+        *,
+        replace: bool = False,
+    ) -> None:
+        with self._transaction() as connection:
+            existing = connection.execute(
+                "SELECT status FROM scheduled_publications WHERE day = ?",
+                (day.isoformat(),),
+            ).fetchall()
+            if existing and not replace:
+                raise StateError(
+                    f"Un planning existe déjà pour le {day.strftime('%d/%m/%Y')}."
+                )
+            if existing:
+                protected = {"running", "completed", "uncertain"}
+                if any(str(row[0]) in protected for row in existing):
+                    raise StateError(
+                        "Ce planning contient une publication en cours, publiée ou à vérifier ; "
+                        "il ne peut plus être remplacé."
+                    )
+                connection.execute(
+                    "DELETE FROM scheduled_publications WHERE day = ?",
+                    (day.isoformat(),),
+                )
+
+            for entry in entries:
+                if self._fingerprint_unavailable(connection, entry.item.fingerprint):
+                    raise StateError(
+                        f"L'image {entry.item.path.name} est déjà publiée ou planifiée."
+                    )
+                connection.execute(
+                    """
+                    INSERT INTO scheduled_publications (
+                        day, window_index, scheduled_at, window_end,
+                        image_path, caption_path, caption, fingerprint,
+                        status, attempts, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?)
+                    """,
+                    (
+                        day.isoformat(),
+                        entry.window_index,
+                        entry.scheduled_at.isoformat(),
+                        entry.window_end.isoformat(),
+                        str(entry.item.path),
+                        str(entry.item.caption_path) if entry.item.caption_path else None,
+                        entry.item.caption,
+                        entry.item.fingerprint,
+                        _utc_now_iso(),
+                    ),
+                )
+
+    def scheduled_for_day(self, day: date) -> list[ScheduledPost]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                f"""
+                SELECT {_SCHEDULED_COLUMNS}
+                FROM scheduled_publications
+                WHERE day = ?
+                ORDER BY scheduled_at
+                """,
+                (day.isoformat(),),
+            ).fetchall()
+        return [_scheduled_from_row(row) for row in rows]
+
+    def is_unavailable(self, fingerprint: str) -> bool:
+        with self._connect() as connection:
+            return self._fingerprint_unavailable(connection, fingerprint)
+
+    def expire_scheduled(self, now: datetime, *, max_late: timedelta) -> int:
+        expired_ids: list[int] = []
+        threshold = now - max_late
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT id, scheduled_at, window_end
+                FROM scheduled_publications
+                WHERE status = 'pending'
+                """
+            ).fetchall()
+            for row in rows:
+                scheduled_at = datetime.fromisoformat(str(row[1]))
+                window_end = datetime.fromisoformat(str(row[2]))
+                if scheduled_at < threshold or window_end < now:
+                    expired_ids.append(int(row[0]))
+            connection.executemany(
+                """
+                UPDATE scheduled_publications
+                SET status = 'missed', last_error = 'Heure dépassée', updated_at = ?
+                WHERE id = ? AND status = 'pending'
+                """,
+                [(_utc_now_iso(), publication_id) for publication_id in expired_ids],
+            )
+        return len(expired_ids)
+
+    def claim_due_publication(self, now: datetime) -> ScheduledPost | None:
+        with self._transaction() as connection:
+            rows = connection.execute(
+                f"""
+                SELECT {_SCHEDULED_COLUMNS}
+                FROM scheduled_publications
+                WHERE status = 'pending'
+                ORDER BY scheduled_at
+                """
+            ).fetchall()
+            due = next(
+                (
+                    row
+                    for row in rows
+                    if datetime.fromisoformat(str(row[3])) <= now
+                    and datetime.fromisoformat(str(row[4])) >= now
+                ),
+                None,
+            )
+            if due is None:
+                return None
+            publication_id = int(due[0])
+            changed = connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET status = 'running', updated_at = ?
+                WHERE id = ? AND status = 'pending'
+                """,
+                (_utc_now_iso(), publication_id),
+            ).rowcount
+            if changed != 1:
+                return None
+            claimed = list(due)
+            claimed[9] = "running"
+            return _scheduled_from_row(claimed)
+
+    def mark_scheduled_attempt(self, publication: ScheduledPost) -> int:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET attempts = attempts + 1, updated_at = ?
+                WHERE id = ? AND status = 'running'
+                """,
+                (_utc_now_iso(), publication.id),
+            )
+            row = connection.execute(
+                "SELECT attempts FROM scheduled_publications WHERE id = ?",
+                (publication.id,),
+            ).fetchone()
+        return int(row[0]) if row else publication.attempts + 1
+
+    def reschedule_publication(
+        self,
+        publication: ScheduledPost,
+        scheduled_at: datetime,
+        error: str | None = None,
+    ) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET status = 'pending', scheduled_at = ?, last_error = ?, updated_at = ?
+                WHERE id = ? AND status = 'running'
+                """,
+                (scheduled_at.isoformat(), error, _utc_now_iso(), publication.id),
+            )
+
+    def finish_publication(
+        self,
+        publication: ScheduledPost,
+        status: str,
+        error: str | None = None,
+    ) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET status = ?, last_error = ?, updated_at = ?
+                WHERE id = ?
+                """,
+                (status, error, _utc_now_iso(), publication.id),
+            )
+
+    def record_scheduled_success(
+        self,
+        publication: ScheduledPost,
+        receipt: PublishReceipt,
+        posted_at: datetime,
+    ) -> None:
+        with self._transaction() as connection:
+            self._insert_posted(connection, publication.item, receipt, posted_at)
+            connection.execute(
+                """
+                UPDATE scheduled_publications
+                SET status = 'completed', facebook_photo_id = ?,
+                    last_error = NULL, updated_at = ?
+                WHERE id = ?
+                """,
+                (receipt.photo_id, _utc_now_iso(), publication.id),
+            )
+
+    @staticmethod
+    def _fingerprint_unavailable(
+        connection: sqlite3.Connection,
+        fingerprint: str,
+    ) -> bool:
+        posted = connection.execute(
+            "SELECT 1 FROM posted_images WHERE fingerprint = ?",
+            (fingerprint,),
+        ).fetchone()
+        if posted is not None:
+            return True
+        scheduled = connection.execute(
+            """
+            SELECT 1 FROM scheduled_publications
+            WHERE fingerprint = ?
+              AND status IN ('pending', 'running', 'completed', 'uncertain')
+            """,
+            (fingerprint,),
+        ).fetchone()
+        return scheduled is not None
 
     def ensure_day(
         self,
@@ -278,14 +543,23 @@ class StateStore:
 
     def recover_stale_running(self, *, older_than: timedelta = timedelta(minutes=15)) -> int:
         threshold = datetime.now(UTC) - older_than
-        recovered: list[tuple[str, int]] = []
+        recovered_legacy: list[tuple[str, int]] = []
+        recovered_scheduled: list[int] = []
         with self._connect() as connection:
-            rows = connection.execute(
+            legacy_rows = connection.execute(
                 "SELECT day, slot_index, updated_at FROM daily_slots WHERE status = 'running'"
             ).fetchall()
-            for day, index, updated_at in rows:
+            for day, index, updated_at in legacy_rows:
                 if datetime.fromisoformat(updated_at) < threshold:
-                    recovered.append((day, index))
+                    recovered_legacy.append((day, index))
+
+            scheduled_rows = connection.execute(
+                "SELECT id, updated_at FROM scheduled_publications WHERE status = 'running'"
+            ).fetchall()
+            for publication_id, updated_at in scheduled_rows:
+                if datetime.fromisoformat(updated_at) < threshold:
+                    recovered_scheduled.append(int(publication_id))
+
             error = "Arrêt pendant une publication ; non retentée pour éviter un doublon"
             connection.executemany(
                 """
@@ -293,9 +567,23 @@ class StateStore:
                 SET status = 'uncertain', last_error = ?, updated_at = ?
                 WHERE day = ? AND slot_index = ? AND status = 'running'
                 """,
-                [(error, _utc_now_iso(), day, index) for day, index in recovered],
+                [
+                    (error, _utc_now_iso(), day, index)
+                    for day, index in recovered_legacy
+                ],
             )
-        return len(recovered)
+            connection.executemany(
+                """
+                UPDATE scheduled_publications
+                SET status = 'uncertain', last_error = ?, updated_at = ?
+                WHERE id = ? AND status = 'running'
+                """,
+                [
+                    (error, _utc_now_iso(), publication_id)
+                    for publication_id in recovered_scheduled
+                ],
+            )
+        return len(recovered_legacy) + len(recovered_scheduled)
 
     @staticmethod
     def _insert_posted(
@@ -348,6 +636,26 @@ class StateStore:
             raise
         finally:
             connection.close()
+
+
+def _scheduled_from_row(row: Sequence[object]) -> ScheduledPost:
+    caption_path = Path(str(row[6])) if row[6] is not None else None
+    return ScheduledPost(
+        id=int(row[0]),
+        day=date.fromisoformat(str(row[1])),
+        window_index=int(row[2]),
+        scheduled_at=datetime.fromisoformat(str(row[3])),
+        window_end=datetime.fromisoformat(str(row[4])),
+        status=str(row[9]),
+        attempts=int(row[10]),
+        item=ImageItem(
+            path=Path(str(row[5])),
+            caption_path=caption_path,
+            caption=str(row[7]),
+            fingerprint=str(row[8]),
+        ),
+        last_error=str(row[11]) if row[11] is not None else None,
+    )
 
 
 def _slot_from_row(row: Sequence[object]) -> Slot:

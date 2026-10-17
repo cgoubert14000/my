@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import getpass
 import logging
 import shutil
 import sqlite3
 import subprocess
 import sys
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from dotenv import set_key
@@ -22,8 +23,14 @@ from facebook_bot.config import (
 )
 from facebook_bot.facebook import FacebookError, FacebookPublisher
 from facebook_bot.images import ImageQueue
+from facebook_bot.planner import (
+    SCHEDULE_MINUTES,
+    SCHEDULE_START_HOUR,
+    PlannedPost,
+    build_plan,
+)
 from facebook_bot.runner import BotRunner
-from facebook_bot.state import StateStore
+from facebook_bot.state import StateError, StateStore
 
 LOGGER = logging.getLogger(__name__)
 STATUS_LABELS = {
@@ -34,6 +41,7 @@ STATUS_LABELS = {
     "empty": "sans image",
     "missed": "manqué",
     "failed": "échec",
+    "skipped": "ignoré",
     "uncertain": "à vérifier",
 }
 
@@ -42,8 +50,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="facebook-image-bot",
         description=(
-            "Publie les images d'un dossier sur une Page Facebook, à une heure aléatoire "
-            "dans chacune de trois plages quotidiennes."
+            "Planifie les images d'un dossier sur trois horaires entrelacés et les publie "
+            "sur la Page Facebook Madame Portugais."
         ),
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -56,12 +64,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     commands = parser.add_subparsers(dest="command", required=True)
 
-    run_parser = commands.add_parser("run", help="Lancer le bot en continu.")
-    run_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Simuler les créneaux sans contacter Facebook ni déplacer les images.",
-    )
+    commands.add_parser("run", help="Lancer le bot en continu.")
 
     post_parser = commands.add_parser(
         "post-now", help="Publier immédiatement la prochaine image de la file."
@@ -72,11 +75,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Afficher ce qui serait publié, sans contacter Facebook.",
     )
 
+    plan_parser = commands.add_parser(
+        "plan",
+        help="Demander une date, compter les images et proposer les horaires.",
+    )
+    plan_parser.add_argument(
+        "--date",
+        help="Date au format JJ/MM/AAAA (sinon elle est demandée).",
+    )
+    plan_parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Enregistrer le planning sans demander de confirmation.",
+    )
+
     schedule_parser = commands.add_parser(
-        "schedule", help="Créer puis afficher les heures aléatoires du planning."
+        "schedule", help="Afficher les publications déjà planifiées."
     )
     schedule_parser.add_argument(
-        "--days", type=int, default=2, help="Nombre de jours à afficher (1 à 31, défaut : 2)."
+        "--days", type=int, default=7, help="Nombre de jours à afficher (1 à 31, défaut : 7)."
     )
 
     setup_parser = commands.add_parser(
@@ -98,8 +116,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     _configure_logging(args.verbose)
 
-    require_facebook = args.command == "doctor" or (
-        args.command in {"run", "post-now"} and not args.dry_run
+    require_facebook = args.command in {"doctor", "run"} or (
+        args.command == "post-now" and not args.dry_run
     )
     try:
         if args.command == "setup":
@@ -108,11 +126,13 @@ def main(argv: list[str] | None = None) -> int:
 
         config = Config.from_env(args.env_file, require_facebook=require_facebook)
         if args.command == "run":
-            BotRunner(config, dry_run=args.dry_run).run_forever()
+            BotRunner(config).run_forever()
             return 0
         if args.command == "post-now":
             result = BotRunner(config, dry_run=args.dry_run).post_now()
             return 0 if result is not None else 2
+        if args.command == "plan":
+            return _plan_publications(config, args.date, assume_yes=args.yes)
         if args.command == "schedule":
             return _show_schedule(config, args.days)
         if args.command == "doctor":
@@ -121,6 +141,8 @@ def main(argv: list[str] | None = None) -> int:
             return _show_queue(config)
     except ConfigError as exc:
         LOGGER.error("Configuration invalide : %s", exc)
+    except StateError as exc:
+        LOGGER.error("Planning impossible : %s", exc)
     except FacebookError as exc:
         LOGGER.error("Erreur Facebook : %s", exc)
     except sqlite3.Error as exc:
@@ -231,6 +253,141 @@ def _clear_clipboard() -> None:
         pass
 
 
+def _plan_publications(
+    config: Config,
+    date_text: str | None,
+    *,
+    assume_yes: bool = False,
+) -> int:
+    config.prepare_directories()
+    state = StateStore(config.state_db)
+    state.initialize()
+    day = _get_plan_date(date_text)
+    now = datetime.now(config.timezone)
+    first_publication = datetime(
+        day.year,
+        day.month,
+        day.day,
+        SCHEDULE_START_HOUR,
+        min(SCHEDULE_MINUTES),
+        tzinfo=config.timezone,
+    )
+    if day < now.date():
+        raise ConfigError("La date de publication ne peut pas être dans le passé.")
+    if first_publication <= now + timedelta(minutes=2):
+        raise ConfigError(
+            "Pour conserver les 3 horaires complets, choisissez une date future "
+            "(généralement demain ou plus tard)."
+        )
+    if state.scheduled_for_day(day):
+        raise StateError(
+            f"Un planning existe déjà pour le {day.strftime('%d/%m/%Y')}."
+        )
+
+    queue = _make_image_queue(config)
+    items = queue.available_items(state.is_unavailable)
+    if not items:
+        raise StateError(f"Aucune nouvelle image trouvée dans {config.image_dir}.")
+
+    capacity = config.max_posts_per_schedule * 3
+    selected_items = items[:capacity]
+    plan = build_plan(
+        day=day,
+        items=selected_items,
+        timezone=config.timezone,
+        max_per_schedule=config.max_posts_per_schedule,
+    )
+
+    print(f"\nDate choisie : {day.strftime('%d/%m/%Y')}")
+    print(f"Images détectées et disponibles : {len(items)}")
+    print(f"Images placées sur cette date : {len(plan)} (maximum {capacity})")
+    if len(items) > capacity:
+        print(
+            f"Il restera {len(items) - capacity} image(s) à planifier sur une autre date."
+        )
+    print(f"Hashtags automatiques : {config.fixed_hashtags}\n")
+
+    for schedule_index, minute in enumerate(SCHEDULE_MINUTES, start=1):
+        entries = [entry for entry in plan if entry.window_index == schedule_index]
+        example = f"07:{minute:02d}, 08:{minute:02d}, 09:{minute:02d}…"
+        print(
+            f"Horaire {schedule_index} ({example}) — {len(entries)} publication(s)"
+        )
+        for entry in entries:
+            print(f"  {entry.scheduled_at:%H:%M}  {entry.item.path.name}")
+        print()
+
+    if len(plan) > 30:
+        print(
+            "Attention : un grand nombre de publications peut fatiguer votre audience. "
+            "Vérifiez le planning avant de confirmer.\n"
+        )
+
+    if not assume_yes:
+        try:
+            answer = input("Enregistrer ce planning ? [o/N] : ").strip().casefold()
+        except (EOFError, KeyboardInterrupt):
+            print("\nPlanification annulée.")
+            return 1
+        if answer not in {"o", "oui", "y", "yes"}:
+            print("Planification annulée ; aucune donnée n'a été enregistrée.")
+            return 0
+
+    state.create_plan(day, plan)
+    csv_path = _write_plan_csv(config, day, plan)
+    print(f"\n✓ {len(plan)} publication(s) planifiée(s) pour le {day:%d/%m/%Y}.")
+    print(f"✓ Copie lisible du planning : {csv_path}")
+    print("Laissez maintenant LANCER_BOT.bat ouvert aux heures prévues.")
+    return 0
+
+
+def _get_plan_date(value: str | None) -> date:
+    raw_value = value
+    while raw_value is None:
+        try:
+            raw_value = input("Date de publication (JJ/MM/AAAA) : ").strip()
+        except (EOFError, KeyboardInterrupt) as exc:
+            raise ConfigError("Saisie de la date annulée.") from exc
+        if not raw_value:
+            print("Veuillez saisir une date, par exemple 20/10/2026.")
+            raw_value = None
+
+    for date_format in ("%d/%m/%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(raw_value, date_format).date()
+        except ValueError:
+            continue
+    raise ConfigError("Date invalide. Utilisez le format JJ/MM/AAAA.")
+
+
+def _write_plan_csv(config: Config, day: date, plan: list[PlannedPost]) -> Path:
+    path = config.state_db.parent / f"planning-{day.isoformat()}.csv"
+    with path.open("w", encoding="utf-8-sig", newline="") as file:
+        writer = csv.writer(file, delimiter=";")
+        writer.writerow(["date", "heure", "horaire", "image", "légende"])
+        for entry in plan:
+            writer.writerow(
+                [
+                    day.strftime("%d/%m/%Y"),
+                    entry.scheduled_at.strftime("%H:%M"),
+                    entry.window_index,
+                    entry.item.path.name,
+                    entry.item.caption,
+                ]
+            )
+    return path
+
+
+def _make_image_queue(config: Config) -> ImageQueue:
+    return ImageQueue(
+        image_dir=config.image_dir,
+        archive_dir=config.archive_dir,
+        queue_order=config.queue_order,
+        default_caption=config.default_caption,
+        fixed_hashtags=config.fixed_hashtags,
+    )
+
+
 def _show_schedule(config: Config, days: int) -> int:
     if not 1 <= days <= 31:
         raise ConfigError("--days doit être compris entre 1 et 31.")
@@ -239,22 +396,25 @@ def _show_schedule(config: Config, days: int) -> int:
     state.initialize()
     now = datetime.now(config.timezone)
 
-    print(f"Planning ({config.timezone_name})")
+    print(f"Planning enregistré ({config.timezone_name})")
+    total = 0
     for offset in range(days):
         day = now.date() + timedelta(days=offset)
-        slots = state.ensure_day(
-            day,
-            config.posting_windows,
-            config.timezone,
-            now=now,
-        )
+        publications = state.scheduled_for_day(day)
+        if not publications:
+            continue
         print(f"\n{day.strftime('%d/%m/%Y')} :")
-        for slot in slots:
-            status = STATUS_LABELS.get(slot.status, slot.status)
+        for publication in publications:
+            status = STATUS_LABELS.get(publication.status, publication.status)
             print(
-                f"  {slot.index}. {slot.scheduled_at:%H:%S} "
-                f"(plage {slot.window_start:%H:%M}-{slot.window_end:%H:%M}) — {status}"
+                f"  {publication.scheduled_at:%H:%M} — horaire {publication.window_index} — "
+                f"{publication.item.path.name} — {status}"
             )
+        total += len(publications)
+    if total == 0:
+        print("Aucune publication planifiée. Lancez PLANIFIER.bat.")
+    else:
+        print(f"\nTotal affiché : {total} publication(s).")
     return 0
 
 
@@ -262,13 +422,8 @@ def _show_queue(config: Config) -> int:
     config.prepare_directories()
     state = StateStore(config.state_db)
     state.initialize()
-    queue = ImageQueue(
-        image_dir=config.image_dir,
-        archive_dir=config.archive_dir,
-        queue_order=config.queue_order,
-        default_caption=config.default_caption,
-    )
-    count = queue.count_available(state.was_posted)
+    queue = _make_image_queue(config)
+    count = queue.count_available(state.is_unavailable)
     print(f"{count} nouvelle(s) image(s) dans {config.image_dir}")
     return 0
 
@@ -282,7 +437,11 @@ def _doctor(config: Config) -> int:
     print(f"✓ Dossier d'archive : {config.archive_dir}")
     print(f"✓ Base locale : {config.state_db}")
     print(f"✓ Fuseau : {config.timezone_name}")
-    print(f"✓ Plages : {', '.join(str(window) for window in config.posting_windows)}")
+    print("✓ Horaire 1 : 07:30, 08:30, 09:30…")
+    print("✓ Horaire 2 : 07:15, 08:15, 09:15…")
+    print("✓ Horaire 3 : 07:45, 08:45, 09:45…")
+    print(f"✓ Maximum par horaire : {config.max_posts_per_schedule}")
+    print(f"✓ Hashtags automatiques : {config.fixed_hashtags}")
 
     publisher = FacebookPublisher(
         page_id=config.page_id,

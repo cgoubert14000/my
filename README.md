@@ -1,22 +1,25 @@
 # Bot Python de publication d’images sur Facebook
 
-Ce projet publie automatiquement **uniquement sur la Page Facebook « Madame Portugais »**, à une heure aléatoire dans chacune de **3 plages horaires par jour**. Il utilise uniquement l’API Graph officielle de Meta — aucune automatisation du navigateur. Un contrôle du nom et de l’identifiant de la Page est effectué au démarrage avant tout envoi.
+Ce projet publie automatiquement **uniquement sur la Page Facebook « Madame Portugais »**. Il utilise l’API Graph officielle de Meta — aucune automatisation du navigateur — et vérifie le nom ainsi que l’identifiant de la Page avant tout envoi.
 
-Configuration par défaut, en heure de Paris :
+Le bot demande une date, compte les images du dossier et les répartit entre trois horaires qui se chevauchent :
 
-1. matin : `07:00–10:00` ;
-2. midi : `12:00–15:00` ;
-3. soir : `18:00–22:00`.
+1. horaire 1 : `07:30`, `08:30`, `09:30`… ;
+2. horaire 2 : `07:15`, `08:15`, `09:15`… ;
+3. horaire 3 : `07:45`, `08:45`, `09:45`…
 
-Les heures exactes sont tirées une seule fois puis enregistrées dans SQLite : redémarrer le PC ou le script ne change donc pas le planning et ne republie pas une image déjà envoyée.
+Chaque horaire accepte au maximum 30 publications, soit 90 images par date. Jusqu’à 17 publications par horaire, l’intervalle reste exactement d’une heure. Au-delà, le bot réduit régulièrement l’intervalle afin de terminer avant minuit. Le planning est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
 
 > **Important :** l’API officielle permet ce fonctionnement pour une **Page Facebook**, pas pour un profil personnel. Le PC doit rester allumé, connecté à Internet et sans mise en veille pendant les horaires choisis.
 
 ## Fonctionnement
 
-- surveille le dossier `images/to_post` ;
-- choisit la prochaine image par ancienneté (modifiable) ;
-- lit sa légende dans un fichier `.txt` du même nom ;
+- compte automatiquement les images de `images/to_post` ;
+- demande la date et affiche toutes les heures avant confirmation ;
+- répartit jusqu’à 90 images entre les trois horaires (30 maximum chacun) ;
+- choisit les images par ancienneté (modifiable) ;
+- lit la légende dans un fichier `.txt` du même nom ;
+- ajoute toujours `#portugal #portugais #france #francais #cours #apprendre #quiz` ;
 - publie via `/{PAGE_ID}/photos` ;
 - mémorise l’empreinte SHA-256 pour empêcher les doublons ;
 - déplace l’image publiée dans `images/posted/AAAA-MM-JJ` ;
@@ -65,13 +68,16 @@ Après avoir extrait ou cloné ce projet, double-cliquez sur :
 CONFIGURER.bat
 ```
 
-Le fichier installe le bot puis vous demande de copier un nouveau jeton dans Meta. Il le lit automatiquement dans le presse-papiers, vide ensuite celui-ci, vérifie que le jeton appartient à Madame Portugais et l’enregistre localement. Vous n’avez rien à coller dans la fenêtre noire. Ensuite, double-cliquez sur :
+Le fichier installe le bot puis vous demande de copier un nouveau jeton dans Meta. Il le lit automatiquement dans le presse-papiers, vide ensuite celui-ci, vérifie que le jeton appartient à Madame Portugais et l’enregistre localement. Vous n’avez rien à coller dans la fenêtre noire.
 
-```text
-LANCER_BOT.bat
-```
+Ensuite :
 
-La fenêtre doit rester ouverte pour que les publications programmées fonctionnent.
+1. placez les images dans `images\to_post` ;
+2. double-cliquez sur **`PLANIFIER.bat`** et saisissez la date ;
+3. vérifiez les heures proposées et répondez `o` pour confirmer ;
+4. double-cliquez sur **`LANCER_BOT.bat`**.
+
+La fenêtre de `LANCER_BOT.bat` doit rester ouverte pour que les publications programmées fonctionnent.
 
 ### Windows — méthode PowerShell
 
@@ -126,22 +132,32 @@ Si l’ID appartient à une autre Page, la commande refuse le jeton et n’enreg
 
 Aucun identifiant Facebook, mot de passe, App Secret ou jeton utilisateur n’est nécessaire dans le code.
 
-## 3. Régler les 3 plages horaires
+## 3. Planifier une date
 
-Dans `.env` :
+Déposez d’abord les images dans `images/to_post`, puis double-cliquez sur `PLANIFIER.bat`. Le bot demande :
 
-```dotenv
-BOT_TIMEZONE=Europe/Paris
-POSTING_WINDOWS=07:00-10:00,12:00-15:00,18:00-22:00
+```text
+Date de publication (JJ/MM/AAAA) :
 ```
 
-Il faut exactement trois plages, sans chevauchement, au format `HH:MM-HH:MM`. Elles doivent commencer et finir le même jour. Exemple alternatif :
+Il compte les images et affiche un résultat de ce type pour 9 images :
 
-```dotenv
-POSTING_WINDOWS=06:30-08:00,11:45-13:15,19:00-23:00
+```text
+Horaire 1 — 07:30, 08:30, 09:30
+Horaire 2 — 07:15, 08:15, 09:15
+Horaire 3 — 07:45, 08:45, 09:45
 ```
 
-À chaque nouvelle journée, le bot choisit une heure aléatoire différente dans chaque plage. Un créneau déjà créé reste stable dans la base SQLite.
+Après vérification, répondez `o` à la demande de confirmation. Une copie du planning est également créée dans `data/planning-AAAA-MM-JJ.csv`.
+
+Règles :
+
+- départ toujours à 07 h ;
+- 30 publications maximum par horaire ;
+- 90 publications maximum pour une date ;
+- les images au-delà de 90 restent dans le dossier pour une autre date ;
+- si un horaire contient plus de 17 images, son intervalle est réduit afin que tout reste sur la date choisie ;
+- une date déjà planifiée ne peut pas être créée une seconde fois par erreur.
 
 ## 4. Ajouter les images et légendes
 
@@ -159,17 +175,28 @@ Contenu possible de `001-plage.txt` :
 
 ```text
 Belle journée au bord de la mer ☀️
-#voyage #photo
 ```
 
-Le texte UTF-8 entier devient la légende. Sans fichier `.txt`, la valeur `DEFAULT_CAPTION` du `.env` est utilisée. Avec `QUEUE_ORDER=oldest`, l’image ajoutée la plus ancienne part en premier. Les autres choix sont `alphabetical` et `random`.
+Le bot ajoute automatiquement à chaque légende :
+
+```text
+#portugal #portugais #france #francais #cours #apprendre #quiz
+```
+
+Le texte UTF-8 entier devient la première partie de la légende. Sans fichier `.txt`, la valeur `DEFAULT_CAPTION` du `.env` est utilisée. Avec `QUEUE_ORDER=oldest`, l’image ajoutée la plus ancienne part en premier. Les autres choix sont `alphabetical` et `random`.
 
 ## 5. Tester sans publier
 
-Afficher les heures choisies aujourd’hui et demain :
+Créer interactivement un planning :
 
 ```bash
-facebook-image-bot schedule --days 2
+facebook-image-bot plan
+```
+
+Afficher les publications déjà planifiées sur les 7 prochains jours :
+
+```bash
+facebook-image-bot schedule --days 7
 ```
 
 Vérifier la prochaine image sans contacter Facebook :
@@ -191,42 +218,46 @@ Le diagnostic doit finir par :
 Le bot est prêt. Ce test n'a rien publié.
 ```
 
-## 6. Faire un premier envoi puis lancer le bot
+## 6. Lancer le bot
 
-Publier immédiatement la prochaine image :
+Ordre recommandé sous Windows :
 
-```bash
-facebook-image-bot post-now
+```text
+1. CONFIGURER.bat
+2. placer les images dans images\to_post
+3. PLANIFIER.bat
+4. LANCER_BOT.bat
 ```
 
-Une fois le résultat vérifié sur la Page, lancer le service continu :
+En ligne de commande :
 
 ```bash
+facebook-image-bot plan
 facebook-image-bot run
 ```
 
-Laissez cette fenêtre ouverte. `Ctrl+C` arrête proprement le bot. Pour voir davantage de détails :
+Laissez la fenêtre ouverte. `Ctrl+C` arrête proprement le bot ; le planning enregistré sera repris au prochain lancement. Pour voir davantage de détails :
 
 ```bash
 facebook-image-bot -v run
 ```
 
-Pour une simulation continue totalement séparée du vrai planning :
-
-```bash
-facebook-image-bot run --dry-run
-```
-
-Compter les nouvelles images restantes :
+Compter les images qui ne sont ni publiées ni déjà réservées dans un planning :
 
 ```bash
 facebook-image-bot queue
 ```
 
+Une publication immédiate reste possible, mais elle choisit uniquement une image non réservée :
+
+```bash
+facebook-image-bot post-now
+```
+
 Si la commande `facebook-image-bot` n’est pas reconnue, utilisez l’équivalent :
 
 ```bash
-python -m facebook_bot doctor
+python -m facebook_bot plan
 python -m facebook_bot run
 ```
 
@@ -239,17 +270,18 @@ Le plus simple sous Windows est le **Planificateur de tâches** :
 3. arguments : `-m facebook_bot run` ;
 4. « Démarrer dans » : chemin complet de ce projet ;
 5. autoriser le redémarrage de la tâche en cas d’échec ;
-6. désactiver la mise en veille automatique du PC sur les plages concernées.
+6. désactiver la mise en veille automatique du PC pendant les horaires concernés.
 
 Sous macOS/Linux, un service `systemd`, `launchd` ou une tâche de démarrage équivalente peut lancer `python -m facebook_bot run` avec le dossier du projet comme répertoire de travail.
 
 ## Comportement en cas de problème
 
-- **Le dossier est vide à l’heure choisie :** le bot vérifie à nouveau toutes les 5 minutes jusqu’à la fin de la plage.
-- **Coupure réseau / erreur Meta temporaire :** jusqu’à 3 tentatives espacées de 10 minutes, tant que la plage n’est pas terminée.
-- **Jeton expiré ou permission refusée :** le créneau passe en échec et le message indique quoi corriger ; aucun essai en boucle.
-- **Bot lancé après une plage :** cette plage est marquée comme manquée ; le bot ne publie pas en dehors de l’horaire prévu.
-- **Arrêt pendant l’appel de publication :** après 15 minutes, le créneau passe à « à vérifier » et n’est pas retenté automatiquement, afin d’éviter un doublon éventuel.
+- **Dossier vide au moment de planifier :** aucun planning n’est créé.
+- **Image déplacée ou modifiée après la planification :** cette publication passe en échec afin de ne pas envoyer le mauvais fichier.
+- **Bot lancé avec plus de 15 minutes de retard :** les heures dépassées sont marquées comme manquées au lieu d’être publiées en rafale.
+- **Coupure réseau / erreur Meta temporaire :** jusqu’à 3 tentatives espacées de 10 minutes, si elles restent possibles avant minuit.
+- **Jeton expiré ou permission refusée :** la publication passe en échec et le message indique quoi corriger ; aucun essai en boucle.
+- **Arrêt pendant l’appel de publication :** après 15 minutes, la publication passe à « à vérifier » et n’est pas retentée automatiquement, afin d’éviter un doublon éventuel.
 - **Échec d’archivage après publication :** l’empreinte est déjà enregistrée, donc le fichier resté dans l’entrée ne sera pas republié.
 
 Les réglages correspondants se trouvent dans `.env.example`.
@@ -257,6 +289,7 @@ Les réglages correspondants se trouvent dans `.env.example`.
 ## Sécurité et bonnes pratiques
 
 - Utilisez uniquement l’API Graph officielle et respectez les règles de la Plateforme Meta et la fréquence attendue par les abonnés de la Page.
+- La capacité de 90 publications est une limite technique du bot, pas une recommandation : une fréquence élevée peut être considérée comme indésirable par l’audience ou par Meta.
 - Ne versionnez jamais `.env`, un jeton, un App Secret ou un export de la base locale.
 - Révoquez immédiatement un jeton qui aurait été exposé.
 - Donnez uniquement les permissions nécessaires.
