@@ -24,12 +24,13 @@ echo =====================================================
 echo   Planification des images - Madame Portugais
 echo =====================================================
 echo.
-echo Le bot va compter les images de images\to_post,
-echo demander la date, puis les repartir entre :
-echo   Horaire 1 : 07:30, 08:30, 09:30...
-echo   Horaire 2 : 07:15, 08:15, 09:15...
-echo   Horaire 3 : 07:45, 08:45, 09:45...
-echo Maximum : 17 publications par horaire, 51 par date.
+echo Le bot va lire horraire1.txt, horraire2.txt, horraire3.txt
+echo et hashtags.txt, puis compter les images de images\to_post.
+echo Il demandera la date et proposera :
+echo   1 = horraire1.txt
+echo   2 = horraire2.txt
+echo   3 = horraire3.txt
+echo   4 = les trois plannings avec repartition egale.
 echo.
 ".venv\Scripts\python.exe" -m facebook_bot plan
 

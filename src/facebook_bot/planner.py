@@ -1,61 +1,50 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time
 from zoneinfo import ZoneInfo
 
 from facebook_bot.images import ImageItem
-
-SCHEDULE_MINUTES = (30, 15, 45)
-SCHEDULE_START_HOUR = 7
-SCHEDULE_END_HOUR = 23
+from facebook_bot.text_settings import ScheduleDefinition
 
 
 @dataclass(frozen=True)
 class PlannedPost:
+    # window_index conserve ce nom dans SQLite pour la compatibilité ; il s'agit
+    # maintenant du numéro du document horraire1, horraire2 ou horraire3.
     window_index: int
     scheduled_at: datetime
     window_end: datetime
     item: ImageItem
 
 
-# window_index reste nommé ainsi dans la base pour assurer la compatibilité avec
-# les premières versions ; il représente désormais le numéro d'horaire 1, 2 ou 3.
 def build_plan(
     *,
     day: date,
     items: list[ImageItem],
     timezone: ZoneInfo,
-    max_per_schedule: int = 17,
+    schedules: tuple[ScheduleDefinition, ...],
 ) -> list[PlannedPost]:
-    """Répartit jusqu'à 51 images entre trois séries horaires fixes."""
-    hourly_capacity = SCHEDULE_END_HOUR - SCHEDULE_START_HOUR + 1
-    if max_per_schedule > hourly_capacity:
-        raise ValueError(f"Maximum possible par horaire : {hourly_capacity} images.")
-    capacity = max_per_schedule * len(SCHEDULE_MINUTES)
+    """Répartit les images entre les documents d'horaires sélectionnés."""
+    capacities = tuple(len(schedule.times) for schedule in schedules)
+    capacity = sum(capacities)
     if len(items) > capacity:
-        raise ValueError(f"Le planning accepte au maximum {capacity} images par date.")
+        raise ValueError(f"Le planning sélectionné accepte au maximum {capacity} images.")
     if not items:
         return []
 
-    counts = distribute_count(len(items), max_per_schedule=max_per_schedule)
-    times: list[tuple[int, datetime, datetime]] = []
-    for schedule_index, (minute, count) in enumerate(
-        zip(SCHEDULE_MINUTES, counts, strict=True),
-        start=1,
-    ):
-        schedule_times = _times_for_schedule(
-            day=day,
-            minute=minute,
-            count=count,
-            timezone=timezone,
-        )
-        end = datetime.combine(day, time(23, 59), tzinfo=timezone)
-        times.extend((schedule_index, scheduled_at, end) for scheduled_at in schedule_times)
+    counts = distribute_count(len(items), capacities=capacities)
+    end = datetime.combine(day, time(23, 59), tzinfo=timezone)
+    planned_times: list[tuple[int, datetime, datetime]] = []
+    for schedule, count in zip(schedules, counts, strict=True):
+        for scheduled_time in schedule.times[:count]:
+            scheduled_at = datetime.combine(day, scheduled_time, tzinfo=timezone)
+            planned_times.append((schedule.index, scheduled_at, end))
 
-    times.sort(key=lambda entry: entry[1])
-    times = _make_times_distinct(times)
-    times.sort(key=lambda entry: entry[1])
+    planned_times.sort(key=lambda entry: entry[1])
+    if len({entry[1] for entry in planned_times}) != len(planned_times):
+        raise ValueError("Deux documents contiennent la même heure de publication.")
+
     return [
         PlannedPost(
             window_index=schedule_index,
@@ -63,59 +52,37 @@ def build_plan(
             window_end=window_end,
             item=item,
         )
-        for item, (schedule_index, scheduled_at, window_end) in zip(items, times, strict=True)
+        for item, (schedule_index, scheduled_at, window_end) in zip(
+            items,
+            planned_times,
+            strict=True,
+        )
     ]
 
 
-def distribute_count(total: int, *, max_per_schedule: int = 17) -> tuple[int, int, int]:
+def distribute_count(
+    total: int,
+    *,
+    capacities: tuple[int, ...] = (17, 17, 17),
+) -> tuple[int, ...]:
     if total < 0:
         raise ValueError("Le nombre d'images ne peut pas être négatif.")
-    if total > max_per_schedule * 3:
-        raise ValueError(f"Maximum autorisé : {max_per_schedule * 3} images.")
+    if not capacities or any(capacity < 0 for capacity in capacities):
+        raise ValueError("Capacités d'horaires invalides.")
+    if total > sum(capacities):
+        raise ValueError(f"Maximum autorisé : {sum(capacities)} images.")
 
-    base, remainder = divmod(total, 3)
-    counts = [base, base, base]
-    for index in range(remainder):
-        counts[index] += 1
-    if any(count > max_per_schedule for count in counts):
-        raise ValueError(f"Maximum autorisé par horaire : {max_per_schedule} images.")
-    return counts[0], counts[1], counts[2]
-
-
-def _times_for_schedule(
-    *,
-    day: date,
-    minute: int,
-    count: int,
-    timezone: ZoneInfo,
-) -> list[datetime]:
-    if count == 0:
-        return []
-    first = datetime.combine(day, time(SCHEDULE_START_HOUR, minute), tzinfo=timezone)
-    hourly_capacity = SCHEDULE_END_HOUR - SCHEDULE_START_HOUR + 1
-    if count > hourly_capacity:
-        raise ValueError(f"Maximum possible par horaire : {hourly_capacity} images.")
-
-    # Le bot commence toujours à 07 h et utilise une case par heure jusqu'à ce
-    # qu'il n'y ait plus d'images. Avec 17 images, la dernière part à 23 h.
-    return [first + timedelta(hours=index) for index in range(count)]
-
-
-def _make_times_distinct(
-    times: list[tuple[int, datetime, datetime]],
-) -> list[tuple[int, datetime, datetime]]:
-    seen: set[datetime] = set()
-    adjusted: list[tuple[int, datetime, datetime]] = []
-    for schedule_index, scheduled_at, window_end in times:
-        candidate = scheduled_at
-        while candidate in seen and candidate <= window_end:
-            candidate += timedelta(minutes=1)
-        if candidate > window_end:
-            candidate = scheduled_at - timedelta(minutes=1)
-            while candidate in seen and candidate.date() == scheduled_at.date():
-                candidate -= timedelta(minutes=1)
-        if candidate.date() != scheduled_at.date():
-            raise ValueError("Impossible de créer des horaires distincts sur cette date.")
-        seen.add(candidate)
-        adjusted.append((schedule_index, candidate, window_end))
-    return adjusted
+    counts = [0] * len(capacities)
+    remaining = total
+    while remaining:
+        progressed = False
+        for index, capacity in enumerate(capacities):
+            if remaining == 0:
+                break
+            if counts[index] < capacity:
+                counts[index] += 1
+                remaining -= 1
+                progressed = True
+        if not progressed:
+            raise ValueError("Impossible de répartir toutes les images.")
+    return tuple(counts)

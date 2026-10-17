@@ -1,5 +1,5 @@
 import random
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -9,9 +9,15 @@ from facebook_bot.facebook import PublishReceipt
 from facebook_bot.images import ImageItem
 from facebook_bot.planner import build_plan
 from facebook_bot.state import StateError, StateStore
+from facebook_bot.text_settings import ScheduleDefinition
 
 TZ = ZoneInfo("Europe/Paris")
 WINDOWS = parse_posting_windows("07:00-10:00,12:00-15:00,18:00-22:00")
+SCHEDULES = (
+    ScheduleDefinition(1, "horraire1.txt", tuple(time(hour, 30) for hour in range(7, 24))),
+    ScheduleDefinition(2, "horraire2.txt", tuple(time(hour, 15) for hour in range(7, 24))),
+    ScheduleDefinition(3, "horraire3.txt", tuple(time(hour, 45) for hour in range(7, 24))),
+)
 
 
 def test_schedule_is_persisted_and_inside_each_window(tmp_path) -> None:
@@ -97,6 +103,7 @@ def test_multi_image_plan_is_reserved_claimed_and_completed(tmp_path) -> None:
         day=date(2026, 10, 20),
         items=items,
         timezone=TZ,
+        schedules=SCHEDULES,
     )
 
     store.create_plan(date(2026, 10, 20), plan)
@@ -126,6 +133,7 @@ def test_refuses_second_plan_for_same_day(tmp_path) -> None:
         day=date(2026, 10, 20),
         items=[item],
         timezone=TZ,
+        schedules=SCHEDULES,
     )
     store.create_plan(date(2026, 10, 20), plan)
 

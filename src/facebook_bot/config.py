@@ -52,7 +52,6 @@ class Config:
     queue_order: str
     default_caption: str
     fixed_hashtags: str
-    max_posts_per_schedule: int
     max_late_minutes: int
     poll_interval_seconds: int
     retry_interval_minutes: int
@@ -122,9 +121,6 @@ class Config:
             fixed_hashtags=(
                 os.getenv("FIXED_HASHTAGS", DEFAULT_FIXED_HASHTAGS).strip()
                 or DEFAULT_FIXED_HASHTAGS
-            ),
-            max_posts_per_schedule=_int_env(
-                "MAX_POSTS_PER_SCHEDULE", 17, minimum=1, maximum=17
             ),
             max_late_minutes=_int_env("MAX_LATE_MINUTES", 15, minimum=1),
             poll_interval_seconds=_int_env("POLL_INTERVAL_SECONDS", 15, minimum=2),

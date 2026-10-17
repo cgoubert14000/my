@@ -23,14 +23,14 @@ from facebook_bot.config import (
 )
 from facebook_bot.facebook import FacebookError, FacebookPublisher
 from facebook_bot.images import ImageQueue
-from facebook_bot.planner import (
-    SCHEDULE_MINUTES,
-    SCHEDULE_START_HOUR,
-    PlannedPost,
-    build_plan,
-)
+from facebook_bot.planner import PlannedPost, build_plan
 from facebook_bot.runner import BotRunner
 from facebook_bot.state import StateError, StateStore
+from facebook_bot.text_settings import (
+    ScheduleDefinition,
+    load_hashtags,
+    load_schedule_definitions,
+)
 
 LOGGER = logging.getLogger(__name__)
 TOKEN_FILE_TEMPLATE = """COLLEZ_VOTRE_NOUVEAU_JETON_ICI
@@ -88,6 +88,11 @@ def build_parser() -> argparse.ArgumentParser:
     plan_parser.add_argument(
         "--date",
         help="Date au format JJ/MM/AAAA (sinon elle est demandée).",
+    )
+    plan_parser.add_argument(
+        "--schedule",
+        choices=("1", "2", "3", "all"),
+        help="Planning à utiliser : 1, 2, 3 ou all pour répartir entre les trois.",
     )
     plan_parser.add_argument(
         "-y",
@@ -148,7 +153,12 @@ def main(argv: list[str] | None = None) -> int:
             result = BotRunner(config, dry_run=args.dry_run).post_now()
             return 0 if result is not None else 2
         if args.command == "plan":
-            return _plan_publications(config, args.date, assume_yes=args.yes)
+            return _plan_publications(
+                config,
+                args.date,
+                schedule_choice=args.schedule,
+                assume_yes=args.yes,
+            )
         if args.command == "schedule":
             return _show_schedule(config, args.days)
         if args.command == "doctor":
@@ -316,26 +326,26 @@ def _plan_publications(
     config: Config,
     date_text: str | None,
     *,
+    schedule_choice: str | None = None,
     assume_yes: bool = False,
 ) -> int:
     config.prepare_directories()
     state = StateStore(config.state_db)
     state.initialize()
+    base_dir = Path.cwd()
+    definitions = load_schedule_definitions(base_dir)
+    hashtags = load_hashtags(base_dir, fallback=config.fixed_hashtags)
+
     day = _get_plan_date(date_text)
+    selected_schedules = _choose_schedules(definitions, schedule_choice)
     now = datetime.now(config.timezone)
-    first_publication = datetime(
-        day.year,
-        day.month,
-        day.day,
-        SCHEDULE_START_HOUR,
-        min(SCHEDULE_MINUTES),
-        tzinfo=config.timezone,
-    )
+    earliest_time = min(schedule.first for schedule in selected_schedules)
+    first_publication = datetime.combine(day, earliest_time, tzinfo=config.timezone)
     if day < now.date():
         raise ConfigError("La date de publication ne peut pas être dans le passé.")
     if first_publication <= now + timedelta(minutes=2):
         raise ConfigError(
-            "Pour conserver les 3 horaires complets, choisissez une date future "
+            "Pour conserver le planning complet, choisissez une date future "
             "(généralement demain ou plus tard)."
         )
     if state.scheduled_for_day(day):
@@ -343,18 +353,18 @@ def _plan_publications(
             f"Un planning existe déjà pour le {day.strftime('%d/%m/%Y')}."
         )
 
-    queue = _make_image_queue(config)
+    queue = _make_image_queue(config, hashtags=hashtags)
     items = queue.available_items(state.is_unavailable)
     if not items:
         raise StateError(f"Aucune nouvelle image trouvée dans {config.image_dir}.")
 
-    capacity = config.max_posts_per_schedule * 3
+    capacity = sum(len(schedule.times) for schedule in selected_schedules)
     selected_items = items[:capacity]
     plan = build_plan(
         day=day,
         items=selected_items,
         timezone=config.timezone,
-        max_per_schedule=config.max_posts_per_schedule,
+        schedules=selected_schedules,
     )
 
     print(f"\nDate choisie : {day.strftime('%d/%m/%Y')}")
@@ -364,14 +374,15 @@ def _plan_publications(
         print(
             f"Il restera {len(items) - capacity} image(s) à planifier sur une autre date."
         )
-    print(f"Hashtags automatiques : {config.fixed_hashtags}")
-    print("Répartition automatique égale ; aucune publication à la même minute.\n")
+    print(f"Hashtags lus dans hashtags.txt : {hashtags or '(aucun)'}")
+    if len(selected_schedules) > 1:
+        print("Répartition automatique égale entre les plannings sélectionnés.\n")
 
-    for schedule_index, minute in enumerate(SCHEDULE_MINUTES, start=1):
-        entries = [entry for entry in plan if entry.window_index == schedule_index]
-        example = f"07:{minute:02d}, 08:{minute:02d}, 09:{minute:02d}…"
+    for schedule in selected_schedules:
+        entries = [entry for entry in plan if entry.window_index == schedule.index]
         print(
-            f"Horaire {schedule_index} ({example}) — {len(entries)} publication(s)"
+            f"Planning {schedule.index} ({schedule.filename}) — "
+            f"{len(entries)} publication(s)"
         )
         for entry in entries:
             print(f"  {entry.scheduled_at:%H:%M}  {entry.item.path.name}")
@@ -399,6 +410,35 @@ def _plan_publications(
     print(f"✓ Copie lisible du planning : {csv_path}")
     print("Laissez maintenant LANCER_BOT.bat ouvert aux heures prévues.")
     return 0
+
+
+def _choose_schedules(
+    definitions: tuple[ScheduleDefinition, ...],
+    choice: str | None,
+) -> tuple[ScheduleDefinition, ...]:
+    print("\nPlannings trouvés dans les documents texte :")
+    for definition in definitions:
+        formatted = ", ".join(value.strftime("%H:%M") for value in definition.times)
+        print(
+            f"  {definition.index}. {definition.filename} "
+            f"({len(definition.times)} heures) : {formatted}"
+        )
+    print("  4. Utiliser les trois plannings et répartir les images également")
+
+    selected = choice
+    if selected is None:
+        try:
+            selected = input("Quel planning voulez-vous ? [1/2/3/4] : ").strip().casefold()
+        except (EOFError, KeyboardInterrupt) as exc:
+            raise ConfigError("Choix du planning annulé.") from exc
+    if selected == "all":
+        selected = "4"
+    if selected in {"1", "2", "3"}:
+        index = int(selected)
+        return tuple(item for item in definitions if item.index == index)
+    if selected == "4":
+        return definitions
+    raise ConfigError("Choix invalide : utilisez 1, 2, 3 ou 4.")
 
 
 def _get_plan_date(value: str | None) -> date:
@@ -438,13 +478,13 @@ def _write_plan_csv(config: Config, day: date, plan: list[PlannedPost]) -> Path:
     return path
 
 
-def _make_image_queue(config: Config) -> ImageQueue:
+def _make_image_queue(config: Config, *, hashtags: str | None = None) -> ImageQueue:
     return ImageQueue(
         image_dir=config.image_dir,
         archive_dir=config.archive_dir,
         queue_order=config.queue_order,
         default_caption=config.default_caption,
-        fixed_hashtags=config.fixed_hashtags,
+        fixed_hashtags=config.fixed_hashtags if hashtags is None else hashtags,
     )
 
 
@@ -482,7 +522,8 @@ def _show_queue(config: Config) -> int:
     config.prepare_directories()
     state = StateStore(config.state_db)
     state.initialize()
-    queue = _make_image_queue(config)
+    hashtags = load_hashtags(Path.cwd(), fallback=config.fixed_hashtags)
+    queue = _make_image_queue(config, hashtags=hashtags)
     count = queue.count_available(state.is_unavailable)
     print(f"{count} nouvelle(s) image(s) dans {config.image_dir}")
     return 0
@@ -497,11 +538,15 @@ def _doctor(config: Config) -> int:
     print(f"✓ Dossier d'archive : {config.archive_dir}")
     print(f"✓ Base locale : {config.state_db}")
     print(f"✓ Fuseau : {config.timezone_name}")
-    print("✓ Horaire 1 : 07:30, 08:30, 09:30…")
-    print("✓ Horaire 2 : 07:15, 08:15, 09:15…")
-    print("✓ Horaire 3 : 07:45, 08:45, 09:45…")
-    print(f"✓ Maximum par horaire : {config.max_posts_per_schedule}")
-    print(f"✓ Hashtags automatiques : {config.fixed_hashtags}")
+    definitions = load_schedule_definitions(Path.cwd())
+    for definition in definitions:
+        print(
+            f"✓ Planning {definition.index} ({definition.filename}) : "
+            f"{len(definition.times)} heures, de {definition.first:%H:%M} "
+            f"à {definition.last:%H:%M}"
+        )
+    hashtags = load_hashtags(Path.cwd(), fallback=config.fixed_hashtags)
+    print(f"✓ Hashtags lus dans hashtags.txt : {hashtags or '(aucun)'}")
 
     publisher = FacebookPublisher(
         page_id=config.page_id,

@@ -3,11 +3,13 @@ from __future__ import annotations
 import logging
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from facebook_bot.config import Config
 from facebook_bot.facebook import FacebookError, FacebookPublisher, PublishReceipt
 from facebook_bot.images import ImageItem, ImageQueue, file_sha256
 from facebook_bot.state import ScheduledPost, StateStore
+from facebook_bot.text_settings import load_hashtags
 
 LOGGER = logging.getLogger(__name__)
 
@@ -17,12 +19,13 @@ class BotRunner:
         self.config = config
         self.dry_run = dry_run
         self.state = StateStore(config.state_db)
+        hashtags = load_hashtags(Path.cwd(), fallback=config.fixed_hashtags)
         self.queue = ImageQueue(
             image_dir=config.image_dir,
             archive_dir=config.archive_dir,
             queue_order=config.queue_order,
             default_caption=config.default_caption,
-            fixed_hashtags=config.fixed_hashtags,
+            fixed_hashtags=hashtags,
         )
         self.publisher = FacebookPublisher(
             page_id=config.page_id,

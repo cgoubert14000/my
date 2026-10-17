@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -6,8 +6,14 @@ import pytest
 
 from facebook_bot.images import ImageItem
 from facebook_bot.planner import build_plan, distribute_count
+from facebook_bot.text_settings import ScheduleDefinition
 
 TZ = ZoneInfo("Europe/Paris")
+SCHEDULES = (
+    ScheduleDefinition(1, "horraire1.txt", tuple(time(hour, 30) for hour in range(7, 24))),
+    ScheduleDefinition(2, "horraire2.txt", tuple(time(hour, 15) for hour in range(7, 24))),
+    ScheduleDefinition(3, "horraire3.txt", tuple(time(hour, 45) for hour in range(7, 24))),
+)
 
 
 def _items(count: int) -> list[ImageItem]:
@@ -37,6 +43,7 @@ def test_nine_images_start_at_seven_and_advance_hourly() -> None:
         day=date(2026, 10, 20),
         items=_items(9),
         timezone=TZ,
+        schedules=SCHEDULES,
     )
 
     by_schedule = {
@@ -59,6 +66,7 @@ def test_45_images_make_15_hourly_posts_in_each_interleaved_schedule() -> None:
         day=date(2026, 10, 20),
         items=_items(45),
         timezone=TZ,
+        schedules=SCHEDULES,
     )
 
     by_schedule = {
@@ -76,25 +84,28 @@ def test_45_images_make_15_hourly_posts_in_each_interleaved_schedule() -> None:
     assert len({entry.scheduled_at for entry in plan}) == 45
 
 
-def test_51_images_fill_every_hour_until_23() -> None:
-    day = date(2026, 10, 20)
-    plan = build_plan(day=day, items=_items(51), timezone=TZ)
+def test_selecting_only_schedule_one_uses_only_its_text_times() -> None:
+    plan = build_plan(
+        day=date(2026, 10, 20),
+        items=_items(4),
+        timezone=TZ,
+        schedules=(SCHEDULES[0],),
+    )
 
-    assert len(plan) == 51
-    assert [sum(entry.window_index == index for entry in plan) for index in (1, 2, 3)] == [
-        17,
-        17,
-        17,
+    assert [entry.scheduled_at.strftime("%H:%M") for entry in plan] == [
+        "07:30",
+        "08:30",
+        "09:30",
+        "10:30",
     ]
-    assert len({entry.scheduled_at for entry in plan}) == 51
-    assert min(entry.scheduled_at for entry in plan).strftime("%H:%M") == "07:15"
-    assert max(entry.scheduled_at for entry in plan).strftime("%H:%M") == "23:45"
+    assert all(entry.window_index == 1 for entry in plan)
 
 
-def test_plan_refuses_more_than_51_images() -> None:
-    with pytest.raises(ValueError, match="51"):
+def test_plan_refuses_more_images_than_selected_documents_can_hold() -> None:
+    with pytest.raises(ValueError, match="17"):
         build_plan(
             day=date(2026, 10, 20),
-            items=_items(52),
+            items=_items(18),
             timezone=TZ,
+            schedules=(SCHEDULES[0],),
         )

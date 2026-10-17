@@ -2,24 +2,27 @@
 
 Ce projet publie automatiquement **uniquement sur la Page Facebook « Madame Portugais »**. Il utilise l’API Graph officielle de Meta — aucune automatisation du navigateur — et vérifie le nom ainsi que l’identifiant de la Page avant tout envoi.
 
-Le bot demande une date, compte les images du dossier et les répartit entre trois horaires qui se chevauchent :
+Le bot lit quatre documents texte modifiables : `horraire1.txt`, `horraire2.txt`, `horraire3.txt` et `hashtags.txt`. Après avoir demandé la date, il affiche les trois plannings et vous laisse choisir le planning 1, 2, 3, ou les trois avec une répartition égale des images.
 
-1. horaire 1 : `07:30`, `08:30`, `09:30`… ;
-2. horaire 2 : `07:15`, `08:15`, `09:15`… ;
-3. horaire 3 : `07:45`, `08:45`, `09:45`…
+Les fichiers fournis contiennent par défaut :
 
-Chaque horaire contient 17 cases fixes, de 07 h à 23 h inclus, soit 51 publications maximum par date. Le bot commence toujours à 07 h et utilise ensuite une case toutes les heures jusqu’à épuisement des images. Par exemple, avec 15 images par horaire, les publications vont de 07 h à 21 h ; avec 17 images, elles vont jusqu’à 23 h. Le planning est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
+1. `horraire1.txt` : `07:30`, `08:30`, `09:30`… `23:30` ;
+2. `horraire2.txt` : `07:15`, `08:15`, `09:15`… `23:15` ;
+3. `horraire3.txt` : `07:45`, `08:45`, `09:45`… `23:45`.
+
+Les heures et hashtags peuvent être modifiés directement dans ces fichiers sans toucher au code. Le planning confirmé est enregistré dans SQLite : redémarrer le PC ou le script ne change pas les heures et ne republie pas une image déjà envoyée.
 
 > **Important :** l’API officielle permet ce fonctionnement pour une **Page Facebook**, pas pour un profil personnel. Le PC doit rester allumé, connecté à Internet et sans mise en veille pendant les horaires choisis.
 
 ## Fonctionnement
 
 - compte automatiquement les images de `images/to_post` ;
+- analyse les trois documents d’horaires et propose le planning 1, 2, 3 ou les trois ;
 - demande la date et affiche toutes les heures avant confirmation ;
-- répartit jusqu’à 51 images entre les trois horaires (17 maximum chacun) ;
+- limite automatiquement le nombre d’images au nombre de créneaux disponibles ;
 - choisit les images par ancienneté (modifiable) ;
 - lit la légende dans un fichier `.txt` du même nom ;
-- ajoute toujours `#portugal #portugais #france #francais #cours #apprendre #quiz` ;
+- ajoute à chaque publication les mots-dièse présents dans `hashtags.txt` ;
 - publie via `/{PAGE_ID}/photos` ;
 - mémorise l’empreinte SHA-256 pour empêcher les doublons ;
 - déplace l’image publiée dans `images/posted/AAAA-MM-JJ` ;
@@ -73,8 +76,8 @@ Le fichier installe le bot puis ouvre automatiquement **`token madame portugais.
 Ensuite :
 
 1. placez les images dans `images\to_post` ;
-2. double-cliquez sur **`PLANIFIER.bat`** et saisissez la date ;
-3. vérifiez les heures proposées et répondez `o` pour confirmer ;
+2. double-cliquez sur **`PLANIFIER.bat`**, saisissez la date et choisissez 1, 2, 3 ou 4 ;
+3. vérifiez les heures et hashtags proposés, puis répondez `o` pour confirmer ;
 4. double-cliquez sur **`LANCER_BOT.bat`**.
 
 La fenêtre de `LANCER_BOT.bat` doit rester ouverte pour que les publications programmées fonctionnent.
@@ -140,28 +143,20 @@ Déposez d’abord les images dans `images/to_post`, puis double-cliquez sur `PL
 Date de publication (JJ/MM/AAAA) :
 ```
 
-Il compte les images et les partage automatiquement à parts égales entre les trois séries. Pour **45 images**, il crée exactement 15 publications dans chacune :
+Le bot analyse les documents et propose :
 
 ```text
-Horaire 1 — 15 images : 07:30, 08:30, 09:30 … 21:30
-Horaire 2 — 15 images : 07:15, 08:15, 09:15 … 21:15
-Horaire 3 — 15 images : 07:45, 08:45, 09:45 … 21:45
+1. Utiliser horraire1.txt
+2. Utiliser horraire2.txt
+3. Utiliser horraire3.txt
+4. Utiliser les trois et répartir les images également
 ```
 
-Les 45 heures sont toutes différentes : les trois séries s’entrelacent dans la même journée sans jamais publier deux images à la même minute. Avec un nombre non divisible par trois, l’écart entre les séries est au maximum d’une image.
+Si vous choisissez `1`, toutes les images possibles utilisent uniquement les heures de `horraire1.txt`. Si vous choisissez `4`, les images sont réparties équitablement entre les trois documents ; avec 45 images et les fichiers fournis, cela donne 15 publications dans chaque planning.
 
-Après vérification, répondez `o` à la demande de confirmation. Une copie du planning est également créée dans `data/planning-AAAA-MM-JJ.csv`.
+Le bot n’utilise jamais plus d’images que le nombre d’heures disponible dans le ou les documents sélectionnés. Les images restantes attendent une autre date. Après vérification, répondez `o` à la demande de confirmation. Une copie est créée dans `data/planning-AAAA-MM-JJ.csv`.
 
-Règles :
-
-- départ toujours à 07 h ;
-- 17 publications maximum par horaire ;
-- 51 publications maximum pour une date ;
-- les images au-delà de 51 restent dans le dossier pour une autre date ;
-- chaque série commence à 07 h et avance exactement d’une heure à chaque image ;
-- avec 15 images par série, les publications se terminent à 21 h ;
-- avec 17 images par série, les horaires 1, 2 et 3 se terminent respectivement à 23:30, 23:15 et 23:45 ;
-- une date déjà planifiée ne peut pas être créée une seconde fois par erreur.
+Vous pouvez modifier les heures, mais une même heure ne doit pas apparaître dans deux documents : le diagnostic bloquera la configuration pour empêcher deux publications au même moment.
 
 ## 4. Ajouter les images et légendes
 
@@ -181,13 +176,13 @@ Contenu possible de `001-plage.txt` :
 Belle journée au bord de la mer ☀️
 ```
 
-Le bot ajoute automatiquement à chaque légende :
+Modifiez `hashtags.txt` pour choisir les hashtags ajoutés à toutes les publications. Le fichier fourni contient :
 
 ```text
 #portugal #portugais #france #francais #cours #apprendre #quiz
 ```
 
-Le texte UTF-8 entier devient la première partie de la légende. Sans fichier `.txt`, la valeur `DEFAULT_CAPTION` du `.env` est utilisée. Avec `QUEUE_ORDER=oldest`, l’image ajoutée la plus ancienne part en premier. Les autres choix sont `alphabetical` et `random`.
+Vous pouvez les remplacer librement. Écrivez-les avec ou sans `#` : le bot normalise automatiquement la liste et retire les doublons. Le texte UTF-8 du fichier `.txt` associé à une image devient la première partie de sa légende. Sans légende individuelle, `DEFAULT_CAPTION` est utilisé. Avec `QUEUE_ORDER=oldest`, l’image la plus ancienne part en premier.
 
 ## 5. Tester sans publier
 
