@@ -59,7 +59,7 @@ if errorlevel 1 goto :failure
 echo.
 echo =====================================================
 echo   Configuration terminee avec succes.
-echo   1. Modifiez horraire1/2/3.txt et hashtags.txt si besoin
+echo   1. Modifiez horraire1/2/3/4.txt et hashtags.txt si besoin
 echo   2. Placez vos images dans images\to_post
 echo   3. Utilisez PLANIFIER.bat et choisissez le planning
 echo   4. Attendez la confirmation Facebook, puis fermez le programme

@@ -14,6 +14,9 @@ SCHEDULES = (
     ScheduleDefinition(2, "horraire2.txt", tuple(time(hour, 15) for hour in range(7, 24))),
     ScheduleDefinition(3, "horraire3.txt", tuple(time(hour, 45) for hour in range(7, 24))),
 )
+FOUR_SCHEDULES = SCHEDULES + (
+    ScheduleDefinition(4, "horraire4.txt", tuple(time(hour, 0) for hour in range(7, 24))),
+)
 
 
 def _items(count: int) -> list[ImageItem]:
@@ -26,15 +29,15 @@ def _items(count: int) -> list[ImageItem]:
 @pytest.mark.parametrize(
     ("total", "expected"),
     [
-        (1, (1, 0, 0)),
-        (2, (1, 1, 0)),
-        (3, (1, 1, 1)),
-        (4, (2, 1, 1)),
-        (50, (17, 17, 16)),
-        (51, (17, 17, 17)),
+        (1, (1, 0, 0, 0)),
+        (2, (1, 1, 0, 0)),
+        (3, (1, 1, 1, 0)),
+        (4, (1, 1, 1, 1)),
+        (60, (15, 15, 15, 15)),
+        (68, (17, 17, 17, 17)),
     ],
 )
-def test_distribute_count_balances_three_schedules(total, expected) -> None:
+def test_distribute_count_balances_four_schedules(total, expected) -> None:
     assert distribute_count(total) == expected
 
 
@@ -82,6 +85,29 @@ def test_45_images_make_15_hourly_posts_in_each_interleaved_schedule() -> None:
     assert (by_schedule[2][0], by_schedule[2][-1]) == ("07:15", "21:15")
     assert (by_schedule[3][0], by_schedule[3][-1]) == ("07:45", "21:45")
     assert len({entry.scheduled_at for entry in plan}) == 45
+
+
+def test_60_images_make_15_posts_in_each_of_four_schedules() -> None:
+    plan = build_plan(
+        day=date(2026, 10, 20),
+        items=_items(60),
+        timezone=TZ,
+        schedules=FOUR_SCHEDULES,
+    )
+
+    counts = {
+        schedule: sum(entry.window_index == schedule for entry in plan)
+        for schedule in (1, 2, 3, 4)
+    }
+    fourth_times = [
+        entry.scheduled_at.strftime("%H:%M")
+        for entry in plan
+        if entry.window_index == 4
+    ]
+
+    assert counts == {1: 15, 2: 15, 3: 15, 4: 15}
+    assert (fourth_times[0], fourth_times[-1]) == ("07:00", "21:00")
+    assert len({entry.scheduled_at for entry in plan}) == 60
 
 
 def test_selecting_only_schedule_one_uses_only_its_text_times() -> None:

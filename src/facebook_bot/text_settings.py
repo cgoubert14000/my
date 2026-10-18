@@ -7,7 +7,12 @@ from pathlib import Path
 
 from facebook_bot.config import DEFAULT_FIXED_HASHTAGS, ConfigError
 
-SCHEDULE_FILENAMES = ("horraire1.txt", "horraire2.txt", "horraire3.txt")
+SCHEDULE_FILENAMES = (
+    "horraire1.txt",
+    "horraire2.txt",
+    "horraire3.txt",
+    "horraire4.txt",
+)
 HASHTAGS_FILENAME = "hashtags.txt"
 _TIME_PATTERN = re.compile(r"(?<!\d)([01]?\d|2[0-3])\s*(?:h|:)\s*([0-5]\d)(?!\d)", re.I)
 

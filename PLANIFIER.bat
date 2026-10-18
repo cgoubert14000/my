@@ -24,16 +24,17 @@ echo =====================================================
 echo   Planifier les images - Madame Portugais
 echo =====================================================
 echo.
-echo Le bot va lire horraire1.txt, horraire2.txt, horraire3.txt
-echo et hashtags.txt, puis compter les images de images\to_post.
+echo Le bot va lire horraire1.txt, horraire2.txt, horraire3.txt,
+echo horraire4.txt et hashtags.txt, puis compter les images de images\to_post.
 echo Il demandera la date et proposera :
 echo   1 = horraire1.txt
 echo   2 = horraire2.txt
 echo   3 = horraire3.txt
-echo   4 = les trois plannings avec repartition egale.
+echo   4 = horraire4.txt
+echo   5 = les quatre plannings avec repartition egale.
 echo.
-echo Pour faire 3 lots de 15 : choisissez 1, attendez le succes Facebook,
-echo changez les images, puis recommencez avec 2 et enfin avec 3.
+echo Pour faire 4 lots de 15 : choisissez 1, attendez le succes Facebook,
+echo changez les images, puis recommencez avec 2, puis 3, puis 4.
 echo.
 echo Apres votre confirmation, tout le planning sera envoye immediatement
 echo a Facebook. Vous n'aurez pas a laisser ce PC allume.

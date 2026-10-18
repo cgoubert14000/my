@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
@@ -8,6 +8,7 @@ from facebook_bot import cli
 from facebook_bot.config import Config, ConfigError
 from facebook_bot.facebook import PublishReceipt
 from facebook_bot.state import StateStore
+from facebook_bot.text_settings import ScheduleDefinition
 
 
 class FakePublisher:
@@ -109,6 +110,20 @@ def test_send_schedule_reports_pending_and_uncertain_items(monkeypatch, capsys) 
     assert "3 publication(s) restent" in output
 
 
+def test_fourth_choice_selects_hourly_schedule_and_five_selects_all(capsys) -> None:
+    definitions = tuple(
+        ScheduleDefinition(index, f"horraire{index}.txt", (time(7, index),))
+        for index in range(1, 5)
+    )
+
+    fourth = cli._choose_schedules(definitions, "4")
+    all_schedules = cli._choose_schedules(definitions, "5")
+
+    assert [schedule.index for schedule in fourth] == [4]
+    assert all_schedules == definitions
+    assert "horraire4.txt" in capsys.readouterr().out
+
+
 def test_plan_immediately_hands_saved_plan_to_facebook_sender(tmp_path, monkeypatch) -> None:
     timezone = ZoneInfo("Europe/Paris")
     image_dir = tmp_path / "images" / "to_post"
@@ -117,6 +132,7 @@ def test_plan_immediately_hands_saved_plan_to_facebook_sender(tmp_path, monkeypa
     (tmp_path / "horraire1.txt").write_text("07h30\n", encoding="utf-8")
     (tmp_path / "horraire2.txt").write_text("07h15\n", encoding="utf-8")
     (tmp_path / "horraire3.txt").write_text("07h45\n", encoding="utf-8")
+    (tmp_path / "horraire4.txt").write_text("07h00\n", encoding="utf-8")
     (tmp_path / "hashtags.txt").write_text("#portugal", encoding="utf-8")
     config = Config(
         page_id="1098568206676051",

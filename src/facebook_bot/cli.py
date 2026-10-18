@@ -59,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="facebook-image-bot",
         description=(
-            "Planifie les images d'un dossier sur trois horaires entrelacés et les publie "
+            "Planifie les images d'un dossier sur quatre horaires entrelacés et les publie "
             "sur la Page Facebook Madame Portugais."
         ),
     )
@@ -100,8 +100,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plan_parser.add_argument(
         "--schedule",
-        choices=("1", "2", "3", "all"),
-        help="Planning à utiliser : 1, 2, 3 ou all pour répartir entre les trois.",
+        choices=("1", "2", "3", "4", "all"),
+        help="Planning à utiliser : 1, 2, 3, 4 ou all pour répartir entre les quatre.",
     )
     plan_parser.add_argument(
         "-y",
@@ -571,28 +571,28 @@ def _choose_schedules(
             f"({len(definition.times)} heures) : {formatted}"
         )
     print(
-        "  4. Utiliser les trois plannings également "
-        "(45 images = 15 par planning, 48 = 16, 51 = 17)"
+        "  5. Utiliser les quatre plannings également "
+        "(60 images = 15 par planning, 64 = 16, 68 = 17)"
     )
     print(
         "  Astuce : pour travailler par lots de 15, choisissez 1, puis relancez "
-        "plus tard avec 2, puis avec 3 pour la même date."
+        "avec 2, puis 3, puis 4 pour la même date."
     )
 
     selected = choice
     if selected is None:
         try:
-            selected = input("Quel planning voulez-vous ? [1/2/3/4] : ").strip().casefold()
+            selected = input("Quel planning voulez-vous ? [1/2/3/4/5] : ").strip().casefold()
         except (EOFError, KeyboardInterrupt) as exc:
             raise ConfigError("Choix du planning annulé.") from exc
     if selected == "all":
-        selected = "4"
-    if selected in {"1", "2", "3"}:
+        selected = "5"
+    if selected in {"1", "2", "3", "4"}:
         index = int(selected)
         return tuple(item for item in definitions if item.index == index)
-    if selected == "4":
+    if selected == "5":
         return definitions
-    raise ConfigError("Choix invalide : utilisez 1, 2, 3 ou 4.")
+    raise ConfigError("Choix invalide : utilisez 1, 2, 3, 4 ou 5.")
 
 
 def _get_plan_date(value: str | None) -> date:

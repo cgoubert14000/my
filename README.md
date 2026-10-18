@@ -2,13 +2,14 @@
 
 Ce projet publie automatiquement **uniquement sur la Page Facebook « Madame Portugais »**. Il utilise l’API Graph officielle de Meta — aucune automatisation du navigateur — et vérifie le nom ainsi que l’identifiant de la Page avant tout envoi.
 
-Le bot lit quatre documents texte modifiables : `horraire1.txt`, `horraire2.txt`, `horraire3.txt` et `hashtags.txt`. Après avoir demandé la date, il affiche les trois plannings et vous laisse choisir le planning 1, 2, 3, ou les trois avec une répartition égale des images.
+Le bot lit cinq documents texte modifiables : `horraire1.txt`, `horraire2.txt`, `horraire3.txt`, `horraire4.txt` et `hashtags.txt`. Après avoir demandé la date, il affiche les quatre plannings et vous laisse choisir le planning 1, 2, 3, 4, ou les quatre avec une répartition égale des images.
 
 Les fichiers fournis contiennent par défaut :
 
 1. `horraire1.txt` : `07:30`, `08:30`, `09:30`… `23:30` ;
 2. `horraire2.txt` : `07:15`, `08:15`, `09:15`… `23:15` ;
-3. `horraire3.txt` : `07:45`, `08:45`, `09:45`… `23:45`.
+3. `horraire3.txt` : `07:45`, `08:45`, `09:45`… `23:45` ;
+4. `horraire4.txt` : `07:00`, `08:00`, `09:00`… `23:00`.
 
 Les heures et hashtags peuvent être modifiés directement dans ces fichiers sans toucher au code. Après confirmation, le bot **envoie immédiatement tout le planning futur à Facebook**. Facebook conserve alors les dates et heures et effectue les publications : le programme peut être fermé et le PC peut être éteint.
 
@@ -19,7 +20,7 @@ Le planning et les identifiants renvoyés par Facebook sont aussi enregistrés d
 ## Fonctionnement
 
 - compte automatiquement les images de `images/to_post` ;
-- analyse les trois documents d’horaires et propose le planning 1, 2, 3 ou les trois ;
+- analyse les quatre documents d’horaires et propose le planning 1, 2, 3, 4 ou les quatre ;
 - demande la date et affiche toutes les heures avant confirmation ;
 - limite automatiquement le nombre d’images au nombre de créneaux disponibles ;
 - choisit les images par ancienneté (modifiable) ;
@@ -82,7 +83,7 @@ Le fichier installe le bot puis ouvre automatiquement **`token madame portugais.
 Ensuite :
 
 1. placez les images dans `images\to_post` ;
-2. double-cliquez sur **`PLANIFIER.bat`**, saisissez la date et choisissez 1, 2, 3 ou 4 ;
+2. double-cliquez sur **`PLANIFIER.bat`**, saisissez la date et choisissez 1, 2, 3, 4 ou 5 ;
 3. vérifiez les heures et hashtags proposés, puis répondez `o` pour confirmer ;
 4. attendez le message **« Facebook possède le planning complet »**.
 
@@ -155,19 +156,20 @@ Le bot analyse les documents et propose :
 1. Utiliser horraire1.txt
 2. Utiliser horraire2.txt
 3. Utiliser horraire3.txt
-4. Utiliser les trois et répartir les images également
+4. Utiliser horraire4.txt
+5. Utiliser les quatre et répartir les images également
 ```
 
 Vous pouvez travailler avec seulement 15 images à la fois :
 
-1. placez les 15 premières images et choisissez `1` ;
-2. attendez que Facebook accepte tout le lot et que le bot archive les images ;
-3. placez les 15 images suivantes, reprenez la même date et choisissez `2` ;
-4. après le deuxième succès, placez les 15 dernières images et choisissez `3`.
+1. placez 15 images, choisissez `1`, puis attendez le succès Facebook ;
+2. changez les images, reprenez la même date et choisissez `2` ;
+3. après le succès, changez les images et choisissez `3` ;
+4. après le troisième succès, changez les images et choisissez `4`.
 
 Le bot ajoute chaque nouveau lot aux publications déjà programmées pour cette date, sans effacer les lots précédents et sans utiliser deux fois la même minute. Ne changez jamais les images tant que le lot précédent n’a pas été accepté par Facebook. Si ce lot est encore « prévu », lancez d’abord `ENVOYER_PLANNING.bat`.
 
-Le choix `4` reste disponible pour fournir les 45 à 51 images en une seule fois. Le bot n’utilise jamais plus d’images que le nombre d’heures encore libres. Les images restantes attendent une autre date. Après vérification, répondez `o` à la demande de confirmation. La copie `data/planning-AAAA-MM-JJ.csv` contient le planning complet cumulé.
+Le choix `5` reste disponible pour fournir les 60 à 68 images en une seule fois. Le bot n’utilise jamais plus d’images que le nombre d’heures encore libres. Les images restantes attendent une autre date. Après vérification, répondez `o` à la demande de confirmation. La copie `data/planning-AAAA-MM-JJ.csv` contient le planning complet cumulé.
 
 Si toutes les publications existantes sont encore à l’état « prévu », le bot peut proposer de remplacer ce lot au lieu de le compléter. Il refuse toute opération risquant d’effacer une publication acceptée ou au résultat incertain.
 
@@ -294,7 +296,7 @@ python -m facebook_bot send-schedule
 ## Sécurité et bonnes pratiques
 
 - Utilisez uniquement l’API Graph officielle et respectez les règles de la Plateforme Meta et la fréquence attendue par les abonnés de la Page.
-- La capacité de 51 publications est une limite technique du bot, pas une recommandation : une fréquence élevée peut être considérée comme indésirable par l’audience ou par Meta.
+- La capacité de 68 publications est une limite technique du bot, pas une recommandation : une fréquence élevée peut être considérée comme indésirable par l’audience ou par Meta.
 - Ne versionnez jamais `.env`, un jeton, un App Secret ou un export de la base locale.
 - Révoquez immédiatement un jeton qui aurait été exposé.
 - Donnez uniquement les permissions nécessaires.

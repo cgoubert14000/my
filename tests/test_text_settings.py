@@ -10,6 +10,7 @@ def _write_default_schedules(tmp_path) -> None:
     (tmp_path / "horraire1.txt").write_text("- **7h30**\n8h30\n09:30\n", encoding="utf-8")
     (tmp_path / "horraire2.txt").write_text("07h15\n08h15\n09h15\n", encoding="utf-8")
     (tmp_path / "horraire3.txt").write_text("07h45\n08h45\n09h45\n", encoding="utf-8")
+    (tmp_path / "horraire4.txt").write_text("07h00\n08h00\n09h00\n", encoding="utf-8")
 
 
 def test_loads_markdown_or_plain_text_times(tmp_path) -> None:
@@ -20,6 +21,7 @@ def test_loads_markdown_or_plain_text_times(tmp_path) -> None:
     assert definitions[0].times == (time(7, 30), time(8, 30), time(9, 30))
     assert definitions[1].first == time(7, 15)
     assert definitions[2].last == time(9, 45)
+    assert definitions[3].times == (time(7, 0), time(8, 0), time(9, 0))
 
 
 def test_rejects_same_time_in_two_schedule_files(tmp_path) -> None:

@@ -63,7 +63,7 @@ def build_plan(
 def distribute_count(
     total: int,
     *,
-    capacities: tuple[int, ...] = (17, 17, 17),
+    capacities: tuple[int, ...] = (17, 17, 17, 17),
 ) -> tuple[int, ...]:
     if total < 0:
         raise ValueError("Le nombre d'images ne peut pas être négatif.")
