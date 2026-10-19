@@ -20088,3 +20088,6 @@ block 52802514 | FIABILITÉ INSUFFISANTE | candidates 2361682 | positive 394 | g
 2026-10-19 07:19:41,412 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 3251 → 3248 ppm
 block 52802516 | FIABILITÉ INSUFFISANTE | candidates 2362048 | positive 394 | ghost {'pending': 0, 'labeled': 35, 'positives': 1, 'errors': 0, 'rate': 0.02857142857142857} | rel n=1255 | rpc err 513 p50 284 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_39186693808.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_39186693808.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_39186693808_opportunities.csv.gz"}
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (f83d17dc)
+2026-10-19 07:20:14,295 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.gateway.tenderly.co
+2026-10-19 07:20:14,296 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-rpc.publicnode.com
