@@ -30384,3 +30384,28 @@ block 52822725 | FIABILITÉ INSUFFISANTE | candidates 2249566 | positive 1081 | 
 block 52822728 | FIABILITÉ INSUFFISANTE | candidates 2249964 | positive 1081 | ghost {'pending': 0, 'labeled': 65, 'positives': 7, 'errors': 0, 'rate': 0.1076923076923077} | rel n=1335 | rpc err 373 p50 351 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_39256247556.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_39256247556.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_39256247556_opportunities.csv.gz"}
 2026-10-19 18:33:42,116 WARNING arbbot.rpc: rpc error () → switching to https://base.gateway.tenderly.co
+2026-10-19 18:33:42,900 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 698 → 728 ppm
+2026-10-19 18:33:42,902 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 412 → 418 ppm
+2026-10-19 18:33:44,929 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-19 18:33:44,963 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-19 18:33:44,973 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-10-19 18:33:44,974 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-19 18:33:44,974 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-19 18:33:44,976 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-10-19 18:33:44,984 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-10-19 18:33:44,997 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-10-19 18:33:45,056 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-10-19 18:33:45,137 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-10-19 18:33:45,144 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (93a28dd1)
+2026-10-19 18:33:45,500 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://mainnet.base.org
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.drpc.org
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-mainnet.public.blastapi.io
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.gateway.tenderly.co
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-rpc.publicnode.com
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://mainnet.base.org
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.drpc.org
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-mainnet.public.blastapi.io
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.gateway.tenderly.co
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-rpc.publicnode.com
+2026-10-19 18:33:45,501 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://mainnet.base.org
