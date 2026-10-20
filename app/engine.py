@@ -20,6 +20,7 @@ Boucle principale (« scheduler ») :
 from __future__ import annotations
 
 import asyncio
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -334,20 +335,36 @@ class BotEngine:
         live = is_live(profile, self.config)
         if outcome.status == "blocked":
             self._record_failure(profile, outcome.error or "blocage")
-            self._slow_down(profile)
             domain = domain_of(profile.get("url") or "", "www.vinted.fr")
-            self._force_renew.add(domain)
-            delay = self._backoff(profile_id)
+            failures = self._failures.get(profile_id, 1)
+            error = str(outcome.error or "")
+            hard = bool(re.search(r"HTTP (401|403|407|429|451|503)", error))
+            # Défi Datadome (HTTP 200) : renouveler la session à chaque passage
+            # jetait le cookie posé par la page de vérification — donc nouveau
+            # défi au scan suivant, indéfiniment. On garde la session et on
+            # laisse simplement retomber la pression.
+            self._slow_down(profile, cap=8.0 if hard else 3.0)
+            if hard or failures >= 3:
+                self._force_renew.add(domain)
+                delay = self._backoff(profile_id)
+                self.db.log(
+                    "WARNING",
+                    f"Self-healing : renouvellement de session {domain} programmé "
+                    f"(blocage #{failures}), reprise dans {human_duration(delay)}.",
+                    profile_id=profile_id,
+                )
+            else:
+                delay = self._soft_backoff(profile_id)
+                self.db.log(
+                    "WARNING",
+                    f"Blocage Vinted ({error or 'anti-bot'}) : cookies conservés, "
+                    f"nouvelle tentative dans {human_duration(delay)}.",
+                    profile_id=profile_id,
+                )
             self._global_cooldown_until = max(
-                self._global_cooldown_until, time.time() + min(20, delay / 3)
+                self._global_cooldown_until, time.time() + min(8, delay / 4)
             )
             self._interval[profile_id] = self._settings.min_interval
-            self.db.log(
-                "WARNING",
-                f"Self-healing : session {domain} programmée pour "
-                f"renouvellement, reprise dans {human_duration(delay)}.",
-                profile_id=profile_id,
-            )
             return delay
         if outcome.status == "error":
             self._record_failure(profile, outcome.error or "erreur")
@@ -389,11 +406,11 @@ class BotEngine:
     def throttle_for(self, profile_id: int) -> float:
         return round(self._throttle.get(profile_id, 1.0), 2)
 
-    def _slow_down(self, profile: dict) -> None:
-        """Blocage détecté : on espace les passages (jusqu'à 8×)."""
+    def _slow_down(self, profile: dict, cap: float = 8.0) -> None:
+        """Blocage détecté : on espace les passages (jusqu'à ``cap`` ×)."""
         profile_id = int(profile["id"])
         previous = self._throttle.get(profile_id, 1.0)
-        value = min(8.0, previous * 1.6)
+        value = min(float(cap), previous * 1.6)
         if value - previous < 0.05:
             return
         self._throttle[profile_id] = value
@@ -427,6 +444,17 @@ class BotEngine:
         base = max(15, int(self._settings.max_interval or 15))
         delay = min(base * (2 ** min(failures, 4)), 900)
         return max(10.0, float(delay))
+
+    def _soft_backoff(self, profile_id: int) -> float:
+        """Reprise après un défi anti-bot : courte, pour ne rien manquer.
+
+        Un défi Datadome rendu en HTTP 200 n'est pas une sanction durable :
+        attendre quatre minutes (ancien comportement) revenait à perdre toutes
+        les annonces publiées entre-temps. On plafonne à 90 s.
+        """
+        failures = max(1, self._failures.get(profile_id, 1))
+        delay = min(20.0 * (2 ** min(failures - 1, 3)), 90.0)
+        return max(15.0, delay)
 
     def _record_failure(self, profile: dict, error: str) -> None:
         if self.paused:

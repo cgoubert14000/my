@@ -147,7 +147,7 @@ annonce publiée          1 requête (page /catalog, tri « Plus récent »)
 | **Fiche article bornée (1.3.2)** | Quand une description ou une note vendeur est nécessaire avant l'alerte, la lecture de la fiche est **limitée à 3,5 s au total** (une tentative, 6 s max). Au-delà, l'alerte part avec les données déjà lues : plus jamais 90 s d'attente. |
 | **Requête unique (1.3.2)** | En temps réel, un passage bloqué échoue en **10 s maximum** au lieu de 3 × 30 s de tentatives. Le scan suivant repart aussitôt. |
 | **Journal poussé (1.3.2)** | Les lignes de journal arrivent par le flux SSE, à la seconde, et non plus au rythme d'un rafraîchissement de 4 s. |
-| **Anti-blocage auto-régulé** | Un 403/429 ralentit temporairement le profil (×1,6 par blocage, jusqu'à ×8) puis revient à la vitesse normale après des passages réussis. |
+| **Anti-blocage auto-régulé** | Un 403/429 ralentit temporairement le profil (×1,6 par blocage, jusqu'à ×8) puis revient à la vitesse normale après des passages réussis. Un défi HTTP 200 (Datadome) ne ralentit que ×3 et conserve la session (1.3.3). |
 | **Flux poussé (SSE)** | Le dashboard reçoit les nouveautés par `/api/stream` : elles apparaissent sans attendre le prochain rafraîchissement. |
 
 **Fluidité de l'interface (1.3.2)**
@@ -638,6 +638,42 @@ SQLite : ne partagez jamais ces fichiers.
 Anti-spam : fenêtre glissante (20 messages/minute par défaut), respect des
 `429` Discord (`retry_after`), reprise sur erreur réseau, abandon propre si le
 webhook est supprimé/invalide.
+
+---
+
+## Blocage Datadome (HTTP 200) : ce que fait le bot depuis la 1.3.3
+
+Symptôme typique dans le journal :
+
+```text
+Renouvellement de session sur www.vinted.fr…
+Session www.vinted.fr prête (…)
+Profil « new » en difficulté (échec #5) : blocage anti-bot (HTTP 200)
+Self-healing : session www.vinted.fr programmée pour renouvellement, reprise dans 4 min
+```
+
+Vinted ne renvoie pas une erreur : il renvoie **HTTP 200 avec une page de
+vérification** (Datadome). Trois comportements rendaient la situation pire
+qu'elle ne l'est, et sont corrigés :
+
+| Avant 1.3.3 | Depuis 1.3.3 |
+| --- | --- |
+| Les cookies étaient **purgés** à chaque page de vérification | Les cookies sont **conservés** sur un HTTP 200 : le cookie `datadome` posé par la page est justement ce qui permet de repasser. Purge uniquement sur 403/429/451. |
+| La session était **renouvelée à chaque scan** bloqué (2 requêtes + nouvelle empreinte) | Renouvellement seulement après **3 blocages consécutifs** (ou un blocage dur) |
+| Reprise après **4 min**, puis 15 min | Reprise après **20 s**, puis 40 s, 80 s — plafond **90 s** |
+
+Ce qui reste vrai, sans langue de bois : un défi Datadome est lié à votre
+adresse IP. Si Vinted le sert à chaque requête, aucun outil honnête ne peut le
+contourner. Dans ce cas :
+
+1. **Attendez 15 à 60 min** sans interroger le site (le blocage se lève seul) ;
+2. **Désactivez les scans manuels répétés** : chaque clic relance un défi ;
+3. **Activez un proxy** (Réglages → Utiliser les proxys) — idéalement un proxy
+   résidentiel ; les proxys publics gratuits sont souvent déjà bloqués ;
+4. Vérifiez que le débit reste raisonnable (`pages = 1`, un profil par thème).
+
+Le bot ne cherche plus à « insister » : il garde sa session, attend un peu, et
+reprend à 20 s — c'est la seule stratégie qui, en pratique, laisse passer.
 
 ---
 

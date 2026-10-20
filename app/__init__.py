@@ -1,3 +1,3 @@
 """Vinted Sniper — plateforme de veille Vinted auto-hébergée."""
 
-__version__ = "1.3.2"
+__version__ = "1.3.3"

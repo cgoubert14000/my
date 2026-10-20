@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 
 from app.config import ConfigStore
 from app.database import Database
-from app.engine import BotEngine
+from app.engine import BotEngine, ScanOutcome
 from app.models import ProfileIn
 from app.realtime import LiveSettings, is_live, next_interval
 from app.state import AppState
@@ -219,6 +219,13 @@ class FakeAPI:
         return item
 
 
+def _blocked() -> ScanOutcome:
+    outcome = ScanOutcome()
+    outcome.status = "blocked"
+    outcome.error = "blocage anti-bot (HTTP 200)"
+    return outcome
+
+
 class FakeNotifier:
     def __init__(self):
         self.sent: list[dict] = []
@@ -413,6 +420,55 @@ class EngineRealtimeTests(unittest.TestCase):
         self.assertEqual(new_items[-1]["item"]["item_id"], "2")
         self.assertFalse(new_items[-1]["baseline"])
         self.assertIn("detection_ms", new_items[-1])
+
+    def test_soft_block_keeps_session_and_short_delay(self):
+        """Défi Datadome (HTTP 200) : pas de renouvellement à chaque passage.
+
+        Journal réel avant correctif : « Renouvellement de session » à chaque
+        scan, puis nouveau défi — et « reprise dans 4 min » après 5 échecs.
+        """
+        blank = SearchPage(
+            items=[], url="fake://catalog", status=200, blocked=True,
+            error="blocage anti-bot (HTTP 200)",
+        )
+
+        class BlockedAPI(FakeAPI):
+            async def search(self, profile, page=1, **kwargs):
+                self.calls.append(kwargs)
+                return blank
+
+        api = BlockedAPI([[]])
+        engine = self._engine(api, FakeNotifier())
+        engine.paused = False  # sinon les échecs ne sont pas comptés
+        profile = self.db.get_profile(self.profile["id"])
+        delay = engine._after_scan(profile, _blocked())
+        self.assertNotIn("www.vinted.fr", engine._force_renew)
+        self.assertLessEqual(delay, 30.0)
+        # 2e échec : toujours pas de renouvellement, délai encore court.
+        delay = engine._after_scan(profile, _blocked())
+        self.assertNotIn("www.vinted.fr", engine._force_renew)
+        self.assertLessEqual(delay, 45.0)
+        # 3e échec : là, on renouvelle la session.
+        engine._after_scan(profile, _blocked())
+        self.assertIn("www.vinted.fr", engine._force_renew)
+
+    def test_soft_backoff_is_short_and_capped(self):
+        """Reprise après défi anti-bot : 20 s, 40 s, 80 s… plafond 90 s.
+
+        L'ancien self-healing montait à 4 min puis 15 min : autant dire que le
+        profil ne détectait plus rien pendant ce temps.
+        """
+        engine = BotEngine(self.config, self.db, FakeClient(), FakeAPI([[]]), FakeNotifier())
+        profile_id = self.profile["id"]
+        delays = []
+        for failures in range(1, 6):
+            engine._failures[profile_id] = failures
+            delays.append(engine._soft_backoff(profile_id))
+        self.assertEqual(delays[0], 20.0)
+        self.assertEqual(delays[1], 40.0)
+        self.assertEqual(delays[2], 80.0)
+        self.assertEqual(delays[3], 90.0)
+        self.assertEqual(delays[4], 90.0)
 
     def test_burst_beyond_head_limit_is_not_lost(self):
         """Après une rafale, le passage suivant analyse toute la page."""

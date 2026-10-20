@@ -51,6 +51,15 @@ BLOCK_MARKERS = (
 
 BLOCK_STATUSES = {401, 403, 407, 429, 451, 503}
 
+#: Marqueurs propres à la page de vérification Datadome (défi JS).
+CHALLENGE_MARKERS = ("captcha-delivery", "geo.captcha-delivery", "datadome")
+
+
+def _is_challenge(text: str) -> bool:
+    """La page renvoyée est-elle le défi navigateur Datadome ?"""
+    sample = (text or "")[:20000].lower()
+    return any(marker in sample for marker in CHALLENGE_MARKERS)
+
 ACCEPT_LANGUAGE = "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7"
 
 
@@ -678,7 +687,13 @@ class HttpClient:
                 self._stats["last_block_at"] = time.time()
                 await self.proxies.report_failure(proxy, f"HTTP {status}")
                 ua = self._user_agent()  # nouvel UA pour la tentative suivante
-                if status in {403, 429, 451} or blocked:
+                # Blocage « dur » (403/429/451) : la session est brûlée, on repart
+                # à zéro. Défi Datadome rendu en HTTP 200 : au contraire, on
+                # GARDE les cookies — le cookie datadome posé par la page de
+                # vérification est justement ce qui permet de repasser ensuite.
+                # Les jeter à chaque passage (comportement d'avant) garantissait
+                # un nouveau défi à chaque scan.
+                if status in {403, 429, 451}:
                     self._cookies.pop(urlparse(url).netloc, {})
                 if self.on_block:
                     try:
@@ -687,10 +702,19 @@ class HttpClient:
                         pass
                 if attempt < attempts - 1:
                     if not quiet:
+                        hard = status in {403, 429, 451}
+                        if status == 200 and _is_challenge(text):
+                            detail = "défi navigateur Datadome"
+                        elif hard:
+                            detail = "session refusée"
+                        else:
+                            detail = "page anti-bot"
                         self.db.log(
                             "WARNING",
-                            f"Blocage détecté (HTTP {status}, proxy={proxy or 'direct'}) "
-                            f"→ rotation + purge cookies, tentative {attempt + 2}/{attempts}.",
+                            f"Blocage détecté (HTTP {status}, {detail}, "
+                            f"proxy={proxy or 'direct'}) → "
+                            f"{'purge cookies' if hard else 'cookies conservés'}, "
+                            f"tentative {attempt + 2}/{attempts}.",
                             profile_id=profile_id,
                         )
                     await self._smart_sleep(

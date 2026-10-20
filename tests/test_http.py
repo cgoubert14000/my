@@ -13,6 +13,7 @@ import time
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -107,6 +108,21 @@ class FakeVinted(BaseHTTPRequestHandler):
                 )
                 return
             self._send(200, json.dumps({"items": [ITEM]}), "application/json")
+            return
+
+        if path == "/catalog":
+            # Défi Datadome réel : HTTP 200 + page de vérification + cookie.
+            self._send(
+                200,
+                "<html><head><title>Vinted</title></head><body>"
+                '<script src="https://geo.captcha-delivery.com/captcha/"></script>'
+                "</body></html>",
+                headers={"Set-Cookie": "datadome=challenge-xyz; Path=/"},
+            )
+            return
+
+        if path == "/forbidden":
+            self._send(403, "<html>blocked</html>")
             return
 
         if path == "/items/424242":
@@ -214,6 +230,29 @@ class HttpClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertGreaterEqual(self.client.stats()["blocked"], before + 1)
         self.assertEqual(len(response.json()["items"]), 1)
         self.assertIsNotNone(response.attempts)
+
+    async def test_challenge_keeps_cookies(self):
+        """Un défi Datadome en HTTP 200 ne doit pas jeter la session.
+
+        Le cookie ``datadome`` posé par la page de vérification est justement
+        ce qui permet de repasser : le purger relançait un défi à chaque scan
+        (boucle observée en conditions réelles).
+        """
+        await self.client.warm_up(self.base + "/")
+        first = await self.client.get(self.base + "/catalog", attempts=1, timeout=5)
+        self.assertTrue(first.blocked)
+        self.assertEqual(first.status, 200)
+        self.assertIn("datadome", self.client._cookies.get(urlparse(self.base).netloc, {}))
+        await self.client.get(self.base + "/catalog", attempts=1, timeout=5)
+        last = FakeVinted.hits[-1]["cookie"] or ""
+        self.assertIn("datadome=challenge-xyz", last)
+
+    async def test_hard_block_purges_cookies(self):
+        """403 : là, oui, la session est brûlée et doit repartir de zéro."""
+        self.client._cookies[urlparse(self.base).netloc] = {"datadome": "vieux"}
+        response = await self.client.get(self.base + "/forbidden", attempts=1, timeout=5)
+        self.assertTrue(response.blocked)
+        self.assertNotIn("datadome", self.client._cookies.get(urlparse(self.base).netloc, {}))
 
     async def test_item_detail_parsing(self):
         response = await self.client.get(self.base + "/items/424242")
