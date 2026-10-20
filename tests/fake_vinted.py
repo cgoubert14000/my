@@ -406,7 +406,11 @@ class FakeVintedAPI(VintedAPI):
         self._cycle = itertools.count()
 
     async def ensure_session(
-        self, url: str, profile_id: int | None = None, force: bool = False
+        self,
+        url: str,
+        profile_id: int | None = None,
+        force: bool = False,
+        attempts: int | None = None,
     ) -> bool:
         await asyncio.sleep(0.05)
         return True
@@ -460,7 +464,12 @@ class FakeVintedAPI(VintedAPI):
         *,
         known_head: str | None = None,
         head_limit: int | None = None,
+        attempts: int | None = None,
+        timeout: int | None = None,
     ) -> SearchPage:
+        # Le moteur en temps réel demande une requête unique et courte
+        # (fail-fast) : le faux Vinted enregistre les valeurs pour les tests.
+        self.last_request_options = {"attempts": attempts, "timeout": timeout}
         await asyncio.sleep(0.22)
         profile_id = int(profile.get("id") or 0)
         origin = origin_of(profile.get("url") or f"https://{DEFAULT_DOMAIN}")
@@ -483,13 +492,21 @@ class FakeVintedAPI(VintedAPI):
         )
 
     async def enrich_item(
-        self, item: dict, domain: str = DEFAULT_DOMAIN, profile_id: int | None = None
+        self,
+        item: dict,
+        domain: str = DEFAULT_DOMAIN,
+        profile_id: int | None = None,
+        fast: bool = False,
     ) -> dict:
         await asyncio.sleep(0.05)
         return item
 
     async def fetch_seller(
-        self, item: dict, domain: str = DEFAULT_DOMAIN, profile_id: int | None = None
+        self,
+        item: dict,
+        domain: str = DEFAULT_DOMAIN,
+        profile_id: int | None = None,
+        fast: bool = False,
     ) -> dict:
         return item
 

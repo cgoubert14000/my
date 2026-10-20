@@ -790,6 +790,13 @@ class Database:
         params.append(max(1, min(int(limit), 1000)))
         return self._fetchall(sql, params)
 
+    def logs_since(self, last_id: int = 0, limit: int = 50) -> list[dict]:
+        """Nouveaux journaux depuis un identifiant (poussée temps réel)."""
+        return self._fetchall(
+            "SELECT * FROM logs WHERE id > ? ORDER BY id ASC LIMIT ?",
+            (int(last_id), max(1, min(int(limit), 200))),
+        )
+
     def purge_logs(self, keep: int = 5000) -> int:
         with self._lock:
             cur = self._conn.execute(

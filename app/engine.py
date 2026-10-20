@@ -469,7 +469,7 @@ class BotEngine:
         candidates: list[dict] = []
 
         try:
-            await self._ensure_session(domain, profile_id)
+            await self._ensure_session(domain, profile_id, live)
             for page in range(1, pages + 1):
                 # Page 1 en mode incrémental : on ne demande le HTML complet que
                 # si la tête de liste a bougé depuis le dernier passage.
@@ -482,12 +482,17 @@ class BotEngine:
                     if deep
                     else (self._head.get(profile_id) if page == 1 else None)
                 )
+                # Temps réel : on ne s'endort pas 30-60 s dans les tentatives.
+                # Un blocage échoue vite (8 s), la boucle repart avec une autre
+                # identité : c'est elle qui dosait déjà le rythme.
                 result = await self.api.search(
                     profile,
                     page=page,
                     domain=domain,
                     known_head=known,
                     head_limit=None if deep else head_limit,
+                    attempts=1 if live else None,
+                    timeout=10 if live else None,
                 )
                 if deep:
                     self._deep_next.discard(profile_id)
@@ -788,30 +793,61 @@ class BotEngine:
 
         Le résultat est réinjecté **dans les dictionnaires d'origine** : la
         suite du scan reste séquentielle, donc déterministe côté SQLite.
+
+        Deux garde-fous de latence, tous deux indispensables au « seconde par
+        seconde » : une seule tentative réseau par fiche (``fast``) et un
+        budget global (``engine.realtime_enrich_budget``, 3,5 s par défaut).
+        Si une fiche traîne, on continue avec les données déjà lues : l'alerte
+        part sans attendre, quitte à afficher un vendeur inconnu.
         """
         profile_id = int(profile["id"])
         wanted = candidates[:budget] if budget else []
         if not wanted:
             return
-        semaphore = asyncio.Semaphore(3)
+        semaphore = asyncio.Semaphore(4)
+        done = 0
 
         async def complete(item: dict) -> None:
+            nonlocal done
             async with semaphore:
                 try:
                     if needs_description(profile):
                         item.update(
-                            await self.api.enrich_item(item, domain, profile_id) or {}
+                            await self.api.enrich_item(
+                                item, domain, profile_id, fast=True
+                            )
+                            or {}
                         )
                     if needs_seller:
                         item.update(
-                            await self.api.fetch_seller(item, domain, profile_id) or {}
+                            await self.api.fetch_seller(
+                                item, domain, profile_id, fast=True
+                            )
+                            or {}
                         )
                 except asyncio.CancelledError:
                     raise
                 except Exception:  # pragma: no cover - best effort
                     pass
+                finally:
+                    done += 1
 
-        await asyncio.gather(*(complete(item) for item in wanted))
+        seconds = float(self.config.get("engine.realtime_enrich_budget", 3.5))
+        tasks = [asyncio.ensure_future(complete(item)) for item in wanted]
+        try:
+            await asyncio.wait_for(
+                asyncio.gather(*tasks, return_exceptions=True), timeout=max(0.5, seconds)
+            )
+        except asyncio.TimeoutError:
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+            self.db.log(
+                "DEBUG",
+                f"Fiches non complétées en {seconds:g}s "
+                f"({done}/{len(wanted)}) : le scan continue, l'alerte n'attend pas.",
+                profile_id=profile_id,
+            )
 
     async def _enrich_candidates_serial(
         self,
@@ -941,7 +977,9 @@ class BotEngine:
             except Exception as exc:
                 return False, f"{type(exc).__name__}: {exc}"[:200]
 
-    async def _ensure_session(self, domain: str, profile_id: int) -> None:
+    async def _ensure_session(
+        self, domain: str, profile_id: int, live: bool = False
+    ) -> None:
         refresh = int(self.config.get("http.cookie_refresh_minutes", 25)) * 60
         last = self._warm.get(domain, 0)
         force = domain in self._force_renew or bool(
@@ -950,7 +988,10 @@ class BotEngine:
         if force:
             self._force_renew.discard(domain)
         await self.api.ensure_session(
-            f"https://{domain}/", profile_id=profile_id, force=force
+            f"https://{domain}/",
+            profile_id=profile_id,
+            force=force,
+            attempts=1 if live else 2,
         )
         self._warm[domain] = time.time()
 

@@ -84,11 +84,24 @@ SIZE_GROUPS: tuple[dict, ...] = (
         "hint": "Chaussures, du 35 au 43 (pointures supérieures : collez une URL vinted.fr).",
         "sizes": tuple((str(20 + size), str(size)) for size in range(35, 44)),
     },
+    {
+        "key": "eu",
+        "label": "Tailles françaises / UK / US",
+        "hint": "Bloc affiché « XS / 34 / 6 » : utile pour les catégories qui n'utilisent pas les lettres.",
+        "sizes": (
+            ("1", "XS / 34 / 6"),
+            ("2", "S / 36 / 8"),
+            ("3", "M / 38 / 10"),
+            ("4", "L / 40 / 12"),
+            ("5", "XL / 42 / 14"),
+            ("6", "XXL / 44 / 16"),
+        ),
+    },
 )
 
 
 def _sizes_from_letters() -> tuple[tuple[str, str], ...]:  # pragma: no cover - lisibilité
-    return SIZE_GROUPS[0]["sizes"]
+    return next(group["sizes"] for group in SIZE_GROUPS if group["key"] == "letters")
 
 
 #: Paramètres pilotés par ce module : toujours reconstruits, jamais dupliqués.

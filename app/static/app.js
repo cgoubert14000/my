@@ -15,6 +15,7 @@
     logs: [],
     feedProfile: "all",
     feedSignature: "",
+    feedFilterSignature: "",
     logSignature: "",
     offline: false,
     editingId: null,
@@ -38,6 +39,7 @@
     brandIndex: { total: 0, updated_at: null },
     brandImporting: false,
     brandAutoImportFailed: false,
+    brandAutoImportFailedAt: 0,
   };
 
   const LEVEL_LABELS = { INFO: "INFO", DEBUG: "DBG", WARNING: "WARN", ERROR: "ERR", SUCCESS: "OK" };
@@ -130,7 +132,7 @@
         const left = base - (now - synced) / 1000;
         node.textContent = left > 0.05
           ? `prochain passage ${formatInterval(left)}`
-          : "passage imminent…";
+          : "prochain passage · imminent";
       }
     }, 250);
   }
@@ -195,6 +197,14 @@
     toast(`⚡ ${item.title || "Nouvelle annonce"} — ${price} · ${profileName(item.profile_id)}`, "success");
   }
 
+  function pushLog(log) {
+    if (!log || !log.id) return;
+    if (state.logs.some((row) => row.id === log.id)) return;
+    state.logs.unshift(log);
+    if (state.logs.length > 120) state.logs.length = 120;
+    renderLogs();
+  }
+
   function updateLiveItem(item) {
     if (!item || !item.item_id) return;
     const index = state.feed.findIndex((row) => row.item_id === item.item_id);
@@ -224,6 +234,10 @@
         try { updateLiveItem(JSON.parse(event.data).item); } catch (_) { /* ignore */ }
       });
       source.addEventListener("scan", () => { state.lastEventAt = Date.now(); });
+      /* Journaux poussés par le serveur (aucune attente de poll). */
+      source.addEventListener("log", (event) => {
+        try { pushLog(JSON.parse(event.data)); } catch (_) { /* ignore */ }
+      });
       source.addEventListener("blocked", (event) => {
         try {
           const data = JSON.parse(event.data);
@@ -359,6 +373,65 @@
       state.offline = true;
       toast("Connexion au serveur perdue — nouvelle tentative…", "error");
     }
+  }
+
+  /* ── Rendu incrémental ───────────────────────────────────────────────── */
+
+  /* Ne recrée que les cartes qui ont réellement changé.
+     Avant, chaque rafraîchissement (3 à 4 s) vidait la grille et la
+     reconstruisait : les animations rejouaient et le scroll sautait. */
+  function patchKeyed(container, items, keyOf, signatureOf, render) {
+    const existing = new Map();
+    for (const node of [...container.children]) {
+      const key = node.dataset ? node.dataset.key : "";
+      if (key) existing.set(key, node);
+      else node.remove();
+    }
+    const seen = new Set();
+    items.forEach((item, index) => {
+      const key = String(keyOf(item));
+      const signature = String(signatureOf(item));
+      seen.add(key);
+      let node = existing.get(key);
+      if (!node || node.dataset.sig !== signature) {
+        const fresh = render(item);
+        fresh.dataset.key = key;
+        fresh.dataset.sig = signature;
+        if (node) {
+          node.replaceWith(fresh);
+        } else {
+          fresh.classList.add("is-new");
+          container.insertBefore(fresh, container.children[index] || null);
+        }
+        node = fresh;
+      }
+      const anchor = container.children[index] || null;
+      if (node !== anchor) container.insertBefore(node, anchor);
+    });
+    for (const node of [...container.children]) {
+      if (node.dataset && node.dataset.key && !seen.has(node.dataset.key)) node.remove();
+    }
+  }
+
+  /* Champs visibles d'un profil : le compte à rebours (seconds_to_next) est
+     volontairement exclu, sinon la carte serait recréée à chaque seconde. */
+  function profileSignature(profile) {
+    return JSON.stringify([
+      profile.name, profile.active, profile.url, profile.category, profile.brands,
+      profile.interval_seconds, profile.live_mode, profile.min_price, profile.max_price,
+      profile.pages, profile.whitelist, profile.blacklist, profile.keyword_mode,
+      profile.min_seller_rating, profile.min_seller_feedback, profile.webhook_masked,
+      profile.last_run_at, profile.last_error, profile.scan_count, profile.found_count,
+      profile.running,
+    ]);
+  }
+
+  function feedItemSignature(item) {
+    return JSON.stringify([
+      item.title, item.price, item.currency, item.image_url, item.brand, item.size,
+      item.condition, item.seller_name, item.seller_rating, item.seller_feedback,
+      item.favourites, item.url, item.found_at,
+    ]);
   }
 
   /* ── Rendu : profils ─────────────────────────────────────────────────── */
@@ -527,8 +600,19 @@
 
   function renderProfiles() {
     const grid = $("#profilesGrid");
-    grid.replaceChildren();
-    for (const profile of state.profiles) grid.appendChild(profileCard(profile));
+    patchKeyed(grid, state.profiles, (profile) => profile.id, profileSignature, profileCard);
+    // Le compte à rebours évolue en continu : on le recale sans toucher au DOM.
+    for (const profile of state.profiles) {
+      const node = grid.querySelector(`[data-countdown="${profile.id}"]`);
+      if (!node) continue;
+      const base = Number(profile.seconds_to_next ?? 0);
+      const synced = Number(node.dataset.synced || 0);
+      const left = Number(node.dataset.base || 0) - (Date.now() - synced) / 1000;
+      if (Math.abs(left - base) > 1.2) {
+        node.dataset.base = String(base);
+        node.dataset.synced = String(Date.now());
+      }
+    }
     $("#profilesEmpty").classList.toggle("hidden", state.profiles.length > 0);
     $("#profilesCount").textContent = `${state.profiles.filter((p) => p.active).length} actif(s) / ${state.profiles.length}`;
     renderFeedFilter();
@@ -536,6 +620,9 @@
 
   function renderFeedFilter() {
     const select = $("#feedFilter");
+    const signature = state.profiles.map((p) => `${p.id}:${p.name}`).join("|");
+    if (signature === state.feedFilterSignature) return;
+    state.feedFilterSignature = signature;
     const current = state.feedProfile;
     select.replaceChildren();
     const all = new Option("Tous les profils", "all");
@@ -643,16 +730,16 @@
   }
 
   function renderFeed() {
-    const signature = state.feed.map((item) => item.item_id || item.id).join(",");
     const grid = $("#feedGrid");
-    if (signature !== state.feedSignature) {
-      state.feedSignature = signature;
-      grid.replaceChildren();
-      for (const item of state.feed) grid.appendChild(itemCard(item));
-    } else {
-      for (const time of $$("time[data-found]", grid)) {
-        time.textContent = relativeTime(time.dataset.found);
-      }
+    patchKeyed(
+      grid,
+      state.feed,
+      (item) => item.item_id || item.id,
+      feedItemSignature,
+      itemCard,
+    );
+    for (const time of $$("time[data-found]", grid)) {
+      time.textContent = relativeTime(time.dataset.found);
     }
     $("#feedEmpty").classList.toggle("hidden", state.feed.length > 0);
     $("#feedCount").textContent = `${state.feed.length} annonce(s)`;
@@ -660,26 +747,35 @@
 
   /* ── Rendu : journal ─────────────────────────────────────────────────── */
 
+  function logLine(log) {
+    const line = el("div", `log-line ${log.level}`);
+    const date = new Date(log.ts);
+    line.appendChild(el("span", "log-time",
+      Number.isNaN(date.getTime()) ? "--:--:--" : date.toLocaleTimeString("fr-FR")));
+    line.appendChild(el("span", "log-level", LEVEL_LABELS[log.level] || log.level));
+    line.appendChild(el("span", "log-msg", log.message));
+    line.title = `${log.source || "engine"}${log.profile_id ? ` · profil #${log.profile_id}` : ""} — ${log.ts}`;
+    return line;
+  }
+
   function renderLogs() {
     const signature = state.logs.map((log) => log.id).join(",");
     if (signature === state.logSignature) return;
     state.logSignature = signature;
     const list = $("#logList");
-    list.replaceChildren();
     if (!state.logs.length) {
+      list.replaceChildren();
       list.appendChild(el("div", "hint", "Aucun événement pour le moment."));
       return;
     }
-    for (const log of state.logs) {
-      const line = el("div", `log-line ${log.level}`);
-      const date = new Date(log.ts);
-      line.appendChild(el("span", "log-time",
-        Number.isNaN(date.getTime()) ? "--:--:--" : date.toLocaleTimeString("fr-FR")));
-      line.appendChild(el("span", "log-level", LEVEL_LABELS[log.level] || log.level));
-      line.appendChild(el("span", "log-msg", log.message));
-      line.title = `${log.source || "engine"}${log.profile_id ? ` · profil #${log.profile_id}` : ""} — ${log.ts}`;
-      list.appendChild(line);
-    }
+    // Une seule ligne insérée par nouvel événement (au lieu de 120 reconstruites).
+    patchKeyed(
+      list,
+      state.logs,
+      (log) => log.id,
+      (log) => `${log.level}|${log.ts}|${log.message}`,
+      logLine,
+    );
   }
 
   /* ── Rendu : réglages ────────────────────────────────────────────────── */
@@ -1425,6 +1521,7 @@
   async function importBrands(button) {
     button.disabled = true;
     state.brandAutoImportFailed = false;
+    state.brandAutoImportFailedAt = 0;
     const domain = profileDomainFromForm();
     try {
       renderBrandIndex(await api(`/brands/sync?domain=${encodeURIComponent(domain)}`, { method: "POST" }));
@@ -1472,36 +1569,45 @@
   /* L'index local est la seule source fiable pour « toutes les marques qui
      commencent par cp ». S'il est vide au moment d'une recherche, on l'importe
      une fois, tout seul, au lieu d'afficher « aucune marque ». */
-  async function ensureBrandIndex(maxWaitMs = 14000) {
+  async function ensureBrandIndex(maxWaitMs = 45000) {
     if (state.brandIndex.total) return true;
     if (state.brandImporting) return Boolean(state.brandIndex.total);
+    if (state.brandAutoImportFailedAt
+        && Date.now() - state.brandAutoImportFailedAt < 60000) {
+      return Boolean(state.brandIndex.total);
+    }
     try {
       await refreshBrandIndex();
       if (state.brandIndex.total) return true;
-      if (state.brandAutoImportFailed) return false;
       state.brandImporting = true;
       $("#brandNote").textContent =
-        "Index des marques vide : import automatique en cours (≈10 s, une seule fois)…";
+        "Index des marques vide : import automatique en cours (une seule fois)…";
       const domain = profileDomainFromForm();
       renderBrandIndex(await api(`/brands/sync?domain=${encodeURIComponent(domain)}`, { method: "POST" }));
       const started = Date.now();
       while (Date.now() - started < maxWaitMs) {
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         const data = await api("/brands/sync");
         const stillRunning = renderBrandIndex(data);
+        /* Progression visible : l'import dure parfois 20-30 s sur une petite
+           connexion, et une attente muette ressemble à une panne. */
+        $("#brandNote").textContent =
+          `Import des ${(data.imported || 0).toLocaleString("fr-FR")} marques en cours`
+          + ` (${data.sitemaps || 0}/${data.sitemaps_total || "?"} fichiers) — `
+          + "la recherche complète s'active dès la fin.";
         if (!stillRunning) break;
       }
       if (state.brandIndex.total) {
         toast(`${state.brandIndex.total.toLocaleString("fr-FR")} marques importées : recherche complète active.`, "success");
         return true;
       }
-      state.brandAutoImportFailed = true;
+      state.brandAutoImportFailedAt = Date.now();
       $("#brandNote").textContent =
-        "Import impossible (Vinted injoignable pour l'instant). Réessayez avec le bouton ⬇, "
-        + "ou collez l'URL de la marque dans le champ ci-dessus.";
+        "Import encore en cours en arrière-plan (Vinted répond lentement). "
+        + "Tapez à nouveau dans un instant, ou collez l'URL de la marque ci-dessus.";
       return false;
     } catch (error) {
-      state.brandAutoImportFailed = true;
+      state.brandAutoImportFailedAt = Date.now();
       $("#brandNote").textContent = `Import impossible : ${error.message}. Le bouton ⬇ réessaiera.`;
       return false;
     } finally {
@@ -1519,7 +1625,7 @@
       /* Mode préfixe : taper « n » propose TOUTES les marques commençant par N. */
       params.set("search", search);
       params.set("prefix", "1");
-      params.set("limit", "300");
+      params.set("limit", "500");
     }
     if (letter && !search) params.set("letter", letter);
     try {
@@ -1938,12 +2044,12 @@
     const profilesTick = guarded("profiles", refreshProfiles);
     const feedTick = guarded("feed", refreshFeed);
     const logsTick = guarded("logs", refreshLogs);
-    setInterval(statusTick, 2000);
+    setInterval(statusTick, 1500);
     setInterval(profilesTick, 4000);
     // Le flux SSE pousse les nouveautés : ce poll n'est qu'un filet de sécurité
     // (et le moyen de rester synchrone après un redémarrage du serveur).
-    setInterval(feedTick, 3000);
-    setInterval(logsTick, 4000);
+    setInterval(feedTick, 2500);
+    setInterval(logsTick, 5000);
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) refreshAll();
     });

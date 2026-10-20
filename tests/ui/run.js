@@ -238,6 +238,17 @@ setTimeout(async () => {
   assert(document.querySelector('#cfgInterval').value === '60', 'réglages remplis');
   assert(document.querySelector('#feedFilter').options.length === 2, 'filtre profils rempli');
 
+  // Fluidité : un rafraîchissement ne doit pas reconstruire les cartes existantes
+  const cardBefore = document.querySelector('.profile-card');
+  const feedBefore = document.querySelector('.item-card');
+  await new Promise((r) => setTimeout(r, 4600)); // un cycle de rafraîchissement complet
+  assert(document.querySelector('.profile-card') === cardBefore,
+    'fluidité : carte profil réutilisée (pas reconstruite)');
+  assert(document.querySelector('.item-card') === feedBefore,
+    'fluidité : carte annonce réutilisée (pas reconstruite)');
+  assert(document.querySelectorAll('.profile-card .is-new').length === 0,
+    'fluidité : aucune animation rejouée sur les cartes existantes');
+
   // Modale nouveau profil
   click(document.querySelector('#btnNewProfile'));
   assert(document.querySelector('#profileModal').open === true, 'modale profil ouverte');

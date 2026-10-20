@@ -809,14 +809,37 @@ async def stream(request: Request):
     async def events():
         yield ": connected\n\n"
         yield 'event: hello\ndata: {"ok": true}\n\n'
+        # Reprise : le client reçoit d'abord les dernières lignes de journal.
+        try:
+            latest = await asyncio.to_thread(state.db.recent_logs, 1)
+            last_log_id = latest[0]["id"] if latest else 0
+        except Exception:  # pragma: no cover - base occupée
+            last_log_id = 0
+        idle = 0.0
         try:
             while True:
                 if await request.is_disconnected():
                     break
                 try:
-                    event = await asyncio.wait_for(queue.get(), timeout=15)
+                    event = await asyncio.wait_for(queue.get(), timeout=0.5)
                 except asyncio.TimeoutError:
-                    yield ": ping\n\n"
+                    # Aucun événement moteur : on pousse les nouvelles lignes de
+                    # journal (les logs arrivent donc à la seconde, pas au poll).
+                    try:
+                        rows = await asyncio.to_thread(state.db.logs_since, last_log_id, 40)
+                    except Exception:  # pragma: no cover - base occupée
+                        rows = []
+                    if rows:
+                        idle = 0.0
+                        last_log_id = rows[-1]["id"]
+                        for row in rows:
+                            payload = json.dumps(row, ensure_ascii=False, default=str)
+                            yield f"event: log\ndata: {payload}\n\n"
+                    else:
+                        idle += 0.5
+                        if idle >= 15:
+                            idle = 0.0
+                            yield ": ping\n\n"
                     continue
                 payload = json.dumps(event, ensure_ascii=False, default=str)
                 yield f"event: {event.get('type', 'message')}\ndata: {payload}\n\n"

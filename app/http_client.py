@@ -725,7 +725,12 @@ class HttpClient:
 
     # ── Sessions Vinted ──────────────────────────────────────────────────
     async def warm_up(
-        self, url: str, *, force: bool = False, profile_id: int | None = None
+        self,
+        url: str,
+        *,
+        force: bool = False,
+        profile_id: int | None = None,
+        attempts: int = 2,
     ) -> bool:
         """Ouvre une session anonyme propre sur le domaine Vinted ciblé."""
         origin = origin_of(url)
@@ -751,7 +756,7 @@ class HttpClient:
                 )
             response = await self.get(
                 origin + "/",
-                attempts=2,
+                attempts=max(1, int(attempts)),
                 quiet=True,
                 profile_id=profile_id,
                 referer=origin + "/",

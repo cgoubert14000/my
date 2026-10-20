@@ -1245,9 +1245,15 @@ class VintedAPI:
         self.config = config
 
     async def ensure_session(
-        self, url: str, profile_id: int | None = None, force: bool = False
+        self,
+        url: str,
+        profile_id: int | None = None,
+        force: bool = False,
+        attempts: int = 2,
     ) -> bool:
-        return await self.client.warm_up(url, force=force, profile_id=profile_id)
+        return await self.client.warm_up(
+            url, force=force, profile_id=profile_id, attempts=attempts
+        )
 
     async def _search_api(
         self, profile: dict, page: int, domain: str, web_url: str, origin: str
@@ -1301,6 +1307,8 @@ class VintedAPI:
         *,
         known_head: str | None = None,
         head_limit: int | None = None,
+        attempts: int | None = None,
+        timeout: int | None = None,
     ) -> SearchPage:
         """Interroge le catalogue : HTML SSR en priorité, API JSON en option.
 
@@ -1339,6 +1347,8 @@ class VintedAPI:
             headers=headers,
             profile_id=profile.get("id"),
             referer=origin + "/",
+            attempts=attempts,
+            timeout=timeout,
         )
         if response.blocked:
             return SearchPage(
@@ -1397,9 +1407,17 @@ class VintedAPI:
         )
 
     async def enrich_item(
-        self, item: dict, domain: str = DEFAULT_DOMAIN, profile_id: int | None = None
+        self,
+        item: dict,
+        domain: str = DEFAULT_DOMAIN,
+        profile_id: int | None = None,
+        fast: bool = False,
     ) -> dict:
-        """Description + vendeur + photo HD depuis la page publique de l'annonce."""
+        """Description + vendeur + photo HD depuis la page publique de l'annonce.
+
+        ``fast`` (mode temps réel) : une seule tentative courte. Une fiche
+        article lente ne doit jamais retarder l'alerte Discord.
+        """
         if not self.config.get("engine.detail_fetch", True):
             return item
         if not item.get("url"):
@@ -1409,7 +1427,8 @@ class VintedAPI:
             profile_id=profile_id,
             referer=f"https://{domain}/",
             quiet=True,
-            attempts=2,
+            attempts=1 if fast else 2,
+            timeout=6 if fast else None,
         )
         if not response.ok:
             return item
@@ -1417,7 +1436,11 @@ class VintedAPI:
         return enriched
 
     async def fetch_seller(
-        self, item: dict, domain: str = DEFAULT_DOMAIN, profile_id: int | None = None
+        self,
+        item: dict,
+        domain: str = DEFAULT_DOMAIN,
+        profile_id: int | None = None,
+        fast: bool = False,
     ) -> dict:
         """Complète la note et le nombre d'avis du vendeur (avec cache SQLite)."""
         if not self.config.get("engine.enrich_sellers", True):
@@ -1456,7 +1479,8 @@ class VintedAPI:
             profile_id=profile_id,
             referer=f"https://{domain}/",
             quiet=True,
-            attempts=2,
+            attempts=1 if fast else 2,
+            timeout=6 if fast else None,
         )
         if not response.ok:
             return item

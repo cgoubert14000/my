@@ -25,7 +25,7 @@ class CatalogueTests(unittest.TestCase):
         data = catalogue()
         self.assertEqual(len(data["statuses"]), 6)
         self.assertEqual(len(data["colors"]), 12)
-        self.assertGreaterEqual(len(data["size_groups"]), 2)
+        self.assertGreaterEqual(len(data["size_groups"]), 3)
         self.assertEqual(data["counts"]["sizes"], sum(len(g["sizes"]) for g in data["size_groups"]))
         self.assertTrue(data["orders"])
 
@@ -36,7 +36,8 @@ class CatalogueTests(unittest.TestCase):
         colors = dict(COLORS)
         self.assertEqual(colors["1"], "Noir")
         self.assertEqual(colors["12"], "Blanc")
-        letters = dict(SIZE_GROUPS[0]["sizes"])
+        groups = {group["key"]: dict(group["sizes"]) for group in SIZE_GROUPS}
+        letters = groups["letters"]
         # Correspondance lue sur vinted.fr (la page réaffiche les filtres appliqués).
         self.assertEqual(letters["205"], "XS")
         self.assertEqual(letters["207"], "M")
@@ -44,10 +45,14 @@ class CatalogueTests(unittest.TestCase):
         self.assertEqual(letters["212"], "XXXL")
         self.assertEqual(letters["213"], "Taille unique")
         self.assertNotIn("208", letters)  # identifiant ignoré par Vinted
-        shoes = dict(SIZE_GROUPS[1]["sizes"])
+        shoes = groups["shoes"]
         self.assertEqual(shoes["55"], "35")
         self.assertEqual(shoes["63"], "43")
         self.assertEqual(len(shoes), 9)
+        # Bloc « XS / 34 / 6 » relevé sur vinted.fr (size_ids[]=1 … 6).
+        eu = groups["eu"]
+        self.assertEqual(eu["1"], "XS / 34 / 6")
+        self.assertEqual(eu["6"], "XXL / 44 / 16")
 
     def test_no_duplicate_size_ids(self):
         ids = [size_id for group in SIZE_GROUPS for size_id, _ in group["sizes"]]

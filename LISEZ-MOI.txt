@@ -1,15 +1,22 @@
 ==========================================================
-  VINTED SNIPER 1.3.1  —  demarrage en 30 secondes
+  VINTED SNIPER 1.3.2  —  demarrage en 30 secondes
 
-  NOUVEAU EN 1.3.1
-  - Filtres Vinted complets dans le formulaire : tailles (XS -> XXXL,
-    pointures 35 -> 43), etat (6 choix), couleurs (12), prix et tri.
-  - Marques : tapez une seule lettre, toutes les marques qui commencent
-    par cette lettre sont proposees (index local de ~57 000 marques).
-  - Nouvelle interface : verre depoli, halos indigo/cyan, animations.
-  - Les filtres sont ecrits dans l'URL du profil : Vinted les applique
-    lui-meme, donc moins de requetes et des resultats exacts.
-  - Marques : "cp" trouve C.P. Company, "hm" trouve H&M (ponctuation ignoree).
-    Si l'index est vide, il s'importe tout seul a la premiere recherche.
-  - Journal plus lisible : plus 70 lignes "webhook absent" d'un coup.
-  - Pendant les blocages Vinted, le bot ne lance plus de requetes inutiles.
+  NOUVEAU EN 1.3.2  (fluidite + vitesse)
+  - Aucune attente longue : en temps reel, un passage bloque echoue en 10 s
+    au lieu de 3 x 30 s. Le suivant repart tout de suite.
+  - La fiche article (description + vendeur) est bornee a 3,5 s. Passe ce
+    delai, l'alerte Discord part quand meme : plus de trou de 90 s.
+  - Le journal du dashboard est pousse en direct (SSE) : les lignes
+    arrivent a la seconde, plus au rythme d'un rafraichissement de 4 s.
+  - Interface sans clignotement : les cartes et les lignes sont reutilisees,
+    plus d'animation rejouee, plus de saut de defilement.
+  - Filtrer par marque : taper "n" liste toutes les marques commencant par N,
+    "cp" trouve C.P. Company, "hm" trouve H&M. L'import de l'index (~57 000
+    marques) se lance tout seul et affiche sa progression.
+  - Tailles : lettres (XS -> XXXL + taille unique), pointures 35 -> 43,
+    et bloc "XS / 34 / 6" -> "XXL / 44 / 16". Etats (6) et couleurs (12).
+
+  RAPPEL 1.3.1
+  - Filtres Vinted ecrits dans l'URL du profil : c'est Vinted qui filtre.
+  - Journal calme pendant les blocages (plus 70 lignes "webhook absent").
+  - Pendant un blocage, aucune requete de confort (fiche article, vendeur).

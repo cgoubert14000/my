@@ -144,8 +144,26 @@ annonce publiée          1 requête (page /catalog, tri « Plus récent »)
 | **Relecture après rafale** | Dès qu'une nouveauté est trouvée, le passage suivant relit toute la page : aucune annonce n'est perdue si plusieurs arrivent d'un coup. |
 | **Intervalle adaptatif** | Silence → l'intervalle s'allonge progressivement (jusqu'à 10 s) ; nouveauté → retour immédiat à 1,5 s pendant 90 s (rafale). |
 | **Alerte avant enrichissement** | L'annonce part sur Discord dès qu'elle est validée ; description, photo HD et note vendeur sont complétées **après**, en tâche de fond, puis le dashboard est mis à jour. |
+| **Fiche article bornée (1.3.2)** | Quand une description ou une note vendeur est nécessaire avant l'alerte, la lecture de la fiche est **limitée à 3,5 s au total** (une tentative, 6 s max). Au-delà, l'alerte part avec les données déjà lues : plus jamais 90 s d'attente. |
+| **Requête unique (1.3.2)** | En temps réel, un passage bloqué échoue en **10 s maximum** au lieu de 3 × 30 s de tentatives. Le scan suivant repart aussitôt. |
+| **Journal poussé (1.3.2)** | Les lignes de journal arrivent par le flux SSE, à la seconde, et non plus au rythme d'un rafraîchissement de 4 s. |
 | **Anti-blocage auto-régulé** | Un 403/429 ralentit temporairement le profil (×1,6 par blocage, jusqu'à ×8) puis revient à la vitesse normale après des passages réussis. |
 | **Flux poussé (SSE)** | Le dashboard reçoit les nouveautés par `/api/stream` : elles apparaissent sans attendre le prochain rafraîchissement. |
+
+**Fluidité de l'interface (1.3.2)**
+
+Le dashboard ne reconstruit plus ses listes à chaque rafraîchissement : chaque
+carte (profil, annonce, ligne de journal) est **réutilisée** et seuls les champs
+qui changent sont réécrits. Résultat : plus d'animation rejouée toutes les 2 s,
+plus de saut de défilement quand on lit le journal, et un flux qui s'ajoute
+ligne par ligne.
+
+| Avant 1.3.2 | Depuis 1.3.2 |
+| --- | --- |
+| `replaceChildren()` sur les 3 listes à chaque poll → tout clignote | rendu incrémental par clé (`item_id`, `id` de profil, `id` de journal) |
+| compte à rebours réécrit en boucle → micro-saccades | re-synchronisé seulement si l'écart dépasse 1,2 s |
+| `backdrop-filter` sur chaque panneau (coûteux à repeindre) | fond opaque équivalent, rendu stable |
+| journal rafraîchi toutes les 4 s | poussé par SSE, à la seconde |
 
 **Les trois vitesses**
 
@@ -313,6 +331,7 @@ cette page qui a servi de preuve, sans passer par l'API privée.
 | Couleurs | `1` Noir · `2` Marron · `3` Gris · `4` Beige · `5` Fuchsia · `6` Violet · `7` Rouge · `8` Jaune · `9` Bleu · `10` Vert · `11` Orange · `12` Blanc |
 | Tailles lettres | `205` XS · `206` S · `207` M · `209` L · `210` XL · `211` XXL · `212` XXXL · `213` Taille unique |
 | Pointures | `55` 35 · `56` 36 · `57` 37 · `58` 38 · `59` 39 · `60` 40 · `61` 41 · `62` 42 · `63` 43 |
+| Tailles FR / UK / US | `1` XS / 34 / 6 · `2` S / 36 / 8 · `3` M / 38 / 10 · `4` L / 40 / 12 · `5` XL / 42 / 14 · `6` XXL / 44 / 16 |
 | Tri | `newest_first` · `relevance` · `price_low_to_high` · `price_high_to_low` |
 
 > ⚠️ Deux pièges constatés en direct, et donc évités par le bot : l'identifiant

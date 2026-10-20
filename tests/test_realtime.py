@@ -6,6 +6,7 @@ import asyncio
 import json
 import random
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -172,7 +173,7 @@ class FakeAPI:
         self.calls: list[dict] = []
         self.description = description
 
-    async def ensure_session(self, url, profile_id=None, force=False):
+    async def ensure_session(self, url, profile_id=None, force=False, attempts=None):
         return True
 
     async def search(
@@ -183,8 +184,17 @@ class FakeAPI:
         *,
         known_head=None,
         head_limit=None,
+        attempts=None,
+        timeout=None,
     ):
-        self.calls.append({"known_head": known_head, "head_limit": head_limit})
+        self.calls.append(
+            {
+                "known_head": known_head,
+                "head_limit": head_limit,
+                "attempts": attempts,
+                "timeout": timeout,
+            }
+        )
         batch = self.batches.pop(0) if self.batches else []
         newest = batch[0]["id"] if batch else None
         head_key = ",".join(row["id"] for row in batch[:20])
@@ -200,12 +210,12 @@ class FakeAPI:
             items=list(batch), url="fake://catalog", newest_id=newest, head_key=head_key
         )
 
-    async def enrich_item(self, item, domain="www.vinted.fr", profile_id=None):
+    async def enrich_item(self, item, domain="www.vinted.fr", profile_id=None, fast=False):
         if self.description:
             return {**item, "description": self.description}
         return item
 
-    async def fetch_seller(self, item, domain="www.vinted.fr", profile_id=None):
+    async def fetch_seller(self, item, domain="www.vinted.fr", profile_id=None, fast=False):
         return item
 
 
@@ -292,6 +302,51 @@ class EngineRealtimeTests(unittest.TestCase):
     def _scan(self, engine):
         """Comme l'ordonnanceur : le profil est relu en base à chaque passage."""
         return asyncio.run(engine.scan_profile(self.db.get_profile(self.profile["id"])))
+
+    def test_live_scan_asks_for_one_fast_request(self):
+        """Temps réel : une seule tentative de 10 s (pas 3 × 30 s de sommeil)."""
+        api = FakeAPI([[item("1")]])
+        engine = self._engine(api, FakeNotifier())
+        self._scan(engine)
+        self.assertEqual(api.calls[0]["attempts"], 1)
+        self.assertEqual(api.calls[0]["timeout"], 10)
+
+    def test_slow_enrichment_never_blocks_the_alert(self):
+        """Une fiche article lente ne retarde pas l'alerte Discord.
+
+        Scénario réel : la page article met 30 s (ou reste bloquée). Avec le
+        budget temps réel (3,5 s), le scan rend la main et l'annonce part avec
+        les données déjà lues sur la page de résultats.
+        """
+        self.db.update_profile(
+            self.profile["id"],
+            {**self.profile, "whitelist": ["nike"], "check_description": True},
+        )
+
+        class SlowAPI(FakeAPI):
+            async def enrich_item(self, item, domain="", profile_id=None, fast=False):
+                await asyncio.sleep(30)
+                return item
+
+        api = SlowAPI([[item("1")], [item("2"), item("1")]])
+        notifier = FakeNotifier()
+        engine = self._engine(api, notifier)
+        self._scan(engine)  # baseline
+        started = time.perf_counter()
+        outcome = self._scan(engine)
+        elapsed = time.perf_counter() - started
+        self.assertEqual(outcome.new_items, 1)
+        self.assertLess(elapsed, 6.0, f"scan trop lent : {elapsed:.1f}s")
+        self.assertEqual([row["id"] for row in notifier.sent], ["2"])
+
+    def test_slow_profile_keeps_normal_retries(self):
+        """Hors temps réel (60 s entre deux passes), on garde les tentatives."""
+        self.db.update_profile(self.profile["id"], {"live_mode": False})
+        api = FakeAPI([[item("1")]])
+        engine = self._engine(api, FakeNotifier())
+        self._scan(engine)
+        self.assertIsNone(api.calls[0]["attempts"])
+        self.assertIsNone(api.calls[0]["timeout"])
 
     def test_detects_new_item_and_dedupes(self):
         api = FakeAPI(
@@ -583,6 +638,31 @@ class StreamEndpointTests(unittest.TestCase):
             self.assertEqual(next(lines), "")
             self.assertEqual(next(lines), "event: hello")
             self.assertIn('"ok": true', next(lines))
+
+    def test_stream_pushes_new_log_lines(self):
+        """Les journaux arrivent par SSE (pas d'attente de poll de 4 s)."""
+        self.state.db.log("INFO", "ligne poussée en direct")
+        with self.client.stream("GET", "/api/stream") as response:
+            lines = response.iter_lines()
+            seen = []
+            for index, line in enumerate(lines):
+                if index > 60:
+                    break
+                seen.append(line)
+                if line.startswith("data:") and "ligne poussée en direct" in line:
+                    break
+            self.assertTrue(
+                any("ligne poussée en direct" in line for line in seen),
+                f"la ligne de journal n'a pas été poussée : {seen[:20]}",
+            )
+            self.assertTrue(any(line == "event: log" for line in seen))
+
+    def test_logs_since_returns_only_new_rows(self):
+        self.state.db.log("INFO", "premier")
+        last_id = self.state.db.recent_logs(limit=1)[0]["id"]
+        self.state.db.log("INFO", "deuxième")
+        newer = self.state.db.logs_since(last_id)
+        self.assertEqual([row["message"] for row in newer], ["deuxième"])
 
     def test_publish_reaches_subscribers(self):
         queue = self.state.engine.subscribe()
