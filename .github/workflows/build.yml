@@ -53,9 +53,16 @@ jobs:
         shell: pwsh
         run: |
           $p = Start-Process -FilePath dist/vinted-sniper.exe -ArgumentList "--no-browser","--port","8123" -PassThru
-          Start-Sleep -Seconds 12
-          $r = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8123/api/health
-          Write-Host $r.Content
+          Start-Sleep -Seconds 15
+          $health = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8123/api/health
+          Write-Host $health.Content
+          $index = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8123/
+          if ($index.Content -notmatch "Vinted Sniper") { throw "Dashboard absent de l'executable" }
+          $js = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8123/static/app.js
+          if ($js.Content -notmatch "splitSearchUrl") { throw "JS du dashboard absent" }
+          $cats = Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8123/api/categories
+          if ($cats.Content -notmatch "women_root") { throw "Categories absentes" }
+          Write-Host "Dashboard, JS et categories OK dans l'executable"
           Stop-Process -Id $p.Id -Force
       - uses: actions/upload-artifact@v4
         with:
@@ -119,25 +126,3 @@ jobs:
           name: vinted-sniper-linux
           path: dist/vinted-sniper
           retention-days: 30
-      - name: Publish binary to branch
-        run: |
-          mkdir -p _delivery
-          cp dist/vinted-sniper _delivery/vinted-sniper-linux
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f _delivery/vinted-sniper-linux
-          if git diff --cached --quiet; then
-            echo "Binaire deja a jour."
-            exit 0
-          fi
-          git commit -m "chore(build): binaire Linux [skip ci]"
-          for attempt in 1 2 3; do
-            if git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME"; then
-              echo "Publie (tentative $attempt)."
-              exit 0
-            fi
-            git rebase --abort || true
-            sleep 5
-          done
-          echo "Publication impossible."
-          exit 1
