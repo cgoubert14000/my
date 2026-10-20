@@ -296,6 +296,15 @@ d'abord, puis les marques connues). Le rapport affiche alors l'URL exacte
 testée, avec `brand_ids[]` : c'est la garantie que le filtre de marque
 fonctionne, en plus du parsing.
 
+Le diagnostic affiche **chaque étape dès qu'elle est terminée** (plus de terminal
+muet) et s'arrête au bout de 90 s avec un message clair si le réseau bloque :
+
+```text
+✅ Configuration locale — Transport curl_cffi · base … · 0 profil(s)
+⏳ Session Vinted — connexion à https://www.vinted.fr…
+❌ Session Vinted — Aucun cookie reçu (page d'accueil inaccessible ou bloquée).
+```
+
 Ce que le diagnostic teste, dans l'ordre :
 
 1. **Configuration** : transport (`curl_cffi`/`httpx`), base SQLite, profils.
@@ -889,6 +898,7 @@ déduplication (cache mémoire + SQLite)  ◄──────┘
 
 | Symptôme | Piste |
 | --- | --- |
+| **`--check` reste silencieux ou semble figé** | Le diagnostic affiche désormais chaque étape en direct et s'arrête après 90 s. S'il s'arrête : lancé depuis une invite de commandes, testez `curl -I https://www.vinted.fr`. Un échec = pare-feu, antivirus, VPN ou proxy d'entreprise (et non le bot). |
 | **403 / 429 en boucle** | Lancez `python main.py --check`. Augmentez `min_request_delay` (3–5 s), réduisez le nombre de profils actifs, activez un proxy résidentiel, cliquez sur **↻ Session**. |
 | **0 annonce alors que Vinted répond** | Le diagnostic distingue page vide et structure inconnue. Si 0 carte sur une page de plusieurs Mo, Vinted a changé son HTML : ouvrez une issue avec la sortie de `--check`. |
 | **Aucune alerte alors que des annonces existent** | Lancez un **Aperçu** : les annonces sont peut-être écartées par la blacklist ou les seuils vendeur. Vérifiez aussi que le profil est actif et que le premier scan (baseline) est passé. Consultez le journal. |

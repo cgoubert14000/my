@@ -20,13 +20,25 @@ async def run_diagnostics(
     query: str = DEFAULT_QUERY,
     webhook: str = "",
     domain: str = "www.vinted.fr",
+    on_step=None,
+    on_progress=None,
 ) -> dict[str, Any]:
-    """Diagnostic réel, avec un mode réseau « rapide » (2 tentatives, pauses courtes)."""
+    """Diagnostic réel, avec un mode réseau « rapide » (2 tentatives, pauses courtes).
+
+    ``on_step(step)`` est appelé dès qu'une étape est terminée et
+    ``on_progress(key, label)`` avant chaque étape réseau : l'appelant peut
+    ainsi afficher la progression au lieu d'attendre la fin du diagnostic.
+    """
     previous = getattr(state.client, "fast_fail", False)
     state.client.fast_fail = True
     try:
         return await _run_diagnostics(
-            state, query=query, webhook=webhook, domain=domain
+            state,
+            query=query,
+            webhook=webhook,
+            domain=domain,
+            on_step=on_step,
+            on_progress=on_progress,
         )
     finally:
         state.client.fast_fail = previous
@@ -37,23 +49,38 @@ async def _run_diagnostics(
     query: str = DEFAULT_QUERY,
     webhook: str = "",
     domain: str = "www.vinted.fr",
+    on_step=None,
+    on_progress=None,
 ) -> dict[str, Any]:
     steps: list[dict[str, Any]] = []
     started = time.perf_counter()
 
+    def progress(key: str, label: str, hint: str = "") -> None:
+        """Signale le début d'une étape (affichage « en cours… »)."""
+        if on_progress is None:
+            return
+        try:
+            on_progress(key, label, hint)
+        except Exception:  # pragma: no cover - un affichage ne doit jamais casser
+            pass
+
     def add(
         key: str, label: str, ok: bool, detail: str, skipped: bool = False, **data
     ) -> None:
-        steps.append(
-            {
-                "key": key,
-                "label": label,
-                "ok": bool(ok),
-                "skipped": bool(skipped),
-                "detail": detail,
-                "data": data,
-            }
-        )
+        step = {
+            "key": key,
+            "label": label,
+            "ok": bool(ok),
+            "skipped": bool(skipped),
+            "detail": detail,
+            "data": data,
+        }
+        steps.append(step)
+        if on_step is not None:
+            try:
+                on_step(step)
+            except Exception:  # pragma: no cover
+                pass
 
     domain = (domain or "www.vinted.fr").strip().lower()
     origin = f"https://{domain}"
@@ -71,6 +98,7 @@ async def _run_diagnostics(
     )
 
     # ── 2. Session anonyme ───────────────────────────────────────────────
+    progress("session", "Session Vinted", f"connexion à {origin}…")
     session_ok = True
     session_error = ""
     try:
@@ -111,6 +139,7 @@ async def _run_diagnostics(
     }
     page = None
     catalog_ok = False
+    progress("catalog", "Catalogue Vinted", f"recherche « {query} »…")
     try:
         page = await state.api.search(profile, page=1, domain=domain)
         catalog_ok = bool(page.ok and page.items)
@@ -184,6 +213,7 @@ async def _run_diagnostics(
     # ── 4. Fiche article + vendeur ───────────────────────────────────────
     if page and page.items:
         first = page.items[0]
+        progress("item", "Fiche article et vendeur", "lecture de la première annonce…")
         try:
             enriched = await state.api.enrich_item(first, domain)
         except Exception as exc:
@@ -237,6 +267,7 @@ async def _run_diagnostics(
         state.config.get("discord.default_webhook", "") or ""
     )
     if configured_webhook:
+        progress("webhook", "Webhook Discord", "envoi d'un message de test…")
         try:
             ok, error = await state.notifier.send_test(
                 configured_webhook, "Diagnostic Vinted"

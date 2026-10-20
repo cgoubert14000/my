@@ -179,11 +179,40 @@ def _checked_query(state: AppState, args) -> tuple[str, str]:
     return url, f"{name} (#{brand_id})"
 
 
+#: Durée maximale du diagnostic : au-delà, on explique au lieu de laisser
+#: le terminal muet (réseau bloqué, pare-feu, proxy d'entreprise…).
+CHECK_TIMEOUT_SECONDS = 90
+
+
+def _print_step(step: dict) -> None:
+    icon = "⏭️" if step.get("skipped") else ("✅" if step["ok"] else "❌")
+    print(f"{icon} {step['label']} — {step['detail']}", flush=True)
+    if step["key"] == "sample":
+        for sample in step["data"].get("items", [])[:3]:
+            print(
+                f"     • {sample['title'][:60]} · {sample['price']} · "
+                f"{sample['brand']} {sample['size']}",
+                flush=True,
+            )
+            print(f"       {sample['url']}", flush=True)
+
+
+def _print_progress(key: str, label: str, hint: str = "") -> None:
+    print(f"⏳ {label} — {hint}", flush=True)
+
+
 async def _diagnose(state: AppState, args) -> dict:
     try:
-        return await run_diagnostics(
-            state, query=_checked_query(state, args)[0], webhook=args.webhook,
-            domain=args.domain,
+        return await asyncio.wait_for(
+            run_diagnostics(
+                state,
+                query=_checked_query(state, args)[0],
+                webhook=args.webhook,
+                domain=args.domain,
+                on_step=_print_step,
+                on_progress=_print_progress,
+            ),
+            timeout=CHECK_TIMEOUT_SECONDS,
         )
     finally:
         await state.client.close()
@@ -200,21 +229,27 @@ def run_check(state: AppState, args) -> int:
     if brand_label:
         print(f"  Marque    : {brand_label}", flush=True)
         print(f"  URL testée: {query}", flush=True)
-    print(flush=True)
-    report = asyncio.run(_diagnose(state, args))
+    print(
+        f"  Chaque ligne s'affiche dès qu'elle est prête (max {CHECK_TIMEOUT_SECONDS} s).\n",
+        flush=True,
+    )
+    try:
+        report = asyncio.run(_diagnose(state, args))
+    except asyncio.TimeoutError:
+        print(
+            f"\n⏱️  Diagnostic interrompu après {CHECK_TIMEOUT_SECONDS} s : Vinted ne répond pas "
+            "depuis cette machine.\n"
+            "   Vérifiez : connexion Internet, pare-feu/antivirus, VPN ou proxy d'entreprise.\n"
+            "   Test rapide dans un terminal : curl -I https://www.vinted.fr\n",
+            flush=True,
+        )
+        return 1
+    except KeyboardInterrupt:
+        print("\n⏹️  Diagnostic annulé.", flush=True)
+        return 130
 
-    for step in report["steps"]:
-        icon = "⏭️" if step.get("skipped") else ("✅" if step["ok"] else "❌")
-        print(f"{icon} {step['label']} — {step['detail']}")
-        if step["key"] == "sample":
-            for sample in step["data"].get("items", [])[:3]:
-                print(
-                    f"     • {sample['title'][:60]} · {sample['price']} · "
-                    f"{sample['brand']} {sample['size']}"
-                )
-                print(f"       {sample['url']}")
-
-    print("\n💡 Conseils :")
+    print("", flush=True)
+    print("💡 Conseils :")
     for line in report["advice"]:
         print(f"   - {line}")
     print(f"\nTerminé en {report['duration_ms']} ms.")
