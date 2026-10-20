@@ -6,7 +6,9 @@ import asyncio
 import json
 import re
 import time
+from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -36,6 +38,7 @@ from .categories import (
     sanitize_path,
     top_level,
 )
+from .browser_session import BrowserError, SolverError, harvest
 from .config import ConfigError
 from .filters import matches_profile
 from .vinted_filters import apply_filters, catalogue as filter_catalogue, read_filters
@@ -46,6 +49,7 @@ from .models import (
     ProfileIn,
     ProfileOut,
     ToggleIn,
+    UnblockIn,
     WebhookTestIn,
 )
 from .utils import domain_of, is_vinted_host, utcnow_iso
@@ -54,6 +58,8 @@ router = APIRouter()
 
 _preview_lock = asyncio.Lock()
 _diagnose_lock = asyncio.Lock()
+#: Un seul déblocage à la fois (le navigateur est une ressource unique).
+_unblock_lock = asyncio.Lock()
 _brand_lock = asyncio.Lock()
 #: Cache des marques lues sur Vinted : {(domain, letter): (ts, payload)}.
 _brand_cache: dict[tuple[str, str], tuple[float, dict]] = {}
@@ -792,6 +798,96 @@ async def diagnose(payload: DiagnoseIn, request: Request) -> dict:
             raise HTTPException(
                 status_code=504, detail="Diagnostic interrompu (délai dépassé)."
             )
+
+
+@router.post("/session/unblock")
+async def unblock(payload: UnblockIn, request: Request) -> dict:
+    """Ouvre le navigateur local, laisse Cloudflare valider, importe la session.
+
+    C'est la seule réponse **honnête et gratuite** à une page
+    ``challenge-platform`` : le défi est exécuté par un vrai navigateur (celui
+    de la machine), puis le cookie ``cf_clearance`` — invisible en JavaScript
+    car ``HttpOnly`` — est récupéré via le protocole DevTools et réinjecté avec
+    le User-Agent qui l'a obtenu.
+    """
+    state = _state(request)
+    if _unblock_lock.locked():
+        raise HTTPException(
+            status_code=429, detail="Un déblocage est déjà en cours (fenêtre ouverte)."
+        )
+    url = (payload.url or "").strip()
+    if not url:
+        profile = next(
+            (
+                row
+                for row in state.db.list_profiles()
+                if row.get("active") and str(row.get("url") or "").startswith("http")
+            ),
+            None,
+        )
+        url = str((profile or {}).get("url") or "https://www.vinted.fr/catalog")
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url.lstrip("/")
+
+    config = state.config
+    headless = (
+        bool(payload.headless)
+        if payload.headless is not None
+        else bool(config.get("challenge.headless", False))
+    )
+    timeout = float(config.get("challenge.timeout_seconds", 60))
+    state.db.log("INFO", f"Déblocage demandé : ouverture de {url} dans le navigateur…")
+
+    def log(message: str) -> None:
+        state.db.log("INFO", message, source="challenge")
+
+    async with _unblock_lock:
+        try:
+            result = await asyncio.to_thread(
+                harvest,
+                url,
+                solver_url=str(config.get("challenge.solver_url", "") or ""),
+                browser_path=str(config.get("challenge.browser_path", "") or ""),
+                profile_dir=str(Path(state.db_path).parent / "browser-profile"),
+                timeout=timeout,
+                headless=headless,
+                on_log=log,
+            )
+        except (BrowserError, SolverError) as error:
+            state.db.log("ERROR", f"Déblocage impossible : {error}", source="challenge")
+            raise HTTPException(status_code=502, detail=str(error)) from None
+        except Exception as error:  # pragma: no cover - imprévu (pilote, OS…)
+            state.db.log("ERROR", f"Déblocage interrompu : {error}", source="challenge")
+            raise HTTPException(status_code=500, detail=f"Déblocage interrompu : {error}") from None
+
+        summary = result.summary()
+        if not result.ok or not result.cookies:
+            state.db.log(
+                "WARNING",
+                result.message or "La vérification n'est pas terminée.",
+                source="challenge",
+            )
+            return {"ok": False, "harvest": summary, "detail": result.message}
+
+        netloc = urlparse(result.url or url).netloc or "www.vinted.fr"
+        imported = state.client.import_session(
+            result.cookies, result.user_agent, netloc=netloc
+        )
+        resumed = state.engine.resume_after_unblock()
+        state.db.log(
+            "INFO",
+            f"Session importée depuis le navigateur ({imported['imported']} cookie(s), "
+            f"clearance : {'oui' if imported['clearance'] else 'non'}) — "
+            f"{resumed} profil(s) relancé(s).",
+            source="challenge",
+        )
+        return {
+            "ok": True,
+            "harvest": summary,
+            "session": imported,
+            "resumed": resumed,
+            "detail": f"{imported['imported']} cookie(s) importé(s) pour {netloc}.",
+        }
 
 
 # ── Flux temps réel (Server-Sent Events) ─────────────────────────────────────

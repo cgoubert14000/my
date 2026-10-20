@@ -43,6 +43,7 @@ const config = {
   engine: { default_interval_seconds: 60, min_request_delay: 2, max_concurrent_profiles: 2,
             max_items_per_page: 96, baseline_first_scan: true, live_mode: true,
             realtime_turbo: false, realtime_min_interval: 1.5, realtime_max_interval: 10 },
+  challenge: { solver_url: '', browser_path: '', headless: false, timeout_seconds: 60 },
   discord: { default_webhook: '', mention: '' }, notifications: { enabled: true },
   proxies: { enabled: false, prefer_proxies: false, auto_discover: true, list: [] },
   http: {}, app: { password_set: false },
@@ -50,6 +51,7 @@ const config = {
 const status = {
   running: true, paused: false, uptime_seconds: 3725, uptime_human: '1 h 02', transport: 'curl_cffi',
   profiles_total: 1, profiles_active: 1, profiles_configured: 1, inflight: [], global_cooldown: 0,
+  challenge: { browser: 'msedge.exe', browser_path: 'C:/Edge/msedge.exe', solver: false, headless: false, available: true },
   stats: { scans: 12, scans_failed: 0, items_seen: 300, new_items: 2, alerts_sent: 2, alerts_failed: 0,
            blocked: 1, last_scan_at: now, last_error: null, last_block_at: null,
            unchanged: 410, last_detection_ms: 320 },
@@ -89,6 +91,12 @@ window.fetch = async (url, opts = {}) => {
   calls.push({ url: String(url), method: opts.method || 'GET', body: opts.body });
   const u = String(url);
   if (u.includes('/api/status')) return reply(status);
+  if (u.includes('/api/session/unblock')) return reply({
+    ok: true, resumed: 1,
+    harvest: { ok: true, solved: true, cookies: ['cf_clearance', 'datadome'], source: 'browser' },
+    session: { netloc: 'www.vinted.fr', imported: 2, clearance: true },
+    detail: '2 cookie(s) importé(s).',
+  });
   if (u.includes('/api/categories')) {
     const path = decodeURIComponent((u.match(/path=([^&]*)/) || [])[1] || '/catalog');
     const top = [
@@ -518,6 +526,16 @@ setTimeout(async () => {
     'pastille moteur : vérification Vinted, pas hors ligne');
   assert(document.querySelector('#liveLabel').textContent.includes('Temps réel'),
     'flux toujours annoncé en temps réel pendant un blocage');
+
+  // Déblocage : le bouton appelle le vrai endpoint (navigateur local)
+  calls.length = 0;
+  click(document.querySelector('#blockBannerSolve'));
+  await new Promise((r) => setTimeout(r, 120));
+  const unblockCall = calls.find((c) => c.url.includes('/api/session/unblock'));
+  assert(Boolean(unblockCall), 'déblocage : appel /api/session/unblock');
+  assert(unblockCall && unblockCall.method === 'POST', 'déblocage : requête POST');
+  assert(document.querySelector('#blockBannerSolve').disabled === false,
+    'déblocage : bouton réactivé après la réponse');
 
   status.stats.last_error = null;
   status.stats.last_block_at = null;

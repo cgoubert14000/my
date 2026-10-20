@@ -665,6 +665,58 @@ qu'elle ne l'est, et sont corrigés :
 | Le mot « datadome » figurait dans les **marqueurs de blocage** — or la page catalogue normale charge ce script | Un blocage n'est retenu que si la **grille d'annonces est absente** ; le journal nomme le marqueur exact (`page « just a moment »`, `défi Datadome « captcha-delivery »`) (1.3.4) |
 | Attente de 30-60 s après une page de vérification HTTP 200 | Pause plafonnée à **5 s** : ce n'est pas un quota épuisé (1.3.4) |
 
+### 1.3.7 — débloquer une vérification Cloudflare, gratuitement
+
+Le bouton **🔓 Débloquer avec mon navigateur** (bandeau rouge du dashboard)
+ouvre Edge ou Chrome sur la page Vinted, laisse la vérification Cloudflare se
+terminer, puis **récupère les cookies de la session** — dont `cf_clearance`,
+qui est `HttpOnly` et donc invisible depuis `document.cookie`. Ils sont
+réinjectés dans le bot avec le **User-Agent exact** qui les a obtenus, et les
+profils repartent immédiatement (plus d'attente de 5 min).
+
+Pourquoi ça marche : `cf_clearance` est lié à l'adresse IP **et** au
+User-Agent. `curl_cffi` imite déjà l'empreinte TLS de Chrome ; en gardant la
+même IP et le même UA que le navigateur, la page catalogue est servie
+normalement.
+
+Comment c'est fait, dans ce dépôt :
+
+| Élément | Détail |
+| --- | --- |
+| Pilotage | **Chrome DevTools Protocol** en WebSocket, implémenté avec la bibliothèque standard (`app/browser_session.py`) : aucune dépendance ajoutée, aucun `pip install` |
+| Navigateur | Microsoft **Edge** (installé d'office sur Windows 10/11) ou Google Chrome, détectés automatiquement (`challenge.browser_path` pour forcer un chemin) |
+| Cookie | `Network.getAllCookies` : récupère aussi les cookies `HttpOnly`, ce que le JavaScript de la page ne peut pas faire |
+| Reprise | `POST /api/session/unblock` → `import_session()` + `resume_after_unblock()` : backoff et throttle remis à zéro |
+
+**Marche à suivre**
+
+1. Le bandeau rouge apparaît → cliquer **🔓 Débloquer avec mon navigateur** ;
+2. une fenêtre s'ouvre sur Vinted : si Cloudflare affiche une case à cocher ou
+   un « Vérifiez que vous êtes humain », **cochez-la** (le bot ne peut pas le
+   faire à votre place, et c'est normal : c'est la preuve que la vérification
+   est interactive) ;
+3. dès que le catalogue s'affiche, la fenêtre se ferme, la session est
+   importée et le journal affiche
+   `Session importée depuis le navigateur (N cookie(s), clearance : oui) — 1 profil(s) relancé(s)`.
+
+**Les solutions gratuites qui existent (et ce qu'elles valent)**
+
+| Projet / moyen | Gratuit | Verdict |
+| --- | --- | --- |
+| **[FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)** (Docker, port 8191) | oui | référence du domaine ; renseigner `challenge.solver_url` ou les réglages → le bot l'utilise en priorité. Ne résout **pas** les captchas interactifs |
+| **[Byparr](https://github.com/ThePhaseless/Byparr)** (API compatible FlareSolverr, camoufox) | oui | même branchement que FlareSolverr (`solver_url`) |
+| **[sarperavci/CloudflareBypassForScraping](https://github.com/sarperavci/CloudflareBypassForScraping)** | oui | navigateur furtif ; utile si vous préférez un service HTTP séparé |
+| **Navigateur local (ce bot)** | oui | aucun service à lancer, Edge suffit ; validé par les tests du dépôt avec un faux serveur CDP |
+| **Partage de connexion du téléphone** | oui | change l'IP : le blocage tombe souvent immédiatement |
+| **[cloudscraper](https://github.com/VeNoMouS/cloudscraper)** | oui | **inutile ici** : ne résout plus les défis Cloudflare modernes (JavaScript + Turnstile) |
+| Proxys publics gratuits | oui | quasi tous déjà signalés à Cloudflare : ne comptez pas dessus |
+| Proxy **résidentiel** (payant) | non | la seule solution vraiment stable à long terme si le blocage revient chaque jour |
+
+Ce qui reste vrai, sans langue de bois : si Cloudflare demande une action
+**à chaque** requête, il faut la faire (ou payer un proxy résidentiel). Le bot
+ne contourne pas un captcha — il réutilise proprement une session validée, ce
+qui est exactement ce que fait FlareSolverr.
+
 ### 1.3.6 — les états trompeurs du dashboard
 
 Un blocage Cloudflare affichait « Hors ligne » et « Flux interrompu » alors que

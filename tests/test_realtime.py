@@ -239,8 +239,18 @@ class FakeNotifier:
 class FakeClient:
     transport = "test"
 
+    def __init__(self):
+        #: Cookies importés depuis un « navigateur » (déblocage Cloudflare).
+        self.imported: dict = {}
+
     def stats(self):
         return {"proxy_pool": {"enabled": False, "total": 0, "available": 0}}
+
+    def import_session(self, cookies, user_agent="", netloc="www.vinted.fr"):
+        self.imported = {"cookies": dict(cookies or {}), "user_agent": user_agent, "netloc": netloc}
+        return {"netloc": netloc, "imported": len(self.imported["cookies"]),
+                "cookies": len(self.imported["cookies"]), "user_agent": user_agent,
+                "clearance": "cf_clearance" in self.imported["cookies"]}
 
     def block_cooldown_left(self, seconds: float = 25.0) -> float:
         last = float(getattr(self, "_last_block_at", 0.0) or 0.0)
@@ -715,6 +725,13 @@ class StreamEndpointTests(unittest.TestCase):
             config_path=config_path, db_path=root / "test.db", api_class=FakeVintedAPI
         )
         self.state.notifier.dry_run = True
+        self.profile_id = self.state.db.create_profile(
+            {
+                "name": "Déblocage",
+                "url": "https://www.vinted.fr/catalog?search_text=nike",
+                "live_mode": True,
+            }
+        )["id"]
         self.client = TestClient(self.state_app())
         self.client.__enter__()
 
@@ -772,6 +789,66 @@ class StreamEndpointTests(unittest.TestCase):
             self.assertTrue(self.client.get("/api/status").json()["webhook_configured"])
         finally:
             self.state.config._data["discord"]["default_webhook"] = ""
+
+    def test_unblock_imports_browser_session_and_resumes(self):
+        """Le déblocage gratuit : cookies du navigateur + profils relancés."""
+        from unittest.mock import patch
+
+        from app.browser_session import Harvest
+
+        self.state.engine._failures[self.profile_id] = 3
+        self.state.engine._next_run[self.profile_id] = time.time() + 300
+        harvest = Harvest(
+            ok=True,
+            cookies={"cf_clearance": "abc", "datadome": "dd"},
+            user_agent="Mozilla/5.0 Chrome/131",
+            url="https://www.vinted.fr/catalog?search_text=nike",
+            solved=True,
+            cards=24,
+        )
+        with patch("app.api.harvest", return_value=harvest):
+            response = self.client.post("/api/session/unblock", json={})
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        client = self.state.client
+        self.assertEqual(client._cookies["www.vinted.fr"]["cf_clearance"], "abc")
+        # Même UA que le navigateur : sinon Cloudflare rejette la clearance.
+        self.assertEqual(client._identities["www.vinted.fr"], "Mozilla/5.0 Chrome/131")
+        self.assertEqual(client.stats()["cooldown_left"], 0)
+        self.assertEqual(payload["session"]["netloc"], "www.vinted.fr")
+        # Le profil ne doit plus attendre son backoff de 5 min.
+        self.assertNotIn(self.profile_id, self.state.engine._failures)
+        self.assertLessEqual(self.state.engine._next_run[self.profile_id], time.time())
+        self.assertIsNone(self.state.engine.stats.last_error)
+
+    def test_unblock_reports_failure_without_importing(self):
+        from unittest.mock import patch
+
+        from app.browser_session import Harvest
+
+        harvest = Harvest(ok=False, message="Vérification non terminée.")
+        with patch("app.api.harvest", return_value=harvest):
+            response = self.client.post("/api/session/unblock", json={})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["ok"])
+        self.assertNotIn("cf_clearance", self.state.client._cookies.get("www.vinted.fr", {}))
+
+    def test_unblock_surfaces_browser_errors(self):
+        from unittest.mock import patch
+
+        from app.browser_session import BrowserError
+
+        with patch("app.api.harvest", side_effect=BrowserError("Aucun navigateur")):
+            response = self.client.post("/api/session/unblock", json={})
+        self.assertEqual(response.status_code, 502)
+        self.assertIn("Aucun navigateur", response.json()["detail"])
+
+    def test_status_publishes_challenge_capabilities(self):
+        info = self.client.get("/api/status").json()["challenge"]
+        self.assertIn("browser", info)
+        self.assertIn("available", info)
+        self.assertFalse(info["solver"])
 
     def test_logs_since_returns_only_new_rows(self):
         self.state.db.log("INFO", "premier")

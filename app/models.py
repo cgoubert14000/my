@@ -116,6 +116,13 @@ class ProfileOut(ProfileBase):
     effective_webhook: bool = False
 
 
+class UnblockIn(BaseModel):
+    """Demande de déblocage : navigateur local ou solutionneur externe."""
+
+    url: str = Field(default="", max_length=600)
+    headless: bool | None = None
+
+
 class ToggleIn(BaseModel):
     active: bool
 

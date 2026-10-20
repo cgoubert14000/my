@@ -298,10 +298,31 @@
   }
 
   async function api(path, options = {}) {
-    const response = await fetch(`/api${path}`, {
-      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-      ...options,
-    });
+    const { timeoutMs, ...init } = options;
+    let timer = null;
+    let timedOut = false;
+    if (timeoutMs && typeof window.AbortController === "function") {
+      const controller = new window.AbortController();
+      init.signal = controller.signal;
+      timer = setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, timeoutMs);
+    }
+    let response;
+    try {
+      response = await fetch(`/api${path}`, {
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+        ...init,
+      });
+    } catch (error) {
+      if (timedOut) {
+        throw new Error("Délai dépassé : la fenêtre du navigateur n'a pas répondu à temps.");
+      }
+      throw error;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
     let data = null;
     try { data = await response.json(); } catch (_) { /* réponse vide */ }
     if (!response.ok) {
@@ -883,6 +904,10 @@
     $("#cfgAutoDiscover").checked = proxies.auto_discover !== false;
     $("#cfgBaseline").checked = engine.baseline_first_scan !== false;
     $("#cfgProxyList").value = (proxies.list || []).join("\n");
+    const challenge = config.challenge || {};
+    if ($("#cfgBrowserPath")) $("#cfgBrowserPath").value = challenge.browser_path || "";
+    if ($("#cfgSolverUrl")) $("#cfgSolverUrl").value = challenge.solver_url || "";
+    if ($("#cfgHeadless")) $("#cfgHeadless").checked = Boolean(challenge.headless);
     void http;
   }
 
@@ -910,6 +935,11 @@
             discord: {
               default_webhook: $("#cfgWebhook").value.trim(),
               mention: $("#cfgMention").value.trim(),
+            },
+            challenge: {
+              browser_path: $("#cfgBrowserPath") ? $("#cfgBrowserPath").value.trim() : "",
+              solver_url: $("#cfgSolverUrl") ? $("#cfgSolverUrl").value.trim() : "",
+              headless: $("#cfgHeadless") ? $("#cfgHeadless").checked : false,
             },
             proxies: {
               enabled: $("#cfgProxies").checked,
@@ -2105,6 +2135,34 @@
 
   /* ── Rafraîchissements ───────────────────────────────────────────────── */
 
+  /* Déblocage gratuit : un vrai navigateur exécute la vérification Cloudflare,
+     puis on récupère ses cookies (dont cf_clearance, invisible en JS). */
+  async function unblockWithBrowser(button) {
+    const label = button.textContent;
+    button.disabled = true;
+    button.textContent = "Fenêtre ouverte…";
+    toast("Fenêtre du navigateur ouverte : laissez-la se valider (cochez si demandé).", "info");
+    try {
+      const result = await api("/session/unblock", {
+        method: "POST",
+        body: JSON.stringify({}),
+        timeoutMs: 180000,
+      });
+      if (result.ok) {
+        const count = (result.session && result.session.imported) || 0;
+        toast(`Session importée (${count} cookie(s)) : les scans repartent tout de suite.`, "success");
+        await Promise.all([refreshStatus(), refreshProfiles(), refreshLogs()]);
+      } else {
+        toast(result.detail || "Vérification non terminée : recommencez et validez la page.", "error");
+      }
+    } catch (error) {
+      toast(`Déblocage : ${error.message}`, "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = label;
+    }
+  }
+
   async function refreshStatus() {
     try {
       const status = await api("/status");
@@ -2215,6 +2273,10 @@
       });
     }
     $("#profileForm").addEventListener("submit", submitProfile);
+    const blockSolve = $("#blockBannerSolve");
+    if (blockSolve) {
+      blockSolve.addEventListener("click", () => unblockWithBrowser(blockSolve));
+    }
     const blockTest = $("#blockBannerTest");
     if (blockTest) {
       blockTest.addEventListener("click", async () => {

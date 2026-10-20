@@ -49,6 +49,7 @@ HIDDEN_IMPORTS = [
     "app.cli",
     "app.web",
     "app.api",
+    "app.browser_session",
 ]
 
 

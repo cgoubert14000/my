@@ -77,6 +77,17 @@ DEFAULTS: dict[str, Any] = {
         "ban_after_failures": 3,
         "discover_interval_seconds": 600,
     },
+    # ── Déblocage d'une vérification navigateur (gratuit) ────────────────
+    "challenge": {
+        #: Endpoint FlareSolverr / Byparr (Docker, gratuit). Vide = désactivé.
+        "solver_url": "",
+        #: Chemin explicite du navigateur (vide = détection automatique).
+        "browser_path": "",
+        #: Fenêtre invisible : plus rapide, mais une vérification interactive
+        #: ne peut pas être validée à la main.
+        "headless": False,
+        "timeout_seconds": 60,
+    },
     "discord": {
         "default_webhook": "",
         "username": "Vinted Sniper",
@@ -124,6 +135,10 @@ EDITABLE: dict[str, tuple] = {
     "proxies.max_pool_size": ("int", 1, 500),
     "proxies.cooldown_seconds": ("int", 30, 7200),
     "proxies.ban_after_failures": ("int", 1, 20),
+    "challenge.solver_url": ("url", 400),
+    "challenge.browser_path": ("str", 400),
+    "challenge.headless": ("bool",),
+    "challenge.timeout_seconds": ("int", 10, 180),
     "discord.default_webhook": ("webhook",),
     "discord.username": ("str", 80),
     "discord.avatar_url": ("url", 400),

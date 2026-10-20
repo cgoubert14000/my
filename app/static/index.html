@@ -72,8 +72,11 @@
     Le blocage vient de <b>votre adresse IP</b>, pas du bot : insister ne fait que prolonger la
     vérification. Coupez le Wi-Fi et passez par le partage de connexion de votre téléphone,
     ou attendez 1 h. <span id="blockBannerAge"></span></span>
+  <button class="btn btn-primary btn-sm" type="button" id="blockBannerSolve"
+          title="Ouvre une fenêtre du navigateur : Cloudflare valide la session, le bot la récupère">
+    🔓 Débloquer avec mon navigateur</button>
+  <button class="btn btn-ghost btn-sm" type="button" id="blockBannerTest">🩺 Tester</button>
   <button class="btn btn-ghost btn-sm" type="button" id="blockBannerHide">Masquer</button>
-  <button class="btn btn-primary btn-sm" type="button" id="blockBannerTest">🩺 Tester la connexion</button>
 </div>
 
 <div id="alertBanner" class="alert-banner hidden" role="status">
@@ -212,6 +215,15 @@
         </div>
         <label class="field"><span>Annonces / page</span>
           <input type="number" id="cfgPerPage" min="24" max="96" step="12"></label>
+        <fieldset class="field-group">
+          <legend>🔓 Déblocage Cloudflare (gratuit)</legend>
+          <label class="field"><span>Navigateur utilisé (vide = détection auto : Edge, Chrome…)</span>
+            <input type="text" id="cfgBrowserPath" placeholder="C:\Program Files\Google\Chrome\Application\chrome.exe"></label>
+          <label class="field"><span>FlareSolverr / Byparr (optionnel, Docker local)</span>
+            <input type="url" id="cfgSolverUrl" placeholder="http://127.0.0.1:8191"></label>
+          <label class="switch-line"><span>Fenêtre invisible (headless)</span>
+            <input type="checkbox" id="cfgHeadless" class="switch"></label>
+        </fieldset>
         <label class="field"><span>Webhook Discord par défaut</span>
           <input type="url" id="cfgWebhook" placeholder="https://discord.com/api/webhooks/…"></label>
         <label class="field"><span>Mention (optionnel)</span>

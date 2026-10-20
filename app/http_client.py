@@ -702,6 +702,44 @@ class HttpClient:
         self._sessions.clear()
         self._httpx_clients.clear()
 
+    def import_session(
+        self,
+        cookies: dict[str, str] | None = None,
+        user_agent: str = "",
+        netloc: str = "www.vinted.fr",
+    ) -> dict[str, Any]:
+        """Injecte une session obtenue dans un **vrai navigateur**.
+
+        ``cf_clearance`` (et le cookie ``datadome``) sont liés à l'adresse IP
+        *et* au User-Agent qui les ont obtenus : les deux arrivent donc
+        ensemble, et l'identité du domaine devient celle du navigateur. Le
+        refroidissement en cours est levé : on a justement de quoi repasser.
+        """
+        netloc = (netloc or "www.vinted.fr").lower()
+        jar = self._cookies.setdefault(netloc, {})
+        fresh = {
+            str(name): str(value)
+            for name, value in (cookies or {}).items()
+            if str(name).strip() and str(value)
+        }
+        jar.update(fresh)
+        if user_agent:
+            # Même UA que celui qui a obtenu le cookie : sinon Cloudflare
+            # considère la clearance comme volée et redemande une vérification.
+            self._identities[netloc] = user_agent
+        self._stats["cooldown_until"] = 0.0
+        self._stats["browser_session_at"] = time.time()
+        self._warm_at.pop(netloc, None)
+        return {
+            "netloc": netloc,
+            "imported": len(fresh),
+            "cookies": len(jar),
+            "user_agent": user_agent,
+            "clearance": bool(
+                fresh.get("cf_clearance") or fresh.get("cf_clearance_legacy")
+            ),
+        }
+
     # ── Requête principale ───────────────────────────────────────────────
     async def get(
         self,

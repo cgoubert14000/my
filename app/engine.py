@@ -23,6 +23,7 @@ import asyncio
 import re
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from .config import ConfigStore
@@ -207,6 +208,48 @@ class BotEngine:
         self._last_found.pop(profile_id, None)
         self._throttle.pop(profile_id, None)
         self._deep_next.discard(profile_id)
+
+    def challenge_info(self) -> dict[str, Any]:
+        """Ce qui est disponible pour débloquer une vérification (gratuit)."""
+        from .browser_session import find_browser
+
+        explicit = str(self.config.get("challenge.browser_path", "") or "")
+        browser = find_browser(explicit)
+        return {
+            "browser": Path(browser).name if browser else "",
+            "browser_path": browser or "",
+            "solver": bool(str(self.config.get("challenge.solver_url", "") or "").strip()),
+            "headless": bool(self.config.get("challenge.headless", False)),
+            "available": bool(browser) or bool(
+                str(self.config.get("challenge.solver_url", "") or "").strip()
+            ),
+        }
+
+    def resume_after_unblock(self) -> int:
+        """Reprend les scans tout de suite après une session débloquée.
+
+        Sans cela, le profil restait en pause 5 min (backoff de vérification)
+        alors que la nouvelle session était déjà valable : l'utilisateur
+        venait de débloquer, et il attendait encore.
+        """
+        resumed = 0
+        now = time.time()
+        for profile in self.db.list_profiles():
+            if not profile.get("active"):
+                continue
+            profile_id = int(profile["id"])
+            self._failures.pop(profile_id, None)
+            self._throttle.pop(profile_id, None)
+            self._next_run[profile_id] = now
+            resumed += 1
+        self._global_cooldown_until = 0.0
+        self.stats.last_error = None
+        if resumed:
+            self.db.log(
+                "INFO",
+                f"Session navigateur importée : {resumed} profil(s) relancé(s) immédiatement.",
+            )
+        return resumed
 
     def _seen(self, profile_id: int) -> set[str]:
         cache = self._seen_cache.get(profile_id)
@@ -1184,6 +1227,7 @@ class BotEngine:
             },
             "intervals": {str(pid): value for pid, value in self._interval.items()},
             "throttle": {str(pid): value for pid, value in self._throttle.items()},
+            "challenge": self.challenge_info(),
             "http": self.client.stats(),
             "notifier": dict(self.notifier.stats),
             #: Sans webhook, une annonce est détectée… puis perdue : le
