@@ -59,6 +59,9 @@ _brand_cache: dict[tuple[str, str], tuple[float, dict]] = {}
 BRAND_CACHE_SECONDS = 6 * 3600
 
 #: État de la synchronisation de l'index complet des marques (sitemaps Vinted).
+#: Référence forte vers la tâche d'import (évite un ramassage par le GC).
+_brand_sync_task: asyncio.Task | None = None
+
 _brand_sync: dict = {
     "running": False,
     "started_at": None,
@@ -417,9 +420,11 @@ async def _run_brand_sync(state, domain: str) -> None:
         domain=domain,
     )
     try:
+        reachable = False
         robots = await state.client.get(
             f"{origin}/robots.txt", attempts=2, timeout=20, quiet=True
         )
+        reachable = reachable or robots.ok
         index_urls = sitemaps_from_robots(robots.text) if robots.ok else []
         if not index_urls:
             index_urls = [f"{origin}/sitemap.xml"]
@@ -432,19 +437,28 @@ async def _run_brand_sync(state, domain: str) -> None:
             response = await state.client.get(
                 index_url, attempts=2, timeout=30, quiet=True
             )
+            reachable = reachable or response.ok
             if not response.ok:
                 continue
             for url in brand_sitemaps(parse_sitemap_locs(response.text)):
                 targets.append((url, ""))
 
         if not targets:
-            _brand_sync["error"] = "Sitemaps de marques introuvables sur ce domaine."
+            _brand_sync["error"] = (
+                "Sitemaps de marques introuvables sur ce domaine."
+                if reachable
+                else (
+                    "Vinted injoignable depuis cette machine (robots.txt et sitemap.xml). "
+                    "Vérifiez la connexion, le pare-feu ou un proxy, puis relancez."
+                )
+            )
             return
 
         _brand_sync["sitemaps_total"] = len(targets)
         total_imported = 0
         for url, _ in targets:
             document = await state.client.get(url, attempts=2, timeout=60, quiet=True)
+            reachable = reachable or document.ok
             if not document.ok:
                 state.db.log(
                     "WARNING",
@@ -459,6 +473,12 @@ async def _run_brand_sync(state, domain: str) -> None:
             _brand_sync["imported"] = total_imported
         total = state.db.brand_stats()["total"]
         _brand_sync["imported"] = total
+        if not total and not _brand_sync["error"]:
+            _brand_sync["error"] = (
+                "Les sitemaps de marques n'ont pas pu être téléchargés."
+                if reachable
+                else "Vinted injoignable depuis cette machine. Vérifiez la connexion ou un proxy."
+            )
         if total:
             state.db.log(
                 "SUCCESS",
@@ -492,9 +512,10 @@ async def brand_sync(
     domain = (domain or "www.vinted.fr").strip().lower()
     if not is_vinted_host(domain):
         raise HTTPException(status_code=422, detail="Domaine Vinted invalide.")
+    global _brand_sync_task
     if _brand_sync["running"]:
         return {**_brand_sync_snapshot(state), "message": "Synchronisation déjà en cours."}
-    asyncio.create_task(_run_brand_sync(state, domain))
+    _brand_sync_task = asyncio.create_task(_run_brand_sync(state, domain))
     return {
         **_brand_sync_snapshot(state),
         "message": "Synchronisation lancée : quelques secondes suffisent.",
