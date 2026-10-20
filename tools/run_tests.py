@@ -39,7 +39,12 @@ def main(argv: list[str]) -> int:
     if argv:
         suite = loader.loadTestsFromNames(argv)
     else:
-        suite = loader.discover(str(ROOT / "tests"), pattern="test_*.py", top_level_dir=str(ROOT))
+        tests_dir = ROOT / "tests"
+        # ``tests/`` n'est pas un paquet : on découvre depuis ce dossier et on
+        # garde la racine du projet dans ``sys.path`` pour ``import app``.
+        suite = loader.discover(
+            str(tests_dir), pattern="test_*.py", top_level_dir=str(tests_dir)
+        )
 
     result = unittest.TextTestRunner(verbosity=2, buffer=False).run(suite)
     faulthandler.cancel_dump_traceback_later()
