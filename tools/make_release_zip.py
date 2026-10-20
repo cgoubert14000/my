@@ -68,6 +68,8 @@ def file_list() -> list[Path]:
         if path.is_file() and path.suffix not in SKIP_SUFFIX:
             if path.name in {f"{FOLDER}.zip", "LISEZ-MOI.txt"}:
                 continue  # LISEZ-MOI est ajouté en premier, exprès
+            if path.suffix == ".zip":
+                continue  # jamais d'archive de version dans l'archive (36 Mo pour rien)
             files.append(path)
     return files
 
