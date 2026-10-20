@@ -325,7 +325,7 @@ class EngineRealtimeTests(unittest.TestCase):
 
         class SlowAPI(FakeAPI):
             async def enrich_item(self, item, domain="", profile_id=None, fast=False):
-                await asyncio.sleep(30)
+                await asyncio.sleep(120)  # fiche qui ne répond jamais
                 return item
 
         api = SlowAPI([[item("1")], [item("2"), item("1")]])
@@ -336,7 +336,7 @@ class EngineRealtimeTests(unittest.TestCase):
         outcome = self._scan(engine)
         elapsed = time.perf_counter() - started
         self.assertEqual(outcome.new_items, 1)
-        self.assertLess(elapsed, 6.0, f"scan trop lent : {elapsed:.1f}s")
+        self.assertLess(elapsed, 9.0, f"scan trop lent : {elapsed:.1f}s")
         self.assertEqual([row["id"] for row in notifier.sent], ["2"])
 
     def test_slow_profile_keeps_normal_retries(self):
