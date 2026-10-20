@@ -45,10 +45,13 @@ PREMIERE UTILISATION
 * "Choisir des marques" ouvre la liste reelle des marques Vinted
   (alphabet A-Z, recherche, plusieurs marques possibles). Le filtre est
   applique par Vinted lui-meme : seules ces marques remontent.
-* Marque rare absente de la liste ? Ouvrez sa fiche sur Vinted, copiez
+* TOUTES les marques du catalogue : dans la fenetre des marques, cliquez
+  sur "Importer toutes les marques Vinted" (~10 s, 2 a 3 requetes). Le bot
+  lit les sitemaps officiels de Vinted et stocke ~57 000 marques en local :
+  la recherche devient instantanee et fonctionne meme hors ligne.
+* Marque introuvable malgre tout ? Ouvrez sa fiche sur Vinted, copiez
   l'adresse (https://www.vinted.fr/brand/XXXX-slug), collez-la dans le
-  champ "URL ou ID d'une marque" puis Ajouter. Toutes les marques du
-  catalogue sont accessibles ainsi.
+  champ "URL ou ID d'une marque" puis Ajouter.
 * Bouton "Apercu" : montre les annonces trouvees et celles ecartees,
   avec le motif. Rien n'est enregistre.
 * Le premier scan d'un profil sert de reference (aucune alerte) ;

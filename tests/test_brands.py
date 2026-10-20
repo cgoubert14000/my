@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -11,6 +12,9 @@ from fastapi.testclient import TestClient
 
 from app.brands import (
     MAX_BRANDS,
+    brand_name_from_slug,
+    brand_sitemaps,
+    brands_from_sitemap,
     brand_ids_from_url,
     brand_labels,
     filter_brands,
@@ -18,7 +22,9 @@ from app.brands import (
     parse_brand_ids,
     parse_brand_reference,
     parse_brands,
+    parse_sitemap_locs,
     popular,
+    sitemaps_from_robots,
     sanitize_letter,
 )
 from app.categories import build_profile_url
@@ -130,6 +136,77 @@ class ReferenceTests(unittest.TestCase):
     def test_refuses_garbage(self):
         for bad in ("", "Nike", "https://www.vinted.fr/catalog/5", "../brand/53"):
             self.assertIsNone(parse_brand_reference(bad), bad)
+
+
+ROBOTS_TXT = """
+User-agent: *
+Disallow: /checkout
+Sitemap: https://vinted.fr/sitemap-fr.xml
+"""
+
+SITEMAP_INDEX = """<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>https://www.vinted.fr/sitemaps/fr/pages.xml</loc></sitemap>
+  <sitemap><loc>https://www.vinted.fr/sitemaps/fr/brands.xml</loc></sitemap>
+  <sitemap><loc>https://www.vinted.fr/sitemaps/fr/brands1.xml</loc></sitemap>
+  <sitemap><loc>https://www.vinted.fr/sitemaps/fr/items.xml</loc></sitemap>
+</sitemapindex>
+"""
+
+BRANDS_SITEMAP = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.vinted.fr/brand/53-nike</loc><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.vinted.fr/brand/4745892-good-american-jeans</loc></url>
+  <url><loc>https://www.vinted.fr/brand/15464124-brak</loc></url>
+  <url><loc>https://www.vinted.fr/items/123456</loc></url>
+</urlset>
+"""
+
+BRANDS_SITEMAP_2 = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.vinted.fr/brand/53-nike</loc></url>
+  <url><loc>https://www.vinted.fr/brand/4784726-takt</loc></url>
+</urlset>
+"""
+
+
+class SitemapTests(unittest.TestCase):
+    def test_robots_sitemaps(self):
+        self.assertEqual(sitemaps_from_robots(ROBOTS_TXT), ["https://vinted.fr/sitemap-fr.xml"])
+        self.assertEqual(sitemaps_from_robots(""), [])
+
+    def test_index_filtering(self):
+        locs = parse_sitemap_locs(SITEMAP_INDEX)
+        self.assertEqual(len(locs), 4)
+        self.assertEqual(
+            brand_sitemaps(locs),
+            [
+                "https://www.vinted.fr/sitemaps/fr/brands.xml",
+                "https://www.vinted.fr/sitemaps/fr/brands1.xml",
+            ],
+        )
+
+    def test_brands_from_sitemap(self):
+        rows = brands_from_sitemap(BRANDS_SITEMAP)
+        self.assertEqual([row["name"] for row in rows],
+                         ["Nike", "Good American Jeans", "Brak"])
+        self.assertEqual(rows[2]["id"], "15464124")
+        # une annonce n'est pas une marque
+        self.assertFalse(any("items" in row["slug"] for row in rows))
+
+    def test_duplicates_are_removed(self):
+        rows = brands_from_sitemap(BRANDS_SITEMAP_2)
+        self.assertEqual([row["id"] for row in rows], ["53", "4784726"])
+
+    def test_name_from_slug(self):
+        self.assertEqual(brand_name_from_slug("good-american-jeans"), "Good American Jeans")
+        self.assertEqual(brand_name_from_slug("nike-air"), "Nike Air")
+        self.assertEqual(brand_name_from_slug("ginori-1735"), "Ginori 1735")
+        self.assertEqual(brand_name_from_slug(""), "")
+
+    def test_sitemap_with_no_brands(self):
+        self.assertEqual(brands_from_sitemap("<urlset></urlset>"), [])
+        self.assertEqual(brands_from_sitemap(""), [])
 
 
 class ProfileUrlTests(unittest.TestCase):
@@ -334,6 +411,126 @@ class BrandEndpointTests(unittest.TestCase):
         profile = created.json()["profile"]
         self.assertEqual(profile["brands"], "Nike")
         self.assertEqual(profile["brand_ids"], ["53"])
+
+
+class BrandSyncTests(unittest.TestCase):
+    """Import complet des marques depuis les sitemaps officiels."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        config_path = root / "config.json"
+        config_path.write_text(json.dumps({"engine": {"start_paused": True}}), encoding="utf-8")
+        self.state = AppState(
+            config_path=config_path, db_path=root / "test.db", api_class=FakeVintedAPI
+        )
+        self.state.notifier.dry_run = True
+        from app import api as api_module
+
+        self.api = api_module
+        api_module._brand_cache.clear()
+        api_module._brand_sync.update(
+            running=False, started_at=None, finished_at=None, sitemaps=0,
+            sitemaps_total=0, imported=0, error="", domain="",
+        )
+        self.calls: list[str] = []
+        state = self.state
+        original = state.client.get
+
+        async def fake_get(url, **kwargs):
+            self.calls.append(url)
+            if url.endswith("/robots.txt"):
+                return HttpResponse(url=url, status=200, text=ROBOTS_TXT)
+            if url.endswith("/sitemap-fr.xml"):
+                return HttpResponse(url=url, status=200, text=SITEMAP_INDEX)
+            if url.endswith("/brands.xml"):
+                return HttpResponse(url=url, status=200, text=BRANDS_SITEMAP)
+            if url.endswith("/brands1.xml"):
+                return HttpResponse(url=url, status=200, text=BRANDS_SITEMAP_2)
+            return HttpResponse(url=url, status=404, text="")
+
+        state.client.get = fake_get
+        self.addCleanup(setattr, state.client, "get", original)
+        self.client = TestClient(create_app(self.state))
+        self.client.__enter__()
+
+    def tearDown(self):
+        self.client.__exit__(None, None, None)
+        self.client.close()
+        self.tmp.cleanup()
+
+    def _wait(self, timeout: float = 10.0) -> dict:
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            data = self.client.get("/api/brands/sync").json()
+            if not data["running"]:
+                return data
+            time.sleep(0.05)
+        self.fail("synchronisation non terminée")
+
+    def test_status_starts_empty(self):
+        data = self.client.get("/api/brands/sync").json()
+        self.assertFalse(data["running"])
+        self.assertEqual(data["total"], 0)
+
+    def test_full_import_and_search(self):
+        started = self.client.post("/api/brands/sync").json()
+        self.assertTrue(started["ok"])
+        finished = self._wait()
+        self.assertFalse(finished["running"])
+        self.assertEqual(finished["total"], 4, finished)
+        self.assertEqual(finished["imported"], 4)
+        self.assertEqual(finished["error"], "")
+        self.assertTrue(any("/sitemaps/fr/brands.xml" in url for url in self.calls))
+        self.assertTrue(any("/sitemaps/fr/brands1.xml" in url for url in self.calls))
+
+        # La recherche passe par l'index local, sans nouvelle requête réseau.
+        before = len(self.calls)
+        data = self.client.get("/api/brands?search=bra").json()
+        self.assertEqual(data["source"], "index")
+        self.assertEqual([row["name"] for row in data["brands"]], ["Brak"])
+        self.assertEqual(data["total_indexed"], 4)
+        self.assertEqual(len(self.calls), before)
+
+    def test_search_is_accent_and_case_insensitive(self):
+        self.client.post("/api/brands/sync")
+        self._wait()
+        self.assertEqual(self.client.get("/api/brands?search=NIKE").json()["brands"][0]["name"], "Nike")
+        self.assertEqual(
+            self.client.get("/api/brands?search=good%20american").json()["brands"][0]["id"],
+            "4745892",
+        )
+
+    def test_second_sync_is_idempotent(self):
+        self.client.post("/api/brands/sync")
+        self._wait()
+        self.client.post("/api/brands/sync")
+        data = self._wait()
+        self.assertEqual(data["total"], 4)
+
+    def test_remote_failure_is_reported_without_crash(self):
+        async def dead_get(url, **kwargs):
+            self.calls.append(url)
+            return HttpResponse(url=url, status=0, error="connexion refusée")
+
+        self.state.client.get = dead_get
+        self.client.post("/api/brands/sync")
+        data = self._wait()
+        self.assertFalse(data["running"])
+        self.assertTrue(data["error"])
+        self.assertEqual(self.client.get("/api/brands").json()["source"], "local")
+
+    def test_indexed_brand_can_be_applied(self):
+        self.client.post("/api/brands/sync")
+        self._wait()
+        profile = self.state.db.create_profile(
+            {"name": "Brak only", "url": "https://www.vinted.fr/catalog?search_text=sac"}
+        )
+        data = self.client.post(
+            f"/api/profiles/{profile['id']}/brands", json={"brand_ids": ["15464124"]}
+        ).json()["profile"]
+        self.assertIn("brand_ids[]=15464124", data["url"])
+        self.assertEqual(data["brand_ids"], ["15464124"])
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -7,6 +7,7 @@ dashboard local et un moteur qui écrivent en concurrence.
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import threading
 from pathlib import Path
@@ -120,6 +121,15 @@ CREATE TABLE IF NOT EXISTS scans (
     detection_ms  INTEGER,
     FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS brands (
+    id          TEXT PRIMARY KEY,
+    slug        TEXT NOT NULL DEFAULT '',
+    name        TEXT NOT NULL DEFAULT '',
+    search_key  TEXT NOT NULL DEFAULT '',
+    updated_at  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_brands_key ON brands (search_key);
+
 CREATE INDEX IF NOT EXISTS idx_scans_profile ON scans (profile_id, id DESC);
 
 """
@@ -144,6 +154,15 @@ PROFILE_FIELDS = (
     "category",
     "brands",
 )
+
+
+def brand_search_key(value: str) -> str:
+    """Clé de recherche insensible aux accents, à la casse et aux séparateurs."""
+    import unicodedata
+
+    text = unicodedata.normalize("NFKD", (value or "").lower())
+    text = "".join(char for char in text if not unicodedata.combining(char))
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
 
 
 class Database:
@@ -302,6 +321,63 @@ class Database:
         for key in ("active", "check_description", "live_mode"):
             data[key] = 1 if data.get(key) else 0
         return {key: data.get(key) for key in PROFILE_FIELDS}
+
+    def upsert_brands(self, rows: list[dict]) -> int:
+        """Enregistre un lot de marques (index complet issu des sitemaps)."""
+        if not rows:
+            return 0
+        now = utcnow_iso()
+        payload = [
+            (
+                str(row["id"]),
+                str(row.get("slug") or ""),
+                str(row.get("name") or ""),
+                brand_search_key(f"{row.get('name', '')} {row.get('slug', '')} {row.get('id', '')}"),
+                now,
+            )
+            for row in rows
+            if str(row.get("id") or "").isdigit()
+        ]
+        with self._lock:
+            self._conn.executemany(
+                "INSERT INTO brands (id, slug, name, search_key, updated_at) "
+                "VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET slug=excluded.slug, name=excluded.name, "
+                "search_key=excluded.search_key, updated_at=excluded.updated_at",
+                payload,
+            )
+            self._conn.commit()
+        return len(payload)
+
+    def search_brands(self, query: str, limit: int = 60) -> list[dict]:
+        """Recherche locale dans l'index complet des marques."""
+        key = brand_search_key(query)
+        if not key:
+            return []
+        words = [word for word in key.split() if word][:5]
+        clause = " AND ".join("search_key LIKE ?" for _ in words)
+        params = [f"%{word}%" for word in words]
+        with self._lock:
+            rows = self._conn.execute(
+                f"SELECT id, slug, name FROM brands WHERE {clause} "
+                "ORDER BY LENGTH(name), name LIMIT ?",
+                (*params, max(1, min(int(limit), 200))),
+            ).fetchall()
+        return [{"id": row["id"], "slug": row["slug"], "name": row["name"]} for row in rows]
+
+    def brand_stats(self) -> dict:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT COUNT(*) AS total, MAX(updated_at) AS updated FROM brands"
+            ).fetchone()
+        return {"total": int(row["total"] or 0), "updated_at": row["updated"]}
+
+    def get_brand(self, brand_id: str) -> dict | None:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT id, slug, name FROM brands WHERE id = ?", (str(brand_id),)
+            ).fetchone()
+        return dict(row) if row else None
 
     def create_profile(self, payload: dict) -> dict:
         now = utcnow_iso()

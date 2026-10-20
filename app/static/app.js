@@ -33,6 +33,7 @@
     brandDraft: [],
     brandLetter: "A",
     brandLoading: false,
+    brandIndex: { total: 0, updated_at: null },
   };
 
   const LEVEL_LABELS = { INFO: "INFO", DEBUG: "DBG", WARNING: "WARN", ERROR: "ERR", SUCCESS: "OK" };
@@ -1182,6 +1183,59 @@
     renderBrandList();
   }
 
+  function renderBrandIndex(data) {
+    state.brandIndex = { total: data.total || 0, updated_at: data.updated_at || null };
+    const label = $("#brandIndex");
+    if (data.running) {
+      label.textContent = `Import en cours… ${data.sitemaps}/${data.sitemaps_total || "?"} fichiers, `
+        + `${(data.imported || 0).toLocaleString("fr-FR")} marques`;
+      return true;
+    }
+    if (data.error) {
+      label.textContent = `Import interrompu : ${data.error}`;
+      return false;
+    }
+    if (state.brandIndex.total) {
+      const when = data.updated_at ? new Date(data.updated_at).toLocaleString("fr-FR") : "—";
+      label.textContent = `${state.brandIndex.total.toLocaleString("fr-FR")} marques disponibles localement `
+        + `(import du ${when}) — recherche instantanée, même hors ligne.`;
+    } else {
+      label.textContent = "Index local : aucun — importez-le une fois (≈10 s).";
+    }
+    return false;
+  }
+
+  async function refreshBrandIndex() {
+    try {
+      renderBrandIndex(await api("/brands/sync"));
+    } catch (_) {
+      /* le serveur répondra plus tard */
+    }
+  }
+
+  async function importBrands(button) {
+    button.disabled = true;
+    const domain = profileDomainFromForm();
+    try {
+      renderBrandIndex(await api(`/brands/sync?domain=${encodeURIComponent(domain)}`, { method: "POST" }));
+      for (let attempt = 0; attempt < 120; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const data = await api("/brands/sync");
+        const stillRunning = renderBrandIndex(data);
+        if (!stillRunning) break;
+      }
+      await refreshBrandIndex();
+      if (state.brandIndex.total) {
+        toast(`${state.brandIndex.total.toLocaleString("fr-FR")} marques importées.`, "success");
+        await loadBrands({ search: ($("#brandSearch").value || "").trim() });
+      }
+    } catch (error) {
+      $("#brandIndex").textContent = `Import impossible : ${error.message}`;
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   async function addBrandFromReference() {
     const input = $("#brandManual");
     const raw = (input.value || "").trim();
@@ -1216,9 +1270,14 @@
       const data = await api(`/brands?${params.toString()}`);
       state.brandRows = data.brands || [];
       if (data.letter) state.brandLetter = data.letter;
-      $("#brandNote").textContent = data.source === "vinted"
-        ? `Marques réelles lues sur ${domain} — cochez celles qui vous intéressent.`
-        : "Marques populaires (aucune requête réseau). Tapez une lettre pour charger la liste complète.";
+      if (data.source === "index") {
+        $("#brandNote").textContent = `${state.brandIndex.total.toLocaleString("fr-FR")} marques indexées localement — `
+          + `${(data.brands || []).length} résultat(s) pour « ${data.search} ».`;
+      } else {
+        $("#brandNote").textContent = data.source === "vinted"
+          ? `Marques réelles lues sur ${domain} — cochez celles qui vous intéressent.`
+          : "Marques populaires. Importez l'index complet pour chercher parmi toutes les marques.";
+      }
     } catch (error) {
       state.brandRows = [];
       $("#brandNote").textContent = `Liste indisponible : ${error.message}`;
@@ -1249,6 +1308,7 @@
     renderBrandFooter();
     renderBrandList();
     openDialog("brandModal");
+    refreshBrandIndex();
     loadBrands({ letter: state.brandLetter });
   }
 
@@ -1646,11 +1706,18 @@
       selectBrands([]);
       toast("Filtre de marques retiré.", "success");
     });
+    let brandSearchTimer = null;
     $("#brandSearch").addEventListener("input", () => {
       const query = ($("#brandSearch").value || "").trim();
-      if (query.length >= 2) loadBrands({ search: query });
-      else if (!query) loadBrands({ letter: state.brandLetter });
+      clearTimeout(brandSearchTimer);
+      if (!query) {
+        loadBrands({ letter: state.brandLetter });
+        return;
+      }
+      if (query.length < 2) return;
+      brandSearchTimer = setTimeout(() => loadBrands({ search: query }), 180);
     });
+    $("#brandImport").addEventListener("click", (event) => importBrands(event.currentTarget));
     $("#brandAdd").addEventListener("click", addBrandFromReference);
     $("#brandManual").addEventListener("keydown", (event) => {
       if (event.key === "Enter") {

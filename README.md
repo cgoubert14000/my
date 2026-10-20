@@ -47,7 +47,7 @@ poussé par le serveur, rotation de proxys et self-healing intégré.
 | 🔔 **Discord haut de gamme** | Embed complet : photo HD, titre, prix (+ port inclus), marque, taille, état, vendeur, étoiles, nombre d'avis, lien direct. |
 | 🛡️ **Self-healing** | Sur 403/429/blocage : purge du proxy fautif, rotation User-Agent, renouvellement de session, pause intelligente, backoff, reprise automatique. |
 | ♻️ **Anti-doublon** | SQLite mémorise les annonces vues **par profil**, y compris après redémarrage. Mémoire négative pour ne pas re-tester dix fois la même annonce écartée. |
-| 🏷️ **Toutes les marques** | Sélecteur de marques réel : liste alphabétique lue sur Vinted (≈100 marques par lettre, triées par volume), recherche intégrée, combinaison de plusieurs marques avec catégorie, mots-clés et prix. Filtre strict côté Vinted (`brand_ids[]`). |
+| 🏷️ **Toutes les marques** | Import en un clic des **~57 000 marques** du catalogue Vinted depuis ses sitemaps officiels, conservées en base locale : recherche instantanée, même hors ligne. Combinaison de plusieurs marques avec catégorie, mots-clés et prix, filtre strict côté Vinted (`brand_ids[]`). |
 | 🗂️ **Toutes les catégories** | Navigateur intégré : 9 catégories racines puis les sous-catégories réelles lues sur Vinted, jusqu'au niveau le plus fin, combinables avec vos mots-clés. |
 | 📊 **Dashboard local** | Profils, flux photo en direct (annonce cliquable, vendeur, catégorie), journal, stats, réglages, test Discord, aperçu des filtres avant activation. |
 
@@ -249,21 +249,33 @@ identifiants viennent des pages Vinted, et la liste est mise en cache 6 h.
 
 * Si Vinted est momentanément inaccessible, le sélecteur affiche un **raccourci
   de marques populaires** (aucune requête réseau) au lieu d'échouer.
-### Toutes les marques, même les plus rares
+### Récupérer toutes les marques du catalogue (un clic)
 
-Vinted n'affiche que les **~100 marques les plus vendues** par lettre (≈2 600
-au total). Pour cibler une marque absente de ces listes — il en existe des
-milliers, jusqu'à des identifiants à 8 chiffres — le sélecteur propose un champ
-**« URL ou ID d'une marque »** :
+Les pages `/brands/by_letter/…` de Vinted n'affichent que **~100 marques par
+lettre** (≈2 600). Mais Vinted publie l'intégralité de son catalogue de marques
+dans ses **sitemaps officiels**, déclarés dans `robots.txt` :
 
-1. Ouvrez la fiche de la marque sur Vinted (par exemple
-   `https://www.vinted.fr/brand/15464124-brak`).
-2. Copiez son adresse, collez-la dans ce champ, cliquez **Ajouter**.
-3. La marque rejoint la sélection ; le filtre est aussi strict que les autres
-   (`brand_ids[]=15464124`).
+```text
+https://vinted.fr/sitemap-fr.xml
+   └── /sitemaps/fr/brands.xml    (~50 000 marques)
+   └── /sitemaps/fr/brands1.xml   (le reste, ~7 000)
+```
 
-Un simple identifiant suffit aussi (`15464124`). C'est la garantie qu'aucune
-marque du catalogue n'est hors de portée.
+Dans la modale **🏷️ Choisir des marques**, cliquez sur
+**⬇ Importer toutes les marques Vinted** :
+
+* le bot lit `robots.txt`, suit les sitemaps de marques et enregistre chaque
+  `id` + nom dans la base locale (`brands`) ;
+* **2 à 3 requêtes** suffisent, aucune limite de débit, aucune page à parcourir ;
+* une fois l'import fait (≈10 s), la recherche est **instantanée et hors ligne** :
+  tapez « nike », « brak », « ginori »… et la marque apparaît, même sans
+  connexion ;
+* l'import est idempotent : relancez-le quand vous voulez (nouveautés Vinted),
+  rien n'est dupliqué.
+
+Le nombre de marques disponibles est affiché en permanence dans la modale.
+Vous pouvez aussi restreindre à une lettre (liste live) ou ajouter une marque
+isolée par son URL/identifiant.
 
 ---
 
@@ -758,9 +770,11 @@ Toutes les routes sont sous `/api`, en JSON, sans authentification si
 | `POST` | `/diagnose` | Test réel complet (`query`, `webhook`, `domain`). |
 | `GET` | `/categories` | Catégories (`path` optionnel) : locales au 1er niveau, réelles ensuite. |
 | `POST` | `/profiles/{id}/category` | Applique une catégorie au profil en gardant ses mots-clés. |
-| `GET` | `/brands` | Marques : populaires sans paramètre, sinon `letter=A` (réel) ou `search=nike`. |
+| `GET` | `/brands` | Marques : populaires sans paramètre, `letter=A` (live), ou `search=nike` (index local complet en priorité). |
 | `POST` | `/profiles/{id}/brands` | Applique un filtre de marques (`brand_ids: [...]`) en conservant catégorie et mots-clés. |
 | `GET` | `/brands/resolve` | Résout n'importe quelle marque depuis son URL ou son identifiant (`ref=…`). |
+| `GET` | `/brands/sync` | État de l'index local (nombre de marques, import en cours). |
+| `POST` | `/brands/sync` | Importe **toutes** les marques depuis les sitemaps officiels de Vinted. |
 
 Exemple :
 
@@ -812,7 +826,7 @@ curl http://127.0.0.1:8000/api/feed?limit=5
 │   ├── vinted_api.py        # URLs, parsing des cartes SSR + RSC, fiches, vendeurs
 │   ├── diagnostics.py       # test réel : session, catalogue, article, vendeur
 │   ├── categories.py        # arbre des catégories Vinted (local + lecture live)
-│   ├── brands.py            # marques : liste réelle par lettre, cache, URLs
+│   ├── brands.py            # marques : liste live, sitemaps complets, URLs
 │   ├── filters.py           # prix, whitelist/blacklist, seuils vendeur
 │   ├── notify.py            # embeds Discord, rate limit, retries
 │   ├── utils.py             # texte, prix, dates, domaines
@@ -870,7 +884,8 @@ déduplication (cache mémoire + SQLite)  ◄──────┘
 | **Photos absentes** | Vinted peut changer ses CDN. L'URL est stockée telle que fournie ; le dashboard affiche un placeholder. Réessayez plus tard ou augmentez `detail_fetch`. |
 | **Images non cliquables / liens cassés** | Vérifiez que l'URL du profil est bien sur un domaine `vinted.*`. L'aperçu affiche l'URL normalisée. |
 | **Sous-catégories indisponibles** | Le 1er niveau est local ; les niveaux suivants sont lus sur Vinted (403/429 possible). Réessayez plus tard, les résultats sont mis en cache 1 h. |
-| **Marques indisponibles** | La liste est lue sur `/brands/by_letter/<lettre>` (cache 6 h). En cas de blocage, le sélecteur bascule sur les marques populaires ; vous pouvez aussi saisir la marque comme mot-clé. |
+| **Marques indisponibles** | La liste live est lue sur `/brands/by_letter/<lettre>` (cache 6 h). En cas de blocage, lancez **⬇ Importer toutes les marques** : l'index local reste consultable hors ligne, ou saisissez la marque comme mot-clé. |
+| **Import des marques qui échoue** | Le message d'erreur exact s'affiche sous le bouton (sitemap introuvable, blocage, réseau). Vérifiez que `https://www.vinted.fr/robots.txt` est accessible depuis votre machine ; réessayez plus tard, l'index déjà importé reste utilisable. |
 | **Le port 8000 est occupé** | Le lanceur choisit le port suivant. Sinon `--port 8080`. |
 | **`curl_cffi` ne s'installe pas** | L'app fonctionne avec `httpx` (fallback). Sur certaines architectures (Raspberry Pi ancien), installez une version récente de Python ou utilisez Docker. |
 | **La base grossit** | `retention_days` (30 par défaut) purge automatiquement. Vous pouvez supprimer `data/vinted_sniper.db*` pour repartir de zéro. |
@@ -904,10 +919,11 @@ python -m unittest discover -s tests -v
   `/api/categories` et `/api/profiles/{id}/category`.
 * `tests/test_brands.py` : parsing des pages `/brands/by_letter/…`, filtre de
   recherche, URLs `catalog[]` + `brand_ids[]`, résolution d'une marque par URL
-  ou identifiant, endpoints `/api/brands`, `/api/brands/resolve` et
-  `/api/profiles/{id}/brands`.
+  ou identifiant, **import complet par sitemaps** (robots.txt, index, deux
+  fichiers, doublons, échec réseau), endpoints `/api/brands`,
+  `/api/brands/resolve`, `/api/brands/sync` et `/api/profiles/{id}/brands`.
 
-**152 tests** au total. Aucun ne contacte Vinted ni Discord : le faux Vinted de
+**164 tests** au total. Aucun ne contacte Vinted ni Discord : le faux Vinted de
 `tests/fake_vinted.py` n'est jamais importé par l'application.
 
 ---

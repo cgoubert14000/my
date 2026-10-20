@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import time
 from typing import Any
 
@@ -12,6 +13,8 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from . import __version__
 from .brands import (
+    brand_sitemaps,
+    brands_from_sitemap,
     brands_url,
     brand_ids_from_url,
     brand_labels,
@@ -20,8 +23,10 @@ from .brands import (
     parse_brand_ids,
     parse_brand_reference,
     parse_brands,
+    parse_sitemap_locs,
     popular as popular_brands,
     sanitize_letter,
+    sitemaps_from_robots,
 )
 from .categories import (
     build_profile_url,
@@ -52,6 +57,18 @@ _brand_lock = asyncio.Lock()
 #: Cache des marques lues sur Vinted : {(domain, letter): (ts, payload)}.
 _brand_cache: dict[tuple[str, str], tuple[float, dict]] = {}
 BRAND_CACHE_SECONDS = 6 * 3600
+
+#: État de la synchronisation de l'index complet des marques (sitemaps Vinted).
+_brand_sync: dict = {
+    "running": False,
+    "started_at": None,
+    "finished_at": None,
+    "sitemaps": 0,
+    "sitemaps_total": 0,
+    "imported": 0,
+    "error": "",
+    "domain": "",
+}
 
 _category_lock = asyncio.Lock()
 #: Cache des sous-catégories lues sur Vinted : {(domain, path): (ts, payload)}.
@@ -306,6 +323,19 @@ async def brands(
             "domain": domain,
         }
 
+    stats = state.db.brand_stats()
+    if query and stats["total"]:
+        rows = state.db.search_brands(query, limit=80)
+        return {
+            "ok": True,
+            "brands": rows,
+            "source": "index",
+            "search": query,
+            "letters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+            "total_indexed": stats["total"],
+            "domain": domain,
+        }
+
     key = (domain, letter_value)
     now = time.time()
     cached = _brand_cache.get(key)
@@ -354,6 +384,121 @@ async def brands(
         _brand_cache[key] = (now, payload)
         rows = filter_brands(payload["brands"], query)
         return {**payload, "brands": rows, "search": query}
+
+
+def _brand_sync_snapshot(state) -> dict:
+    stats = state.db.brand_stats()
+    return {
+        "ok": True,
+        "running": _brand_sync["running"],
+        "started_at": _brand_sync["started_at"],
+        "finished_at": _brand_sync["finished_at"],
+        "sitemaps": _brand_sync["sitemaps"],
+        "sitemaps_total": _brand_sync["sitemaps_total"],
+        "imported": _brand_sync["imported"],
+        "error": _brand_sync["error"],
+        "domain": _brand_sync["domain"],
+        "total": stats["total"],
+        "updated_at": stats["updated_at"],
+    }
+
+
+async def _run_brand_sync(state, domain: str) -> None:
+    """Télécharge les sitemaps de marques de Vinted et remplit l'index local."""
+    origin = f"https://{domain}"
+    _brand_sync.update(
+        running=True,
+        started_at=utcnow_iso(),
+        finished_at=None,
+        sitemaps=0,
+        sitemaps_total=0,
+        imported=0,
+        error="",
+        domain=domain,
+    )
+    try:
+        robots = await state.client.get(
+            f"{origin}/robots.txt", attempts=2, timeout=20, quiet=True
+        )
+        index_urls = sitemaps_from_robots(robots.text) if robots.ok else []
+        if not index_urls:
+            index_urls = [f"{origin}/sitemap.xml"]
+
+        targets: list[tuple[str, str]] = []
+        for index_url in index_urls:
+            if re.search(r"/brands?\d*\.xml$", index_url, re.I):
+                targets.append((index_url, ""))  # robots pointe déjà un sitemap de marques
+                continue
+            response = await state.client.get(
+                index_url, attempts=2, timeout=30, quiet=True
+            )
+            if not response.ok:
+                continue
+            for url in brand_sitemaps(parse_sitemap_locs(response.text)):
+                targets.append((url, ""))
+
+        if not targets:
+            _brand_sync["error"] = "Sitemaps de marques introuvables sur ce domaine."
+            return
+
+        _brand_sync["sitemaps_total"] = len(targets)
+        total_imported = 0
+        for url, _ in targets:
+            document = await state.client.get(url, attempts=2, timeout=60, quiet=True)
+            if not document.ok:
+                state.db.log(
+                    "WARNING",
+                    f"Index des marques : {url} inaccessible ({document.short_error}).",
+                    source="brands",
+                )
+                continue
+            rows = brands_from_sitemap(document.text)
+            if rows:
+                total_imported += await asyncio.to_thread(state.db.upsert_brands, rows)
+            _brand_sync["sitemaps"] += 1
+            _brand_sync["imported"] = total_imported
+        total = state.db.brand_stats()["total"]
+        _brand_sync["imported"] = total
+        if total:
+            state.db.log(
+                "SUCCESS",
+                f"Index des marques synchronisé : {total} marques disponibles "
+                "localement (recherche instantanée, hors ligne).",
+                source="brands",
+            )
+        else:
+            _brand_sync["error"] = "Aucune marque extraite des sitemaps."
+    except Exception as error:  # noqa: BLE001 — jamais de crash du serveur
+        _brand_sync["error"] = f"{type(error).__name__}: {error}"
+        state.db.log("ERROR", f"Index des marques : {_brand_sync['error']}", source="brands")
+    finally:
+        _brand_sync["running"] = False
+        _brand_sync["finished_at"] = utcnow_iso()
+
+
+@router.get("/brands/sync")
+async def brand_sync_status(request: Request) -> dict:
+    """État de l'index complet des marques."""
+    return _brand_sync_snapshot(_state(request))
+
+
+@router.post("/brands/sync")
+async def brand_sync(
+    request: Request,
+    domain: str = Query("www.vinted.fr", max_length=80),
+) -> dict:
+    """Importe **toutes** les marques Vinted depuis ses sitemaps officiels."""
+    state = _state(request)
+    domain = (domain or "www.vinted.fr").strip().lower()
+    if not is_vinted_host(domain):
+        raise HTTPException(status_code=422, detail="Domaine Vinted invalide.")
+    if _brand_sync["running"]:
+        return {**_brand_sync_snapshot(state), "message": "Synchronisation déjà en cours."}
+    asyncio.create_task(_run_brand_sync(state, domain))
+    return {
+        **_brand_sync_snapshot(state),
+        "message": "Synchronisation lancée : quelques secondes suffisent.",
+    }
 
 
 @router.get("/brands/resolve")

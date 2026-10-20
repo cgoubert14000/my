@@ -61,6 +61,7 @@ const status = {
   db_path: 'data/test.db', db_size: 20480, version: '1.0.0', now,
 };
 const calls = [];
+const state = { brandSyncPolls: 0 };
 // ── Faux EventSource : permet de tester le flux poussé (SSE) dans jsdom ──
 const streams = [];
 class FakeEventSource {
@@ -111,6 +112,19 @@ window.fetch = async (url, opts = {}) => {
     if (!match) return reply({ detail: 'Référence non reconnue.' }, false, 422);
     const name = (match[2] || 'marque').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     return reply({ ok: true, brand: { id: match[1], slug: match[2] || '', name } });
+  }
+  if (u.includes('/api/brands/sync')) {
+    state.brandSyncPolls = (state.brandSyncPolls || 0) + 1;
+    if ((opts.method || 'GET') === 'POST') {
+      return reply({ ok: true, running: true, sitemaps: 0, sitemaps_total: 2, imported: 0,
+        total: 0, updated_at: null, error: '', message: 'Synchronisation lancée.' });
+    }
+    if (state.brandSyncPolls >= 3) {
+      return reply({ ok: true, running: false, sitemaps: 2, sitemaps_total: 2, imported: 57431,
+        total: 57431, updated_at: new Date().toISOString(), error: '' });
+    }
+    return reply({ ok: true, running: true, sitemaps: 1, sitemaps_total: 2, imported: 50000,
+      total: 0, updated_at: null, error: '' });
   }
   if (u.includes('/api/brands')) {
     const search = decodeURIComponent((u.match(/search=([^&]*)/) || [])[1] || '');
@@ -215,6 +229,17 @@ setTimeout(async () => {
   nikeInput.checked = true;
   nikeInput.dispatchEvent(new window.Event('change', { bubbles: true }));
   assert(document.querySelector('#brandSelected').textContent.includes('Nike'), 'marque sélectionnée');
+  // Import complet des marques (sitemaps) : un clic, puis recherche locale
+  click(document.querySelector('#brandImport'));
+  await new Promise((r) => setTimeout(r, 60));
+  assert(document.querySelector('#brandIndex').textContent.includes('Import en cours'),
+    'import des marques : progression affichee');
+  await new Promise((r) => setTimeout(r, 3400));
+  assert(document.querySelector('#brandIndex').textContent.includes('57'),
+    'import des marques : total indexe affiche');
+  const indexCall = calls.find((c) => c.url.includes('/api/brands/sync') && c.method === 'POST');
+  assert(Boolean(indexCall), 'POST /api/brands/sync envoye');
+
   // Marque rare ajoutée par URL (toutes les marques Vinted sont atteignables)
   document.querySelector('#brandManual').value = 'https://www.vinted.fr/brand/15464124-brak';
   click(document.querySelector('#brandAdd'));
