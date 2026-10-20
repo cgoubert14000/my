@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
@@ -25,16 +25,23 @@ jobs:
           TESTS_STALL_TIMEOUT: "240"
         run: python tools/run_tests.py
 
-      - name: Rapport d'échec (commentaire sur la PR)
+      - name: Rapport d'échec (PR + fichier suivi)
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           {
-            echo "### Tests en échec — $(git rev-parse --short HEAD)"
+            echo "### Tests en échec — $(git rev-parse --short HEAD) — $(date -u +%H:%M:%SZ)"
             echo '```'
-            timeout 320 python tools/run_tests.py 2>&1 | tail -45
+            timeout 320 python tools/run_tests.py 2>&1 | tail -45 || true
             echo '```'
           } > report.md
-          pr=$(gh pr list --head "$GITHUB_REF_NAME" --json number --jq '.[0].number')
+          cat report.md
+          pr=$(gh pr list --head "$GITHUB_REF_NAME" --json number --jq '.[0].number' || true)
           if [ -n "$pr" ]; then gh pr comment "$pr" --body-file report.md || true; fi
+          cp report.md .ci-tests-report.md
+          git config user.name "vinted-sniper-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -f .ci-tests-report.md
+          git commit -m "ci(report): trace d'echec des tests [skip ci]" || exit 0
+          git push || true
