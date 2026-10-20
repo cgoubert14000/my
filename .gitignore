@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+node_modules/
+*.log
+data/
+*.db
+*.db-wal
+*.db-shm
+config.local.json
+.env
+.DS_Store

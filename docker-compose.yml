@@ -1,0 +1,17 @@
+services:
+  vinted-sniper:
+    build: .
+    container_name: vinted-sniper
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./config.json:/app/config.json
+    command: ["python", "main.py", "--host", "0.0.0.0", "--port", "8000", "--no-browser"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
