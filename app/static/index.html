@@ -10,6 +10,7 @@
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
+<div class="ambient-grid" aria-hidden="true"></div>
 
 <header class="topbar">
   <div class="brand">
@@ -247,6 +248,18 @@
         <small>Filtre strict côté Vinted (<code>brand_ids[]</code>) : la recherche ne renvoie que ces marques.</small>
       </div>
 
+      <div class="field filter-field">
+        <span>Filtres Vinted <small>(tailles, état, couleurs, prix, tri — écrits dans l'URL de recherche)</small></span>
+        <div id="filterPanel" class="filter-panel" aria-live="polite">
+          <p class="hint">Chargement du catalogue de filtres…</p>
+        </div>
+        <div class="filter-toolbar">
+          <span id="filterSummary" class="chip chip-muted">Aucun filtre Vinted</span>
+          <button type="button" class="btn btn-sm btn-ghost" id="filterClear">Tout effacer</button>
+        </div>
+        <small>Les identifiants sont ceux de Vinted (vérifiés sur vinted.fr) : le site applique le filtre avant que le moteur ne lise les annonces.</small>
+      </div>
+
       <label class="field">
         <span>URL de recherche Vinted <em>*</em></span>
         <input type="text" id="pUrl" placeholder="https://www.vinted.fr/catalog?search_text=nike%20air%20max">
@@ -362,8 +375,9 @@
              aria-label="Ajouter une marque par URL ou identifiant">
       <button type="button" class="btn btn-sm btn-ghost" id="brandAdd">Ajouter</button>
     </div>
-    <p class="hint">La liste ci-dessous montre les ~100 marques les plus vendues par lettre.
-      Pour une marque plus rare : ouvrez sa fiche sur Vinted et collez son adresse ci-dessus.</p>
+    <p class="hint">Tapez les premières lettres d'une marque : <b>toutes</b> celles qui commencent par
+      cette saisie s'affichent (index local de ~57 000 marques, une fois importé). Les lettres restent
+      un raccourci, et vous pouvez toujours coller l'adresse d'une marque rare.</p>
     <div id="brandLetters" class="brand-letters"></div>
     <div id="brandList" class="brand-list" aria-live="polite"></div>
   </div>

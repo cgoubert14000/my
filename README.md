@@ -17,21 +17,23 @@ poussé par le serveur, rotation de proxys et self-healing intégré.
 3. [Mode temps réel](#mode-temps-réel--détecter-à-la-seconde)
 4. [Toutes les catégories Vinted](#toutes-les-catégories-vinted)
 5. [Filtrer par marque](#filtrer-par-marque)
-6. [Installation détaillée](#installation-détaillée)
-7. [Créer son premier profil](#créer-son-premier-profil)
-8. [Comprendre les filtres](#comprendre-les-filtres)
-9. [Alertes Discord](#alertes-discord)
-10. [Proxys & self-healing](#proxys--self-healing)
-11. [Dashboard](#dashboard)
-12. [Configuration](#configuration)
-13. [Ligne de commande](#ligne-de-commande)
-14. [API REST](#api-rest)
-15. [Données, sauvegardes & vie privée](#données-sauvegardes--vie-privée)
-16. [Architecture du projet](#architecture-du-projet)
-17. [Dépannage](#dépannage)
-18. [Tests](#tests)
-19. [Limites & bonnes pratiques](#limites--bonnes-pratiques)
-20. [Licence](#licence)
+6. [Filtrer par taille, état et couleur](#filtrer-par-taille-état-et-couleur-filtres-vinted)
+7. [Vérifier que le scan réel fonctionne](#vérifier-que-le-scan-réel-fonctionne---check)
+8. [Installation détaillée](#installation-détaillée)
+9. [Créer son premier profil](#créer-son-premier-profil)
+10. [Comprendre les filtres](#comprendre-les-filtres)
+11. [Alertes Discord](#alertes-discord)
+12. [Proxys & self-healing](#proxys--self-healing)
+13. [Dashboard](#dashboard)
+14. [Configuration](#configuration)
+15. [Ligne de commande](#ligne-de-commande)
+16. [API REST](#api-rest)
+17. [Données, sauvegardes & vie privée](#données-sauvegardes--vie-privée)
+18. [Architecture du projet](#architecture-du-projet)
+19. [Dépannage](#dépannage)
+20. [Tests](#tests)
+21. [Limites & bonnes pratiques](#limites--bonnes-pratiques)
+22. [Licence](#licence)
 
 ---
 
@@ -227,12 +229,17 @@ En plus des catégories, chaque profil peut se limiter à une ou plusieurs marqu
 
 Dans le formulaire de profil, cliquez sur **🏷️ Choisir des marques** :
 
-1. La liste s'ouvre sur la lettre **A** et lit en direct
-   `https://www.vinted.fr/brands/by_letter/A` (≈100 marques par lettre, triées
-   par volume d'annonces).
-2. Tapez les premières lettres dans **Rechercher une marque** : le filtre
-   s'applique instantanément, sans nouvelle requête inutile.
-3. Cochez autant de marques que voulu (20 maximum), puis **Filtrer sur N
+1. **Tapez la première lettre suffit** : dans le champ *Rechercher une marque*,
+   saisir « n » affiche **toutes** les marques qui commencent par N (Nike, New
+   Balance, Naked Wolfe, Nina Ricci…), « ni » restreint à Nike/Nina Ricci. La
+   recherche est un vrai **préfixe de mot**, insensible aux accents et à la
+   casse (`h` → H&M), pas un « contient ».
+2. Elle interroge l'**index local** (`GET /api/brands?search=n&prefix=1`), donc
+   instantanément et sans réseau. Le nombre total est affiché, même quand
+   l'affichage est plafonné à 300 lignes pour rester fluide.
+3. Les lettres A→Z restent un raccourci (liste live de ~100 marques par lettre,
+   `https://www.vinted.fr/brands/by_letter/A`).
+4. Cochez autant de marques que voulu (20 maximum), puis **Filtrer sur N
    marque(s)**. Les pastilles apparaissent dans le formulaire et sur la carte du
    profil ; **Toutes** retire le filtre.
 
@@ -276,6 +283,50 @@ Dans la modale **🏷️ Choisir des marques**, cliquez sur
 Le nombre de marques disponibles est affiché en permanence dans la modale.
 Vous pouvez aussi restreindre à une lettre (liste live) ou ajouter une marque
 isolée par son URL/identifiant.
+
+---
+
+## Filtrer par taille, état et couleur (filtres Vinted)
+
+Le formulaire de profil contient un bloc **Filtres Vinted** : tailles, état,
+couleurs, prix et tri. Ce ne sont pas des filtres « maison » : les identifiants
+écrits dans l'URL sont **ceux du site**, donc Vinted applique le filtre *avant*
+que le bot ne lise les annonces (moins de requêtes, résultats exacts).
+
+```text
+https://www.vinted.fr/catalog?size_ids[]=207&size_ids[]=209&status_ids[]=6
+  &color_ids[]=1&price_from=20&price_to=120&order=newest_first&search_text=nike
+```
+
+### Correspondances vérifiées sur vinted.fr (20/10/2026)
+
+La page `/catalog` réaffiche les filtres appliqués avec leur libellé : c'est
+cette page qui a servi de preuve, sans passer par l'API privée.
+
+| Filtre | Identifiants |
+| --- | --- |
+| État | `6` Neuf avec étiquette · `1` Neuf sans étiquette · `2` Très bon état · `3` Bon état · `4` Satisfaisant · `7` Ne fonctionne pas |
+| Couleurs | `1` Noir · `2` Marron · `3` Gris · `4` Beige · `5` Fuchsia · `6` Violet · `7` Rouge · `8` Jaune · `9` Bleu · `10` Vert · `11` Orange · `12` Blanc |
+| Tailles lettres | `205` XS · `206` S · `207` M · `209` L · `210` XL · `211` XXL · `212` XXXL · `213` Taille unique |
+| Pointures | `55` 35 · `56` 36 · `57` 37 · `58` 38 · `59` 39 · `60` 40 · `61` 41 · `62` 42 · `63` 43 |
+| Tri | `newest_first` · `relevance` · `price_low_to_high` · `price_high_to_low` |
+
+> ⚠️ Deux pièges constatés en direct, et donc évités par le bot : l'identifiant
+> `208` ne correspond à **aucune** taille (Vinted l'ignore), et les identifiants
+> de taille **dépendent de la catégorie** (`1` = « XS / 34 / 6 » pour les tailles
+> françaises, alors que `205` = « XS » pour les hauts). C'est pourquoi le
+> sélecteur propose des groupes explicites, et pourquoi une pointure 44+ ou une
+> taille enfant s'ajoute en collant l'URL filtrée depuis vinted.fr : le bot
+> conserve alors **tous** les paramètres qu'elle contient.
+
+Ce que fait le bot, concrètement :
+
+* il **remplace** les filtres existants au lieu de les empiler (pas de doublons
+  `size_ids[]`) et conserve mots-clés, catégorie et marques ;
+* il n'envoie jamais un identifiant inconnu ou une valeur non numérique ;
+* il passe en forme `?catalog[]=…` dès qu'un filtre existe, seule forme où
+  Vinted applique réellement les paramètres ;
+* le budget de scan ne change pas : le tri reste forcé sur `newest_first`.
 
 ---
 
@@ -506,6 +557,7 @@ sudo systemctl enable --now vinted-sniper
 | **Blacklist** | Stricte. Un seul mot présent ⇒ annonce rejetée, sans appel Discord. Cherchée sur le titre **et** la description. |
 | **Vérifier la description** | Active la lecture de la fiche annonce (requête supplémentaire, budget par scan). Désactivez-la pour économiser des requêtes si votre blacklist suffit sur les titres. |
 | **Note vendeur min.** | Ex. `4.5` ⇒ les vendeurs à `4.2/5` sont écartés. Si la note est inconnue, elle est récupérée sur le profil vendeur. |
+| **Filtres Vinted (taille, état, couleur, prix, tri)** | Écrits dans l'URL du profil, appliqués par le site. Voir la section dédiée ci-dessus. |
 | **Avis vendeur min.** | Ex. `10` ⇒ protège des comptes créés la veille. Si l'information vendeur est momentanément inaccessible, l'alerte n'est **pas** sacrifiée : elle part avec « note inconnue » et le journal le signale. |
 
 **Normalisation** : les comparaisons ignorent les accents, la casse et les
@@ -791,7 +843,9 @@ Toutes les routes sont sous `/api`, en JSON, sans authentification si
 | `POST` | `/diagnose` | Test réel complet (`query`, `webhook`, `domain`). |
 | `GET` | `/categories` | Catégories (`path` optionnel) : locales au 1er niveau, réelles ensuite. |
 | `POST` | `/profiles/{id}/category` | Applique une catégorie au profil en gardant ses mots-clés. |
-| `GET` | `/brands` | Marques : populaires sans paramètre, `letter=A` (live), ou `search=nike` (index local complet en priorité). |
+| `GET` | `/brands` | Marques : populaires sans paramètre, `letter=A` (live), `search=nike` (index local), ou `search=n&prefix=1` (toutes les marques commençant par N, `total` inclus). |
+| `GET` | `/filters` | Catalogue des filtres Vinted (tailles, états, couleurs, tris) + `selected` lu depuis `?url=…`. |
+| `POST` | `/filters/apply` | Applique des filtres à une URL (`url`, `size_ids`, `status_ids`, `color_ids`, `price_from`, `price_to`, `order`). |
 | `POST` | `/profiles/{id}/brands` | Applique un filtre de marques (`brand_ids: [...]`) en conservant catégorie et mots-clés. |
 | `GET` | `/brands/resolve` | Résout n'importe quelle marque depuis son URL ou son identifiant (`ref=…`). |
 | `GET` | `/brands/sync` | État de l'index local (nombre de marques, import en cours). |

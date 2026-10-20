@@ -349,21 +349,55 @@ class Database:
             self._conn.commit()
         return len(payload)
 
-    def search_brands(self, query: str, limit: int = 60) -> list[dict]:
-        """Recherche locale dans l'index complet des marques."""
+    @staticmethod
+    def _brand_clause(query: str, prefix: bool) -> tuple[str, list[str]]:
+        """Clause SQL de recherche de marques (contenu ou préfixe).
+
+        En mode préfixe, chaque mot doit commencer un mot de la clé : taper
+        « n » propose donc **toutes** les marques commençant par N, et
+        « new bal » propose « New Balance ».
+        """
         key = brand_search_key(query)
         if not key:
-            return []
+            return "", []
         words = [word for word in key.split() if word][:5]
+        if not words:
+            return "", []
+        if prefix:
+            clause = " AND ".join("(search_key LIKE ? OR search_key LIKE ?)" for _ in words)
+            params: list[str] = []
+            for word in words:
+                params.extend([f"{word}%", f"% {word}%"])
+            return clause, params
         clause = " AND ".join("search_key LIKE ?" for _ in words)
-        params = [f"%{word}%" for word in words]
+        return clause, [f"%{word}%" for word in words]
+
+    def search_brands(
+        self, query: str, limit: int = 60, prefix: bool = False
+    ) -> list[dict]:
+        """Recherche locale dans l'index complet des marques."""
+        clause, params = self._brand_clause(query, prefix)
+        if not clause:
+            return []
+        cap = 500 if prefix else 200
         with self._lock:
             rows = self._conn.execute(
                 f"SELECT id, slug, name FROM brands WHERE {clause} "
                 "ORDER BY LENGTH(name), name LIMIT ?",
-                (*params, max(1, min(int(limit), 200))),
+                (*params, max(1, min(int(limit), cap))),
             ).fetchall()
         return [{"id": row["id"], "slug": row["slug"], "name": row["name"]} for row in rows]
+
+    def count_brands(self, query: str, prefix: bool = True) -> int:
+        """Nombre de marques correspondant à la recherche (pour l'autocomplétion)."""
+        clause, params = self._brand_clause(query, prefix)
+        if not clause:
+            return 0
+        with self._lock:
+            row = self._conn.execute(
+                f"SELECT COUNT(*) AS total FROM brands WHERE {clause}", tuple(params)
+            ).fetchone()
+        return int(row["total"] or 0)
 
     def brand_stats(self) -> dict:
         with self._lock:

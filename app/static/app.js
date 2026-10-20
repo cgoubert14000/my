@@ -29,6 +29,8 @@
     catLoading: false,
     formCategory: { path: "/catalog", label: "Toutes les catégories" },
     formBrands: [],    // [{id, name}]
+    formFilters: { size_ids: [], status_ids: [], color_ids: [], price_from: "", price_to: "", order: "" },
+    filterCatalogue: null,
     brandRows: [],
     brandDraft: [],
     brandLetter: "A",
@@ -776,6 +778,9 @@
     const brandRows = profile ? brandsFromUrl(profile.url, profile.brands || "") : [];
     state.formBrands = brandRows;
     syncBrandsPill();
+    state.formFilters = filtersFromUrl(profile ? profile.url : "");
+    renderFilterPanel();
+    ensureFilterCatalogue().then(() => renderFilterPanel());
     $("#pPages").value = profile ? profile.pages : 1;
     $("#pMinPrice").value = profile && profile.min_price !== null ? profile.min_price : "";
     $("#pMaxPrice").value = profile && profile.max_price !== null ? profile.max_price : "";
@@ -799,7 +804,7 @@
     const category = state.formCategory || { path: "/catalog", label: "" };
     const hasCategory = category.path && category.path !== "/catalog";
     const brands = state.formBrands || [];
-    if (hasCategory || brands.length) rebuildFormUrl();
+    if (hasCategory || brands.length || filterCount(state.formFilters)) rebuildFormUrl();
     const payload = {
       name: $("#pName").value.trim(),
       active: $("#pActive").checked,
@@ -983,7 +988,207 @@
 
   const MANAGED_PARAMS = new Set([
     "catalog[]", "catalog", "brand_ids[]", "brand_ids", "page", "time",
+    "size_ids[]", "status_ids[]", "color_ids[]", "material_ids[]",
+    "price_from", "price_to", "order",
   ]);
+
+  /* ── Filtres Vinted (tailles, état, couleurs, prix, tri) ───────────────── */
+
+  function emptyFilters() {
+    return { size_ids: [], status_ids: [], color_ids: [], price_from: "", price_to: "", order: "" };
+  }
+
+  function filtersFromUrl(rawUrl) {
+    const filters = emptyFilters();
+    for (const [key, value] of searchParams(rawUrl)) {
+      const id = String(value || "").trim();
+      if (key === "size_ids[]" || key === "size_ids") filters.size_ids.push(id);
+      else if (key === "status_ids[]" || key === "status_ids") filters.status_ids.push(id);
+      else if (key === "color_ids[]" || key === "color_ids") filters.color_ids.push(id);
+      else if (key === "price_from") filters.price_from = id;
+      else if (key === "price_to") filters.price_to = id;
+      else if (key === "order") filters.order = id;
+    }
+    filters.size_ids = [...new Set(filters.size_ids.filter((id) => /^\d+$/.test(id)))];
+    filters.status_ids = [...new Set(filters.status_ids.filter((id) => /^\d+$/.test(id)))];
+    filters.color_ids = [...new Set(filters.color_ids.filter((id) => /^\d+$/.test(id)))];
+    return filters;
+  }
+
+  /* Paires « clé=valeur » des filtres, dans l'ordre où Vinted les écrit. */
+  function filterPairs(filters) {
+    const pairs = [];
+    (filters.size_ids || []).forEach((id) => pairs.push(["size_ids[]", id]));
+    (filters.status_ids || []).forEach((id) => pairs.push(["status_ids[]", id]));
+    (filters.color_ids || []).forEach((id) => pairs.push(["color_ids[]", id]));
+    if (filters.price_from !== "" && filters.price_from !== null && filters.price_from !== undefined) {
+      pairs.push(["price_from", filters.price_from]);
+    }
+    if (filters.price_to !== "" && filters.price_to !== null && filters.price_to !== undefined) {
+      pairs.push(["price_to", filters.price_to]);
+    }
+    if (filters.order) pairs.push(["order", filters.order]);
+    return pairs;
+  }
+
+  function filterCount(filters) {
+    if (!filters) return 0;
+    return (filters.size_ids || []).length + (filters.status_ids || []).length
+      + (filters.color_ids || []).length
+      + (filters.price_from !== "" ? 1 : 0) + (filters.price_to !== "" ? 1 : 0)
+      + (filters.order ? 1 : 0);
+  }
+
+  function filterSummary(filters) {
+    if (!filterCount(filters)) return "Aucun filtre Vinted";
+    const parts = [];
+    if ((filters.size_ids || []).length) parts.push(`${filters.size_ids.length} taille(s)`);
+    if ((filters.status_ids || []).length) parts.push(`${filters.status_ids.length} état(s)`);
+    if ((filters.color_ids || []).length) parts.push(`${filters.color_ids.length} couleur(s)`);
+    if (filters.price_from !== "" || filters.price_to !== "") {
+      parts.push(`prix ${filters.price_from || "0"}–${filters.price_to || "∞"} €`);
+    }
+    if (filters.order) parts.push("tri personnalisé");
+    return parts.join(" · ");
+  }
+
+  async function ensureFilterCatalogue() {
+    if (state.filterCatalogue) return state.filterCatalogue;
+    try {
+      const data = await api("/filters");
+      state.filterCatalogue = data && Array.isArray(data.size_groups) && data.size_groups.length ? data : null;
+    } catch (_) {
+      state.filterCatalogue = null;
+    }
+    return state.filterCatalogue;
+  }
+
+  const COLOR_HEX = {
+    "1": "#1b1b1f", "2": "#7a4b2a", "3": "#8d8f96", "4": "#e0d3b8",
+    "5": "#e0219a", "6": "#8b5cf6", "7": "#e23b3b", "8": "#f2cf3a",
+    "9": "#2f6fed", "10": "#2fae62", "11": "#f08a2c", "12": "#f4f6f8",
+  };
+
+  function renderFilterPanel() {
+    const panel = $("#filterPanel");
+    if (!panel) return;
+    const catalogue = state.filterCatalogue;
+    const filters = state.formFilters || emptyFilters();
+    panel.replaceChildren();
+
+    if (!catalogue || !Array.isArray(catalogue.size_groups) || !catalogue.size_groups.length) {
+      panel.appendChild(el("p", "hint", "Catalogue de filtres indisponible — vous pouvez toujours coller une URL Vinted filtrée ci-dessous."));
+      return;
+    }
+
+    const chipsGroup = (title, hint, items, key, { color = false } = {}) => {
+      if (!Array.isArray(items) || !items.length) return null;
+      const section = el("div", "filter-group");
+      const head = el("div", "filter-group-head");
+      head.appendChild(el("strong", "", title));
+      if (hint) head.appendChild(el("small", "", hint));
+      section.appendChild(head);
+      const box = el("div", "filter-chips");
+      for (const item of items) {
+        const chip = el("button", "filter-chip", item.label);
+        chip.type = "button";
+        chip.dataset.filterKey = key;
+        chip.dataset.filterId = String(item.id);
+        const on = (filters[key] || []).includes(String(item.id));
+        chip.classList.toggle("is-on", on);
+        chip.setAttribute("aria-pressed", on ? "true" : "false");
+        if (color) {
+          const dot = el("span", "filter-dot");
+          dot.style.background = COLOR_HEX[item.id] || "#888";
+          chip.prepend(dot);
+        }
+        box.appendChild(chip);
+      }
+      section.appendChild(box);
+      return section;
+    };
+
+    for (const group of catalogue.size_groups) {
+      const section = chipsGroup(group.label, group.hint, group.sizes, "size_ids");
+      if (!section) continue;
+      section.classList.add("filter-group-sizes");
+      panel.appendChild(section);
+    }
+    const statusSection = chipsGroup("État", "Neuf, très bon état, satisfaisant…", catalogue.statuses, "status_ids");
+    if (statusSection) panel.appendChild(statusSection);
+    const colorSection = chipsGroup("Couleurs", "Filtre exact du site", catalogue.colors, "color_ids", { color: true });
+    if (colorSection) panel.appendChild(colorSection);
+
+    const extras = el("div", "filter-group filter-extras");
+    const head = el("div", "filter-group-head");
+    head.appendChild(el("strong", "", "Prix & tri Vinted"));
+    head.appendChild(el("small", "", "Appliqué par le site avant la lecture des annonces."));
+    extras.appendChild(head);
+    const row = el("div", "filter-inputs");
+
+    const priceFrom = el("label", "field");
+    priceFrom.appendChild(el("span", "", "Prix min (€)"));
+    const fromInput = document.createElement("input");
+    fromInput.type = "number"; fromInput.min = "0"; fromInput.step = "1";
+    fromInput.id = "fPriceFrom"; fromInput.placeholder = "—";
+    fromInput.value = filters.price_from || "";
+    priceFrom.appendChild(fromInput);
+
+    const priceTo = el("label", "field");
+    priceTo.appendChild(el("span", "", "Prix max (€)"));
+    const toInput = document.createElement("input");
+    toInput.type = "number"; toInput.min = "0"; toInput.step = "1";
+    toInput.id = "fPriceTo"; toInput.placeholder = "—";
+    toInput.value = filters.price_to || "";
+    priceTo.appendChild(toInput);
+
+    const orderField = el("label", "field");
+    orderField.appendChild(el("span", "", "Tri"));
+    const select = document.createElement("select");
+    select.id = "fOrder";
+    const none = document.createElement("option");
+    none.value = ""; none.textContent = "Plus récentes (recommandé)";
+    select.appendChild(none);
+    for (const option of catalogue.orders || []) {
+      if (option.id === "newest_first") continue;
+      const node = document.createElement("option");
+      node.value = option.id; node.textContent = option.label;
+      select.appendChild(node);
+    }
+    select.value = filters.order || "";
+    orderField.appendChild(select);
+
+    row.append(priceFrom, priceTo, orderField);
+    extras.appendChild(row);
+    panel.appendChild(extras);
+
+    syncFilterSummary();
+  }
+
+  function syncFilterSummary() {
+    const label = $("#filterSummary");
+    if (!label) return;
+    const filters = state.formFilters || emptyFilters();
+    const count = filterCount(filters);
+    label.textContent = filterSummary(filters);
+    label.classList.toggle("chip-accent", count > 0);
+    label.classList.toggle("chip-muted", count === 0);
+  }
+
+  function setFilterValue(key, id, on) {
+    const filters = state.formFilters || emptyFilters();
+    const list = filters[key] || [];
+    const value = String(id);
+    filters[key] = on ? [...new Set([...list, value])] : list.filter((item) => item !== value);
+    state.formFilters = filters;
+  }
+
+  function clearFilters() {
+    state.formFilters = emptyFilters();
+    renderFilterPanel();
+    rebuildFormUrl();
+    toast("Filtres Vinted effacés.", "success");
+  }
 
   /* Crochets littéraux dans la query string, comme les liens de Vinted. */
   function encodeQuery(pairs) {
@@ -1043,13 +1248,15 @@
     const catPath = (state.formCategory && state.formCategory.path) || "/catalog";
     const catId = catalogIdFrom(catPath);
     const brands = (state.formBrands || []).map((row) => row.id).filter(Boolean);
+    const filterList = filterPairs(state.formFilters || emptyFilters());
     let url;
-    if (brands.length) {
-      /* Vinted n'applique brand_ids[] qu'en paramètres (?catalog[]=…&brand_ids[]=…). */
+    if (brands.length || filterList.length) {
+      /* Vinted n'applique brand_ids[] et les filtres qu'en paramètres
+         (?catalog[]=…&brand_ids[]=…&size_ids[]=…) : c'est la forme qu'il génère lui-même. */
       const pairs = [];
       if (catId) pairs.push(["catalog[]", catId]);
       brands.forEach((id) => pairs.push(["brand_ids[]", id]));
-      pairs.push(...kept);
+      pairs.push(...filterList, ...kept);
       url = `https://${current.domain}/catalog${pairs.length ? `?${encodeQuery(pairs)}` : ""}`;
     } else {
       const path = catId ? catPath : "/catalog";
@@ -1264,15 +1471,26 @@
     renderBrandList();
     const domain = profileDomainFromForm();
     const params = new URLSearchParams({ domain });
-    if (search) params.set("search", search);
-    if (letter) params.set("letter", letter);
+    if (search) {
+      /* Mode préfixe : taper « n » propose TOUTES les marques commençant par N. */
+      params.set("search", search);
+      params.set("prefix", "1");
+      params.set("limit", "300");
+    }
+    if (letter && !search) params.set("letter", letter);
     try {
       const data = await api(`/brands?${params.toString()}`);
       state.brandRows = data.brands || [];
       if (data.letter) state.brandLetter = data.letter;
       if (data.source === "index") {
-        $("#brandNote").textContent = `${state.brandIndex.total.toLocaleString("fr-FR")} marques indexées localement — `
-          + `${(data.brands || []).length} résultat(s) pour « ${data.search} ».`;
+        const total = typeof data.total === "number" ? data.total : (data.brands || []).length;
+        const shown = (data.brands || []).length;
+        $("#brandNote").textContent = total > shown
+          ? `${total.toLocaleString("fr-FR")} marque(s) commencent par « ${data.search} » — ${shown} affichées.`
+          : `${total.toLocaleString("fr-FR")} marque(s) pour « ${data.search} » — recherche instantanée, sans réseau.`;
+      } else if (search) {
+        $("#brandNote").textContent = "Importez l'index local (bouton ⬇) pour l'autocomplétion "
+          + "complète : sans lui, seules les marques populaires de cette lettre sont proposées.";
       } else {
         $("#brandNote").textContent = data.source === "vinted"
           ? `Marques réelles lues sur ${domain} — cochez celles qui vous intéressent.`
@@ -1702,6 +1920,37 @@
       selectCategory({ path: "/catalog", label: "Toutes les catégories" });
     });
     $("#pPickBrands").addEventListener("click", openBrandBrowser);
+    $("#filterClear").addEventListener("click", clearFilters);
+    $("#filterPanel").addEventListener("click", (event) => {
+      const chip = event.target.closest(".filter-chip");
+      if (!chip) return;
+      const key = chip.dataset.filterKey;
+      const id = chip.dataset.filterId;
+      const on = !chip.classList.contains("is-on");
+      setFilterValue(key, id, on);
+      chip.classList.toggle("is-on", on);
+      chip.setAttribute("aria-pressed", on ? "true" : "false");
+      syncFilterSummary();
+      rebuildFormUrl();
+    });
+    $("#filterPanel").addEventListener("input", (event) => {
+      const target = event.target;
+      if (!target || !target.id) return;
+      const filters = state.formFilters || emptyFilters();
+      if (target.id === "fPriceFrom") filters.price_from = target.value.trim();
+      else if (target.id === "fPriceTo") filters.price_to = target.value.trim();
+      else return;
+      state.formFilters = filters;
+      syncFilterSummary();
+      rebuildFormUrl();
+    });
+    $("#filterPanel").addEventListener("change", (event) => {
+      const target = event.target;
+      if (!target || target.id !== "fOrder") return;
+      state.formFilters = { ...(state.formFilters || emptyFilters()), order: target.value };
+      syncFilterSummary();
+      rebuildFormUrl();
+    });
     $("#pClearBrands").addEventListener("click", () => {
       selectBrands([]);
       toast("Filtre de marques retiré.", "success");
@@ -1714,8 +1963,7 @@
         loadBrands({ letter: state.brandLetter });
         return;
       }
-      if (query.length < 2) return;
-      brandSearchTimer = setTimeout(() => loadBrands({ search: query }), 180);
+      brandSearchTimer = setTimeout(() => loadBrands({ search: query }), 160);
     });
     $("#brandImport").addEventListener("click", (event) => importBrands(event.currentTarget));
     $("#brandAdd").addEventListener("click", addBrandFromReference);

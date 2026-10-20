@@ -38,6 +38,7 @@ from .categories import (
 )
 from .config import ConfigError
 from .filters import matches_profile
+from .vinted_filters import apply_filters, catalogue as filter_catalogue, read_filters
 from .diagnostics import run_diagnostics
 from .models import (
     ConfigPatch,
@@ -293,6 +294,8 @@ async def brands(
     request: Request,
     letter: str = Query("", max_length=2),
     search: str = Query("", max_length=60),
+    prefix: bool = Query(False),
+    limit: int = Query(0, ge=0, le=500),
     domain: str = Query("www.vinted.fr", max_length=80),
     refresh: bool = Query(False),
 ) -> dict:
@@ -300,7 +303,9 @@ async def brands(
 
     * sans ``letter`` ni ``search`` → raccourci local (aucun réseau) ;
     * ``letter=N`` → marques réelles de la page ``/brands/by_letter/N`` ;
-    * ``search=nike`` → mêmes marques, filtrées sur le nom.
+    * ``search=nike`` → mêmes marques, filtrées sur le nom ;
+    * ``search=n&prefix=1`` → **toutes** les marques commençant par « n »
+      (index local, aucune lettre à choisir).
     """
     state = _state(request)
     domain = (domain or "www.vinted.fr").strip().lower()
@@ -312,12 +317,12 @@ async def brands(
     if letter and not sanitize_letter(letter):
         raise HTTPException(status_code=422, detail="Lettre invalide (A-Z attendu).")
     letter_value = sanitize_letter(letter) or sanitize_letter(letter_of(query))
-    if not letter_value:
-        if query:
-            raise HTTPException(
-                status_code=422,
-                detail="Indiquez une marque commençant par une lettre A-Z.",
-            )
+    if not letter_value and query and not prefix:
+        raise HTTPException(
+            status_code=422,
+            detail="Indiquez une marque commençant par une lettre A-Z.",
+        )
+    if not letter_value and not query:
         return {
             "ok": True,
             "letters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
@@ -328,12 +333,16 @@ async def brands(
 
     stats = state.db.brand_stats()
     if query and stats["total"]:
-        rows = state.db.search_brands(query, limit=80)
+        wanted = limit or (300 if prefix else 80)
+        rows = state.db.search_brands(query, limit=wanted, prefix=prefix)
         return {
             "ok": True,
             "brands": rows,
             "source": "index",
             "search": query,
+            "prefix": prefix,
+            "total": state.db.count_brands(query, prefix=prefix),
+            "returned": len(rows),
             "letters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
             "total_indexed": stats["total"],
             "domain": domain,
@@ -387,6 +396,40 @@ async def brands(
         _brand_cache[key] = (now, payload)
         rows = filter_brands(payload["brands"], query)
         return {**payload, "brands": rows, "search": query}
+
+
+@router.get("/filters")
+async def filters(url: str = Query("", max_length=1500)) -> dict:
+    """Catalogue des filtres Vinted + sélection déjà présente dans ``url``.
+
+    Le tableau de bord construit l'URL du profil avec ces identifiants : le
+    moteur scrape ensuite cette URL telle quelle, sans logique supplémentaire.
+    """
+    payload = filter_catalogue()
+    payload["ok"] = True
+    payload["selected"] = read_filters(url) if url else read_filters("")
+    return payload
+
+
+@router.post("/filters/apply")
+async def filters_apply(payload: dict) -> dict:
+    """Applique des filtres à une URL (aperçu avant enregistrement)."""
+    url = str(payload.get("url") or "")
+    domain = str(payload.get("domain") or "www.vinted.fr").strip().lower()
+    if not is_vinted_host(domain):
+        raise HTTPException(status_code=422, detail="Domaine Vinted invalide.")
+    result = apply_filters(
+        url,
+        size_ids=payload.get("size_ids") or [],
+        status_ids=payload.get("status_ids") or [],
+        color_ids=payload.get("color_ids") or [],
+        material_ids=payload.get("material_ids") or [],
+        price_from=payload.get("price_from"),
+        price_to=payload.get("price_to"),
+        order=payload.get("order"),
+        domain=domain,
+    )
+    return {"ok": True, "url": result, "selected": read_filters(result)}
 
 
 def _brand_sync_snapshot(state) -> dict:

@@ -106,6 +106,33 @@ window.fetch = async (url, opts = {}) => {
     return reply({ ok: true, path, title: path === '/catalog' ? 'Toutes les catégories' : 'Hommes',
       children, source: path === '/catalog' ? 'local' : 'vinted', domain: 'www.vinted.fr' });
   }
+  if (u.includes('/api/filters')) {
+    return reply({
+      ok: true,
+      statuses: [
+        { id: '6', label: 'Neuf avec étiquette' }, { id: '1', label: 'Neuf sans étiquette' },
+        { id: '2', label: 'Très bon état' }, { id: '3', label: 'Bon état' },
+        { id: '4', label: 'Satisfaisant' }, { id: '7', label: 'Ne fonctionne pas' },
+      ],
+      colors: [
+        { id: '1', label: 'Noir' }, { id: '9', label: 'Bleu' }, { id: '12', label: 'Blanc' },
+      ],
+      orders: [
+        { id: 'newest_first', label: 'Plus récentes' },
+        { id: 'price_low_to_high', label: 'Prix croissant' },
+      ],
+      size_groups: [
+        { key: 'letters', label: 'Tailles lettres', hint: 'Hauts et bas',
+          sizes: [{ id: '205', label: 'XS' }, { id: '206', label: 'S' }, { id: '207', label: 'M' },
+                  { id: '209', label: 'L' }, { id: '210', label: 'XL' }] },
+        { key: 'shoes', label: 'Pointures', hint: 'Chaussures',
+          sizes: [{ id: '62', label: '42' }, { id: '63', label: '43' }] },
+      ],
+      materials: [],
+      counts: { statuses: 6, colors: 3, sizes: 7 },
+      selected: { size_ids: [], status_ids: [], color_ids: [], price_from: '', price_to: '', order: '', active: false },
+    });
+  }
   if (u.includes('/api/brands/resolve')) {
     const ref = decodeURIComponent((u.match(/ref=([^&]*)/) || [])[1] || '');
     const match = ref.match(/\/brand\/(\d+)(?:-([a-z0-9-]+))?/i) || ref.match(/^(\d+)(?:-([a-z0-9-]+))?$/i);
@@ -139,9 +166,17 @@ window.fetch = async (url, opts = {}) => {
       return reply({ ok: true, brands: catalogue.slice(0, 2), letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
         source: 'local', domain: 'www.vinted.fr' });
     }
+    const prefixMode = /prefix=1/.test(u);
     const rows = search
-      ? catalogue.filter((row) => row.name.toLowerCase().includes(search.toLowerCase()))
+      ? catalogue.filter((row) => (prefixMode
+        ? row.name.toLowerCase().startsWith(search.toLowerCase())
+        : row.name.toLowerCase().includes(search.toLowerCase())))
       : catalogue;
+    if (prefixMode) {
+      return reply({ ok: true, brands: rows, prefix: true, total: rows.length, returned: rows.length,
+        letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), source: 'index',
+        total_indexed: 57431, domain: 'www.vinted.fr', search });
+    }
     return reply({ ok: true, letter: letter || 'N', brands: rows, letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
       source: 'vinted', domain: 'www.vinted.fr', search });
   }
@@ -364,6 +399,65 @@ setTimeout(async () => {
   assert(document.querySelector('#pCategoryLabel').textContent.includes('Chaussures'), 'categorie appliquee au profil');
   assert(document.querySelector('#pUrl').value.includes('/catalog/1231-men_shoes_new'), 'URL du profil mise a jour');
   assert(document.querySelector('#pUrl').value.includes('search_text'), 'mots-cles conserves');
+
+  // ── Filtres Vinted : tailles, état, couleurs, prix, tri ──────────────────
+  click(document.querySelector('#btnNewProfile'));
+  await new Promise((r) => setTimeout(r, 80));
+  // On part d'une recherche par mot-clé : les filtres doivent la conserver.
+  document.querySelector('#pUrl').value = 'https://www.vinted.fr/catalog?search_text=nike';
+  assert(document.querySelectorAll('#filterPanel .filter-chip').length >= 10, 'filtres : puces affichees');
+  assert(document.querySelectorAll('#filterPanel .filter-dot').length === 3, 'filtres : pastilles couleur');
+
+  const sizeChip = [...document.querySelectorAll('#filterPanel .filter-chip')]
+    .find((chip) => chip.dataset.filterKey === 'size_ids' && chip.textContent.trim() === 'M');
+  click(sizeChip);
+  assert(sizeChip.classList.contains('is-on'), 'filtre taille active');
+  assert(document.querySelector('#pUrl').value.includes('size_ids[]=207'), 'taille ecrite dans l URL');
+
+  const statusChip = [...document.querySelectorAll('#filterPanel .filter-chip')]
+    .find((chip) => chip.dataset.filterKey === 'status_ids' && chip.textContent.includes('Neuf avec'));
+  click(statusChip);
+  assert(document.querySelector('#pUrl').value.includes('status_ids[]=6'), 'etat ecrit dans l URL');
+
+  const colorChip = [...document.querySelectorAll('#filterPanel .filter-chip')]
+    .find((chip) => chip.dataset.filterKey === 'color_ids' && chip.textContent.includes('Noir'));
+  click(colorChip);
+  assert(document.querySelector('#pUrl').value.includes('color_ids[]=1'), 'couleur ecrite dans l URL');
+  assert(document.querySelector('#filterSummary').textContent.includes('taille'), 'resume des filtres');
+
+  const priceFrom = document.querySelector('#fPriceFrom');
+  priceFrom.value = '25';
+  priceFrom.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert(document.querySelector('#pUrl').value.includes('price_from=25'), 'prix min ecrit dans l URL');
+  const order = document.querySelector('#fOrder');
+  order.value = 'price_low_to_high';
+  order.dispatchEvent(new window.Event('change', { bubbles: true }));
+  assert(document.querySelector('#pUrl').value.includes('order=price_low_to_high'), 'tri ecrit dans l URL');
+
+  // Le mot-clé doit survivre aux filtres
+  assert(document.querySelector('#pUrl').value.includes('search_text=nike'), 'mot-cle conserve avec les filtres');
+
+  click(document.querySelector('#filterClear'));
+  await new Promise((r) => setTimeout(r, 20));
+  const clearedUrl = document.querySelector('#pUrl').value;
+  assert(!clearedUrl.includes('size_ids'), 'filtres effaces de l URL');
+  assert(document.querySelector('#filterSummary').textContent.includes('Aucun'), 'resume remis a zero');
+
+  // Autocomplétion : « n » propose toutes les marques en N, dès 1 caractère
+  click(document.querySelector('#pPickBrands'));
+  await new Promise((r) => setTimeout(r, 60));
+  const brandInput = document.querySelector('#brandSearch');
+  brandInput.value = 'n';
+  brandInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 260));
+  const prefixCall = calls.find((c) => c.url.includes('/api/brands?') && c.url.includes('prefix=1'));
+  assert(Boolean(prefixCall), 'recherche marque en mode prefixe');
+  const prefixNames = [...document.querySelectorAll('#brandList .brand-item')].map((row) => row.textContent);
+  assert(prefixNames.length === 4, 'toutes les marques en N proposees');
+  assert(prefixNames.some((name) => name.includes('New Era')), 'marque rare proposee');
+  assert(document.querySelector('#brandNote').textContent.includes('marque'), 'note prefixe affichee');
+  click(document.querySelector('#brandApply'));
+  await new Promise((r) => setTimeout(r, 30));
 
   // Diagnostic
   click(document.querySelector('[data-action="diagnostic"]'));

@@ -598,3 +598,122 @@ class CheckBrandTests(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
+
+
+class BrandPrefixTests(unittest.TestCase):
+    """Autocomplétion : taper « n » doit proposer *toutes* les marques en N."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        config_path = root / "config.json"
+        config_path.write_text(json.dumps({"engine": {"start_paused": True}}), encoding="utf-8")
+        self.state = AppState(
+            config_path=config_path, db_path=root / "test.db", api_class=FakeVintedAPI
+        )
+        self.state.db.upsert_brands(
+            [
+                {"id": "53", "slug": "nike", "name": "Nike"},
+                {"id": "999", "slug": "nike-sb", "name": "Nike SB"},
+                {"id": "1775", "slug": "new-balance", "name": "New Balance"},
+                {"id": "121", "slug": "naked-wolfe", "name": "Naked Wolfe"},
+                {"id": "77", "slug": "nina-ricci", "name": "Nina Ricci"},
+                {"id": "14", "slug": "adidas", "name": "adidas"},
+                {"id": "7", "slug": "h-m", "name": "H&M"},
+            ]
+        )
+        self.client = TestClient(create_app(self.state))
+        self.client.__enter__()
+
+    def tearDown(self):
+        self.client.__exit__(None, None, None)
+        self.tmp.cleanup()
+
+    def names(self, query: str) -> list[str]:
+        response = self.client.get(f"/api/brands?search={query}&prefix=1")
+        self.assertEqual(response.status_code, 200, response.text)
+        return [row["name"] for row in response.json()["brands"]]
+
+    def test_single_letter_returns_every_n_brand(self):
+        names = self.names("n")
+        # « adidas » et « H&M » ne doivent pas apparaître, tout le reste oui.
+        self.assertEqual(sorted(names), sorted(["Naked Wolfe", "New Balance", "Nike", "Nike SB", "Nina Ricci"]))
+
+    def test_two_letter_prefix(self):
+        self.assertEqual(sorted(self.names("ni")), sorted(["Nike", "Nike SB", "Nina Ricci"]))
+
+    def test_prefix_reports_total(self):
+        data = self.client.get("/api/brands?search=n&prefix=1").json()
+        self.assertEqual(data["source"], "index")
+        self.assertTrue(data["prefix"])
+        self.assertEqual(data["total"], 5)
+        self.assertEqual(data["returned"], 5)
+
+    def test_accent_insensitive_prefix(self):
+        self.assertEqual(self.names("h"), ["H&M"])
+
+    def test_prefix_without_letter_is_allowed(self):
+        # Avant ce correctif, l'absence de lettre valait une erreur 422.
+        self.assertEqual(self.client.get("/api/brands?search=h&prefix=1").status_code, 200)
+
+    def test_non_prefix_search_still_works(self):
+        response = self.client.get("/api/brands?search=balance")
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertIn("New Balance", [row["name"] for row in response.json()["brands"]])
+
+
+
+class FiltersEndpointTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        config_path = root / "config.json"
+        config_path.write_text(json.dumps({"engine": {"start_paused": True}}), encoding="utf-8")
+        self.state = AppState(
+            config_path=config_path, db_path=root / "test.db", api_class=FakeVintedAPI
+        )
+        self.client = TestClient(create_app(self.state))
+        self.client.__enter__()
+
+    def tearDown(self):
+        self.client.__exit__(None, None, None)
+        self.tmp.cleanup()
+
+    def test_catalogue_endpoint(self):
+        data = self.client.get("/api/filters").json()
+        self.assertTrue(data["ok"])
+        self.assertEqual(len(data["statuses"]), 6)
+        self.assertEqual(len(data["colors"]), 12)
+        self.assertGreaterEqual(data["counts"]["sizes"], 17)
+        self.assertFalse(data["selected"]["active"])
+
+    def test_catalogue_reads_existing_url(self):
+        url = "https://www.vinted.fr/catalog?size_ids[]=206&status_ids[]=6&price_from=15"
+        data = self.client.get("/api/filters", params={"url": url}).json()
+        self.assertEqual(data["selected"]["size_ids"], ["206"])
+        self.assertEqual(data["selected"]["status_ids"], ["6"])
+        self.assertEqual(data["selected"]["price_from"], "15")
+
+    def test_apply_endpoint(self):
+        response = self.client.post(
+            "/api/filters/apply",
+            json={
+                "url": "https://www.vinted.fr/catalog?search_text=nike",
+                "size_ids": ["206"],
+                "color_ids": ["1"],
+                "price_to": 100,
+            },
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        url = response.json()["url"]
+        self.assertIn("size_ids[]=206", url)
+        self.assertIn("color_ids[]=1", url)
+        self.assertIn("price_to=100", url)
+        self.assertIn("search_text=nike", url)
+
+    def test_apply_endpoint_rejects_bad_domain(self):
+        response = self.client.post(
+            "/api/filters/apply",
+            json={"url": "https://example.com/catalog", "domain": "example.com"},
+        )
+        self.assertEqual(response.status_code, 422)
