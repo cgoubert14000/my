@@ -282,11 +282,19 @@ isolée par son URL/identifiant.
 ## Vérifier que le scan réel fonctionne (`--check`)
 
 ```bash
-python main.py --check                          # recherche « nike » sur vinted.fr
-python main.py --check "air max 97"             # votre recherche
+python main.py --check                                 # recherche « nike » sur vinted.fr
+python main.py --check "air max 97"                    # votre recherche
+python main.py --check "chaussures" --brand nike       # avec le filtre de marque
+python main.py --check "sneakers" --brand 1775         # par identifiant Vinted
 python main.py --check "sac gucci" --webhook https://discord.com/api/webhooks/…
 python main.py --check "nike" --domain www.vinted.de
 ```
+
+`--brand` accepte un nom (« nike »), un identifiant (« 53 ») ou l'URL de la
+marque, et résout la correspondance **sans réseau** (index local des marques
+d'abord, puis les marques connues). Le rapport affiche alors l'URL exacte
+testée, avec `brand_ids[]` : c'est la garantie que le filtre de marque
+fonctionne, en plus du parsing.
 
 Ce que le diagnostic teste, dans l'ordre :
 
@@ -720,6 +728,8 @@ python main.py [options]
   --config PATH      Fichier de configuration (défaut : config.json)
   --db PATH          Base SQLite (défaut : data/vinted_sniper.db)
   --check [QUERY]    Diagnostic réel Vinted puis sortie (sans dashboard)
+  --brand MARQUE     Avec --check : teste une recherche filtrée sur une marque
+                     (nom, identifiant ou URL ; index local d'abord)
   --webhook URL      Webhook Discord à tester avec --check
   --domain DOMAINE   Domaine pour --check (défaut : www.vinted.fr)
   --turbo            Vitesse maximale : intervalle minimal constant
@@ -734,6 +744,8 @@ python main.py --port 9001        # dashboard seul, sans ouvrir le navigateur (-
 python main.py --config /etc/vinted/config.json --db /var/lib/vinted/sniper.db
 python main.py --host 0.0.0.0     # ⚠️ pensez à app.password si réseau partagé
 python main.py --check "jordan 4" # diagnostic réel, sans lancer le dashboard
+python main.py --check "chaussures" --brand nike   # avec le filtre de marque
+python main.py --check "sneakers" --brand 1775     # par identifiant Vinted
 python main.py --turbo            # détection maximale (assume le risque)
 ```
 

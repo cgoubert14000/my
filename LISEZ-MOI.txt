@@ -27,8 +27,12 @@ VERIFIER AVANT DE COMPTER SUR LES ALERTES
 -----------------------------------------
 Dans le terminal (ou une invite de commandes dans ce dossier) :
 
-       vinted-sniper.exe --check "air max 97"        (Windows)
-       python main.py --check "air max 97"           (Linux / macOS)
+       vinted-sniper.exe --check "chaussures" --brand nike   (Windows)
+       python main.py --check "chaussures" --brand nike      (Linux / macOS)
+
+   Astuce : --brand accepte aussi l'identifiant (--brand 53) et affiche
+   l'URL testee avec brand_ids[]. Pour un test simple sans marque :
+   vinted-sniper.exe --check "nike"
 
 Toutes les lignes doivent etre OK. Ce test dit exactement ce qui bloque
 (IP refusee par Vinted, proxy, structure de page). Si votre IP est bloquee,

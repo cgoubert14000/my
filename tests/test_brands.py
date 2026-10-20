@@ -533,5 +533,68 @@ class BrandSyncTests(unittest.TestCase):
         self.assertEqual(data["brand_ids"], ["15464124"])
 
 
+class CheckBrandTests(unittest.TestCase):
+    """``--check --brand nike`` : diagnostic filtré sur une marque, sans réseau."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        root = Path(self.tmp.name)
+        config_path = root / "config.json"
+        config_path.write_text(json.dumps({"engine": {"start_paused": True}}), encoding="utf-8")
+        self.state = AppState(
+            config_path=config_path, db_path=root / "test.db", api_class=FakeVintedAPI
+        )
+        from app.cli import _checked_query
+
+        self.checked_query = staticmethod(_checked_query)
+
+    def tearDown(self):
+        self.state.db.close()
+        self.tmp.cleanup()
+
+    class _Args:
+        domain = "www.vinted.fr"
+
+        def __init__(self, check: str, brand: str = ""):
+            self.check = check
+            self.brand = brand
+
+    def test_brand_name_from_known_list(self):
+        url, label = self.checked_query(self.state, self._Args("chaussures", "nike"))
+        self.assertIn("brand_ids[]=53", url)
+        self.assertIn("search_text=chaussures", url)
+        self.assertEqual(label, "Nike (#53)")
+
+    def test_brand_by_id(self):
+        url, label = self.checked_query(self.state, self._Args("chaussures", "53"))
+        self.assertIn("brand_ids[]=53", url)
+        self.assertEqual(label, "Nike (#53)")
+
+    def test_brand_by_url(self):
+        url, label = self.checked_query(
+            self.state, self._Args("sneakers", "https://www.vinted.fr/brand/1775-new-balance")
+        )
+        self.assertIn("brand_ids[]=1775", url)
+        self.assertEqual(label, "New Balance (#1775)")
+
+    def test_brand_from_local_index(self):
+        self.state.db.upsert_brands(
+            [{"id": "15464124", "slug": "brak", "name": "Brak"}]
+        )
+        url, label = self.checked_query(self.state, self._Args("pull", "brak"))
+        self.assertIn("brand_ids[]=15464124", url)
+        self.assertEqual(label, "Brak (#15464124)")
+
+    def test_unknown_brand_falls_back_without_filter(self):
+        url, label = self.checked_query(self.state, self._Args("pull", "zzzz"))
+        self.assertEqual(url, "pull")
+        self.assertEqual(label, "")
+
+    def test_no_brand_keeps_query(self):
+        url, label = self.checked_query(self.state, self._Args("air max 97"))
+        self.assertEqual(url, "air max 97")
+        self.assertEqual(label, "")
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

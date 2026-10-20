@@ -12,6 +12,9 @@ import webbrowser
 from pathlib import Path
 
 from . import __version__
+from .brands import parse_brand_reference, popular as popular_brands
+from .categories import build_profile_url
+from .database import brand_search_key
 from .diagnostics import run_diagnostics
 from .state import AppState
 from .web import create_app
@@ -82,6 +85,13 @@ def build_parser() -> argparse.ArgumentParser:
         'sans lancer le dashboard. Exemple : python main.py --check "air max 97"',
     )
     parser.add_argument(
+        "--brand",
+        default="",
+        metavar="MARQUE",
+        help="Avec --check : teste la recherche filtrée sur une marque "
+        '(« nike », « Nike » ou son identifiant Vinted « 53 »).',
+    )
+    parser.add_argument(
         "--webhook",
         default="",
         help="Webhook Discord à tester avec --check.",
@@ -130,10 +140,50 @@ def _apply_speed_options(state: AppState, args) -> None:
     print(f"⚡ Mode vitesse : {label} (enregistré dans config.json)")
 
 
+def _resolve_check_brand(state: AppState, value: str) -> tuple[str, str] | None:
+    """Identifiant + nom d'une marque, sans réseau (index local, puis listes connues)."""
+    raw = (value or "").strip()
+    if not raw:
+        return None
+    reference = parse_brand_reference(raw)
+    if reference:
+        known = state.db.get_brand(reference["id"])
+        return reference["id"], (known or reference)["name"]
+    matches = state.db.search_brands(raw, limit=5)
+    if matches:
+        return matches[0]["id"], matches[0]["name"]
+    needle = brand_search_key(raw)
+    for row in popular_brands():
+        if brand_search_key(row["name"]) == needle:
+            return row["id"], row["name"]
+    return None
+
+
+def _checked_query(state: AppState, args) -> tuple[str, str]:
+    """Recherche à tester, enrichie du filtre de marque si ``--brand`` est fourni."""
+    query = (args.check or "nike").strip()
+    if not args.brand:
+        return query, ""
+    resolved = _resolve_check_brand(state, args.brand)
+    if not resolved:
+        print(
+            f"⚠️  Marque « {args.brand} » inconnue localement : le test se fait sans "
+            "filtre de marque.\n"
+            "   Utilisez son identifiant Vinted (ex. --brand 53) ou importez l'index "
+            "des marques depuis le dashboard.\n",
+            flush=True,
+        )
+        return query, ""
+    brand_id, name = resolved
+    url = build_profile_url(query, None, [brand_id], args.domain or "www.vinted.fr")
+    return url, f"{name} (#{brand_id})"
+
+
 async def _diagnose(state: AppState, args) -> dict:
     try:
         return await run_diagnostics(
-            state, query=args.check, webhook=args.webhook, domain=args.domain
+            state, query=_checked_query(state, args)[0], webhook=args.webhook,
+            domain=args.domain,
         )
     finally:
         await state.client.close()
@@ -145,7 +195,12 @@ def run_check(state: AppState, args) -> int:
     """Affiche un rapport lisible et renvoie un code de sortie exploitable."""
     print(BANNER, flush=True)
     print(f"  Diagnostic Vinted Sniper v{__version__} — mode réel", flush=True)
-    print(f"  Recherche : {args.check} · domaine : {args.domain}\n", flush=True)
+    query, brand_label = _checked_query(state, args)
+    print(f"  Recherche : {args.check} · domaine : {args.domain}", flush=True)
+    if brand_label:
+        print(f"  Marque    : {brand_label}", flush=True)
+        print(f"  URL testée: {query}", flush=True)
+    print(flush=True)
     report = asyncio.run(_diagnose(state, args))
 
     for step in report["steps"]:
