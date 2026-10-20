@@ -34,13 +34,17 @@ except Exception:  # pragma: no cover
 
 import httpx  # noqa: E402  (toujours disponible : sert aussi à la découverte de proxys)
 
+#: Marqueurs de page de blocage. ⚠️ Ne JAMAIS y mettre le simple mot
+#: « datadome » : la page catalogue normale charge le script Datadome, donc
+#: elle le contient — la requête était alors déclarée « bloquée » alors que
+#: Vinted avait répondu normalement (et aucune annonce n'était jamais lue).
 BLOCK_MARKERS = (
     "just a moment",
     "attention required",
     "cf-browser-verification",
     "challenge-platform",
     "captcha-delivery",
-    "datadome",
+    "geo.captcha-delivery",
     "access to this page has been denied",
     "pardon our interruption",
     "enable javascript and cookies",
@@ -52,13 +56,36 @@ BLOCK_MARKERS = (
 BLOCK_STATUSES = {401, 403, 407, 429, 451, 503}
 
 #: Marqueurs propres à la page de vérification Datadome (défi JS).
-CHALLENGE_MARKERS = ("captcha-delivery", "geo.captcha-delivery", "datadome")
+CHALLENGE_MARKERS = ("captcha-delivery", "geo.captcha-delivery", "dd-captcha")
+
+#: Signes qu'une VRAIE page de résultats a été servie (donc pas un blocage).
+GRID_PRESENT_MARKERS = ('data-testid="grid-item"', "product-item-id-")
+
+
+def _same_origin(referer: str, url: str) -> bool:
+    """Le Referer appartient-il au même site que l'URL demandée ?"""
+    try:
+        return urlparse(referer).netloc == urlparse(url).netloc
+    except Exception:  # pragma: no cover - URL exotique
+        return False
 
 
 def _is_challenge(text: str) -> bool:
     """La page renvoyée est-elle le défi navigateur Datadome ?"""
     sample = (text or "")[:20000].lower()
     return any(marker in sample for marker in CHALLENGE_MARKERS)
+
+
+def block_reason(text: str) -> str:
+    """Quel marqueur a fait conclure à un blocage (utile dans le journal)."""
+    sample = (text or "")[:20000].lower()
+    for marker in CHALLENGE_MARKERS:
+        if marker in sample:
+            return f"défi Datadome « {marker} »"
+    for marker in BLOCK_MARKERS:
+        if marker in sample:
+            return f"page « {marker} »"
+    return "réponse inattendue"
 
 ACCEPT_LANGUAGE = "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7"
 
@@ -367,7 +394,11 @@ class HttpResponse:
         if self.error:
             return self.error
         if self.blocked:
-            return f"blocage anti-bot (HTTP {self.status})"
+            # On nomme la cause : « just a moment », « captcha-delivery »…
+            # C'est ce qui permet de distinguer un quota épuisé d'un vrai défi
+            # navigateur, et donc de savoir s'il faut attendre ou changer d'IP.
+            reason = block_reason(self.text or "")
+            return f"blocage anti-bot (HTTP {self.status} — {reason})"
         return f"HTTP {self.status}"
 
 
@@ -386,6 +417,11 @@ class HttpClient:
         self.on_block = on_block
         self.proxies = ProxyPool(config, db)
         self._ua_index = 0
+        #: Une seule identité (User-Agent) par domaine, tant que la session vit.
+        #: Datadome lie son cookie à l'empreinte du navigateur : changer d'UA
+        #: entre deux requêtes tout en gardant les cookies = incohérence
+        #: immédiate, donc nouveau défi à chaque passage.
+        self._identities: dict[str, str] = {}
         self._supports_discard_cookies = True
         self._cookies: dict[str, dict[str, str]] = {}
         self._sessions: dict[tuple[str, str | None], Any] = {}
@@ -421,6 +457,18 @@ class HttpClient:
         }
         return stats
 
+    def _identity_for(self, netloc: str) -> str:
+        """User-Agent stable par domaine (vraie session de navigateur)."""
+        ua = self._identities.get(netloc)
+        if not ua:
+            ua = self._user_agent()
+            self._identities[netloc] = ua
+        return ua
+
+    def rotate_identity(self, netloc: str) -> None:
+        """Nouvelle identité : à faire seulement quand la session est jetée."""
+        self._identities.pop(netloc, None)
+
     def _user_agent(self) -> str:
         agents = self.config.get("http.user_agents", []) or [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -451,7 +499,9 @@ class HttpClient:
             "Upgrade-Insecure-Requests": "1",
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-Site": (
+                "same-origin" if referer and _same_origin(referer, url) else "none"
+            ),
             "Sec-Fetch-User": "?1",
             "Referer": referer or origin_of(url) + "/",
         }
@@ -567,8 +617,18 @@ class HttpClient:
 
     @staticmethod
     def _looks_blocked(text: str) -> bool:
-        sample = (text or "")[:20000].lower()
-        return any(marker in sample for marker in BLOCK_MARKERS)
+        """Page de blocage ? La présence de la grille d'annonces tranche.
+
+        Un vrai catalogue contient ``data-testid="grid-item"`` : dans ce cas,
+        aucun marqueur ne doit faire conclure à un blocage. Sans cette garde,
+        le mot « datadome » présent dans le HTML normal suffisait à déclarer
+        chaque page bloquée — symptôme observé : « blocage anti-bot (HTTP 200) »
+        à chaque scan, zéro annonce, session pourtant valide.
+        """
+        sample = (text or "").lower()
+        if GRID_PRESENT_MARKERS and any(m in sample for m in GRID_PRESENT_MARKERS):
+            return False
+        return any(marker in sample[:20000] for marker in BLOCK_MARKERS)
 
     async def _smart_sleep(
         self, attempt: int, reason: str, profile_id: int | None = None
@@ -579,6 +639,10 @@ class HttpClient:
         seconds = backoff[min(attempt, len(backoff) - 1)]
         # Jitter : évite les reprises synchronisées (signature de bot).
         seconds = round(seconds * random.uniform(0.8, 1.3), 1)
+        if "200" in reason:
+            # Page de vérification (HTTP 200) : ce n'est pas un quota épuisé.
+            # Attendre 30-60 s ne sert à rien et bloque le reste du programme.
+            seconds = min(seconds, 5.0)
         self._stats["cooldown_until"] = time.time() + seconds
         self.db.log(
             "WARNING", f"Smart sleep {seconds:.0f}s — {reason}", profile_id=profile_id
@@ -638,7 +702,8 @@ class HttpClient:
 
         tried: set[str] = set()
         last = HttpResponse(url=url)
-        ua = self._user_agent()
+        netloc = urlparse(url).netloc
+        ua = self._identity_for(netloc)
 
         for attempt in range(attempts):
             proxy_entry = await self.proxies.pick(tried) if want_proxy else None
@@ -686,7 +751,10 @@ class HttpClient:
                 self._stats["blocked"] += 1
                 self._stats["last_block_at"] = time.time()
                 await self.proxies.report_failure(proxy, f"HTTP {status}")
-                ua = self._user_agent()  # nouvel UA pour la tentative suivante
+                # Nouvel UA seulement si la session est réellement jetée.
+                if status in {403, 429, 451}:
+                    self._identities.pop(netloc, None)
+                    ua = self._identity_for(netloc)
                 # Blocage « dur » (403/429/451) : la session est brûlée, on repart
                 # à zéro. Défi Datadome rendu en HTTP 200 : au contraire, on
                 # GARDE les cookies — le cookie datadome posé par la page de
@@ -703,8 +771,8 @@ class HttpClient:
                 if attempt < attempts - 1:
                     if not quiet:
                         hard = status in {403, 429, 451}
-                        if status == 200 and _is_challenge(text):
-                            detail = "défi navigateur Datadome"
+                        if status == 200:
+                            detail = block_reason(text)
                         elif hard:
                             detail = "session refusée"
                         else:
@@ -769,6 +837,7 @@ class HttpClient:
                 return True
             if force:
                 self._cookies.pop(netloc, None)
+                self.rotate_identity(netloc)
                 self._stats["session_renewals"] += 1
                 await (
                     self._reset_transports()

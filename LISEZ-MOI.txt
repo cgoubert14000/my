@@ -1,30 +1,34 @@
 ==========================================================
-  VINTED SNIPER 1.3.3  —  demarrage en 30 secondes
+  VINTED SNIPER 1.3.4  —  demarrage en 30 secondes
 
-  NOUVEAU EN 1.3.3  (blocage "HTTP 200" de Vinted)
-  - Les cookies ne sont PLUS jetes quand Vinted renvoie sa page de
-    verification (HTTP 200) : c'est le cookie datadome qui permet de
-    repasser. Purge uniquement sur un vrai refus (403/429).
-  - La session n'est plus renouvelee a chaque scan bloque : seulement
-    apres 3 blocages consecutifs (avant : a chaque passage, et ca
-    re-declenchait un blocage).
-  - Reprise rapide : 20 s, 40 s, 80 s (plafond 90 s) au lieu de 4 min
-    puis 15 min. On ne perd plus des annonces pendant l'attente.
-  - Journal plus clair : "defi navigateur Datadome" au lieu de
-    "blocage anti-bot", et "cookies conserves" quand c'est le cas.
+  IMPORTANT SI VOUS AVIEZ "blocage anti-bot (HTTP 200)" A CHAQUE SCAN
+  - Le mot "datadome" etait present dans la liste des signaux de
+    blocage... or la page catalogue NORMALE de Vinted charge ce script.
+    Resultat : des pages parfaitement valides etaient declarees
+    bloquees, et aucune annonce n'etait lue. Corrige : un blocage n'est
+    retenu que si la grille d'annonces est absente.
+  - Le User-Agent changeait a chaque requete alors que les cookies
+    restaient : empreinte incoherente pour Datadome, donc nouveau defi
+    a chaque passage. Une seule identite par domaine desormais.
+  - Le journal dit maintenant POURQUOI : "page « just a moment »",
+    "defi Datadome « captcha-delivery »", etc.
+  - Une page de verification HTTP 200 ne provoque plus 30-60 s d'attente
+    (5 s max) : ce n'est pas un quota epuise.
 
-  SI LE BLOCAGE PERSISTE (ca arrive, c'est lie a votre IP)
-  1. Attendez 15 a 60 min sans interroger Vinted.
-  2. Ne cliquez pas "scan" en boucle : chaque clic relance un defi.
-  3. Reglages -> "Utiliser les proxys" (un proxy residentiel si possible),
-     puis relancez. Les proxys publics gratuits sont souvent bloques.
-  4. Gardez pages = 1 et un profil par theme.
+  NOUVEAU EN 1.3.3
+  - Cookies conserves sur un HTTP 200, session renouvelee seulement
+    apres 3 blocages consecutifs, reprise en 20/40/80 s (plafond 90 s).
 
   RAPPEL 1.3.2
-  - Temps reel : 1 tentative / 10 s (plus de blocage a 90 s).
-  - Fiche article bornee a 3,5 s : l'alerte Discord n'attend jamais.
+  - Temps reel : 1 tentative / 10 s ; fiche article bornee a 3,5 s.
   - Journal du dashboard pousse en direct, interface sans clignotement.
-  - Marques : import complet (~57 000) avec progression, "cp" trouve
-    C.P. Company, "hm" trouve H&M.
+  - Marques : import complet (~57 000) avec progression.
   - Tailles : lettres, pointures 35 -> 43, bloc XS/34/6 -> XXL/44/16,
     6 etats, 12 couleurs.
+
+  SI CA BLOQUE ENCORE
+  1. Regardez le motif entre guillemets dans le journal.
+  2. "just a moment" ou "captcha-delivery" = defi navigateur : attendez
+     15 a 60 min sans interroger Vinted, ou changez d'IP (partage de
+     connexion du telephone, proxy residentiel).
+  3. Ne cliquez pas "scan" en boucle : chaque clic relance un defi.

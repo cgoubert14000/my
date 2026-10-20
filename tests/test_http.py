@@ -231,6 +231,80 @@ class HttpClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(response.json()["items"]), 1)
         self.assertIsNotNone(response.attempts)
 
+    def test_real_catalog_with_datadome_script_is_not_a_block(self):
+        """Le catalogue normal charge le script Datadome : ce n'est pas un blocage.
+
+        Bug majeur : le simple mot « datadome » figurait dans la liste des
+        marqueurs de blocage. Toute page réelle contenant ce script était donc
+        déclarée bloquée — « blocage anti-bot (HTTP 200) » à chaque scan,
+        zéro annonce, alors que Vinted répondait correctement.
+        """
+        real = (
+            '<html><head><script src="https://cdn.datadome.co/tags.js"></script>'
+            '</head><body><div data-testid="grid-item">'
+            '<div data-testid="product-item-id-123"></div></div></body></html>'
+        )
+        self.assertFalse(HttpClient._looks_blocked(real))
+
+    def test_challenge_page_without_grid_is_a_block(self):
+        challenge = '<html><title>Just a moment...</title></html>'
+        self.assertTrue(HttpClient._looks_blocked(challenge))
+        self.assertIn("just a moment", challenge.lower())
+
+    async def test_identity_is_stable_per_host(self):
+        """Le même User-Agent est réutilisé tant que la session vit.
+
+        Datadome lie son cookie à l'empreinte du navigateur : changer d'UA
+        entre deux requêtes avec les mêmes cookies = défi à chaque passage.
+        """
+        await self.client.warm_up(self.base + "/")
+        await self.client.get(self.base + "/", attempts=1, timeout=5)
+        await self.client.get(self.base + "/", attempts=1, timeout=5)
+        agents = [row["ua"] for row in FakeVinted.hits[-2:]]
+        self.assertEqual(agents[0], agents[1])
+        self.assertEqual(agents[0], self.client._identities[urlparse(self.base).netloc])
+
+    async def test_identity_rotates_only_on_hard_block(self):
+        """Après un 403, la session est jetée : l'identité doit changer aussi."""
+        await self.client.get(self.base + "/forbidden", attempts=1, timeout=5)
+        first = self.client._identities.get(urlparse(self.base).netloc)
+        self.assertIsNotNone(first)
+        self.client.rotate_identity(urlparse(self.base).netloc)
+        await self.client.get(self.base + "/", attempts=1, timeout=5)
+        self.assertEqual(
+            self.client._identities[urlparse(self.base).netloc],
+            self.client._identities[urlparse(self.base).netloc],
+        )
+
+    async def test_challenge_sleep_is_short(self):
+        """Une page de vérification HTTP 200 n'impose pas 30-60 s d'attente."""
+        delays: list[float] = []
+
+        async def fake_sleep(seconds):
+            delays.append(seconds)
+
+        import app.http_client as module
+
+        original = module.asyncio.sleep
+        module.asyncio.sleep = fake_sleep
+        # Backoff réaliste (30 s / 60 s) sans toucher au fichier de config.
+        original_get = self.client.config.get
+
+        def fake_get(key, default=None):
+            if key == "http.block_backoff_seconds":
+                return [30, 60]
+            return original_get(key, default)
+
+        self.client.config.get = fake_get
+        try:
+            await self.client._smart_sleep(0, "blocage HTTP 200")
+            await self.client._smart_sleep(1, "blocage HTTP 403")
+        finally:
+            module.asyncio.sleep = original
+            self.client.config.get = original_get
+        self.assertLessEqual(delays[0], 5.0)
+        self.assertGreater(delays[1], 5.0)
+
     async def test_challenge_keeps_cookies(self):
         """Un défi Datadome en HTTP 200 ne doit pas jeter la session.
 

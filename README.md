@@ -656,11 +656,14 @@ Vinted ne renvoie pas une erreur : il renvoie **HTTP 200 avec une page de
 vérification** (Datadome). Trois comportements rendaient la situation pire
 qu'elle ne l'est, et sont corrigés :
 
-| Avant 1.3.3 | Depuis 1.3.3 |
+| Avant | Depuis |
 | --- | --- |
 | Les cookies étaient **purgés** à chaque page de vérification | Les cookies sont **conservés** sur un HTTP 200 : le cookie `datadome` posé par la page est justement ce qui permet de repasser. Purge uniquement sur 403/429/451. |
 | La session était **renouvelée à chaque scan** bloqué (2 requêtes + nouvelle empreinte) | Renouvellement seulement après **3 blocages consécutifs** (ou un blocage dur) |
 | Reprise après **4 min**, puis 15 min | Reprise après **20 s**, puis 40 s, 80 s — plafond **90 s** |
+| Le **User-Agent changeait à chaque requête** alors que les cookies restaient | **Une identité par domaine** : Datadome lie son cookie à l'empreinte du navigateur, changer d'UA en gardant les cookies déclenchait un défi à chaque passage (1.3.4) |
+| Le mot « datadome » figurait dans les **marqueurs de blocage** — or la page catalogue normale charge ce script | Un blocage n'est retenu que si la **grille d'annonces est absente** ; le journal nomme le marqueur exact (`page « just a moment »`, `défi Datadome « captcha-delivery »`) (1.3.4) |
+| Attente de 30-60 s après une page de vérification HTTP 200 | Pause plafonnée à **5 s** : ce n'est pas un quota épuisé (1.3.4) |
 
 Ce qui reste vrai, sans langue de bois : un défi Datadome est lié à votre
 adresse IP. Si Vinted le sert à chaque requête, aucun outil honnête ne peut le
