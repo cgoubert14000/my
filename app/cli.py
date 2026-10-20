@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import socket
 import sys
 import threading
@@ -175,7 +176,28 @@ def run_check(state: AppState, args) -> int:
     return 1
 
 
+def _prepare_frozen_runtime() -> None:
+    """Exécutable autonome : tout se passe à côté du binaire.
+
+    Sans cela, un double-clic depuis un autre dossier créerait ``data/`` et
+    ``config.json`` n'importe où, et la console Windows pourrait planter sur les
+    emojis (cp1252).
+    """
+    if not getattr(sys, "frozen", False):
+        return
+    try:
+        os.chdir(Path(sys.executable).resolve().parent)
+    except OSError:
+        pass
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+        except (AttributeError, OSError, ValueError):
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _prepare_frozen_runtime()
     args = build_parser().parse_args(argv)
     config_path = Path(args.config)
     if not config_path.exists() and config_path == Path("config.json"):

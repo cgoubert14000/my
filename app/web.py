@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import binascii
 import secrets
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -17,7 +18,19 @@ from .api import router
 from .config import ConfigError
 from .state import AppState
 
-STATIC_DIR = Path(__file__).parent / "static"
+def _static_dir() -> Path:
+    """Dossier des fichiers statiques, y compris dans un exécutable PyInstaller."""
+    candidates = [Path(__file__).parent / "static"]
+    bundle = getattr(sys, "_MEIPASS", None)
+    if bundle:
+        candidates.insert(0, Path(bundle) / "app" / "static")
+    for candidate in candidates:
+        if candidate.is_dir():
+            return candidate
+    return candidates[0]
+
+
+STATIC_DIR = _static_dir()
 
 
 def create_app(state: AppState) -> FastAPI:

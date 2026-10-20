@@ -27,7 +27,20 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
       - name: Build executable
-        run: python tools/build_executable.py
+        shell: bash
+        run: |
+          set +e
+          python tools/build_executable.py > build.log 2>&1
+          status=$?
+          echo "exit=$status"
+          tail -60 build.log
+          {
+            echo "### Build exit: $status"
+            echo '```'
+            tail -60 build.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
       - name: Smoke test
         shell: pwsh
         run: |
@@ -56,7 +69,20 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
       - name: Build executable
-        run: python tools/build_executable.py
+        shell: bash
+        run: |
+          set +e
+          python tools/build_executable.py > build.log 2>&1
+          status=$?
+          echo "exit=$status"
+          tail -60 build.log
+          {
+            echo "### Build exit: $status"
+            echo '```'
+            tail -60 build.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
       - name: Smoke test
         run: |
           ./dist/vinted-sniper --no-browser --port 8124 &
