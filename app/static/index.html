@@ -223,6 +223,16 @@
             <input type="url" id="cfgSolverUrl" placeholder="http://127.0.0.1:8191"></label>
           <label class="switch-line"><span>Fenêtre invisible (headless)</span>
             <input type="checkbox" id="cfgHeadless" class="switch"></label>
+          <details class="curl-help">
+            <summary>Secours : coller une session copiée du navigateur</summary>
+            <p class="hint">Dans Edge ou Chrome : <b>F12</b> → onglet <b>Réseau</b> → clic droit sur la
+              requête <code>catalog</code> → <b>Copier → Copier en tant que cURL</b>. Collez la
+              commande ici : les cookies (y compris <code>cf_clearance</code>) et le User-Agent exact
+              sont récupérés ensemble, ce que Cloudflare exige.</p>
+            <textarea id="cfgCurl" rows="4" placeholder="curl 'https://www.vinted.fr/catalog?...' -H 'Cookie: cf_clearance=...'"></textarea>
+            <button class="btn btn-ghost btn-sm" type="button" id="cfgCurlImport">Importer cette session</button>
+            <p class="hint" id="cfgCurlStatus"></p>
+          </details>
         </fieldset>
         <label class="field"><span>Webhook Discord par défaut</span>
           <input type="url" id="cfgWebhook" placeholder="https://discord.com/api/webhooks/…"></label>

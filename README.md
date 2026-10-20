@@ -665,6 +665,28 @@ qu'elle ne l'est, et sont corrigés :
 | Le mot « datadome » figurait dans les **marqueurs de blocage** — or la page catalogue normale charge ce script | Un blocage n'est retenu que si la **grille d'annonces est absente** ; le journal nomme le marqueur exact (`page « just a moment »`, `défi Datadome « captcha-delivery »`) (1.3.4) |
 | Attente de 30-60 s après une page de vérification HTTP 200 | Pause plafonnée à **5 s** : ce n'est pas un quota épuisé (1.3.4) |
 
+### 1.3.8 — « Le navigateur n'a pas ouvert son port de débogage »
+
+Cette erreur est apparue chez un utilisateur sous Windows. Trois causes
+possibles, toutes traitées :
+
+| Cause | Correction 1.3.8 |
+| --- | --- |
+| Profil de débogage **déjà verrouillé** par une fenêtre restée ouverte : le nouveau processus se contente de rouvrir l'ancienne et sort sans port | le lancement est rejoué avec un **profil système neuf**, puis avec **un autre navigateur** (Chrome si Edge échoue) — jusqu'à 4 tentatives |
+| Le navigateur s'arrête aussitôt (stratégie Windows, antivirus, profil insolite) | le **code de sortie** et la **sortie d'erreur** du navigateur sont désormais remontés dans le message, au lieu d'un simple délai dépassé |
+| Port de débogage jamais détecté | port choisi explicitement, puis vérifié en **HTTP** (`/json/version`) en plus du fichier `DevToolsActivePort`, avec chemin de profil **absolu** |
+
+Et un **secours qui marche toujours**, sans aucune automatisation :
+
+> Réglages → *Déblocage Cloudflare* → **Secours : coller une session copiée du navigateur**.
+
+Dans Edge ou Chrome : `F12` → onglet **Réseau** → clic droit sur la requête
+`catalog` → **Copier → Copier en tant que cURL** → coller → *Importer cette
+session*. La commande contient les cookies `HttpOnly` (`cf_clearance`) **et**
+le User-Agent exact ; le bot récupère les deux ensemble, ce que Cloudflare
+exige, puis relance les profils. C'est l'équivalent d'un FlareSolverr, mais
+avec le navigateur que vous avez déjà.
+
 ### 1.3.7 — débloquer une vérification Cloudflare, gratuitement
 
 Le bouton **🔓 Débloquer avec mon navigateur** (bandeau rouge du dashboard)

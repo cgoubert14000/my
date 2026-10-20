@@ -249,10 +249,16 @@ class FakeCDP:
             ).encode()
         )
         while True:
-            message = self._read(client)
+            try:
+                message = self._read(client)
+            except OSError:
+                return
             if message is None:
                 return
-            payload = json.loads(message)
+            try:
+                payload = json.loads(message)
+            except json.JSONDecodeError:
+                return  # trame incomplète (client fermé) : on s'arrête proprement
             self.requests.append(payload.get("method"))
             method = payload.get("method")
             if method == "Runtime.evaluate":
@@ -317,47 +323,82 @@ class HarvestTests(unittest.TestCase):
         self.addCleanup(self.fake.close)
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        _Path(self.tmp.name).joinpath("DevToolsActivePort").write_text(
+        self.profile = _Path(self.tmp.name)
+        self.profile.joinpath("DevToolsActivePort").write_text(
             f"{self.fake.port}\n/devtools/browser/xyz\n", encoding="utf-8"
         )
+        self.launched: list[tuple[str, list[str]]] = []
 
-    def _launch(self, *page_updates, timeout=8):
-        """Joue ``harvest_with_browser`` sans lancer de vrai processus."""
-        import app.browser_session as module
+    def _patch(self, module, *, exit_code=None, port_ok=True, fail_first=0):
+        """Prépare un faux lancement : aucun vrai processus n'est créé."""
+        state = {"calls": 0}
+        originals = {
+            name: getattr(module, name)
+            for name in (
+                "find_browser",
+                "_installed_browsers",
+                "subprocess",
+                "_await_devtools",
+                "_page_ws_url",
+                "_free_port",
+            )
+        }
 
-        if page_updates:
-            self.fake.page.update(page_updates[0])
+        class FakeProc:
+            def __init__(self, code):
+                self.pid = 4242
+                self.returncode = code
 
-        originals = (module._devtools_endpoint, module._page_ws_url,
-                     module.find_browser, module.subprocess.Popen)
-        module._devtools_endpoint = lambda _profile, _deadline: (
-            self.fake.port, "/devtools/browser/xyz"
-        )
-        module._page_ws_url = lambda _port, _deadline: (
+            def poll(self):
+                return self.returncode
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                pass
+
+            def kill(self):
+                pass
+
+        class FakeSubprocess:
+            Popen = staticmethod(lambda args, **kwargs: self.launched.append((args[0], args)) or FakeProc(exit_code))
+            DEVNULL = -3
+            CREATE_NO_WINDOW = 0
+
+        module.subprocess = FakeSubprocess
+        module.find_browser = lambda explicit="": "/opt/faux-chrome"
+        module._installed_browsers = lambda: ["/opt/faux-chrome", "/opt/autre-edge"]
+        module._free_port = lambda: 9500
+
+        def fake_await(profile_dir, port, process, stderr_path, deadline):
+            state["calls"] += 1
+            if state["calls"] <= fail_first:
+                raise module.BrowserError("Le navigateur s'est arrêté aussitôt (code 21).")
+            if not port_ok:
+                raise module.BrowserError("Le navigateur n'a pas ouvert son port de débogage.")
+            return self.fake.port
+
+        module._await_devtools = fake_await
+        module._page_ws_url = lambda port, deadline: (
             f"ws://127.0.0.1:{self.fake.ws_port}/devtools/page/A"
         )
-        module.find_browser = lambda explicit="": "/usr/bin/faux-chrome"
-        module.subprocess.Popen = lambda *args, **kwargs: type(
-            "Proc",
-            (),
-            {
-                "terminate": lambda self: None,
-                "wait": lambda self, timeout=None: 0,
-                "kill": lambda self: None,
-            },
-        )()
-        try:
-            return module.harvest_with_browser(
-                "https://www.vinted.fr/catalog?search_text=nike",
-                profile_dir=self.tmp.name,
-                timeout=timeout,
-            )
-        finally:
-            (module._devtools_endpoint, module._page_ws_url,
-             module.find_browser, module.subprocess.Popen) = originals
+        self.addCleanup(lambda: [setattr(module, k, v) for k, v in originals.items()])
+        return module
+
+    def _harvest(self, **kwargs):
+        import app.browser_session as module
+
+        options = {"profile_dir": self.tmp.name, "timeout": 8}
+        options.update(kwargs)
+        self._patch(module, **{k: options.pop(k) for k in list(options) if k in
+                               {"exit_code", "port_ok", "fail_first"}})
+        return module.harvest_with_browser(
+            "https://www.vinted.fr/catalog?search_text=nike", **options
+        )
 
     def test_harvest_imports_clearance_cookie_and_user_agent(self):
-        result = self._launch()
+        result = self._harvest()
         self.assertTrue(result.ok, result.message)
         self.assertIn("cf_clearance", result.cookies)
         self.assertEqual(result.cookies["cf_clearance"], "clear123")
@@ -368,24 +409,132 @@ class HarvestTests(unittest.TestCase):
         self.assertIn("Network.getAllCookies", self.fake.requests)
         self.assertTrue(result.cleared)
 
+    def test_launch_uses_an_absolute_profile_and_an_explicit_port(self):
+        self._harvest()
+        self.assertTrue(self.launched, "aucun navigateur lancé")
+        args = self.launched[0][1]
+        profile_arg = next(a for a in args if a.startswith("--user-data-dir="))
+        # Chemin absolu : Edge ne doit pas résoudre « data\… » à sa façon.
+        self.assertTrue(profile_arg.split("=", 1)[1].startswith(("/", "C:", "c:")))
+        self.assertTrue(any(a.startswith("--remote-debugging-port=") for a in args))
+
     def test_an_empty_result_page_still_counts_as_solved(self):
-        """Recherche sans résultat : pas de cartes, mais la page Vinted est là."""
-        result = self._launch({"cards": 0, "app": True, "blocked": False})
+        import app.browser_session as module
+
+        self.fake.page.update({"cards": 0, "app": True, "blocked": False})
+        originals = dict(self.fake.page)
+        try:
+            result = self._harvest()
+        finally:
+            self.fake.page.update(originals)
         self.assertTrue(result.ok, "une page vide ne doit pas être vue comme un blocage")
         self.assertTrue(result.cookies)
+        _ = module
 
     def test_a_challenge_page_is_not_reported_as_solved(self):
         """Défi encore affiché : on ne prétend pas avoir débloqué."""
         self.fake.page.update({"cards": 0, "app": False, "blocked": True})
-        originals = self.fake.page.copy()
+        originals = dict(self.fake.page)
         try:
-            result = self._launch(timeout=2.5)
+            result = self._harvest()
         finally:
             self.fake.page.update(originals)
         self.assertFalse(result.ok)
         self.assertIn("vérification", result.message.lower())
-        # Les cookies sont tout de même remontés pour diagnostic, jamais importés.
-        self.assertTrue(result.cookies)
+        self.assertTrue(result.cookies)  # remontés pour diagnostic, jamais importés
+
+    def test_retries_with_a_fresh_profile_when_the_first_launch_fails(self):
+        """Panne constatée en 1.3.7 : profil verrouillé → on réessaie ailleurs."""
+        import app.browser_session as module
+
+        options = {"profile_dir": self.tmp.name, "timeout": 8, "fail_first": 1}
+        self._patch(module, fail_first=1)
+        result = module.harvest_with_browser(
+            "https://www.vinted.fr/catalog", profile_dir=self.tmp.name, timeout=8
+        )
+        _ = options
+        self.assertTrue(result.ok)
+        profiles = [
+            next(a for a in args if a.startswith("--user-data-dir="))
+            for _, args in self.launched
+        ]
+        self.assertEqual(len(profiles), 2, "deux tentatives attendues")
+        self.assertNotEqual(profiles[0], profiles[1], "le second essai doit changer de profil")
+
+    def test_switches_to_another_browser_after_two_failures(self):
+        import app.browser_session as module
+
+        self._patch(module, fail_first=2)
+        result = module.harvest_with_browser(
+            "https://www.vinted.fr/catalog", profile_dir=self.tmp.name, timeout=8
+        )
+        self.assertTrue(result.ok)
+        executables = {path for path, _ in self.launched}
+        self.assertEqual(len(executables), 2, "un autre navigateur doit être essayé")
+
+    def test_reports_every_failure_with_actionable_text(self):
+        import app.browser_session as module
+
+        self._patch(module, port_ok=False)
+        with self.assertRaises(module.BrowserError) as caught:
+            module.harvest_with_browser(
+                "https://www.vinted.fr/catalog", profile_dir=self.tmp.name, timeout=2
+            )
+        message = str(caught.exception)
+        self.assertIn("Déblocage impossible", message)
+        self.assertIn("port de débogage", message)
+        self.assertIn("Réglages", message)
+
+
+class CurlImportTests(unittest.TestCase):
+    """Secours : une commande cURL copiée du navigateur."""
+
+    CHROME = (
+        "curl 'https://www.vinted.fr/catalog?brand_ids[]=53' \\\n"
+        "  -H 'accept: text/html' \\\n"
+        "  -H 'Cookie: cf_clearance=abc123; datadome=xyz; _vinted_fr_session=t' \\\n"
+        "  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/141' \\\n"
+        "  --compressed"
+    )
+
+    def test_parses_cookies_and_user_agent(self):
+        from app.browser_session import session_from_curl
+
+        session = session_from_curl(self.CHROME)
+        self.assertEqual(session["cookies"]["cf_clearance"], "abc123")
+        self.assertEqual(session["cookies"]["datadome"], "xyz")
+        self.assertIn("Chrome/141", session["user_agent"])
+        self.assertTrue(session["clearance"])
+        self.assertEqual(session["url"], "https://www.vinted.fr/catalog?brand_ids[]=53")
+
+    def test_accepts_windows_cmd_continuations_and_cookie_flag(self):
+        from app.browser_session import session_from_curl
+
+        command = (
+            'curl.exe "https://www.vinted.fr/catalog" ^\n'
+            ' -b "cf_clearance=zzz; datadome=dd" ^\n'
+            ' -H "User-Agent: Mozilla/5.0 (Linux) Chrome/140"'
+        )
+        session = session_from_curl(command)
+        self.assertEqual(session["cookies"]["cf_clearance"], "zzz")
+        self.assertIn("Linux", session["user_agent"])
+
+    def test_refuses_non_curl_and_missing_cookies(self):
+        from app.browser_session import session_from_curl
+
+        with self.assertRaises(ValueError):
+            session_from_curl("wget https://www.vinted.fr")
+        with self.assertRaises(ValueError):
+            session_from_curl("curl 'https://www.vinted.fr/catalog' -H 'accept: */*'")
+
+    def test_without_clearance_the_import_is_flagged(self):
+        from app.browser_session import session_from_curl
+
+        session = session_from_curl(
+            "curl 'https://www.vinted.fr/catalog' -H 'Cookie: _vinted_fr_session=t'"
+        )
+        self.assertFalse(session["clearance"])
+        self.assertEqual(session["cookies"], {"_vinted_fr_session": "t"})
 
 
 class SolverTests(unittest.TestCase):

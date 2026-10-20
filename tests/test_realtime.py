@@ -844,6 +844,29 @@ class StreamEndpointTests(unittest.TestCase):
         self.assertEqual(response.status_code, 502)
         self.assertIn("Aucun navigateur", response.json()["detail"])
 
+    def test_import_curl_session_imports_cookies_and_resumes(self):
+        command = (
+            "curl 'https://www.vinted.fr/catalog?brand_ids[]=53' "
+            "-H 'Cookie: cf_clearance=abc; datadome=dd' "
+            "-H 'User-Agent: Mozilla/5.0 (Windows NT 10.0) Chrome/141'"
+        )
+        self.state.engine._next_run[self.profile_id] = time.time() + 300
+        response = self.client.post("/api/session/import", json={"command": command})
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertTrue(payload["clearance"])
+        self.assertEqual(self.state.client._cookies["www.vinted.fr"]["cf_clearance"], "abc")
+        self.assertIn("Chrome/141", self.state.client._identities["www.vinted.fr"])
+        self.assertLessEqual(self.state.engine._next_run[self.profile_id], time.time())
+
+    def test_import_refuses_a_command_without_cookies(self):
+        response = self.client.post(
+            "/api/session/import", json={"command": "curl 'https://www.vinted.fr/catalog'"}
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("cookie", response.json()["detail"].lower())
+
     def test_status_publishes_challenge_capabilities(self):
         info = self.client.get("/api/status").json()["challenge"]
         self.assertIn("browser", info)

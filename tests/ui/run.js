@@ -91,6 +91,11 @@ window.fetch = async (url, opts = {}) => {
   calls.push({ url: String(url), method: opts.method || 'GET', body: opts.body });
   const u = String(url);
   if (u.includes('/api/status')) return reply(status);
+  if (u.includes('/api/session/import')) return reply({
+    ok: true, resumed: 1, clearance: true,
+    session: { netloc: 'www.vinted.fr', imported: 3 },
+    detail: '3 cookie(s) importé(s).',
+  });
   if (u.includes('/api/session/unblock')) return reply({
     ok: true, resumed: 1,
     harvest: { ok: true, solved: true, cookies: ['cf_clearance', 'datadome'], source: 'browser' },
@@ -545,6 +550,18 @@ setTimeout(async () => {
     'bandeau retiré après le blocage');
   assert(document.querySelector('#engineLabel').textContent.includes('En veille'),
     'pastille moteur revenue à la normale');
+
+  // Secours cURL : coller une commande du navigateur importe la session
+  calls.length = 0;
+  document.querySelector('#cfgCurl').value = "curl 'https://www.vinted.fr/catalog' -H 'Cookie: cf_clearance=abc'";
+  click(document.querySelector('#cfgCurlImport'));
+  await new Promise((r) => setTimeout(r, 150));
+  const curlCall = calls.find((c) => c.url.includes('/api/session/import'));
+  assert(Boolean(curlCall), 'secours cURL : appel /api/session/import');
+  assert(curlCall && JSON.parse(curlCall.body).command.includes('cf_clearance'),
+    'secours cURL : commande transmise');
+  assert(document.querySelector('#cfgCurlStatus').textContent.includes('cf_clearance'),
+    'secours cURL : confirmation affichée');
 
   assert(errors.length === 0, 'aucune erreur JS : ' + errors.join(' | '));
   window.close();

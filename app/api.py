@@ -38,13 +38,14 @@ from .categories import (
     sanitize_path,
     top_level,
 )
-from .browser_session import BrowserError, SolverError, harvest
+from .browser_session import BrowserError, SolverError, harvest, session_from_curl
 from .config import ConfigError
 from .filters import matches_profile
 from .vinted_filters import apply_filters, catalogue as filter_catalogue, read_filters
 from .diagnostics import run_diagnostics
 from .models import (
     ConfigPatch,
+    CurlIn,
     DiagnoseIn,
     ProfileIn,
     ProfileOut,
@@ -888,6 +889,41 @@ async def unblock(payload: UnblockIn, request: Request) -> dict:
             "resumed": resumed,
             "detail": f"{imported['imported']} cookie(s) importé(s) pour {netloc}.",
         }
+
+
+@router.post("/session/import")
+async def import_session(payload: CurlIn, request: Request) -> dict:
+    """Importe une session copiée du navigateur (« Copier en tant que cURL »).
+
+    Secours quand le pilotage automatique est refusé (stratégie Windows,
+    antivirus, navigateur exotique) : la commande cURL contient les cookies
+    ``HttpOnly`` et le User-Agent exact, seuls éléments que Cloudflare accepte.
+    """
+    state = _state(request)
+    try:
+        session = session_from_curl(payload.command)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from None
+    imported = state.client.import_session(
+        session["cookies"],
+        session["user_agent"],
+        netloc=urlparse(session["url"]).netloc or "www.vinted.fr",
+    )
+    resumed = state.engine.resume_after_unblock()
+    state.db.log(
+        "INFO",
+        f"Session importée depuis le navigateur ({imported['imported']} cookie(s), "
+        f"clearance : {'oui' if imported['clearance'] else 'non'}) — "
+        f"{resumed} profil(s) relancé(s).",
+        source="challenge",
+    )
+    return {
+        "ok": True,
+        "session": imported,
+        "resumed": resumed,
+        "clearance": imported["clearance"],
+        "detail": f"{imported['imported']} cookie(s) importé(s) pour {imported['netloc']}.",
+    }
 
 
 # ── Flux temps réel (Server-Sent Events) ─────────────────────────────────────

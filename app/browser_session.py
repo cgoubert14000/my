@@ -37,6 +37,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import shutil
 import socket
 import struct
@@ -370,18 +371,81 @@ class _CDP:
             return payload.get("result", {})
 
 
-def _devtools_endpoint(profile_dir: Path, deadline: float) -> tuple[int, str]:
-    """Attend que le navigateur écrive ``DevToolsActivePort`` et le lit."""
+def _free_port() -> int:
+    """Port TCP libre choisi par l'OS."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.bind(("127.0.0.1", 0))
+        return int(probe.getsockname()[1])
+
+
+def _http_ok(url: str, timeout: float = 1.5) -> bool:
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:  # noqa: S310
+            response.read(512)
+        return True
+    except Exception:
+        return False
+
+
+def _active_port(profile_dir: Path) -> int | None:
+    """Port inscrit par le navigateur dans ``DevToolsActivePort`` (source sûre)."""
     port_file = profile_dir / "DevToolsActivePort"
+    try:
+        content = port_file.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
+    if content and content[0].strip().isdigit():
+        return int(content[0].strip())
+    return None
+
+
+def _stderr_tail(path: Path, limit: int = 400) -> str:
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace").strip()
+    except OSError:
+        return ""
+    return text[-limit:].replace("\n", " ")
+
+
+def _await_devtools(
+    profile_dir: Path,
+    port: int,
+    process: subprocess.Popen,
+    stderr_path: Path,
+    deadline: float,
+) -> int:
+    """Attend que DevTools réponde, puis renvoie le port réellement ouvert.
+
+    Deux sources, dans cet ordre :
+
+    1. ``DevToolsActivePort`` écrit par le navigateur (valeur exacte) ;
+    2. le port demandé, sondé en HTTP — utile si Edge/Chrome ignore le fichier.
+
+    Si le processus meurt avant, on remonte son code de sortie et sa sortie
+    d'erreur : c'est ce qui distingue « profil verrouillé » d'un simple
+    ralentissement.
+    """
     while time.monotonic() < deadline:
-        if port_file.is_file():
-            content = port_file.read_text(encoding="utf-8", errors="replace").splitlines()
-            if content and content[0].strip().isdigit():
-                return int(content[0].strip()), (content[1].strip() if len(content) > 1 else "")
-        time.sleep(0.15)
+        candidate = _active_port(profile_dir)
+        if candidate and _http_ok(f"http://127.0.0.1:{candidate}/json/version"):
+            return candidate
+        if _http_ok(f"http://127.0.0.1:{port}/json/version"):
+            return port
+        code = process.poll()
+        if code is not None:
+            detail = _stderr_tail(stderr_path)
+            raise BrowserError(
+                f"Le navigateur s'est arrêté aussitôt (code {code}). "
+                + (f"Détail : {detail}" if detail else
+                   "Le profil de débogage est probablement déjà ouvert ailleurs.")
+            )
+        time.sleep(0.25)
+    detail = _stderr_tail(stderr_path)
     raise BrowserError(
-        "Le navigateur n'a pas ouvert son port de débogage "
-        "(profil déjà utilisé par une autre fenêtre ?)."
+        "Le navigateur n'a pas ouvert son port de débogage"
+        + (f" ({detail})" if detail else "")
+        + ". Une stratégie Windows (« Allow remote debugging ») ou un antivirus "
+        "peut le bloquer."
     )
 
 
@@ -390,7 +454,9 @@ def _page_ws_url(port: int, deadline: float) -> str:
     last_error = ""
     while time.monotonic() < deadline:
         try:
-            with urllib.request.urlopen(f"http://127.0.0.1:{port}/json/list", timeout=3) as response:
+            with urllib.request.urlopen(  # noqa: S310
+                f"http://127.0.0.1:{port}/json/list", timeout=3
+            ) as response:
                 targets = json.loads(response.read().decode("utf-8"))
             pages = [t for t in targets if t.get("type") == "page"]
             if pages:
@@ -400,6 +466,28 @@ def _page_ws_url(port: int, deadline: float) -> str:
             last_error = str(error)
         time.sleep(0.2)
     raise BrowserError(f"Aucune page DevTools disponible ({last_error or 'délai dépassé'}).")
+
+
+def _stop_process(process: subprocess.Popen) -> None:
+    """Ferme le navigateur et ses enfants (Windows : ``taskkill /T``)."""
+    if process.poll() is not None:
+        return
+    try:
+        if sys.platform.startswith("win"):
+            subprocess.run(  # noqa: S603,S607 - commande système fixe
+                ["taskkill", "/F", "/T", "/PID", str(process.pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+        else:
+            process.terminate()
+        process.wait(timeout=8)
+    except Exception:  # pragma: no cover - déjà terminé
+        try:
+            process.kill()
+        except Exception:
+            pass
 
 
 def _cookie_records(raw: list, domain: str) -> dict[str, str]:
@@ -417,6 +505,166 @@ def _cookie_records(raw: list, domain: str) -> dict[str, str]:
     return jar
 
 
+def _installed_browsers() -> list[str]:
+    """Tous les navigateurs Chromium présents, dans l'ordre de préférence."""
+    found: list[str] = []
+    if sys.platform.startswith("win"):
+        for raw in _WINDOWS_CANDIDATES:
+            candidate = Path(os.path.expandvars(raw))
+            if candidate.is_file():
+                found.append(str(candidate))
+    elif sys.platform == "darwin":
+        found = [raw for raw in _MAC_CANDIDATES if Path(raw).is_file()]
+    else:
+        for name in _LINUX_CANDIDATES:
+            path = shutil.which(name)
+            if path:
+                found.append(path)
+    return found
+
+
+def _browser_candidates(explicit: str) -> list[str]:
+    """Navigateurs à essayer, sans doublon : le chemin demandé, puis les autres."""
+    ordered: list[str] = []
+    if explicit:
+        chosen = find_browser(explicit)
+        if chosen:
+            ordered.append(chosen)
+    for path in _installed_browsers():
+        if path not in ordered:
+            ordered.append(path)
+    return ordered
+
+
+def _launch_once(
+    executable: str,
+    url: str,
+    profile_dir: Path,
+    *,
+    headless: bool,
+    timeout: float,
+    log,
+) -> Harvest:
+    """Une tentative : lance UN navigateur, attend DevTools, lit la session."""
+    started = time.monotonic()
+    port = _free_port()
+    profile_dir = profile_dir.resolve()
+    profile_dir.mkdir(parents=True, exist_ok=True)
+    stale = profile_dir / "DevToolsActivePort"
+    if stale.exists():
+        stale.unlink()
+
+    args = [
+        executable,
+        f"--remote-debugging-port={port}",
+        f"--user-data-dir={profile_dir}",
+        "--remote-allow-origins=*",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--no-service-autorun",
+        "--disable-sync",
+        "--disable-blink-features=AutomationControlled",
+        "--disable-features=Translate,MediaRouter,OptimizationHints",
+        "--window-size=1280,900",
+    ]
+    if headless:
+        args.append("--headless=new")
+    args.append(url)
+
+    stderr_path = profile_dir / "browser-stderr.log"
+    log(f"Lancement de {Path(executable).name} (port DevTools {port}, profil {profile_dir})…")
+    with stderr_path.open("wb") as stderr_handle:
+        try:
+            process = subprocess.Popen(  # noqa: S603 - chemin contrôlé, arguments fixes
+                args,
+                stdout=subprocess.DEVNULL,
+                stderr=stderr_handle,
+                stdin=subprocess.DEVNULL,
+                close_fds=True,
+            )
+        except OSError as error:
+            raise BrowserError(f"Lancement impossible ({Path(executable).name}) : {error}") from error
+
+        ws: _WebSocket | None = None
+        try:
+            active = _await_devtools(
+                profile_dir,
+                port,
+                process,
+                stderr_path,
+                min(time.monotonic() + 25, started + timeout),
+            )
+            ws = _WebSocket(_page_ws_url(active, min(time.monotonic() + 15, started + timeout)))
+            cdp = _CDP(ws)
+            try:
+                cdp.call("Network.enable", timeout=10)
+            except BrowserError:
+                pass  # certaines versions l'exposent au niveau navigateur seulement
+
+            probe: dict = {}
+            deadline = started + timeout
+            while time.monotonic() < deadline:
+                try:
+                    result = cdp.call(
+                        "Runtime.evaluate",
+                        {"expression": _PROBE_JS, "returnByValue": True},
+                        timeout=10,
+                    )
+                    value = (result.get("result") or {}).get("value")
+                    probe = json.loads(value) if value else {}
+                except (BrowserError, json.JSONDecodeError):
+                    probe = {}
+                if probe.get("cards", 0) > 0:
+                    break  # grille d'annonces : c'est gagné
+                if (
+                    probe.get("ready") == "complete"
+                    and not probe.get("blocked")
+                    and probe.get("app")
+                ):
+                    break  # page réelle, simplement sans résultat
+                time.sleep(0.6)
+
+            cookies = cdp.call("Network.getAllCookies", timeout=15).get("cookies", [])
+            jar = _cookie_records(cookies, urlparse(url).netloc)
+            user_agent = ""
+            try:
+                ua = cdp.call(
+                    "Runtime.evaluate",
+                    {"expression": "navigator.userAgent", "returnByValue": True},
+                    timeout=10,
+                )
+                user_agent = str((ua.get("result") or {}).get("value") or "")
+            except BrowserError:
+                user_agent = ""
+            page_ok = bool(probe.get("cards", 0) > 0) or bool(
+                probe.get("app") and not probe.get("blocked")
+            )
+            solved = bool(jar) and page_ok
+            return Harvest(
+                ok=solved,
+                cookies=jar,
+                user_agent=user_agent,
+                url=str(probe.get("url") or url),
+                title=str(probe.get("title") or ""),
+                source="browser",
+                solved=solved,
+                cards=int(probe.get("cards") or 0),
+                elapsed_ms=int((time.monotonic() - started) * 1000),
+                message=(
+                    f"Session récupérée ({len(jar)} cookie(s), "
+                    f"{probe.get('cards', 0)} annonce(s) visible(s))."
+                    if solved
+                    else "La vérification n'est pas terminée : terminez-la dans la fenêtre "
+                    "ouverte, puis relancez le déblocage."
+                ),
+                cleared=sorted(n for n in jar if n.startswith(("cf_", "__cf", "datadome"))),
+            )
+        finally:
+            if ws is not None:
+                ws.close()
+            _stop_process(process)
+
+
 def harvest_with_browser(
     url: str,
     *,
@@ -426,140 +674,135 @@ def harvest_with_browser(
     headless: bool = False,
     on_log=None,
 ) -> Harvest:
-    """Ouvre ``url`` dans le navigateur local et récupère cookies + User-Agent.
+    """Ouvre ``url`` dans un navigateur local et récupère cookies + User-Agent.
 
     Le navigateur reste **visible** par défaut : si Cloudflare demande une
     action (case à cocher, « maintenir le bouton »), l'utilisateur la fait et
-    la session est récupérée dès que la page réelle apparaît. Aucun cookie
-    n'est deviné : ils viennent de la session que Vinted vient d'accepter.
+    la session est récupérée dès que la page réelle apparaît.
+
+    Trois tentatives au maximum, dans cet ordre :
+
+    1. le navigateur détecté, avec le profil persistant (session réutilisable) ;
+    2. le même, avec un profil **neuf** — cas d'un profil déjà verrouillé par
+       une fenêtre restée ouverte : c'était la panne constatée en 1.3.7 ;
+    3. les autres navigateurs installés (Chrome si Edge échoue, et inversement).
     """
-    started = time.monotonic()
-    log = on_log or (lambda message: None)
-    executable = find_browser(browser_path)
-    if not executable:
-        raise BrowserError(
-            "Aucun navigateur Chromium trouvé. Installez Microsoft Edge ou Google "
-            "Chrome, ou indiquez son chemin (challenge.browser_path)."
-        )
     if not url.startswith(("http://", "https://")):
         url = "https://" + url.lstrip("/")
-    domain = urlparse(url).netloc
-    profile = Path(profile_dir or Path(tempfile.gettempdir()) / "vinted-sniper-browser")
-    profile.mkdir(parents=True, exist_ok=True)
+    log = on_log or (lambda message: None)
+    base_profile = Path(
+        profile_dir or Path(tempfile.gettempdir()) / "vinted-sniper-browser"
+    )
 
-    # Un ancien DevToolsActivePort ferait croire à un port valide : on l'efface.
-    stale = profile / "DevToolsActivePort"
-    if stale.exists():
-        stale.unlink()
-
-    args = [
-        executable,
-        "--remote-debugging-port=0",
-        f"--user-data-dir={profile}",
-        "--no-first-run",
-        "--no-default-browser-check",
-        "--disable-blink-features=AutomationControlled",
-        "--disable-features=Translate,MediaRouter,OptimizationHints",
-        "--window-size=1280,900",
-    ]
-    if headless:
-        args.append("--headless=new")
-    args.append(url)
-
-    log(f"Ouverture de {domain} dans {Path(executable).name}…")
-    try:
-        process = subprocess.Popen(  # noqa: S603 - chemin contrôlé, arguments fixes
-            args,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            stdin=subprocess.DEVNULL,
+    candidates = _browser_candidates(browser_path)
+    if not candidates:
+        raise BrowserError(
+            "Aucun navigateur Chromium trouvé. Microsoft Edge (installé d'office "
+            "sur Windows 10/11) ou Google Chrome suffit : installez-en un, ou "
+            "indiquez son chemin exact dans Réglages → Déblocage Cloudflare."
         )
-    except OSError as error:
-        raise BrowserError(f"Lancement impossible : {error}") from error
 
-    deadline = time.monotonic() + timeout
-    ws: _WebSocket | None = None
-    try:
-        port, _ = _devtools_endpoint(profile, min(deadline, time.monotonic() + 25))
-        ws = _WebSocket(_page_ws_url(port, min(deadline, time.monotonic() + 15)))
-        cdp = _CDP(ws)
+    #: Profil persistant (session réutilisée) puis profil système : le second
+    #: passe même si le dossier de données est verrouillé (fenêtre restée
+    #: ouverte) ou protégé par un antivirus.
+    temp_profile = Path(tempfile.gettempdir()) / "vinted-sniper-browser"
+    attempts: list[tuple[str, Path]] = []
+    for executable in candidates[:2]:
+        for profile in (base_profile, temp_profile):
+            if (executable, profile) not in attempts:
+                attempts.append((executable, profile))
+    # Les échecs sont tous conservés : le message final doit dire quoi faire.
+    failures: list[str] = []
+    for index, (executable, profile) in enumerate(attempts, start=1):
         try:
-            cdp.call("Network.enable", timeout=10)
-        except BrowserError:
-            pass  # certaines versions l'exposent au niveau navigateur seulement
-
-        probe: dict = {}
-        while time.monotonic() < deadline:
-            try:
-                result = cdp.call(
-                    "Runtime.evaluate",
-                    {"expression": _PROBE_JS, "returnByValue": True},
-                    timeout=10,
-                )
-                value = (result.get("result") or {}).get("value")
-                probe = json.loads(value) if value else {}
-            except (BrowserError, json.JSONDecodeError):
-                probe = {}
-            if probe.get("cards", 0) > 0:
-                break  # grille d'annonces : c'est gagné
-            if (
-                probe.get("ready") == "complete"
-                and not probe.get("blocked")
-                and probe.get("app")
-            ):
-                break  # page réelle, simplement sans résultat
-            time.sleep(0.7)
-
-        cookies = cdp.call("Network.getAllCookies", timeout=15).get("cookies", [])
-        jar = _cookie_records(cookies, domain)
-        user_agent = ""
-        try:
-            ua = cdp.call(
-                "Runtime.evaluate",
-                {"expression": "navigator.userAgent", "returnByValue": True},
-                timeout=10,
+            return _launch_once(
+                executable, url, profile, headless=headless, timeout=timeout, log=log
             )
-            user_agent = str((ua.get("result") or {}).get("value") or "")
-        except BrowserError:
-            user_agent = ""
-        # Réussi si Vinted a réellement répondu (grille ou application) et
-        # qu'aucun défi n'est encore affiché.
-        page_ok = bool(probe.get("cards", 0) > 0) or bool(
-            probe.get("app") and not probe.get("blocked")
+        except BrowserError as error:
+            failures.append(f"{Path(executable).name} (essai {index}) : {error}")
+            log(f"Essai {index} avec {Path(executable).name} : {error}")
+            continue
+    raise BrowserError(
+        "Déblocage impossible.\n" + "\n".join(failures) + "\n"
+        "À essayer : fermer toutes les fenêtres Edge/Chrome, puis relancer ; "
+        "sinon indiquer un autre navigateur dans Réglages → Déblocage Cloudflare."
+    )
+
+
+# ── Secours : importer une session copiée du navigateur (cURL) ───────────────
+
+
+_CURL_SPLIT = re.compile(r"""(?:"([^"]*)"|'([^']*)'|(\S+))""")
+
+
+def _tokens(command: str) -> list[str]:
+    """Découpe une commande cURL en respectant les guillemets et les ``^``."""
+    flattened = re.sub(r"\\\r?\n", " ", command)   # continuation POSIX « \ »
+    flattened = re.sub(r"\^\r?\n", " ", flattened)  # continuation cmd.exe « ^ »
+    return [double or single or bare for double, single, bare in _CURL_SPLIT.findall(flattened)]
+
+
+def session_from_curl(command: str) -> dict:
+    """Extrait URL, cookies et User-Agent d'une commande cURL du navigateur.
+
+    Secours universel quand le pilotage automatique est bloqué par une
+    stratégie Windows : dans Edge ou Chrome, F12 → onglet Réseau → clic droit
+    sur la requête ``catalog`` → **Copier → Copier en tant que cURL**. Cette
+    commande contient déjà tout ce que Cloudflare a validé (cookies
+    ``HttpOnly`` compris) et le User-Agent exact, qu'il faut réutiliser
+    ensemble — sinon la clearance est refusée.
+
+    Aucun réseau ici : uniquement de l'analyse de texte, donc testable.
+    """
+    tokens = _tokens(command or "")
+    if not tokens or tokens[0].lower() not in {"curl", "curl.exe"}:
+        raise ValueError(
+            "Ce n'est pas une commande cURL : copiez la requête depuis l'onglet "
+            "Réseau du navigateur (« Copier en tant que cURL »)."
         )
-        solved = bool(jar) and page_ok
-        elapsed = int((time.monotonic() - started) * 1000)
-        cleared = sorted(name for name in jar if name.startswith(("cf_", "__cf", "datadome")))
-        message = (
-            f"Session récupérée ({len(jar)} cookie(s), {probe.get('cards', 0)} annonce(s) visible(s))."
-            if solved
-            else "La vérification n'est pas terminée : terminez-la dans la fenêtre ouverte, "
-            "puis relancez."
+    url = ""
+    headers: dict[str, str] = {}
+    cookie_raw = ""
+    index = 1
+    while index < len(tokens):
+        token = tokens[index]
+        lowered = token.lower()
+        if token.startswith(("http://", "https://")):
+            url = token
+        elif lowered in {"-h", "--header"} and index + 1 < len(tokens):
+            index += 1
+            name, _, value = tokens[index].partition(":")
+            if name.strip() and value.strip():
+                headers[name.strip().lower()] = value.strip()
+        elif lowered in {"-b", "--cookie", "--cookie-jar"} and index + 1 < len(tokens):
+            index += 1
+            cookie_raw = tokens[index]
+        elif lowered in {"-a", "--user-agent"} and index + 1 < len(tokens):
+            index += 1
+            headers["user-agent"] = tokens[index]
+        elif lowered in {"-e", "--referer"} and index + 1 < len(tokens):
+            index += 1
+        index += 1
+
+    if not url:
+        raise ValueError("Aucune URL https://www.vinted.fr/… trouvée dans la commande.")
+    raw = cookie_raw or headers.get("cookie", "")
+    cookies: dict[str, str] = {}
+    for part in raw.split(";"):
+        name, _, value = part.strip().partition("=")
+        if name.strip() and value:
+            cookies[name.strip()] = value
+    if not cookies:
+        raise ValueError(
+            "Aucun cookie dans la commande : recopiez-la depuis une requête du "
+            "catalogue Vinted (les cookies y figurent)."
         )
-        return Harvest(
-            ok=solved,
-            cookies=jar,
-            user_agent=user_agent,
-            url=str(probe.get("url") or url),
-            title=str(probe.get("title") or ""),
-            source="browser",
-            solved=solved,
-            cards=int(probe.get("cards") or 0),
-            elapsed_ms=elapsed,
-            message=message,
-            cleared=cleared,
-        )
-    finally:
-        if ws is not None:
-            ws.close()
-        try:
-            process.terminate()
-            process.wait(timeout=8)
-        except Exception:  # pragma: no cover - processus déjà arrêté
-            try:
-                process.kill()
-            except Exception:
-                pass
+    return {
+        "url": url,
+        "cookies": cookies,
+        "user_agent": headers.get("user-agent", ""),
+        "clearance": bool(cookies.get("cf_clearance") or cookies.get("cf_clearance_legacy")),
+    }
 
 
 # ── FlareSolverr / Byparr (Docker, même API) ─────────────────────────────────

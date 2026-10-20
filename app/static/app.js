@@ -2163,6 +2163,43 @@
     }
   }
 
+  /* Secours cURL : importer une session copiée du navigateur. */
+  async function importCurlSession(button) {
+    const box = $("#cfgCurl");
+    const status = $("#cfgCurlStatus");
+    const command = (box && box.value || "").trim();
+    if (!command) {
+      if (status) status.textContent = "Collez d'abord la commande cURL copiée du navigateur.";
+      return;
+    }
+    button.disabled = true;
+    const label = button.textContent;
+    button.textContent = "Import…";
+    if (status) status.textContent = "";
+    try {
+      const result = await api("/session/import", {
+        method: "POST",
+        body: JSON.stringify({ command }),
+        timeoutMs: 20000,
+      });
+      const count = (result.session && result.session.imported) || 0;
+      toast(`Session importée (${count} cookie(s)) : les scans repartent.`, "success");
+      if (status) {
+        status.textContent = result.clearance
+          ? `${count} cookie(s) importé(s), cf_clearance présent — ${result.resumed} profil(s) relancé(s).`
+          : `${count} cookie(s) importé(s) mais pas de cf_clearance : la vérification risque de revenir.`;
+      }
+      box.value = "";
+      await Promise.all([refreshStatus(), refreshProfiles(), refreshLogs()]);
+    } catch (error) {
+      if (status) status.textContent = error.message;
+      toast(`Import : ${error.message}`, "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = label;
+    }
+  }
+
   async function refreshStatus() {
     try {
       const status = await api("/status");
@@ -2273,6 +2310,10 @@
       });
     }
     $("#profileForm").addEventListener("submit", submitProfile);
+    const curlImport = $("#cfgCurlImport");
+    if (curlImport) {
+      curlImport.addEventListener("click", () => importCurlSession(curlImport));
+    }
     const blockSolve = $("#blockBannerSolve");
     if (blockSolve) {
       blockSolve.addEventListener("click", () => unblockWithBrowser(blockSolve));

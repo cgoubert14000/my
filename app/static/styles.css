@@ -1040,3 +1040,19 @@ dialog.modal::backdrop { background: rgba(3, 5, 12, 0.72); backdrop-filter: blur
 @media (max-width: 720px) {
   .quick-start .qs-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Aide cURL : repliée par défaut pour ne pas alourdir les réglages. */
+.curl-help { margin-top: 6px; }
+.curl-help summary { cursor: pointer; font-size: 0.82rem; opacity: 0.85; }
+.curl-help textarea {
+  width: 100%;
+  margin: 8px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.04));
+  color: inherit;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  resize: vertical;
+}

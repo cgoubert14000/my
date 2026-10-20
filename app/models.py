@@ -123,6 +123,12 @@ class UnblockIn(BaseModel):
     headless: bool | None = None
 
 
+class CurlIn(BaseModel):
+    """Commande cURL copiée du navigateur (secours si le pilotage échoue)."""
+
+    command: str = Field(default="", max_length=20000)
+
+
 class ToggleIn(BaseModel):
     active: bool
 
