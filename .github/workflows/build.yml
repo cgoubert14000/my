@@ -16,6 +16,9 @@ jobs:
   windows:
     name: Windows (.exe)
     runs-on: windows-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -54,6 +57,22 @@ jobs:
           name: vinted-sniper-windows
           path: dist/vinted-sniper.exe
           retention-days: 30
+      - name: Publish build log
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f build.log ]; then
+            {
+              echo "### Build Windows — journal ($(git rev-parse --short HEAD))"
+              echo '```'
+              tail -45 build.log
+              echo '```'
+            } > report.md
+            pr=$(gh pr list --head "$GITHUB_REF_NAME" --json number --jq '.[0].number')
+            if [ -n "$pr" ]; then gh pr comment "$pr" --body-file report.md || true; fi
+          fi
 
   linux:
     name: Linux (binaire)
