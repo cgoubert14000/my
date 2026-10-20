@@ -62,21 +62,6 @@ jobs:
           name: vinted-sniper-windows
           path: dist/vinted-sniper.exe
           retention-days: 30
-      - name: Publish binary to branch
-        shell: bash
-        run: |
-          mkdir -p _delivery
-          cp dist/vinted-sniper.exe _delivery/vinted-sniper.exe
-          git add -f _delivery/vinted-sniper.exe
-          if git diff --cached --quiet; then
-            echo "Binaire deja a jour."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(build): binaire Windows temporaire [skip ci]"
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
       - name: Publish build log
         if: always()
         shell: bash
@@ -138,13 +123,21 @@ jobs:
         run: |
           mkdir -p _delivery
           cp dist/vinted-sniper _delivery/vinted-sniper-linux
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f _delivery/vinted-sniper-linux
           if git diff --cached --quiet; then
             echo "Binaire deja a jour."
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(build): binaire Linux temporaire [skip ci]"
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
+          git commit -m "chore(build): binaire Linux [skip ci]"
+          for attempt in 1 2 3; do
+            if git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME"; then
+              echo "Publie (tentative $attempt)."
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep 5
+          done
+          echo "Publication impossible."
+          exit 1
