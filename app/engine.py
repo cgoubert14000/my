@@ -495,6 +495,26 @@ class BotEngine:
         )
 
     # ── Un scan ──────────────────────────────────────────────────────────
+    def _block_age(self, now: float) -> float | None:
+        """Secondes écoulées depuis le dernier blocage (calculé côté serveur).
+
+        Le dashboard lisait ``last_block_at`` (UTC sans fuseau) avec
+        ``Date.parse`` : décalage d'une à deux heures selon le fuseau du
+        navigateur. On expose donc l'âge en secondes, sans ambiguïté.
+        """
+        stamp = self.stats.last_block_at
+        if not stamp:
+            return None
+        try:
+            from datetime import datetime, timezone
+
+            moment = datetime.fromisoformat(stamp)
+        except ValueError:  # pragma: no cover - horodatage inattendu
+            return None
+        if moment.tzinfo is None:
+            moment = moment.replace(tzinfo=timezone.utc)
+        return max(0.0, now - moment.timestamp())
+
     async def scan_profile(self, profile: dict, *, manual: bool = False) -> ScanOutcome:
         started = time.perf_counter()
         profile_id = int(profile["id"])
@@ -1157,6 +1177,7 @@ class BotEngine:
                 "last_detection_ms": self.stats.last_detection_ms,
                 "last_error": self.stats.last_error,
                 "last_block_at": self.stats.last_block_at,
+                "block_age_seconds": self._block_age(now),
             },
             "next_runs": {
                 str(pid): max(0, int(due - now)) for pid, due in self._next_run.items()
@@ -1165,6 +1186,13 @@ class BotEngine:
             "throttle": {str(pid): value for pid, value in self._throttle.items()},
             "http": self.client.stats(),
             "notifier": dict(self.notifier.stats),
+            #: Sans webhook, une annonce est détectée… puis perdue : le
+            #: dashboard doit le dire clairement plutôt que de laisser croire
+            #: que tout fonctionne.
+            "webhook_configured": bool(
+                str(self.config.get("discord.default_webhook", "") or "").strip()
+                or any(str(p.get("webhook") or "").strip() for p in profiles)
+            ),
         }
 
     def next_run_for(self, profile_id: int) -> str | None:

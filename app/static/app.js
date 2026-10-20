@@ -25,6 +25,10 @@
     streamState: "loading", // loading | live | offline
     streamItems: 0,
     lastEventAt: 0,
+    streamRetry: 0,
+    streamTimer: null,
+    statusFailures: 0,
+    blockBannerHiddenAt: 0,
     catTrail: [],      // [{path, name}]
     catChildren: [],
     catLoading: false,
@@ -214,15 +218,36 @@
     renderFeed();
   }
 
+  function scheduleReconnect() {
+    if (state.streamTimer) return;
+    const delay = Math.min(30000, 1500 * Math.pow(2, Math.min(state.streamRetry, 4)));
+    state.streamRetry += 1;
+    state.streamTimer = setTimeout(() => {
+      state.streamTimer = null;
+      connectStream();
+    }, delay);
+  }
+
   function connectStream() {
     if (typeof window.EventSource !== "function") {
       setStreamState("offline");
       return;
     }
     try {
+      if (state.stream) {
+        try { state.stream.close(); } catch (_) { /* déjà fermé */ }
+      }
       const source = new window.EventSource("/api/stream");
       state.stream = source;
-      source.addEventListener("hello", () => setStreamState("live"));
+      source.addEventListener("hello", () => {
+        state.streamRetry = 0;
+        state.lastEventAt = Date.now();
+        setStreamState("live");
+      });
+      /* Chien de garde : sans nouvelles du serveur, on relance le flux.
+         Un onglet laissé ouvert après un redémarrage du bot restait sinon
+         bloqué sur « Flux interrompu » alors que le serveur tournait. */
+      source.addEventListener("ping", () => { state.lastEventAt = Date.now(); });
       source.addEventListener("item", (event) => {
         try {
           const payload = JSON.parse(event.data);
@@ -249,7 +274,14 @@
           toast(`⚠ Blocage Vinted (profil ${data.profile_id}) — ${advice}`, "error");
         } catch (_) { /* ignore */ }
       });
-      source.onerror = () => setStreamState("offline");
+      source.onerror = () => {
+        setStreamState("offline");
+        if (state.stream) {
+          try { state.stream.close(); } catch (_) { /* ignoré */ }
+          state.stream = null;
+        }
+        scheduleReconnect();
+      };
     } catch (_) {
       setStreamState("offline");
     }
@@ -309,11 +341,49 @@
 
   /* ── Rendu : barre supérieure & statistiques ─────────────────────────── */
 
+  const CHALLENGE_RE = /challenge-platform|captcha-delivery|just a moment|cf-chl/i;
+
+  /* Un blocage Cloudflare vient de l'IP : on l'affiche comme tel, avec la
+     marche à suivre, au lieu de laisser croire que le bot est hors ligne. */
+  function blockState(status) {
+    const stats = (status && status.stats) || {};
+    const reason = String(stats.last_error || "");
+    /* L'âge vient du serveur : aucun décalage de fuseau horaire possible. */
+    const age = typeof stats.block_age_seconds === "number"
+      ? stats.block_age_seconds
+      : Infinity;
+    return {
+      active: CHALLENGE_RE.test(reason) && age < 900,
+      age,
+      reason,
+    };
+  }
+
+  function renderBlockBanner(status) {
+    const banner = $("#blockBanner");
+    if (!banner) return;
+    const block = blockState(status);
+    const hidden = Date.now() - state.blockBannerHiddenAt < 600000;
+    banner.classList.toggle("hidden", !block.active || hidden);
+    if (!block.active) return;
+    const age = $("#blockBannerAge");
+    if (age) {
+      age.textContent = block.age < 120
+        ? `Blocage détecté il y a ${Math.round(block.age)} s.`
+        : `Blocage détecté il y a ${Math.round(block.age / 60)} min.`;
+    }
+  }
+
   function renderStatus(status) {
     state.status = status;
     const engine = $("#enginePill");
+    const block = blockState(status);
     engine.classList.remove("is-loading", "is-paused", "is-down");
-    if (status.paused) {
+    if (block.active) {
+      /* Le moteur tourne toujours : il attend simplement que l'IP revienne. */
+      engine.classList.add("is-paused");
+      $("#engineLabel").textContent = "Vérification Vinted";
+    } else if (status.paused) {
       engine.classList.add("is-paused");
       $("#engineLabel").textContent = "En pause";
     } else {
@@ -363,6 +433,12 @@
     $("#proxyChip").className = `chip ${pool.enabled ? "chip-green" : "chip-muted"}`;
     $("#proxyAvailable").textContent = `${pool.available ?? 0} / ${pool.total ?? 0}`;
     $("#proxyQuarantined").textContent = pool.quarantined ?? 0;
+
+    const banner = $("#alertBanner");
+    if (banner) banner.classList.toggle("hidden", status.webhook_configured !== false);
+    const quick = $("#quickStart");
+    if (quick) quick.classList.toggle("hidden", (status.profiles_total || 0) > 0);
+    renderBlockBanner(status);
 
     const nextHint = Object.values(status.next_runs || {});
     const soonest = nextHint.length ? Math.min(...nextHint) : null;
@@ -900,6 +976,51 @@
     clearButton.onclick = profile ? () => clearSeen(profile) : null;
     openDialog("profileModal");
     setTimeout(() => $("#pName").focus(), 60);
+  }
+
+  /* Démarrage express : un mot-clé suffit pour créer un profil complet
+     (temps réel activé, une page, prix max optionnel, webhook optionnel). */
+  async function submitQuickStart(event) {
+    event.preventDefault();
+    const query = ($("#qsQuery").value || "").trim();
+    const errorBox = $("#qsError");
+    if (errorBox) errorBox.textContent = "";
+    if (!query) {
+      if (errorBox) errorBox.textContent = "Indiquez au moins un mot-clé (ex. « nike tech »).";
+      return;
+    }
+    const maxPrice = nullableNumber($("#qsMaxPrice"));
+    const webhook = ($("#qsWebhook").value || "").trim();
+    const button = $("#qsSubmit");
+    button.disabled = true;
+    button.textContent = "Création…";
+    try {
+      await api("/profiles", {
+        method: "POST",
+        body: JSON.stringify({
+          name: query.slice(0, 60),
+          active: true,
+          url: query,
+          live_mode: true,
+          interval_seconds: 1,
+          pages: 1,
+          max_price: maxPrice,
+          webhook,
+          check_description: true,
+        }),
+      });
+      if (errorBox) errorBox.textContent = "";
+      $("#qsQuery").value = "";
+      $("#qsMaxPrice").value = "";
+      $("#qsWebhook").value = "";
+      toast("C'est parti : première détection dans quelques secondes.", "success");
+      await Promise.all([refreshProfiles(), refreshStatus(), refreshFeed(), refreshLogs()]);
+    } catch (error) {
+      if (errorBox) errorBox.textContent = error.message;
+    } finally {
+      button.disabled = false;
+      button.textContent = "🚀 Démarrer le snipe";
+    }
   }
 
   async function submitProfile(event) {
@@ -1987,10 +2108,14 @@
   async function refreshStatus() {
     try {
       const status = await api("/status");
+      state.statusFailures = 0;
       state.offline = false;
       renderStatus(status);
     } catch (error) {
-      renderOffline();
+      /* Un redémarrage du bot provoque 1 ou 2 échecs : inutile d'afficher
+         « Hors ligne » pour un incident de 2 s. */
+      state.statusFailures += 1;
+      if (state.statusFailures >= 3) renderOffline();
     }
   }
 
@@ -2055,6 +2180,12 @@
     // (et le moyen de rester synchrone après un redémarrage du serveur).
     setInterval(feedTick, 2500);
     setInterval(logsTick, 5000);
+    setInterval(() => {
+      if (document.hidden || !state.stream) return;
+      if (state.streamState === "live" && Date.now() - state.lastEventAt > 45000) {
+        connectStream();  // flux muet : on le relance
+      }
+    }, 10000);
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) refreshAll();
     });
@@ -2065,7 +2196,57 @@
   function bindEvents() {
     $("#btnPause").addEventListener("click", toggleEngine);
     $("#btnNewProfile").addEventListener("click", () => openProfileModal());
+    const quickForm = $("#quickForm");
+    if (quickForm) quickForm.addEventListener("submit", submitQuickStart);
+    const quickAdvanced = $("#qsAdvanced");
+    if (quickAdvanced) {
+      quickAdvanced.addEventListener("click", () => {
+        const query = ($("#qsQuery").value || "").trim();
+        openProfileModal();
+        if (query) {
+          $("#pName").value = query.slice(0, 60);
+          $("#pUrl").value = query;
+          rebuildFormUrl();
+        }
+        const maxPrice = ($("#qsMaxPrice").value || "").trim();
+        if (maxPrice) $("#pMaxPrice").value = maxPrice;
+        const webhook = ($("#qsWebhook").value || "").trim();
+        if (webhook) $("#pWebhook").value = webhook;
+      });
+    }
     $("#profileForm").addEventListener("submit", submitProfile);
+    const blockTest = $("#blockBannerTest");
+    if (blockTest) {
+      blockTest.addEventListener("click", async () => {
+        blockTest.disabled = true;
+        const label = blockTest.textContent;
+        blockTest.textContent = "Test en cours…";
+        try {
+          await runDiagnostic();
+        } finally {
+          blockTest.disabled = false;
+          blockTest.textContent = label;
+        }
+      });
+    }
+    const blockHide = $("#blockBannerHide");
+    if (blockHide) {
+      blockHide.addEventListener("click", () => {
+        state.blockBannerHiddenAt = Date.now();
+        const panel = $("#blockBanner");
+        if (panel) panel.classList.add("hidden");
+      });
+    }
+    const bannerFix = $("#alertBannerFix");
+    if (bannerFix) {
+      bannerFix.addEventListener("click", () => {
+        const input = $("#cfgWebhook");
+        if (input) {
+          input.scrollIntoView({ behavior: "smooth", block: "center" });
+          input.focus();
+        }
+      });
+    }
     $("#settingsForm").addEventListener("submit", saveSettings);
     $("#webhookForm").addEventListener("submit", sendWebhookTest);
     $("#diagRun").addEventListener("click", runDiagnostic);

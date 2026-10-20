@@ -66,8 +66,51 @@
   </article>
 </section>
 
+<div id="blockBanner" class="alert-banner is-critical hidden" role="alert">
+  <span class="alert-emoji" aria-hidden="true">🛡️</span>
+  <span id="blockBannerText"><b>Vinted demande une vérification navigateur (Cloudflare).</b>
+    Le blocage vient de <b>votre adresse IP</b>, pas du bot : insister ne fait que prolonger la
+    vérification. Coupez le Wi-Fi et passez par le partage de connexion de votre téléphone,
+    ou attendez 1 h. <span id="blockBannerAge"></span></span>
+  <button class="btn btn-ghost btn-sm" type="button" id="blockBannerHide">Masquer</button>
+  <button class="btn btn-primary btn-sm" type="button" id="blockBannerTest">🩺 Tester la connexion</button>
+</div>
+
+<div id="alertBanner" class="alert-banner hidden" role="status">
+  <span class="alert-emoji" aria-hidden="true">🔔</span>
+  <span><b>Aucun webhook Discord configuré.</b> Les annonces seront détectées et affichées ici,
+    mais <b>aucune alerte ne partira</b> sur Discord.</span>
+  <button class="btn btn-primary btn-sm" type="button" id="alertBannerFix">Configurer le webhook</button>
+</div>
+
 <main class="layout">
   <div class="col-main">
+    <section class="panel quick-start hidden" id="quickStart">
+      <header class="panel-head">
+        <div>
+          <h2>Démarrage express</h2>
+          <p class="panel-sub">Un mot-clé, un clic : le bot surveille Vinted en continu et alerte sur Discord.</p>
+        </div>
+        <span class="chip chip-green">mode simple</span>
+      </header>
+      <form id="quickForm" class="qs-grid" autocomplete="off">
+        <label class="field qs-wide"><span>1 · Ce que vous cherchez</span>
+          <input type="text" id="qsQuery" maxlength="120" required
+                 placeholder="ex. nike tech fleece, air max 95, zara robe…"></label>
+        <label class="field"><span>2 · Prix max (€, optionnel)</span>
+          <input type="number" id="qsMaxPrice" min="0" step="1" placeholder="ex. 80"></label>
+        <label class="field qs-wide"><span>3 · Webhook Discord (optionnel)</span>
+          <input type="url" id="qsWebhook" placeholder="https://discord.com/api/webhooks/…"></label>
+        <div class="qs-actions">
+          <button class="btn btn-primary" type="submit" id="qsSubmit">🚀 Démarrer le snipe</button>
+          <button class="btn btn-ghost" type="button" id="qsAdvanced">Mode avancé (marques, tailles, filtres…)</button>
+        </div>
+        <p class="hint qs-wide" id="qsHint">Détection en 1 à 3 s après publication, image et lien cliquable inclus.
+          Vous pourrez affiner les filtres juste après.</p>
+        <p class="form-error qs-wide" id="qsError" role="alert"></p>
+      </form>
+    </section>
+
     <section class="panel" id="profilesPanel">
       <header class="panel-head">
         <div>

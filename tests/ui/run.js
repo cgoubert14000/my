@@ -501,6 +501,33 @@ setTimeout(async () => {
   assert(document.querySelector('.diag-samples a').href.includes('/items/1'), 'diagnostic : lien annonce');
   assert(document.querySelectorAll('#diagAdvice p').length === 1, 'diagnostic : conseils');
 
+  // Un profil existe : le démarrage express doit rester discret
+  assert(document.querySelector('#quickStart').classList.contains('hidden'),
+    'démarrage express masqué quand un profil existe');
+
+  // Blocage Cloudflare : le bandeau explique l'IP et la pastille ne dit plus « Hors ligne »
+  status.stats.last_error = 'blocage anti-bot (HTTP 200 — page « challenge-platform »)';
+  status.stats.last_block_at = new Date().toISOString();
+  status.stats.block_age_seconds = 4;
+  await new Promise((r) => setTimeout(r, 1800));
+  assert(!document.querySelector('#blockBanner').classList.contains('hidden'),
+    'bandeau Cloudflare affiché');
+  assert(document.querySelector('#blockBannerText').textContent.includes('adresse IP'),
+    'bandeau : la cause (IP) est nommée');
+  assert(document.querySelector('#engineLabel').textContent.includes('Vérification'),
+    'pastille moteur : vérification Vinted, pas hors ligne');
+  assert(document.querySelector('#liveLabel').textContent.includes('Temps réel'),
+    'flux toujours annoncé en temps réel pendant un blocage');
+
+  status.stats.last_error = null;
+  status.stats.last_block_at = null;
+  status.stats.block_age_seconds = null;
+  await new Promise((r) => setTimeout(r, 1800));
+  assert(document.querySelector('#blockBanner').classList.contains('hidden'),
+    'bandeau retiré après le blocage');
+  assert(document.querySelector('#engineLabel').textContent.includes('En veille'),
+    'pastille moteur revenue à la normale');
+
   assert(errors.length === 0, 'aucune erreur JS : ' + errors.join(' | '));
   window.close();
 }, 300);

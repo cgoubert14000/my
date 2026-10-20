@@ -840,9 +840,13 @@ async def stream(request: Request):
                             yield f"event: log\ndata: {payload}\n\n"
                     else:
                         idle += 0.5
-                        if idle >= 15:
+                        if idle >= 10:
                             idle = 0.0
-                            yield ": ping\n\n"
+                            # Événement nommé (et non un simple commentaire) :
+                            # le navigateur le reçoit, ce qui permet au
+                            # dashboard de détecter un flux mort et de se
+                            # reconnecter tout seul.
+                            yield 'event: ping\ndata: {"ok": true}\n\n' 
                     continue
                 payload = json.dumps(event, ensure_ascii=False, default=str)
                 yield f"event: {event.get('type', 'message')}\ndata: {payload}\n\n"

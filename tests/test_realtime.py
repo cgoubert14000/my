@@ -18,7 +18,7 @@ from app.engine import BotEngine, ScanOutcome
 from app.models import ProfileIn
 from app.realtime import LiveSettings, is_live, next_interval
 from app.state import AppState
-from app.utils import utcnow_iso_ms
+from app.utils import utcnow_iso, utcnow_iso_ms
 from app.vinted_api import (
     SearchPage,
     head_item_ids,
@@ -313,6 +313,16 @@ class EngineRealtimeTests(unittest.TestCase):
     def _scan(self, engine):
         """Comme l'ordonnanceur : le profil est relu en base à chaque passage."""
         return asyncio.run(engine.scan_profile(self.db.get_profile(self.profile["id"])))
+
+    def test_block_age_is_computed_server_side(self):
+        """L'âge du blocage est calculé en UTC côté serveur : le navigateur ne
+        peut pas se tromper de fuseau (le bandeau restait affiché 2 h)."""
+        engine = self._engine(FakeAPI([[item("1")]]), FakeNotifier())
+        self.assertIsNone(engine.status()["stats"]["block_age_seconds"])
+        engine.stats.last_block_at = utcnow_iso()
+        age = engine.status()["stats"]["block_age_seconds"]
+        self.assertIsNotNone(age)
+        self.assertLess(age, 5)
 
     def test_live_scan_asks_for_one_fast_request(self):
         """Temps réel : une seule tentative de 10 s (pas 3 × 30 s de sommeil)."""
@@ -750,6 +760,18 @@ class StreamEndpointTests(unittest.TestCase):
                 self.assertTrue(any(row == "event: log" for row in seen))
         finally:
             self.state.db.recent_logs = original
+
+    def test_status_flags_missing_webhook(self):
+        """Sans webhook, le dashboard doit pouvoir prévenir : sinon l'annonce
+        est détectée mais aucune alerte ne part."""
+        self.assertFalse(self.client.get("/api/status").json()["webhook_configured"])
+        self.state.config._data["discord"]["default_webhook"] = (
+            "https://discord.com/api/webhooks/1/abc"
+        )
+        try:
+            self.assertTrue(self.client.get("/api/status").json()["webhook_configured"])
+        finally:
+            self.state.config._data["discord"]["default_webhook"] = ""
 
     def test_logs_since_returns_only_new_rows(self):
         self.state.db.log("INFO", "premier")

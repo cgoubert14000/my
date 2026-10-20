@@ -665,6 +665,28 @@ qu'elle ne l'est, et sont corrigés :
 | Le mot « datadome » figurait dans les **marqueurs de blocage** — or la page catalogue normale charge ce script | Un blocage n'est retenu que si la **grille d'annonces est absente** ; le journal nomme le marqueur exact (`page « just a moment »`, `défi Datadome « captcha-delivery »`) (1.3.4) |
 | Attente de 30-60 s après une page de vérification HTTP 200 | Pause plafonnée à **5 s** : ce n'est pas un quota épuisé (1.3.4) |
 
+### 1.3.6 — les états trompeurs du dashboard
+
+Un blocage Cloudflare affichait « Hors ligne » et « Flux interrompu » alors que
+le moteur tournait. Trois corrections :
+
+| Symptôme | Cause | Correction |
+| --- | --- | --- |
+| Pastille « Hors ligne » pendant un blocage | la pastille ne distinguait pas « moteur arrêté » de « Vinted refuse la requête » | la pastille affiche **« Vérification Vinted »** et le moteur reste annoncé actif |
+| « Flux interrompu » alors que le serveur répond | le flux SSE n'était **jamais relancé** : un redémarrage du bot laissait l'onglet mort | reconnexion automatique (1,5 s → 30 s, plafond) + chien de garde : flux muet > 45 s = relance |
+| « Hors ligne » sur un simple incident de 2 s | un seul échec de `/api/status` suffisait | il faut **3 échecs consécutifs** |
+
+Trois ajouts pour aller avec :
+
+* **bandeau Cloudflare** : nomme la cause (votre **adresse IP**), la marche à
+  suivre (partage de connexion du téléphone, ou 1 h d'attente), l'âge du blocage,
+  et un bouton **Tester la connexion** qui lance le diagnostic réel ;
+* **bandeau webhook manquant** : sans webhook, une annonce est détectée mais
+  aucune alerte ne part — le dashboard le dit maintenant en haut de page ;
+* **démarrage express** : tant qu'aucun profil n'existe, un encadré demande un
+  mot-clé, un prix max et un webhook, puis crée le profil en temps réel en un
+  clic (bouton « Mode avancé » pour les filtres).
+
 ### « challenge-platform » : vérification Cloudflare
 
 Si le journal affiche `page « challenge-platform »`, ce n'est plus un doute :

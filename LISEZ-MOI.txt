@@ -1,10 +1,21 @@
 ==========================================================
-  VINTED SNIPER 1.3.5  —  demarrage en 30 secondes
+  VINTED SNIPER 1.3.6  —  demarrage en 30 secondes
 
   VOTRE JOURNAL DIT : page « challenge-platform »
   C'est une verification navigateur (Cloudflare) servie a la place du
   catalogue. Le bot ne peut pas executer ce JavaScript, et insister
   AGGRAVE le blocage (les tentatives sont comptees).
+
+  NOUVEAU EN 1.3.6
+  - Le dashboard ne dit plus « Hors ligne » pendant un blocage : la
+    pastille affiche « Verification Vinted » et le moteur reste actif.
+  - « Flux interrompu » corrige : le flux se reconnecte tout seul et
+    se relance s'il reste muet plus de 45 s.
+  - Bandeau rouge Cloudflare : cause reelle (votre adresse IP), age du
+    blocage, et bouton « Tester la connexion » (diagnostic reel).
+  - Bandeau « aucun webhook » : sans webhook, aucune alerte ne part.
+  - Demarrage express : un mot-cle suffit pour creer un profil temps
+    reel (prix max et webhook optionnels).
 
   NOUVEAU EN 1.3.5
   - Pause intelligente : 60 s, 2 min, 5 min apres une verification, au
@@ -22,6 +33,8 @@
      - Meme blocage -> ce n'est pas l'IP : proxy residentiel necessaire.
 
   RAPPEL
+  - 1.3.5 : pause 60 s / 2 min / 5 min apres une verification, scan
+    manuel refuse 25 s, message clair au lieu de « self-healing ».
   - 1.3.4 : le mot "datadome" ne fait plus passer une page valide pour
     un blocage (faux positif corrige), User-Agent figé par domaine.
   - 1.3.3 : cookies conserves sur HTTP 200, session renouvelee apres
