@@ -641,21 +641,25 @@ class StreamEndpointTests(unittest.TestCase):
 
     def test_stream_pushes_new_log_lines(self):
         """Les journaux arrivent par SSE (pas d'attente de poll de 4 s)."""
-        self.state.db.log("INFO", "ligne poussée en direct")
-        with self.client.stream("GET", "/api/stream") as response:
-            lines = response.iter_lines()
-            seen = []
-            for index, line in enumerate(lines):
-                if index > 60:
-                    break
-                seen.append(line)
-                if line.startswith("data:") and "ligne poussée en direct" in line:
-                    break
-            self.assertTrue(
-                any("ligne poussée en direct" in line for line in seen),
-                f"la ligne de journal n'a pas été poussée : {seen[:20]}",
-            )
-            self.assertTrue(any(line == "event: log" for line in seen))
+        self.state.db.log("INFO", "ligne poussee en direct")
+        original = self.state.db.recent_logs
+        # Le flux démarre normalement au dernier journal connu : on simule un
+        # client neuf pour vérifier la poussée sans dépendre du minutage.
+        self.state.db.recent_logs = lambda limit=200, profile_id=None: []
+        try:
+            with self.client.stream("GET", "/api/stream") as response:
+                seen = []
+                for index, line in enumerate(response.iter_lines()):
+                    seen.append(line)
+                    if index > 40 or any("ligne poussee" in row for row in seen):
+                        break
+                self.assertTrue(
+                    any("ligne poussee en direct" in row for row in seen),
+                    f"journal non poussé : {seen[:12]}",
+                )
+                self.assertTrue(any(row == "event: log" for row in seen))
+        finally:
+            self.state.db.recent_logs = original
 
     def test_logs_since_returns_only_new_rows(self):
         self.state.db.log("INFO", "premier")

@@ -18,7 +18,9 @@ jobs:
       - name: Installer les dépendances
         run: pip install -r requirements.txt
       - name: Lancer la suite (aucun réseau externe requis)
-        run: python -m unittest discover -s tests -v
+        env:
+          TESTS_STALL_TIMEOUT: "240"
+        run: python tools/run_tests.py
 
       - name: Rapport d'échec (commentaire sur la PR)
         if: failure()
@@ -28,7 +30,7 @@ jobs:
           {
             echo "### Tests en échec — $(git rev-parse --short HEAD)"
             echo '```'
-            timeout 300 python -m unittest discover -s tests 2>&1 | tail -40
+            timeout 320 python tools/run_tests.py 2>&1 | tail -45
             echo '```'
           } > report.md
           pr=$(gh pr list --head "$GITHUB_REF_NAME" --json number --jq '.[0].number')
