@@ -63,14 +63,17 @@ jobs:
           path: dist/vinted-sniper.exe
           retention-days: 30
       - name: Publish binary to branch
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
         shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p _delivery
           cp dist/vinted-sniper.exe _delivery/vinted-sniper.exe
           git add -f _delivery/vinted-sniper.exe
+          if git diff --cached --quiet; then
+            echo "Binaire deja a jour."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore(build): binaire Windows temporaire [skip ci]"
           git push origin "HEAD:$GITHUB_REF_NAME"
       - name: Publish build log
