@@ -20,6 +20,10 @@
     editingId: null,
     confirmHandler: null,
     busy: false,
+    stream: null,
+    streamState: "loading", // loading | live | offline
+    streamItems: 0,
+    lastEventAt: 0,
   };
 
   const LEVEL_LABELS = { INFO: "INFO", DEBUG: "DBG", WARNING: "WARN", ERROR: "ERR", SUCCESS: "OK" };
@@ -95,6 +99,28 @@
     return `${Math.floor(hours / 24)} j ${hours % 24} h`;
   }
 
+  function formatInterval(seconds) {
+    const value = Number(seconds);
+    if (!Number.isFinite(value) || value <= 0) return "—";
+    if (value < 10) return `${value.toFixed(1)} s`;
+    return `${Math.round(value)} s`;
+  }
+
+  function startCountdownTicker() {
+    if (state.countdownTimer) return;
+    state.countdownTimer = setInterval(() => {
+      const now = Date.now();
+      for (const node of $$("[data-countdown]")) {
+        const base = Number(node.dataset.base || 0);
+        const synced = Number(node.dataset.synced || 0);
+        const left = base - (now - synced) / 1000;
+        node.textContent = left > 0.05
+          ? `prochain passage ${formatInterval(left)}`
+          : "passage imminent…";
+      }
+    }, 250);
+  }
+
   function formatMoney(amount, currency) {
     if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return "—";
     const value = Number(amount);
@@ -112,6 +138,88 @@
     const full = Math.floor(value);
     const half = value - full >= 0.5;
     return `${"★".repeat(full)}${half ? "½" : ""}${"☆".repeat(Math.max(0, 5 - full - (half ? 1 : 0)))} ${value.toFixed(1)}`;
+  }
+
+  function setStreamState(value) {
+    if (state.streamState === value) return;
+    state.streamState = value;
+    const pill = $("#livePill");
+    if (!pill) return;
+    pill.classList.remove("is-loading", "is-live", "is-down");
+    pill.classList.add(value === "live" ? "is-live" : value === "offline" ? "is-down" : "is-loading");
+    $("#liveLabel").textContent = value === "live"
+      ? "Temps réel"
+      : value === "offline"
+        ? "Flux interrompu"
+        : "Connexion…";
+  }
+
+  function feedAccepts(profileId) {
+    return state.feedProfile === "all" || String(profileId) === String(state.feedProfile);
+  }
+
+  function insertLiveItem(item, { silent = false } = {}) {
+    if (!item || !item.item_id) return;
+    state.streamItems += 1;
+    state.lastEventAt = Date.now();
+    if (!feedAccepts(item.profile_id)) return;
+    const id = item.item_id;
+    const index = state.feed.findIndex((row) => row.item_id === id);
+    if (index >= 0) state.feed[index] = { ...state.feed[index], ...item };
+    else state.feed.unshift(item);
+    const limit = Math.max(12, Number((state.config && state.config.dashboard && state.config.dashboard.feed_size) || 60));
+    state.feed = state.feed.slice(0, limit);
+    state.feedSignature = "";           // force un nouveau rendu
+    renderFeed();
+    const card = document.querySelector(`[data-item="${id}"]`);
+    if (card) {
+      card.classList.add("is-fresh");
+      setTimeout(() => card.classList.remove("is-fresh"), 2400);
+    }
+    if (silent) return;
+    const price = formatMoney(item.price, item.currency);
+    toast(`⚡ ${item.title || "Nouvelle annonce"} — ${price} · ${profileName(item.profile_id)}`, "success");
+  }
+
+  function updateLiveItem(item) {
+    if (!item || !item.item_id) return;
+    const index = state.feed.findIndex((row) => row.item_id === item.item_id);
+    if (index < 0) return;
+    state.feed[index] = { ...state.feed[index], ...item };
+    state.feedSignature = "";
+    renderFeed();
+  }
+
+  function connectStream() {
+    if (typeof window.EventSource !== "function") {
+      setStreamState("offline");
+      return;
+    }
+    try {
+      const source = new window.EventSource("/api/stream");
+      state.stream = source;
+      source.addEventListener("hello", () => setStreamState("live"));
+      source.addEventListener("item", (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          insertLiveItem(payload.item, { silent: Boolean(payload.baseline) });
+        } catch (_) { /* ignore */ }
+        refreshStatus();
+      });
+      source.addEventListener("item_update", (event) => {
+        try { updateLiveItem(JSON.parse(event.data).item); } catch (_) { /* ignore */ }
+      });
+      source.addEventListener("scan", () => { state.lastEventAt = Date.now(); });
+      source.addEventListener("blocked", (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          toast(`⚠ Blocage Vinted (profil ${data.profile_id}) — self-healing en cours.`, "error");
+        } catch (_) { /* ignore */ }
+      });
+      source.onerror = () => setStreamState("offline");
+    } catch (_) {
+      setStreamState("offline");
+    }
   }
 
   function toast(message, type = "info") {
@@ -176,7 +284,10 @@
       engine.classList.add("is-paused");
       $("#engineLabel").textContent = "En pause";
     } else {
-      $("#engineLabel").textContent = "En veille";
+      const realtime = status.realtime || {};
+      $("#engineLabel").textContent = realtime.enabled
+        ? `En veille · ${(realtime.live_profiles || []).length}⚡`
+        : "En veille";
     }
     $("#demoBadge").classList.toggle("hidden", !status.demo);
     $("#pauseLabel").textContent = status.paused ? "Reprendre" : "Pause";
@@ -194,7 +305,10 @@
     $("#statAlerts").textContent = counts.notified ?? 0;
     $("#statAlertsSub").textContent = `${stats.alerts_sent ?? 0} cette session`;
     $("#statLastScan").textContent = relativeTime(stats.last_scan_at);
-    $("#statLastScanSub").textContent = `${stats.scans ?? 0} scans · ${stats.scans_failed ?? 0} échecs`;
+    const latency = stats.last_detection_ms;
+    $("#statLastScanSub").textContent = latency
+      ? `⚡ ${(latency / 1000).toFixed(2)} s de détection · ${stats.scans ?? 0} scans`
+      : `${stats.scans ?? 0} scans · ${stats.scans_failed ?? 0} échecs`;
     $("#statBlocks").textContent = stats.blocked ?? 0;
     $("#statBlocksSub").textContent = pool.enabled
       ? `${pool.available ?? 0}/${pool.total ?? 0} proxys disponibles`
@@ -303,7 +417,25 @@
       ? `${profile.min_price !== null ? formatMoney(profile.min_price, "EUR") : "0 €"} – ${profile.max_price !== null ? formatMoney(profile.max_price, "EUR") : "∞"}`
       : "Tous les prix";
     meta.appendChild(el("span", "meta-tag", `💰 ${priceText}`));
-    meta.appendChild(el("span", "meta-tag", `⏱ ${profile.interval_seconds}s · ${profile.pages} page${profile.pages > 1 ? "s" : ""}`));
+    if (profile.live_mode) {
+      const live = el("span", "meta-tag live", `⚡ ${formatInterval(profile.poll_interval)}`);
+      live.title = "Suivi continu : une annonce publiée est détectée en quelques secondes";
+      meta.appendChild(live);
+      const countdown = el("span", "meta-tag countdown");
+      countdown.dataset.countdown = String(profile.id);
+      countdown.dataset.base = String(profile.seconds_to_next ?? 0);
+      countdown.dataset.synced = String(Date.now());
+      countdown.textContent = `prochain passage ${formatInterval(profile.seconds_to_next)}`;
+      meta.appendChild(countdown);
+    } else {
+      meta.appendChild(el("span", "meta-tag", `⏱ ${profile.interval_seconds}s · ${profile.pages} page${profile.pages > 1 ? "s" : ""}`));
+    }
+    if (profile.pages > 1) meta.appendChild(el("span", "meta-tag", `📄 ${profile.pages} pages`));
+    if (profile.throttle && profile.throttle > 1.05) {
+      const slow = el("span", "meta-tag warn", `🐢 ralenti ×${profile.throttle.toFixed(1)}`);
+      slow.title = "Vinted a bloqué des requêtes : le moteur espace automatiquement les passages, puis revient à la vitesse normale.";
+      meta.appendChild(slow);
+    }
     if ((profile.whitelist || []).length) meta.appendChild(el("span", "meta-tag", `✅ ${profile.whitelist.length} mot(s) requis`));
     if ((profile.blacklist || []).length) meta.appendChild(el("span", "meta-tag", `🚫 ${profile.blacklist.length} mot(s) bannis`));
     if (profile.min_seller_rating !== null || profile.min_seller_feedback !== null) {
@@ -388,10 +520,13 @@
 
   function itemCard(item) {
     const link = el("a", "item-card");
+    link.dataset.item = item.item_id || item.id || "";
     link.href = item.url || "#";
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.title = item.title || "Annonce Vinted";
+    link.title = item.description
+      ? `${item.title || "Annonce Vinted"}\n\n${item.description}`
+      : item.title || "Annonce Vinted";
 
     const media = el("div", "item-media");
     const fallback = el("div", "fallback", (item.brand || "V").slice(0, 2).toUpperCase());
@@ -499,6 +634,10 @@
     const discord = config.discord || {};
     const notifications = config.notifications || {};
     $("#cfgInterval").value = engine.default_interval_seconds ?? 60;
+    $("#cfgLive").checked = engine.live_mode !== false;
+    $("#cfgTurbo").checked = Boolean(engine.realtime_turbo);
+    $("#cfgRealtimeMin").value = engine.realtime_min_interval ?? 1.5;
+    $("#cfgRealtimeMax").value = engine.realtime_max_interval ?? 10;
     $("#cfgDelay").value = engine.min_request_delay ?? 2;
     $("#cfgConcurrency").value = engine.max_concurrent_profiles ?? 2;
     $("#cfgPerPage").value = engine.max_items_per_page ?? 96;
@@ -523,7 +662,11 @@
         body: JSON.stringify({
           patch: {
             engine: {
-              default_interval_seconds: Number($("#cfgInterval").value),
+              default_interval_seconds: Math.max(1, Number($("#cfgInterval").value) || 60),
+              live_mode: $("#cfgLive").checked,
+              realtime_turbo: $("#cfgTurbo").checked,
+              realtime_min_interval: Number($("#cfgRealtimeMin").value) || 1.5,
+              realtime_max_interval: Number($("#cfgRealtimeMax").value) || 10,
               min_request_delay: Number($("#cfgDelay").value),
               max_concurrent_profiles: Number($("#cfgConcurrency").value),
               max_items_per_page: Number($("#cfgPerPage").value),
@@ -554,6 +697,14 @@
 
   /* ── Modale profil ───────────────────────────────────────────────────── */
 
+  function toggleIntervalField() {
+    const live = $("#pLiveMode").checked;
+    const field = $("#pIntervalField");
+    if (field) field.classList.toggle("is-muted", live);
+    const input = $("#pInterval");
+    if (input) input.disabled = false;
+  }
+
   function openProfileModal(profile = null) {
     state.editingId = profile ? profile.id : null;
     $("#profileModalTitle").textContent = profile ? `Modifier « ${profile.name} »` : "Nouveau profil";
@@ -562,6 +713,8 @@
     $("#pActive").checked = profile ? Boolean(profile.active) : true;
     $("#pUrl").value = profile ? profile.url : "";
     $("#pInterval").value = profile ? profile.interval_seconds : 60;
+    $("#pLiveMode").checked = profile ? Boolean(profile.live_mode) : true;
+    toggleIntervalField();
     $("#pPages").value = profile ? profile.pages : 1;
     $("#pMinPrice").value = profile && profile.min_price !== null ? profile.min_price : "";
     $("#pMaxPrice").value = profile && profile.max_price !== null ? profile.max_price : "";
@@ -586,7 +739,8 @@
       name: $("#pName").value.trim(),
       active: $("#pActive").checked,
       url: $("#pUrl").value.trim(),
-      interval_seconds: Number($("#pInterval").value) || 60,
+      interval_seconds: Math.max(1, Number($("#pInterval").value) || 60),
+      live_mode: $("#pLiveMode").checked,
       pages: Number($("#pPages").value) || 1,
       min_price: nullableNumber($("#pMinPrice")),
       max_price: nullableNumber($("#pMaxPrice")),
@@ -993,10 +1147,12 @@
     const profilesTick = guarded("profiles", refreshProfiles);
     const feedTick = guarded("feed", refreshFeed);
     const logsTick = guarded("logs", refreshLogs);
-    setInterval(statusTick, 3000);
-    setInterval(profilesTick, 6000);
-    setInterval(feedTick, 5000);
-    setInterval(logsTick, 4500);
+    setInterval(statusTick, 2000);
+    setInterval(profilesTick, 4000);
+    // Le flux SSE pousse les nouveautés : ce poll n'est qu'un filet de sécurité
+    // (et le moyen de rester synchrone après un redémarrage du serveur).
+    setInterval(feedTick, 3000);
+    setInterval(logsTick, 4000);
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) refreshAll();
     });
@@ -1011,6 +1167,7 @@
     $("#settingsForm").addEventListener("submit", saveSettings);
     $("#webhookForm").addEventListener("submit", sendWebhookTest);
     $("#diagRun").addEventListener("click", runDiagnostic);
+    $("#pLiveMode").addEventListener("change", toggleIntervalField);
 
     $("#feedFilter").addEventListener("change", (event) => {
       state.feedProfile = event.target.value;
@@ -1064,6 +1221,8 @@
     bindEvents();
     await refreshConfig();
     await refreshAll();
+    connectStream();
+    startCountdownTicker();
     startTimers();
   }
 

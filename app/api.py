@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from . import __version__
 from .config import ConfigError
@@ -40,6 +41,9 @@ def _profile_payload(row: dict, state) -> dict[str, Any]:
             "domain": domain_of(row.get("url") or "", "www.vinted.fr"),
             "running": profile_id in state.engine._inflight,
             "next_run_at": state.engine.next_run_for(profile_id),
+            "seconds_to_next": state.engine.seconds_to_next(profile_id),
+            "poll_interval": round(state.engine._current_interval(row), 2),
+            "throttle": state.engine.throttle_for(profile_id),
             "effective_webhook": bool(
                 row.get("webhook") or state.config.get("discord.default_webhook")
             ),
@@ -152,6 +156,7 @@ async def update_profile(profile_id: int, payload: ProfileIn, request: Request) 
         raise HTTPException(status_code=404, detail="Profil introuvable.")
     # Les filtres ont pu changer : on oublie les annonces précédemment écartées.
     state.db.clear_ignored(profile_id)
+    state.engine.invalidate_profile(profile_id)
     state.db.log(
         "INFO",
         f"Profil « {row['name']} » mis à jour (filtres réévalués).",
@@ -195,6 +200,7 @@ async def delete_profile(profile_id: int, request: Request) -> dict:
             status_code=409, detail="Scan en cours : réessayez dans un instant."
         )
     state.db.delete_profile(profile_id)
+    state.engine.invalidate_profile(profile_id)
     state.db.log("INFO", f"Profil « {row['name']} » supprimé.", source="system")
     return _ok("Profil supprimé.")
 
@@ -214,6 +220,7 @@ async def clear_seen(profile_id: int, request: Request) -> dict:
     if not state.db.get_profile(profile_id):
         raise HTTPException(status_code=404, detail="Profil introuvable.")
     removed = state.db.clear_seen(profile_id)
+    state.engine.invalidate_profile(profile_id)
     state.db.log(
         "INFO",
         f"{removed} entrée(s) « déjà vue(s) » supprimée(s) pour ce profil.",
@@ -293,6 +300,51 @@ async def diagnose(payload: DiagnoseIn, request: Request) -> dict:
             raise HTTPException(
                 status_code=504, detail="Diagnostic interrompu (délai dépassé)."
             )
+
+
+# ── Flux temps réel (Server-Sent Events) ─────────────────────────────────────
+
+
+@router.get("/stream")
+async def stream(request: Request):
+    """Flux d'événements poussé vers le dashboard.
+
+    Événements : ``hello`` (connexion), ``item`` (nouvelle annonce),
+    ``item_update`` (fiche enrichie), ``scan`` (fin de passage),
+    ``blocked`` (self-healing). Un commentaire ``: ping`` toutes les 15 s
+    maintient la connexion ouverte derrière un proxy.
+    """
+    state = _state(request)
+    queue = state.engine.subscribe()
+
+    async def events():
+        yield ": connected\n\n"
+        yield 'event: hello\ndata: {"ok": true}\n\n'
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    event = await asyncio.wait_for(queue.get(), timeout=15)
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"
+                    continue
+                payload = json.dumps(event, ensure_ascii=False, default=str)
+                yield f"event: {event.get('type', 'message')}\ndata: {payload}\n\n"
+        except asyncio.CancelledError:  # pragma: no cover - client parti
+            raise
+        finally:
+            state.engine.unsubscribe(queue)
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-store",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 # ── Flux / historique / logs ─────────────────────────────────────────────────

@@ -28,6 +28,7 @@ const profile = {
   min_price: 40, max_price: 250, whitelist: ['nike','jordan'], blacklist: ['copie','defaut'],
   keyword_mode: 'any', check_description: true, webhook: '', webhook_masked: '', domain: 'www.vinted.fr',
   interval_seconds: 45, min_seller_rating: 4, min_seller_feedback: 5, pages: 1, notes: '',
+  live_mode: true, poll_interval: 1.5, seconds_to_next: 1.2,
   created_at: now, updated_at: now, last_run_at: now, last_error: null, scan_count: 4, found_count: 2,
   running: false, next_run_at: now, effective_webhook: true,
 };
@@ -40,7 +41,8 @@ const item = {
 };
 const config = {
   engine: { default_interval_seconds: 60, min_request_delay: 2, max_concurrent_profiles: 2,
-            max_items_per_page: 96, baseline_first_scan: true },
+            max_items_per_page: 96, baseline_first_scan: true, live_mode: true,
+            realtime_turbo: false, realtime_min_interval: 1.5, realtime_max_interval: 10 },
   discord: { default_webhook: '', mention: '' }, notifications: { enabled: true },
   proxies: { enabled: false, prefer_proxies: false, auto_discover: true, list: [] },
   http: {}, app: { password_set: false },
@@ -49,14 +51,36 @@ const status = {
   running: true, paused: false, uptime_seconds: 3725, uptime_human: '1 h 02', transport: 'curl_cffi',
   profiles_total: 1, profiles_active: 1, profiles_configured: 1, inflight: [], global_cooldown: 0, demo: false,
   stats: { scans: 12, scans_failed: 0, items_seen: 300, new_items: 2, alerts_sent: 2, alerts_failed: 0,
-           blocked: 1, last_scan_at: now, last_error: null, last_block_at: null },
-  next_runs: { 1: 30 },
+           blocked: 1, last_scan_at: now, last_error: null, last_block_at: null,
+           unchanged: 410, last_detection_ms: 320 },
+  next_runs: { 1: 1 },
+  realtime: { enabled: true, live_profiles: [1], min_interval: 1.5, max_interval: 10, turbo: false },
   http: { cookies: { 'www.vinted.fr': ['_vinted_fr_session'] }, proxy_pool: {
     enabled: false, total: 0, available: 0, quarantined: 0, configured: 0, discovered: 0 } },
   counts: { total: 2, notified: 1, failed: 0, today: 1 },
   db_path: 'data/test.db', db_size: 20480, version: '1.0.0', now,
 };
 const calls = [];
+// ── Faux EventSource : permet de tester le flux poussé (SSE) dans jsdom ──
+const streams = [];
+class FakeEventSource {
+  constructor(url) {
+    this.url = url;
+    this.listeners = {};
+    this.onerror = null;
+    streams.push(this);
+    setTimeout(() => this.emit('hello', { ok: true }), 0);
+  }
+  addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); }
+  emit(type, payload) {
+    for (const handler of this.listeners[type] || []) {
+      handler({ data: JSON.stringify(payload) });
+    }
+  }
+  close() { this.closed = true; }
+}
+window.EventSource = FakeEventSource;
+
 function reply(data, ok = true, statusCode = 200) {
   return Promise.resolve({ ok, status: statusCode, json: async () => data });
 }
@@ -162,6 +186,31 @@ setTimeout(async () => {
   click(document.querySelector('#confirmYes'));
   await new Promise((r) => setTimeout(r, 80));
   assert(calls.some((c) => c.method === 'DELETE'), 'suppression envoyée');
+
+  // Temps réel
+  assert(document.querySelector('.meta-tag.live'), 'profil : badge temps réel');
+  assert(document.querySelector('[data-countdown]').textContent.includes('prochain passage'),
+    'profil : compte à rebours');
+  assert(document.querySelector('#statLastScanSub').textContent.includes('0.32 s'),
+    'statistiques : latence de détection');
+  assert(document.querySelectorAll('.live-pill').length === 1, 'pastille temps réel');
+  assert(streams.length === 1, 'flux SSE ouvert');
+  assert(streams[0].url === '/api/stream', 'URL du flux SSE');
+  assert(document.querySelector('#livePill').classList.contains('is-live'),
+    'pastille en état « live »');
+
+  const liveItem = {
+    profile_id: 1, profile_name: 'Sneakers Hype', item_id: '9100042',
+    title: 'Jordan 1 Mid Chicago — 42,5', price: 155, currency: 'EUR', brand: 'Jordan',
+    size: '42,5', condition: 'Neuf avec étiquette', url: 'https://www.vinted.fr/items/9100042',
+    image_url: '', seller_name: 'kicks.paris', seller_rating: 4.9, seller_feedback: 412,
+    found_at: new Date().toISOString(), notified: 1, notify_error: null,
+  };
+  streams[0].emit('item', { type: 'item', profile_id: 1, item: liveItem });
+  assert(document.querySelector('[data-item="9100042"]'), 'flux : annonce poussée affichée');
+  assert(document.querySelector('[data-item="9100042"]').classList.contains('is-fresh'),
+    'flux : animation « fresh »');
+  assert(document.querySelector('#feedGrid').children.length === 2, 'flux : 2 annonces');
 
   // Diagnostic
   click(document.querySelector('[data-action="diagnostic"]'));

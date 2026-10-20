@@ -359,7 +359,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_validation(self):
         with self.assertRaises(ConfigError):
-            self.store.apply_patch({"engine": {"default_interval_seconds": 1}})
+            self.store.apply_patch({"engine": {"default_interval_seconds": 0}})
         with self.assertRaises(ConfigError):
             self.store.apply_patch(
                 {"discord": {"default_webhook": "https://example.com/hook"}}

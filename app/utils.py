@@ -161,6 +161,11 @@ def utcnow_iso() -> str:
     return utcnow().isoformat(timespec="seconds")
 
 
+def utcnow_iso_ms() -> str:
+    """Horodatage à la milliseconde (tri fin du flux d'annonces)."""
+    return utcnow().isoformat(timespec="milliseconds")
+
+
 def parse_iso(value: str | None) -> datetime | None:
     if not value:
         return None

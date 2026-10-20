@@ -13,7 +13,7 @@ from pathlib import Path
 from collections.abc import Iterable
 from typing import Any
 
-from .utils import clean_terms, utcnow_iso
+from .utils import clean_terms, utcnow_iso, utcnow_iso_ms
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS profiles (
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     check_description       INTEGER NOT NULL DEFAULT 1,
     webhook                 TEXT NOT NULL DEFAULT '',
     interval_seconds        INTEGER NOT NULL DEFAULT 60,
+    live_mode               INTEGER NOT NULL DEFAULT 1,
     min_seller_rating       REAL,
     min_seller_feedback     INTEGER,
     pages                   INTEGER NOT NULL DEFAULT 1,
@@ -47,6 +48,7 @@ CREATE TABLE IF NOT EXISTS seen_items (
     profile_id       INTEGER NOT NULL,
     item_id          TEXT NOT NULL,
     title            TEXT NOT NULL DEFAULT '',
+    description      TEXT NOT NULL DEFAULT '',
     price            REAL,
     total_price      REAL,
     currency         TEXT NOT NULL DEFAULT 'EUR',
@@ -113,6 +115,7 @@ CREATE TABLE IF NOT EXISTS scans (
     new_items     INTEGER NOT NULL DEFAULT 0,
     error         TEXT,
     duration_ms   INTEGER,
+    detection_ms  INTEGER,
     FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_scans_profile ON scans (profile_id, id DESC);
@@ -131,6 +134,7 @@ PROFILE_FIELDS = (
     "check_description",
     "webhook",
     "interval_seconds",
+    "live_mode",
     "min_seller_rating",
     "min_seller_feedback",
     "pages",
@@ -168,7 +172,28 @@ class Database:
                 self._conn.execute(
                     "UPDATE profiles SET baseline_done = 1 WHERE scan_count > 0"
                 )
-                self._conn.commit()
+            if "live_mode" not in columns:
+                # Les bases existantes passent en temps réel par défaut.
+                self._conn.execute(
+                    "ALTER TABLE profiles ADD COLUMN live_mode INTEGER NOT NULL DEFAULT 1"
+                )
+            scan_columns = {
+                row["name"]
+                for row in self._conn.execute("PRAGMA table_info(scans)").fetchall()
+            }
+            if "detection_ms" not in scan_columns:
+                self._conn.execute("ALTER TABLE scans ADD COLUMN detection_ms INTEGER")
+            seen_columns = {
+                row["name"]
+                for row in self._conn.execute(
+                    "PRAGMA table_info(seen_items)"
+                ).fetchall()
+            }
+            if "description" not in seen_columns:
+                self._conn.execute(
+                    "ALTER TABLE seen_items ADD COLUMN description TEXT NOT NULL DEFAULT ''"
+                )
+            self._conn.commit()
 
     # ── Helpers ──────────────────────────────────────────────────────────
     def close(self) -> None:
@@ -205,6 +230,7 @@ class Database:
         row["active"] = bool(row.get("active"))
         row["check_description"] = bool(row.get("check_description", 1))
         row["baseline_done"] = bool(row.get("baseline_done", 0))
+        row["live_mode"] = bool(row.get("live_mode", 1))
         for key in ("whitelist", "blacklist"):
             try:
                 row[key] = json.loads(row.get(key) or "[]")
@@ -250,6 +276,7 @@ class Database:
             "check_description": 1,
             "webhook": "",
             "interval_seconds": 60,
+            "live_mode": 1,
             "min_seller_rating": None,
             "min_seller_feedback": None,
             "pages": 1,
@@ -258,7 +285,7 @@ class Database:
         data = {**defaults, **dict(payload)}
         for key in ("whitelist", "blacklist"):
             data[key] = json.dumps(clean_terms(data.get(key) or []), ensure_ascii=False)
-        for key in ("active", "check_description"):
+        for key in ("active", "check_description", "live_mode"):
             data[key] = 1 if data.get(key) else 0
         return {key: data.get(key) for key in PROFILE_FIELDS}
 
@@ -355,16 +382,17 @@ class Database:
         try:
             self._execute(
                 """
-                INSERT INTO seen_items (profile_id, item_id, title, price, total_price,
-                    currency, brand, size, condition, url, image_url, seller_id,
-                    seller_name, seller_rating, seller_feedback, seller_url,
-                    favourites, found_at, raw)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                INSERT INTO seen_items (profile_id, item_id, title, description, price,
+                    total_price, currency, brand, size, condition, url, image_url,
+                    seller_id, seller_name, seller_rating, seller_feedback,
+                    seller_url, favourites, found_at, raw)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 """,
                 (
                     profile_id,
                     str(item["id"]),
                     item.get("title", ""),
+                    item.get("description", ""),
                     item.get("price"),
                     item.get("total_price"),
                     item.get("currency", "EUR"),
@@ -379,7 +407,7 @@ class Database:
                     item.get("seller_feedback"),
                     item.get("seller_url", ""),
                     item.get("favourites"),
-                    utcnow_iso(),
+                    utcnow_iso_ms(),
                     json.dumps(raw, ensure_ascii=False) if raw else None,
                 ),
             )
@@ -400,6 +428,51 @@ class Database:
             "UPDATE seen_items SET notified = ?, notify_error = ? "
             "WHERE profile_id = ? AND item_id = ?",
             (status, error, profile_id, str(item_id)),
+        )
+
+    def seen_ids(self, profile_id: int) -> set[str]:
+        """Identifiants déjà enregistrés — amorce du cache mémoire du moteur."""
+        rows = self._fetchall(
+            "SELECT item_id FROM seen_items WHERE profile_id = ?", (profile_id,)
+        )
+        return {str(row["item_id"]) for row in rows}
+
+    def ignored_ids(self, profile_id: int) -> set[str]:
+        rows = self._fetchall(
+            "SELECT item_id FROM ignored_items WHERE profile_id = ?", (profile_id,)
+        )
+        return {str(row["item_id"]) for row in rows}
+
+    def update_item(self, profile_id: int, item_id: str, fields: dict) -> bool:
+        """Complète une annonce déjà enregistrée (description, vendeur, photo…)."""
+        allowed = {
+            "title",
+            "description",
+            "price",
+            "total_price",
+            "currency",
+            "brand",
+            "size",
+            "condition",
+            "url",
+            "image_url",
+            "seller_id",
+            "seller_name",
+            "seller_rating",
+            "seller_feedback",
+            "seller_url",
+            "favourites",
+        }
+        data = {key: value for key, value in (fields or {}).items() if key in allowed}
+        if not data:
+            return False
+        assignments = ", ".join(f"{key} = ?" for key in data)
+        return (
+            self._execute_rowcount(
+                f"UPDATE seen_items SET {assignments} WHERE profile_id = ? AND item_id = ?",
+                [*data.values(), profile_id, str(item_id)],
+            )
+            > 0
         )
 
     # ── Annonces écartées (mémoire négative) ─────────────────────────────
@@ -603,11 +676,13 @@ class Database:
         new_items: int,
         error: str | None,
         duration_ms: int,
+        detection_ms: int | None = None,
     ) -> None:
         self._execute(
             """
             UPDATE scans SET finished_at = ?, status = ?, pages = ?, items_seen = ?,
-                             new_items = ?, error = ?, duration_ms = ?
+                             new_items = ?, error = ?, duration_ms = ?,
+                             detection_ms = ?
              WHERE id = ?
             """,
             (
@@ -618,6 +693,7 @@ class Database:
                 new_items,
                 error,
                 duration_ms,
+                detection_ms,
                 scan_id,
             ),
         )
@@ -627,6 +703,21 @@ class Database:
         return self._execute_rowcount(
             "UPDATE scans SET status = 'interrupted', finished_at = ? WHERE status = 'running'",
             (utcnow_iso(),),
+        )
+
+    def prune_scans(self, keep_per_profile: int = 600) -> int:
+        """Ne garde que les N derniers scans par profil (mode temps réel)."""
+        keep = max(20, int(keep_per_profile))
+        return self._execute_rowcount(
+            """
+            DELETE FROM scans
+             WHERE id NOT IN (
+                   SELECT id FROM scans s2
+                    WHERE s2.profile_id = scans.profile_id
+                    ORDER BY id DESC LIMIT ?
+             )
+            """,
+            (keep,),
         )
 
     def latest_scans(self, limit: int = 20) -> list[dict]:

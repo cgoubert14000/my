@@ -97,9 +97,42 @@ def build_parser() -> argparse.ArgumentParser:
         help="Domaine Vinted pour --check (défaut : www.vinted.fr).",
     )
     parser.add_argument(
+        "--turbo",
+        action="store_true",
+        help="Vitesse maximale : sonde chaque profil en continu à l'intervalle minimal "
+        "(1,5 s par défaut). Détection la plus rapide, risque de blocage plus élevé.",
+    )
+    parser.add_argument(
+        "--interval",
+        type=float,
+        default=None,
+        metavar="SECONDES",
+        help="Force l'intervalle minimal du mode temps réel (ex. --interval 2.5).",
+    )
+    parser.add_argument(
         "--version", action="version", version=f"Vinted Sniper {__version__}"
     )
     return parser
+
+
+def _apply_speed_options(state: AppState, args) -> None:
+    """``--turbo`` / ``--interval`` : réglages de vitesse appliqués à la config."""
+    patch: dict[str, dict] = {}
+    if args.turbo:
+        patch["engine"] = {"realtime_turbo": True}
+    if args.interval:
+        patch.setdefault("engine", {})["realtime_min_interval"] = max(
+            0.5, min(60.0, float(args.interval))
+        )
+    if not patch:
+        return
+    try:
+        state.config.apply_patch(patch)
+    except Exception as exc:  # pragma: no cover - config en lecture seule
+        print(f"⚠️  Réglage de vitesse ignoré : {exc}")
+        return
+    label = "TURBO" if args.turbo else f"intervalle mini {args.interval} s"
+    print(f"⚡ Mode vitesse : {label} (enregistré dans config.json)")
 
 
 async def _diagnose(state: AppState, args) -> dict:
@@ -159,6 +192,7 @@ def main(argv: list[str] | None = None) -> int:
     state = AppState(
         config_path=config_path, db_path=db_path, demo=args.demo and not args.check
     )
+    _apply_speed_options(state, args)
     if args.check:
         return run_check(state, args)
     host = args.host or str(state.config.get("app.host", "127.0.0.1"))

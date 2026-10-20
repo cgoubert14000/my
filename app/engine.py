@@ -1,12 +1,18 @@
-"""Moteur de veille : ordonnancement, scans, self-healing, alertes.
+"""Moteur de veille temps réel : ordonnancement, détection, alertes.
 
 Boucle principale (« scheduler ») :
 
-* un scan indépendant par profil actif, selon son propre intervalle ;
+* chaque profil actif est suivi **en continu** (intervalle adaptatif de 1,5 s à
+  10 s) : un autre scan démarre dès que le précédent est terminé ;
+* détection incrémentale : tant que la première annonce de la page ne change
+  pas, le HTML n'est même pas analysé (une requête + une regex ≈ quelques ms) ;
+* alerte **immédiate** : l'annonce est enregistrée et publiée sur le flux du
+  dashboard puis envoyée à Discord sans attendre l'enrichissement (description,
+  vendeur), qui se poursuit en tâche de fond et met à jour la fiche ;
 * concurrence bornée pour ne pas déclencher les protections Vinted ;
 * sur 403/429/blocage : rotation proxy + UA, renouvellement de session,
   backoff exponentiel, puis reprise automatique (jamais de crash) ;
-* anti-doublon garanti par SQLite, même après redémarrage ;
+* anti-doublon garanti par SQLite + cache mémoire, même après redémarrage ;
 * premier scan = « baseline » (les annonces existantes sont enregistrées
   silencieusement, seules les nouvelles déclenchent une alerte).
 """
@@ -23,6 +29,7 @@ from .database import Database
 from .filters import MatchResult, matches_profile, needs_description
 from .http_client import HttpClient
 from .notify import DiscordNotifier
+from .realtime import HARD_MIN_INTERVAL, LiveSettings, is_live, next_interval
 from .utils import domain_of, human_duration, utcnow_iso
 from .vinted_api import VintedAPI
 
@@ -37,6 +44,10 @@ class ScanOutcome:
     error: str | None = None
     duration_ms: int = 0
     baseline: bool = False
+    #: Page identique au dernier passage (aucune analyse nécessaire).
+    unchanged: bool = False
+    #: Délai entre le début du scan et la première nouveauté détectée (ms).
+    detection_ms: int | None = None
 
 
 @dataclass
@@ -49,7 +60,9 @@ class EngineStats:
     alerts_sent: int = 0
     alerts_failed: int = 0
     blocked: int = 0
+    unchanged: int = 0
     last_scan_at: str | None = None
+    last_detection_ms: int | None = None
     last_error: str | None = None
     last_block_at: str | None = None
 
@@ -75,6 +88,7 @@ class BotEngine:
         self._tasks: list[asyncio.Task] = []
         self._inflight: dict[int, asyncio.Task] = {}
         self._next_run: dict[int, float] = {}
+        self._interval: dict[int, float] = {}
         self._failures: dict[int, int] = {}
         self._warm: dict[str, float] = {}
         self._force_renew: set[str] = set()
@@ -82,19 +96,40 @@ class BotEngine:
         self._alert_sem = asyncio.Semaphore(3)
         self._sem: asyncio.Semaphore | None = None
 
+        # ── Temps réel ───────────────────────────────────────────────────
+        self._settings = LiveSettings.from_config(config)
+        self._newest: dict[int, str] = {}
+        #: Profils dont le prochain passage doit analyser toute la page (rafale).
+        self._deep_next: set[int] = set()
+        self._last_found: dict[int, float] = {}
+        self._quiet: dict[int, int] = {}
+        #: Multiplicateur d'intervalle après blocages répétés (anti-ban adaptatif).
+        self._throttle: dict[int, float] = {}
+        self._seen_cache: dict[int, set[str]] = {}
+        self._ignored_cache: dict[int, set[str]] = {}
+        self._listeners: set[asyncio.Queue] = set()
+        self._enrich_sem = asyncio.Semaphore(2)
+        self._bg: set[asyncio.Task] = set()
+
     # ── Cycle de vie ─────────────────────────────────────────────────────
     async def start(self) -> None:
         if self._running:
             return
         self._running = True
+        self._settings = LiveSettings.from_config(self.config)
         self._sem = asyncio.Semaphore(
             max(1, int(self.config.get("engine.max_concurrent_profiles", 2)))
         )
+        live = bool(self.config.get("engine.live_mode", True))
         self.db.log(
             "INFO",
             f"Moteur démarré (transport {self.client.transport}, "
-            f"intervalle par défaut "
-            f"{self.config.get('engine.default_interval_seconds')}s).",
+            + (
+                f"temps réel {self._settings.describe()})"
+                if live
+                else f"intervalle par défaut "
+                f"{self.config.get('engine.default_interval_seconds')}s)"
+            ),
             source="engine",
         )
         self._tasks = [
@@ -108,12 +143,14 @@ class BotEngine:
 
     async def stop(self) -> None:
         self._running = False
-        pending = [*self._tasks, *list(self._inflight.values())]
+        pending = [*self._tasks, *list(self._inflight.values()), *list(self._bg)]
         for task in pending:
             task.cancel()
         await asyncio.gather(*pending, return_exceptions=True)
         self._tasks.clear()
         self._inflight.clear()
+        self._bg.clear()
+        self._listeners.clear()
         self.db.log("INFO", "Moteur arrêté proprement.", source="engine")
 
     def set_paused(self, paused: bool) -> None:
@@ -123,9 +160,10 @@ class BotEngine:
         )
 
     async def apply_config(self) -> None:
-        """Répercute les réglages (concurrence, délais) sans redémarrer."""
+        """Répercute les réglages (concurrence, intervalles) sans redémarrer."""
         concurrency = max(1, int(self.config.get("engine.max_concurrent_profiles", 2)))
         self._sem = asyncio.Semaphore(concurrency)
+        self._settings = LiveSettings.from_config(self.config)
 
     async def renew_sessions(self) -> list[str]:
         """Force une nouvelle session Vinted (nouveaux cookies) sur chaque domaine."""
@@ -140,6 +178,48 @@ class BotEngine:
             await self.client.warm_up(f"https://{domain}/", force=True)
         self._warm.clear()
         return domains
+
+    # ── Bus temps réel (Server-Sent Events) ──────────────────────────────
+    def subscribe(self) -> asyncio.Queue:
+        """Abonne le dashboard : chaque nouveauté arrive sans attendre le poll."""
+        queue: asyncio.Queue = asyncio.Queue(maxsize=200)
+        self._listeners.add(queue)
+        return queue
+
+    def unsubscribe(self, queue: asyncio.Queue) -> None:
+        self._listeners.discard(queue)
+
+    def publish(self, event: dict[str, Any]) -> None:
+        for queue in list(self._listeners):
+            try:
+                queue.put_nowait(event)
+            except asyncio.QueueFull:  # pragma: no cover - client trop lent
+                pass
+
+    # ── Caches mémoire (anti-doublon instantané) ─────────────────────────
+    def invalidate_profile(self, profile_id: int) -> None:
+        """Oublie les caches d'un profil (après « oublier les annonces vues »)."""
+        self._seen_cache.pop(profile_id, None)
+        self._ignored_cache.pop(profile_id, None)
+        self._newest.pop(profile_id, None)
+        self._interval.pop(profile_id, None)
+        self._last_found.pop(profile_id, None)
+        self._throttle.pop(profile_id, None)
+        self._deep_next.discard(profile_id)
+
+    def _seen(self, profile_id: int) -> set[str]:
+        cache = self._seen_cache.get(profile_id)
+        if cache is None:
+            cache = self.db.seen_ids(profile_id)
+            self._seen_cache[profile_id] = cache
+        return cache
+
+    def _ignored(self, profile_id: int) -> set[str]:
+        cache = self._ignored_cache.get(profile_id)
+        if cache is None:
+            cache = self.db.ignored_ids(profile_id)
+            self._ignored_cache[profile_id] = cache
+        return cache
 
     async def _watchdog(self, coro_factory, name: str) -> None:
         """Relance la boucle si elle meurt (protection anti-crash ultime)."""
@@ -159,7 +239,7 @@ class BotEngine:
 
     # ── Ordonnanceur ─────────────────────────────────────────────────────
     async def _scheduler(self) -> None:
-        await asyncio.sleep(0.4)  # laisse le dashboard démarrer
+        await asyncio.sleep(0.2)  # laisse le dashboard démarrer
         while self._running:
             try:
                 await self._schedule_tick()
@@ -167,7 +247,8 @@ class BotEngine:
                 raise
             except Exception as exc:  # pragma: no cover
                 self.db.log("ERROR", f"Ordonnanceur : {exc}", source="engine")
-            await asyncio.sleep(1)
+            # Tick court : indispensable pour tenir un intervalle de 1,5 s.
+            await asyncio.sleep(0.25)
 
     async def _schedule_tick(self) -> None:
         if self.paused or time.time() < self._global_cooldown_until:
@@ -179,16 +260,19 @@ class BotEngine:
             if profile_id not in active_ids and profile_id not in self._inflight:
                 self._next_run.pop(profile_id, None)
                 self._failures.pop(profile_id, None)
+                self.invalidate_profile(profile_id)
 
         now = time.time()
         for profile in profiles:
             profile_id = profile["id"]
             if profile_id in self._inflight:
                 continue
+            if not profile.get("url"):
+                continue  # rien à surveiller : on ne consomme pas de requête
             due = self._next_run.get(profile_id)
             if due is None:
-                # Premier passage : décalage aléatoire pour lisser les scans.
-                self._next_run[profile_id] = now + min(5 + profile_id * 1.5, 20)
+                # Démarrage immédiat (léger décalage pour lisser les profils).
+                self._next_run[profile_id] = now + 0.2 + (profile_id % 5) * 0.25
                 continue
             if now < due:
                 continue
@@ -201,15 +285,28 @@ class BotEngine:
             self._run_profile(profile, self._sem), name=f"scan-{profile_id}"
         )
         self._inflight[profile_id] = task
-        self._next_run[profile_id] = time.time() + int(
-            profile.get("interval_seconds") or 60
-        )
+        self._next_run[profile_id] = time.time() + self._current_interval(profile)
 
         def _cleanup(_task: asyncio.Task, pid: int = profile_id) -> None:
             if self._inflight.get(pid) is _task:
                 self._inflight.pop(pid, None)
 
         task.add_done_callback(_cleanup)
+
+    def _current_interval(self, profile: dict) -> float:
+        """Intervalle courant d'un profil (avant même son premier scan)."""
+        if is_live(profile, self.config):
+            return self._interval.get(profile["id"], self._settings.min_interval)
+        try:
+            return max(
+                HARD_MIN_INTERVAL,
+                float(
+                    profile.get("interval_seconds")
+                    or self.config.get("engine.default_interval_seconds", 60)
+                ),
+            )
+        except (TypeError, ValueError):
+            return 60.0
 
     async def _run_profile(self, profile: dict, sem: asyncio.Semaphore) -> None:
         profile_id = profile["id"]
@@ -228,41 +325,108 @@ class BotEngine:
                     profile_id=profile_id,
                 )
                 self._record_failure(profile, outcome.error or "erreur inconnue")
-            interval = int(
-                profile.get("interval_seconds")
-                or self.config.get("engine.default_interval_seconds", 60)
-            )
-            if outcome.status == "ok":
-                self._failures[profile_id] = 0
-                self._next_run[profile_id] = time.time() + interval
-            elif outcome.status == "blocked":
-                self._record_failure(profile, outcome.error or "blocage")
-                domain = domain_of(profile.get("url") or "", "www.vinted.fr")
-                self._force_renew.add(domain)
-                delay = self._backoff(profile_id, interval)
-                self._next_run[profile_id] = time.time() + delay
-                self._global_cooldown_until = max(
-                    self._global_cooldown_until, time.time() + min(30, delay / 2)
-                )
-                self.db.log(
-                    "WARNING",
-                    f"Self-healing : session {domain} programmée pour "
-                    f"renouvellement, reprise dans {human_duration(delay)}.",
-                    profile_id=profile_id,
-                )
-            elif outcome.status == "error":
-                self._record_failure(profile, outcome.error or "erreur")
-                self._next_run[profile_id] = time.time() + self._backoff(
-                    profile_id, interval
-                )
-            else:
-                self._failures[profile_id] = 0
-                self._next_run[profile_id] = time.time() + interval
+            interval = self._after_scan(profile, outcome)
+            self._next_run[profile_id] = time.time() + interval
 
-    def _backoff(self, profile_id: int, interval: int) -> int:
+    def _after_scan(self, profile: dict, outcome: ScanOutcome) -> float:
+        """Calcule le prochain passage et applique le self-healing."""
+        profile_id = int(profile["id"])
+        live = is_live(profile, self.config)
+        if outcome.status == "blocked":
+            self._record_failure(profile, outcome.error or "blocage")
+            self._slow_down(profile)
+            domain = domain_of(profile.get("url") or "", "www.vinted.fr")
+            self._force_renew.add(domain)
+            delay = self._backoff(profile_id)
+            self._global_cooldown_until = max(
+                self._global_cooldown_until, time.time() + min(20, delay / 3)
+            )
+            self._interval[profile_id] = self._settings.min_interval
+            self.db.log(
+                "WARNING",
+                f"Self-healing : session {domain} programmée pour "
+                f"renouvellement, reprise dans {human_duration(delay)}.",
+                profile_id=profile_id,
+            )
+            return delay
+        if outcome.status == "error":
+            self._record_failure(profile, outcome.error or "erreur")
+            delay = self._backoff(profile_id)
+            self._interval[profile_id] = self._settings.min_interval
+            return delay
+
+        self._failures[profile_id] = 0
+        self._speed_up(profile)
+        if not live:
+            try:
+                return max(
+                    HARD_MIN_INTERVAL,
+                    float(
+                        profile.get("interval_seconds")
+                        or self.config.get("engine.default_interval_seconds", 60)
+                    ),
+                )
+            except (TypeError, ValueError):
+                return 60.0
+
+        since_found: float | None = None
+        last = self._last_found.get(profile_id)
+        if last:
+            since_found = time.time() - last
+        interval = next_interval(
+            self._interval.get(profile_id),
+            new_items=outcome.new_items,
+            since_last_found=since_found,
+            settings=self._settings,
+        )
+        # Après un blocage, on sonde volontairement moins vite pendant un moment.
+        throttle = self._throttle.get(profile_id, 1.0)
+        if throttle > 1.0:
+            interval = min(60.0, interval * throttle)
+        self._interval[profile_id] = interval
+        return interval
+
+    def throttle_for(self, profile_id: int) -> float:
+        return round(self._throttle.get(profile_id, 1.0), 2)
+
+    def _slow_down(self, profile: dict) -> None:
+        """Blocage détecté : on espace les passages (jusqu'à 8×)."""
+        profile_id = int(profile["id"])
+        previous = self._throttle.get(profile_id, 1.0)
+        value = min(8.0, previous * 1.6)
+        if value - previous < 0.05:
+            return
+        self._throttle[profile_id] = value
+        self.db.log(
+            "WARNING",
+            f"Anti-blocage : « {profile['name']} » ralenti ×{value:.1f} "
+            f"(intervalle ≈ {self._settings.min_interval * value:.1f} s) "
+            f"le temps que Vinted se calme.",
+            profile_id=profile_id,
+        )
+
+    def _speed_up(self, profile: dict) -> None:
+        """Retour progressif à la vitesse normale après des passages réussis."""
+        profile_id = int(profile["id"])
+        value = self._throttle.get(profile_id)
+        if not value or value <= 1.0:
+            return
+        value = max(1.0, value * 0.9)
+        if value <= 1.05:
+            self._throttle.pop(profile_id, None)
+            self.db.log(
+                "INFO",
+                f"« {profile['name']} » : vitesse de détection revenue à la normale.",
+                profile_id=profile_id,
+            )
+        else:
+            self._throttle[profile_id] = value
+
+    def _backoff(self, profile_id: int) -> float:
         failures = self._failures.get(profile_id, 1)
-        delay = min(interval * (2 ** min(failures, 4)), 900)
-        return max(15, int(delay))
+        base = max(15, int(self._settings.max_interval or 15))
+        delay = min(base * (2 ** min(failures, 4)), 900)
+        return max(10.0, float(delay))
 
     def _record_failure(self, profile: dict, error: str) -> None:
         if self.paused:
@@ -289,9 +453,15 @@ class BotEngine:
             and not manual
         )
         outcome.baseline = baseline
+        live = is_live(profile, self.config)
 
         detail_budget = max(
             0, int(self.config.get("engine.detail_budget_per_scan", 15))
+        )
+        head_limit = (
+            max(1, int(self.config.get("engine.realtime_head_items", 24)))
+            if live
+            else None
         )
         delay = float(self.config.get("engine.min_request_delay", 2.0))
         pages = max(1, min(int(profile.get("pages") or 1), 5))
@@ -301,17 +471,51 @@ class BotEngine:
         try:
             await self._ensure_session(domain, profile_id)
             for page in range(1, pages + 1):
-                result = await self.api.search(profile, page=page, domain=domain)
+                # Page 1 en mode incrémental : on ne demande le HTML complet que
+                # si la tête de liste a bougé depuis le dernier passage.
+                # Après une rafale (nouvelles annonces), on analyse une fois
+                # toute la page : les annonces au-delà des 24 premières cartes
+                # ne doivent jamais être perdues.
+                deep = page == 1 and profile_id in self._deep_next
+                known = (
+                    None
+                    if deep
+                    else (self._newest.get(profile_id) if page == 1 else None)
+                )
+                result = await self.api.search(
+                    profile,
+                    page=page,
+                    domain=domain,
+                    known_newest=known,
+                    head_limit=None if deep else head_limit,
+                )
+                if deep:
+                    self._deep_next.discard(profile_id)
                 if result.blocked:
                     outcome.status = "blocked"
                     outcome.error = result.error or "blocage anti-bot"
                     self.stats.blocked += 1
                     self.stats.last_block_at = utcnow_iso()
+                    self.publish(
+                        {
+                            "type": "blocked",
+                            "profile_id": profile_id,
+                            "error": outcome.error,
+                        }
+                    )
                     break
                 if result.error:
                     outcome.status = "error"
                     outcome.error = result.error
                     break
+
+                if page == 1:
+                    if result.unchanged:
+                        outcome.unchanged = True
+                        self.stats.unchanged += 1
+                        break
+                    if result.newest_id:
+                        self._newest[profile_id] = result.newest_id
 
                 outcome.pages += 1
                 outcome.items_seen += len(result.items)
@@ -322,12 +526,12 @@ class BotEngine:
                         f"aucune annonce (page vide, filtres trop stricts ?).",
                         profile_id=profile_id,
                     )
+                seen = self._seen(profile_id)
+                ignored = self._ignored(profile_id)
                 for item in result.items:
                     if not item.get("id"):
                         continue
-                    if self.db.is_seen(profile_id, item["id"]) or self.db.is_ignored(
-                        profile_id, item["id"]
-                    ):
+                    if str(item["id"]) in seen or str(item["id"]) in ignored:
                         continue
                     preliminary = matches_profile(
                         {
@@ -344,62 +548,51 @@ class BotEngine:
                     ):
                         # La description peut contenir le mot-clé attendu.
                         candidates.append(item)
-                if len(result.items) < per_page:
+                expected = head_limit or per_page
+                if len(result.items) < expected:
                     break
-                if page < pages:
+                if page < pages and not live:
                     await asyncio.sleep(delay * (1 + page * 0.2))
 
-            # ── Enrichissement + filtrage fin + alertes ──────────────────
+            # ── Vérification fine : description (si nécessaire) + vendeur ──
             base_profile = {
                 **profile,
                 "min_seller_rating": None,
                 "min_seller_feedback": None,
             }
-            enrich = bool(self.config.get("engine.enrich_sellers", True))
             needs_seller = (
-                enrich
-                or profile.get("min_seller_rating") is not None
+                profile.get("min_seller_rating") is not None
                 or profile.get("min_seller_feedback") is not None
             )
-            detail_used = 0
-            for item in candidates:
-                if self.db.is_ignored(profile_id, item["id"]):
-                    continue
 
-                fetched_detail = False
-                if detail_used < detail_budget:
-                    detail_used += 1
-                    item = await self.api.enrich_item(item, domain, profile_id)
-                    fetched_detail = True
-                    await asyncio.sleep(delay * 0.6)
-                elif baseline:
-                    # Budget épuisé pendant la baseline : on mémorise l'annonce
-                    # pour ne pas envoyer une alerte « en retard » plus tard.
-                    self.db.add_ignored(profile_id, item["id"], "baseline incomplète")
+            # Les requêtes « fiche article / vendeur » partent en parallèle : la
+            # première annonce n'attend jamais les autres (latence minimale).
+            if candidates and (needs_description(profile) or needs_seller):
+                if live:
+                    await self._enrich_candidates(
+                        profile, candidates, domain, detail_budget, needs_seller
+                    )
+                else:
+                    await self._enrich_candidates_serial(
+                        profile, candidates, domain, detail_budget, needs_seller, delay
+                    )
+
+            matches: list[dict] = []
+            seen_rows: list[dict] = []
+            for item in candidates:
+                if str(item["id"]) in self._ignored(profile_id):
                     continue
 
                 # 1) Filtres prix / blacklist / whitelist (vendeur inconnu toléré)
                 verdict: MatchResult = matches_profile(base_profile, item)
                 if not verdict.matched:
-                    # Si la description n'a pas pu être lue, on réessaiera au
-                    # prochain scan plutôt que d'écarter définitivement.
-                    if fetched_detail or not needs_description(profile):
-                        self.db.add_ignored(profile_id, item["id"], verdict.reason)
-                    self.db.log(
-                        "DEBUG",
-                        f"Écarté ({verdict.reason}) : « {item.get('title', '')[:60]} »",
-                        profile_id=profile_id,
-                    )
+                    self._reject(profile_id, item, verdict.reason)
                     continue
 
-                # 2) Réputation vendeur (cache SQLite, 1 requête max par vendeur)
-                if needs_seller:
-                    item = await self.api.fetch_seller(item, domain, profile_id)
-                    await asyncio.sleep(min(delay * 0.3, 1.0))
+                # 2) Réputation vendeur (déjà récupérée si un seuil est défini)
                 verdict = matches_profile(profile, item)
                 if not verdict.matched:
                     if verdict.reason.startswith("nombre d'avis"):
-                        # Info vendeur momentanément indisponible : on retentera.
                         self.db.log(
                             "DEBUG",
                             f"Vendeur non vérifié ({verdict.reason}) : "
@@ -407,31 +600,63 @@ class BotEngine:
                             profile_id=profile_id,
                         )
                     else:
-                        self.db.add_ignored(profile_id, item["id"], verdict.reason)
-                        self.db.log(
-                            "DEBUG",
-                            f"Écarté ({verdict.reason}) : "
-                            f"« {item.get('title', '')[:60]} »",
-                            profile_id=profile_id,
-                        )
+                        self._reject(profile_id, item, verdict.reason)
                     continue
 
                 if not self.db.add_seen(profile_id, item, raw=None):
                     continue  # doublon détecté entre-temps
+                self._seen(profile_id).add(str(item["id"]))
+                self._last_found[profile_id] = time.time()
                 outcome.new_items += 1
                 self.stats.new_items += 1
-                if baseline:
-                    self.db.mark_notified(profile_id, item["id"], skipped=True)
-                    continue
-                ok, error = await self._notify(profile, item)
-                if ok:
-                    outcome.alerts += 1
-                    self.stats.alerts_sent += 1
-                else:
-                    self.stats.alerts_failed += 1
-                self.db.mark_notified(profile_id, item["id"], None if ok else error)
+                if outcome.detection_ms is None:
+                    outcome.detection_ms = max(
+                        1, int((time.perf_counter() - started) * 1000)
+                    )
+                    self.stats.last_detection_ms = outcome.detection_ms
+                row = self.db.get_item(profile_id, item["id"]) or item
+                seen_rows.append({**row, "profile_name": profile["name"]})
+                matches.append(item)
 
-            if outcome.status == "ok" and outcome.items_seen == 0:
+            # ── Publication immédiate sur le flux + Discord ────────────────
+            for row in seen_rows:
+                self.publish(
+                    {
+                        "type": "item",
+                        "profile_id": profile_id,
+                        "detection_ms": outcome.detection_ms,
+                        "baseline": baseline,
+                        "item": row,
+                    }
+                )
+
+            if baseline:
+                for item in matches:
+                    self.db.mark_notified(profile_id, item["id"], skipped=True)
+            elif matches:
+                results = await asyncio.gather(
+                    *(self._notify(profile, item) for item in matches)
+                )
+                for item, (ok, error) in zip(matches, results):
+                    if ok:
+                        outcome.alerts += 1
+                        self.stats.alerts_sent += 1
+                    else:
+                        self.stats.alerts_failed += 1
+                    self.db.mark_notified(profile_id, item["id"], None if ok else error)
+
+            if outcome.new_items:
+                # Le prochain passage relira toute la page (voir « deep »).
+                self._deep_next.add(profile_id)
+
+            # ── Enrichissement en tâche de fond (ne retarde jamais l'alerte) ─
+            if not baseline:
+                for item in matches:
+                    self._schedule_enrichment(profile, item, domain)
+
+            if outcome.unchanged:
+                outcome.status = "ok"  # page identique : rien à signaler
+            elif outcome.status == "ok" and outcome.items_seen == 0:
                 outcome.status = "empty"
 
         except asyncio.CancelledError:
@@ -461,6 +686,7 @@ class BotEngine:
                 new_items=outcome.new_items,
                 error=outcome.error,
                 duration_ms=duration,
+                detection_ms=outcome.detection_ms,
             )
             self.db.record_scan(
                 profile_id,
@@ -469,46 +695,235 @@ class BotEngine:
                 new_items=outcome.new_items,
                 found=outcome.new_items > 0,
             )
-            if status == "ok" and outcome.items_seen > 0:
-                # La baseline n'est consommée que par un scan qui a réellement vu
-                # des annonces (pas par une réponse vide / un blocage).
+            if status == "ok" and (outcome.items_seen > 0 or outcome.pages > 0):
+                # La baseline est consommée dès qu'une page a réellement été lue :
+                # une recherche momentanément vide ne doit pas retarder les alertes
+                # des annonces publiées ensuite. Un blocage, lui, ne la consomme pas.
                 self.db.mark_baseline_done(profile_id)
-            if (
-                outcome.status == "empty"
-                and outcome.items_seen == 0
-                and not outcome.error
-            ):
-                self.db.log(
-                    "WARNING",
-                    f"Scan « {profile['name']} » : aucune annonce reçue. "
-                    f"Vérifiez l'URL de recherche ou réessayez plus tard "
-                    f"(Vinted a peut-être modifié son API).",
-                    profile_id=profile_id,
-                )
-            if baseline:
-                self.db.log(
-                    "INFO",
-                    f"Scan initial (baseline) « {profile['name']} » : "
-                    f"{outcome.new_items} annonce(s) enregistrée(s) sans "
-                    f"notification.",
-                    profile_id=profile_id,
-                )
-            elif outcome.status in {"ok", "empty"}:
-                self.db.log(
-                    "INFO",
-                    f"Scan « {profile['name']} » : {outcome.items_seen} annonce(s) "
-                    f"analysée(s), {outcome.new_items} nouvelle(s), "
-                    f"{outcome.alerts} alerte(s), {duration} ms.",
-                    profile_id=profile_id,
-                )
-            else:
-                self.db.log(
-                    "WARNING",
-                    f"Scan « {profile['name']} » interrompu "
-                    f"({outcome.status}) : {outcome.error}",
-                    profile_id=profile_id,
-                )
+            self._log_scan(profile, outcome, live)
+            self.publish(
+                {
+                    "type": "scan",
+                    "profile_id": profile_id,
+                    "status": status,
+                    "new_items": outcome.new_items,
+                    "duration_ms": duration,
+                    "detection_ms": outcome.detection_ms,
+                    "unchanged": outcome.unchanged,
+                }
+            )
         return outcome
+
+    def _log_scan(self, profile: dict, outcome: ScanOutcome, live: bool) -> None:
+        """Journalise sans noyer les logs quand on sonde toutes les secondes."""
+        profile_id = int(profile["id"])
+        quiet_count = self._quiet.get(profile_id, 0) + 1
+        self._quiet[profile_id] = quiet_count
+        if outcome.baseline:
+            self.db.log(
+                "INFO",
+                f"Scan initial (baseline) « {profile['name']} » : "
+                f"{outcome.new_items} annonce(s) enregistrée(s) sans "
+                f"notification.",
+                profile_id=profile_id,
+            )
+            return
+        if outcome.new_items:
+            self._quiet[profile_id] = 0
+            self.db.log(
+                "INFO",
+                f"⚡ {outcome.new_items} nouvelle(s) annonce(s) « "
+                f"{profile['name']} » en {outcome.detection_ms or 0} ms "
+                f"({outcome.alerts} alerte(s) Discord).",
+                profile_id=profile_id,
+            )
+            return
+        if outcome.status == "empty" and not outcome.error:
+            if live and quiet_count % 60 != 0:
+                return
+            self.db.log(
+                "WARNING",
+                f"Scan « {profile['name']} » : aucune annonce reçue. "
+                f"Vérifiez l'URL de recherche, les filtres de prix, ou "
+                f"relancez plus tard (Vinted a peut-être modifié sa structure).",
+                profile_id=profile_id,
+            )
+            return
+        if outcome.status in {"error", "blocked"}:
+            self.db.log(
+                "WARNING",
+                f"Scan « {profile['name']} » interrompu "
+                f"({outcome.status}) : {outcome.error}",
+                profile_id=profile_id,
+            )
+            return
+        if live and not (quiet_count % 60 == 0 and outcome.items_seen):
+            return  # silence en temps réel : un point de statut par minute max
+        self.db.log(
+            "INFO",
+            f"Scan « {profile['name']} » : {outcome.items_seen} annonce(s) "
+            f"analysée(s), 0 nouvelle, {outcome.duration_ms} ms.",
+            profile_id=profile_id,
+        )
+
+    def _reject(self, profile_id: int, item: dict, reason: str) -> None:
+        self.db.add_ignored(profile_id, item["id"], reason)
+        self._ignored(profile_id).add(str(item["id"]))
+        self.db.log(
+            "DEBUG",
+            f"Écarté ({reason}) : « {item.get('title', '')[:60]} »",
+            profile_id=profile_id,
+        )
+
+    # ── Enrichissement avant décision ────────────────────────────────────
+    async def _enrich_candidates(
+        self,
+        profile: dict,
+        candidates: list[dict],
+        domain: str,
+        budget: int,
+        needs_seller: bool,
+    ) -> None:
+        """Complète les fiches en parallèle (mode temps réel).
+
+        Le résultat est réinjecté **dans les dictionnaires d'origine** : la
+        suite du scan reste séquentielle, donc déterministe côté SQLite.
+        """
+        profile_id = int(profile["id"])
+        wanted = candidates[:budget] if budget else []
+        if not wanted:
+            return
+        semaphore = asyncio.Semaphore(3)
+
+        async def complete(item: dict) -> None:
+            async with semaphore:
+                try:
+                    if needs_description(profile):
+                        item.update(
+                            await self.api.enrich_item(item, domain, profile_id) or {}
+                        )
+                    if needs_seller:
+                        item.update(
+                            await self.api.fetch_seller(item, domain, profile_id) or {}
+                        )
+                except asyncio.CancelledError:
+                    raise
+                except Exception:  # pragma: no cover - best effort
+                    pass
+
+        await asyncio.gather(*(complete(item) for item in wanted))
+
+    async def _enrich_candidates_serial(
+        self,
+        profile: dict,
+        candidates: list[dict],
+        domain: str,
+        budget: int,
+        needs_seller: bool,
+        delay: float,
+    ) -> None:
+        """Version douce (mode intervalle) : une requête à la fois, avec pause."""
+        profile_id = int(profile["id"])
+        used = 0
+        for item in candidates:
+            if used >= budget:
+                break
+            used += 1
+            try:
+                if needs_description(profile):
+                    item.update(
+                        await self.api.enrich_item(item, domain, profile_id) or {}
+                    )
+                    await asyncio.sleep(min(delay * 0.5, 1.0))
+                if needs_seller:
+                    item.update(
+                        await self.api.fetch_seller(item, domain, profile_id) or {}
+                    )
+                    await asyncio.sleep(min(delay * 0.3, 1.0))
+            except asyncio.CancelledError:
+                raise
+            except Exception:  # pragma: no cover - best effort
+                pass
+
+    # ── Enrichissement différé ───────────────────────────────────────────
+    def _schedule_enrichment(self, profile: dict, item: dict, domain: str) -> None:
+        if not (
+            self.config.get("engine.detail_fetch", True)
+            or self.config.get("engine.enrich_sellers", True)
+        ):
+            return
+        task = asyncio.create_task(
+            self._enrich_later(profile, item, domain),
+            name=f"enrich-{profile['id']}-{item['id']}",
+        )
+        self._bg.add(task)
+        task.add_done_callback(self._bg.discard)
+
+    async def _enrich_later(self, profile: dict, item: dict, domain: str) -> None:
+        """Description + vendeur + photo HD, puis mise à jour de la fiche."""
+        async with self._enrich_sem:
+            profile_id = int(profile["id"])
+            current = dict(item)
+            try:
+                if self.config.get("engine.detail_fetch", True):
+                    current = await asyncio.wait_for(
+                        self.api.enrich_item(current, domain, profile_id), timeout=20
+                    )
+                if self.config.get("engine.enrich_sellers", True):
+                    current = await asyncio.wait_for(
+                        self.api.fetch_seller(current, domain, profile_id), timeout=20
+                    )
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:  # pragma: no cover - best effort
+                self.db.log(
+                    "DEBUG",
+                    f"Enrichissement différé incomplet ({type(exc).__name__}).",
+                    profile_id=profile_id,
+                )
+                return
+            fields = {
+                key: current.get(key)
+                for key in (
+                    "title",
+                    "description",
+                    "price",
+                    "total_price",
+                    "currency",
+                    "brand",
+                    "size",
+                    "condition",
+                    "image_url",
+                    "seller_id",
+                    "seller_name",
+                    "seller_rating",
+                    "seller_feedback",
+                    "seller_url",
+                    "favourites",
+                )
+                if current.get(key) not in (None, "")
+            }
+            if not fields:
+                return
+            # On ne réécrit (ni ne publie) que si quelque chose a réellement changé.
+            before = self.db.get_item(profile_id, item["id"]) or {}
+            changed = {
+                key: value
+                for key, value in fields.items()
+                if str(before.get(key, "")) != str(value)
+            }
+            if not changed:
+                return
+            if self.db.update_item(profile_id, item["id"], changed):
+                row = self.db.get_item(profile_id, item["id"])
+                if row:
+                    self.publish(
+                        {
+                            "type": "item_update",
+                            "profile_id": profile_id,
+                            "item": {**row, "profile_name": profile["name"]},
+                        }
+                    )
 
     async def _notify(self, profile: dict, item: dict) -> tuple[bool, str | None]:
         async with self._alert_sem:
@@ -552,6 +967,7 @@ class BotEngine:
                     retention = int(self.config.get("engine.retention_days", 30))
                     purged = self.db.purge_seen(retention)
                     self.db.purge_logs(5000)
+                    self.db.prune_scans(keep_per_profile=600)
                     if purged:
                         self.db.log(
                             "INFO",
@@ -574,7 +990,7 @@ class BotEngine:
             return {"ok": False, "error": "Ce profil est déjà en cours de scan."}
         if not profile.get("url"):
             return {"ok": False, "error": "Renseignez d'abord une URL de recherche."}
-        self._launch(profile)
+        self._launch(profile)  # fonctionne aussi quand le moteur est en pause
         self.db.log(
             "INFO",
             f"Scan manuel demandé pour « {profile['name']} ».",
@@ -582,10 +998,19 @@ class BotEngine:
         )
         return {"ok": True, "message": "Scan lancé."}
 
+    def seconds_to_next(self, profile_id: int) -> float | None:
+        due = self._next_run.get(profile_id)
+        if due is None:
+            return None
+        return max(0.0, round(due - time.time(), 1))
+
     def status(self) -> dict[str, Any]:
         now = time.time()
         profiles = self.db.list_profiles()
         with_url = len([p for p in profiles if p.get("url")])
+        live_profiles = [
+            p["id"] for p in profiles if p.get("active") and is_live(p, self.config)
+        ]
         return {
             "running": self._running,
             "paused": self.paused,
@@ -597,6 +1022,13 @@ class BotEngine:
             "profiles_configured": with_url,
             "inflight": sorted(self._inflight),
             "global_cooldown": max(0, int(self._global_cooldown_until - now)),
+            "realtime": {
+                "enabled": bool(self.config.get("engine.live_mode", True)),
+                "live_profiles": live_profiles,
+                "min_interval": self._settings.min_interval,
+                "max_interval": self._settings.max_interval,
+                "turbo": self._settings.turbo,
+            },
             "stats": {
                 "scans": self.stats.scans,
                 "scans_failed": self.stats.scans_failed,
@@ -605,13 +1037,17 @@ class BotEngine:
                 "alerts_sent": self.stats.alerts_sent,
                 "alerts_failed": self.stats.alerts_failed,
                 "blocked": self.stats.blocked,
+                "unchanged": self.stats.unchanged,
                 "last_scan_at": self.stats.last_scan_at,
+                "last_detection_ms": self.stats.last_detection_ms,
                 "last_error": self.stats.last_error,
                 "last_block_at": self.stats.last_block_at,
             },
             "next_runs": {
                 str(pid): max(0, int(due - now)) for pid, due in self._next_run.items()
             },
+            "intervals": {str(pid): value for pid, value in self._interval.items()},
+            "throttle": {str(pid): value for pid, value in self._throttle.items()},
             "http": self.client.stats(),
             "notifier": dict(self.notifier.stats),
         }

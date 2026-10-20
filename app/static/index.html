@@ -25,6 +25,9 @@
   </div>
   <div class="topbar-actions">
     <span id="demoBadge" class="badge badge-demo hidden">MODE DÉMO</span>
+    <span id="livePill" class="live-pill is-loading" title="Flux poussé par le serveur">
+      <span class="live-dot"></span><span id="liveLabel">Connexion…</span>
+    </span>
     <span id="enginePill" class="engine-pill is-loading" title="État du moteur">
       <span class="dot"></span><span id="engineLabel">Connexion…</span>
     </span>
@@ -142,18 +145,30 @@
     <section class="panel">
       <header class="panel-head compact"><h2>Réglages rapides</h2></header>
       <form id="settingsForm" class="stack" autocomplete="off">
-        <div class="grid-2">
-          <label class="field"><span>Intervalle (s)</span>
-            <input type="number" id="cfgInterval" min="15" max="3600" step="5"></label>
+        <div class="toggle-list">
+          <label class="switch-line" title="Sonde le catalogue en continu pour détecter les annonces à la seconde">
+            <span>⚡ Mode temps réel (tous les profils)</span>
+            <input type="checkbox" id="cfgLive" class="switch"></label>
+          <label class="switch-line" title="Intervalle fixe au minimum : détection la plus rapide, risque de blocage plus élevé">
+            <span>Turbo (intervalle minimal constant)</span>
+            <input type="checkbox" id="cfgTurbo" class="switch"></label>
+        </div>
+        <div class="grid-3">
+          <label class="field"><span>Intervalle mini (s)</span>
+            <input type="number" id="cfgRealtimeMin" min="0.5" max="60" step="0.5"></label>
+          <label class="field"><span>Intervalle maxi (s)</span>
+            <input type="number" id="cfgRealtimeMax" min="2" max="600" step="1"></label>
           <label class="field"><span>Délai requêtes (s)</span>
             <input type="number" id="cfgDelay" min="0.5" max="30" step="0.5"></label>
         </div>
         <div class="grid-2">
+          <label class="field"><span>Intervalle hors temps réel (s)</span>
+            <input type="number" id="cfgInterval" min="1" max="3600" step="1"></label>
           <label class="field"><span>Scans parallèles</span>
             <input type="number" id="cfgConcurrency" min="1" max="5" step="1"></label>
-          <label class="field"><span>Annonces / page</span>
-            <input type="number" id="cfgPerPage" min="24" max="96" step="12"></label>
         </div>
+        <label class="field"><span>Annonces / page</span>
+          <input type="number" id="cfgPerPage" min="24" max="96" step="12"></label>
         <label class="field"><span>Webhook Discord par défaut</span>
           <input type="url" id="cfgWebhook" placeholder="https://discord.com/api/webhooks/…"></label>
         <label class="field"><span>Mention (optionnel)</span>
@@ -208,8 +223,9 @@
       <div class="grid-2">
         <label class="field"><span>Nom du profil <em>*</em></span>
           <input type="text" id="pName" maxlength="80" required placeholder="Sneakers Hype"></label>
-        <label class="field"><span>Intervalle de scan (s)</span>
-          <input type="number" id="pInterval" min="15" max="3600" step="5" value="60"></label>
+        <label class="field" id="pIntervalField"><span>Intervalle hors temps réel (s)</span>
+          <input type="number" id="pInterval" min="1" max="3600" step="1" value="60">
+          <small>Utilisé seulement si le suivi temps réel est désactivé.</small></label>
       </div>
 
       <label class="field">
@@ -256,6 +272,9 @@
         <textarea id="pNotes" rows="2" maxlength="600" placeholder="Stratégie, taille habituelle, budget…"></textarea></label>
 
       <div class="toggle-list inline">
+        <label class="switch-line" title="Sonde le catalogue en continu (1,5 s → 10 s) pour détecter les annonces à la seconde">
+          <span>⚡ Suivi temps réel</span>
+          <input type="checkbox" id="pLiveMode" class="switch" checked></label>
         <label class="switch-line"><span>Profil actif</span>
           <input type="checkbox" id="pActive" class="switch" checked></label>
         <label class="switch-line"><span>Vérifier la description</span>

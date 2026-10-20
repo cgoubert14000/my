@@ -20,6 +20,15 @@ from .utils import mask_webhook
 DEFAULTS: dict[str, Any] = {
     "app": {"host": "127.0.0.1", "port": 8000, "open_browser": True, "password": ""},
     "engine": {
+        # ── Temps réel ────────────────────────────────────────────────────
+        "live_mode": True,
+        "realtime_min_interval": 1.5,
+        "realtime_max_interval": 10.0,
+        "realtime_growth": 1.6,
+        "realtime_burst_seconds": 90,
+        "realtime_jitter": 0.15,
+        "realtime_turbo": False,
+        "realtime_head_items": 24,
         "default_interval_seconds": 60,
         "min_request_delay": 2.0,
         "max_concurrent_profiles": 2,
@@ -85,7 +94,15 @@ class ConfigError(ValueError):
 
 #: Chemins modifiables depuis le dashboard → (type, min, max).
 EDITABLE: dict[str, tuple] = {
-    "engine.default_interval_seconds": ("int", 15, 3600),
+    "engine.live_mode": ("bool",),
+    "engine.realtime_min_interval": ("float", 0.5, 60.0),
+    "engine.realtime_max_interval": ("float", 2.0, 600.0),
+    "engine.realtime_growth": ("float", 1.0, 4.0),
+    "engine.realtime_burst_seconds": ("int", 0, 3600),
+    "engine.realtime_jitter": ("float", 0.0, 0.6),
+    "engine.realtime_turbo": ("bool",),
+    "engine.realtime_head_items": ("int", 4, 96),
+    "engine.default_interval_seconds": ("int", 1, 3600),
     "engine.min_request_delay": ("float", 0.5, 30.0),
     "engine.max_concurrent_profiles": ("int", 1, 5),
     "engine.max_items_per_page": ("int", 24, 96),

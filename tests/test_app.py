@@ -196,7 +196,7 @@ class AppTests(unittest.TestCase):
         config = self.client.get("/api/config").json()
         self.assertEqual(config["engine"]["default_interval_seconds"], 120)
         invalid = self.client.put(
-            "/api/config", json={"patch": {"engine": {"default_interval_seconds": 2}}}
+            "/api/config", json={"patch": {"engine": {"default_interval_seconds": 0}}}
         )
         self.assertEqual(invalid.status_code, 400)
 

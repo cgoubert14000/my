@@ -272,8 +272,140 @@ DEMO_ITEMS: list[dict] = [
 ]
 
 
+#: Modèles utilisés au-delà des annonces « scénarisées », pour que la démo
+#: continue de produire de nouvelles annonces (marché vivant, en continu).
+DEMO_EXTRA: list[dict] = [
+    {
+        "title": "Nike Dunk Low Panda — 44",
+        "brand": "Nike",
+        "size": "44",
+        "price": 95.0,
+        "condition": "Très bon état",
+        "seller": "sneaker_head_75",
+        "rating": 4.8,
+        "feedback": 214,
+    },
+    {
+        "title": "Sweat Carhartt WIP Chase — M",
+        "brand": "Carhartt",
+        "size": "M",
+        "price": 62.0,
+        "condition": "Bon état",
+        "seller": "workwear.paris",
+        "rating": 4.6,
+        "feedback": 78,
+    },
+    {
+        "title": "Jupe midi Sandro — 36",
+        "brand": "Sandro",
+        "size": "36",
+        "price": 45.0,
+        "condition": "Très bon état",
+        "seller": "garde_robe_lily",
+        "rating": 4.9,
+        "feedback": 143,
+    },
+    {
+        "title": "Bottines Dr. Martens 1460 — 39",
+        "brand": "Dr. Martens",
+        "size": "39",
+        "price": 78.0,
+        "condition": "Bon état",
+        "seller": "vintage_boots_fr",
+        "rating": 4.4,
+        "feedback": 65,
+    },
+    {
+        "title": "Sac à dos Fjällräven Kånken — Bleu",
+        "brand": "Fjällräven",
+        "size": "16 L",
+        "price": 54.0,
+        "condition": "Très bon état",
+        "seller": "rando_occase",
+        "rating": 4.7,
+        "feedback": 91,
+    },
+    {
+        "title": "Pull Loro Piana cachemire — L",
+        "brand": "Loro Piana",
+        "size": "L",
+        "price": 180.0,
+        "condition": "Très bon état",
+        "seller": "cachemire_et_cie",
+        "rating": 5.0,
+        "feedback": 38,
+    },
+    {
+        "title": "Jordan 1 Mid Chicago — 42,5",
+        "brand": "Jordan",
+        "size": "42,5",
+        "price": 155.0,
+        "condition": "Neuf avec étiquette",
+        "seller": "kicks.paris",
+        "rating": 4.9,
+        "feedback": 412,
+    },
+    {
+        "title": "Blazer Ralph Lauren femme — 38",
+        "brand": "Ralph Lauren",
+        "size": "38",
+        "price": 69.0,
+        "condition": "Très bon état",
+        "seller": "preppy_corner",
+        "rating": 4.5,
+        "feedback": 57,
+    },
+    {
+        "title": "Sac Longchamp Roseau — Rouge",
+        "brand": "Longchamp",
+        "size": "M",
+        "price": 120.0,
+        "condition": "Bon état",
+        "seller": "claire.vnt",
+        "rating": 5.0,
+        "feedback": 42,
+    },
+    {
+        "title": "Doudoune Moncler Maya — 3",
+        "brand": "Moncler",
+        "size": "3",
+        "price": 620.0,
+        "condition": "Très bon état",
+        "seller": "heritage.lux",
+        "rating": 5.0,
+        "feedback": 156,
+    },
+    {
+        "title": "New Balance 990v5 — 41",
+        "brand": "New Balance",
+        "size": "41",
+        "price": 88.0,
+        "condition": "Très bon état",
+        "seller": "dad_shoes_fr",
+        "rating": 4.7,
+        "feedback": 132,
+    },
+    {
+        "title": "Chemise Burberry vintage — M",
+        "brand": "Burberry",
+        "size": "M",
+        "price": 85.0,
+        "condition": "Bon état",
+        "seller": "british_vintage",
+        "rating": 4.3,
+        "feedback": 29,
+    },
+]
+
+
 class DemoVintedAPI(VintedAPI):
-    """Remplace l'API Vinted : révèle quelques annonces fictives à chaque scan."""
+    """Remplace l'API Vinted : révèle de nouvelles annonces fictives en continu.
+
+    Le but est de pouvoir constater le fonctionnement temps réel hors-ligne :
+    toutes les 2 à 4 secondes, une annonce « apparaît » et déclenche
+    exactement le même chemin qu'en production (filtres, SQLite, SSE, Discord
+    simulé).
+    """
 
     def __init__(self, client, db, config):
         super().__init__(client, db, config)
@@ -286,31 +418,76 @@ class DemoVintedAPI(VintedAPI):
         await asyncio.sleep(0.05)
         return True
 
-    async def search(
-        self, profile: dict, page: int = 1, domain: str = DEFAULT_DOMAIN
-    ) -> SearchPage:
-        await asyncio.sleep(0.35)
-        profile_id = int(profile.get("id") or 0)
-        visible = self._revealed.get(profile_id, 6)
-        if page > 1:
-            visible = 0
-        else:
-            # +2 ou +3 annonces à chaque passage (rythme d'un vrai marché actif).
-            visible = min(visible + 2 + (next(self._cycle) % 2), len(DEMO_ITEMS))
-            self._revealed[profile_id] = visible
-        origin = origin_of(profile.get("url") or f"https://{DEFAULT_DOMAIN}")
-        items = []
-        for raw in DEMO_ITEMS[:visible]:
+    def _materialize(self, index: int, origin: str) -> dict:
+        """Construit l'annonce n° ``index`` du flux de démonstration (0 = plus récente)."""
+        if index < len(DEMO_ITEMS):
+            raw = DEMO_ITEMS[index]
             item = dict(raw)
             item["currency"] = "EUR"
             item["url"] = f"{origin}/items/{raw['id']}"
             item["seller_url"] = f"{origin}/member/{raw['seller_id']}"
             item["image_url"] = f"https://picsum.photos/seed/vinted{raw['id']}/700/860"
-            item.setdefault("is_reserved", False)
+            item["is_reserved"] = False
             item["is_hidden"] = False
             item["is_closed"] = False
-            items.append(item)
-        return SearchPage(items=items, url="demo://catalog", total=len(DEMO_ITEMS))
+            return item
+
+        rank = index - len(DEMO_ITEMS)
+        template = DEMO_EXTRA[rank % len(DEMO_EXTRA)]
+        item_id = str(9100000 + rank)
+        seller_id = f"56{1000 + (rank % len(DEMO_EXTRA))}"
+        item = {
+            "id": item_id,
+            "title": template["title"],
+            "price": round(template["price"] + (rank // len(DEMO_EXTRA)) * 3.0, 2),
+            "brand": template["brand"],
+            "size": template["size"],
+            "condition": template["condition"],
+            "description": "Annonce de démonstration générée automatiquement "
+            "pour illustrer la détection en temps réel.",
+            "currency": "EUR",
+            "seller_name": template["seller"],
+            "seller_id": seller_id,
+            "seller_rating": template["rating"],
+            "seller_feedback": template["feedback"],
+            "favourites": (rank * 7) % 60,
+            "url": f"{origin}/items/{item_id}",
+            "seller_url": f"{origin}/member/{seller_id}",
+            "image_url": f"https://picsum.photos/seed/demo{rank}/700/860",
+            "is_reserved": False,
+            "is_hidden": False,
+            "is_closed": False,
+        }
+        return item
+
+    async def search(
+        self,
+        profile: dict,
+        page: int = 1,
+        domain: str = DEFAULT_DOMAIN,
+        *,
+        known_newest: str | None = None,
+        head_limit: int | None = None,
+    ) -> SearchPage:
+        await asyncio.sleep(0.22)
+        profile_id = int(profile.get("id") or 0)
+        origin = origin_of(profile.get("url") or f"https://{DEFAULT_DOMAIN}")
+        if page > 1:
+            return SearchPage(items=[], url="demo://catalog", empty=True)
+
+        visible = self._revealed.get(profile_id, 5)
+        # 0 à 2 nouvelles annonces par passage : rythme d'un marché actif.
+        step = next(self._cycle) % 3
+        visible = min(visible + step, 60)
+        self._revealed[profile_id] = visible
+        items = [self._materialize(index, origin) for index in range(visible)]
+        items.reverse()  # tri « Plus récent » : les nouvelles en premier
+        return SearchPage(
+            items=items,
+            url="demo://catalog",
+            total=len(DEMO_ITEMS) + 60,
+            newest_id=items[0]["id"] if items else None,
+        )
 
     async def enrich_item(
         self, item: dict, domain: str = DEFAULT_DOMAIN, profile_id: int | None = None
@@ -335,7 +512,8 @@ DEMO_PROFILES = [
         "blacklist": ["copie", "replique", "faux", "fake", "defaut", "tache", "abime"],
         "keyword_mode": "any",
         "check_description": True,
-        "interval_seconds": 45,
+        "interval_seconds": 30,
+        "live_mode": True,
         "min_seller_rating": 4.0,
         "min_seller_feedback": 5,
         "pages": 1,
@@ -351,7 +529,8 @@ DEMO_PROFILES = [
         "blacklist": ["copie", "replique", "faux", "defaut", "tache", "usage", "casse"],
         "keyword_mode": "any",
         "check_description": True,
-        "interval_seconds": 75,
+        "interval_seconds": 60,
+        "live_mode": True,
         "min_seller_rating": 4.5,
         "min_seller_feedback": 20,
         "pages": 1,

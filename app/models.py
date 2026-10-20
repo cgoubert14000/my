@@ -25,7 +25,10 @@ class ProfileBase(BaseModel):
     keyword_mode: Literal["any", "all"] = "any"
     check_description: bool = True
     webhook: str = ""
-    interval_seconds: int = Field(default=60, ge=15, le=3600)
+    #: Intervalle de repli quand le mode temps réel est désactivé.
+    interval_seconds: int = Field(default=60, ge=1, le=3600)
+    #: Suivi continu (1,5 s → 10 s) au lieu d'un scan périodique.
+    live_mode: bool = True
     min_seller_rating: float | None = Field(default=None, ge=0, le=5)
     min_seller_feedback: int | None = Field(default=None, ge=0, le=1_000_000)
     pages: int = Field(default=1, ge=1, le=5)
@@ -100,6 +103,10 @@ class ProfileOut(ProfileBase):
     last_found_at: str | None = None
     running: bool = False
     next_run_at: str | None = None
+    seconds_to_next: float | None = None
+    poll_interval: float | None = None
+    #: > 1 quand le moteur a ralenti ce profil après des blocages.
+    throttle: float = 1.0
     effective_webhook: bool = False
 
 

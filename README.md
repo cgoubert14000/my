@@ -1,9 +1,9 @@
 # 🎯 Vinted Sniper
 
 **Plateforme de veille Vinted open-source, 100 % locale et gratuite.**
-Multi-profils activables à la volée, filtres puissants, enrichissement vendeur,
-alertes Discord soignées, dashboard temps réel, rotation de proxys et
-self-healing intégré.
+Multi-profils activables à la volée, détection **en continu (≈1,5 s)**, filtres
+puissants, enrichissement vendeur, alertes Discord soignées, dashboard temps réel
+poussé par le serveur, rotation de proxys et self-healing intégré.
 
 > Conçue pour un usage personnel raisonnable. Aucun compte Vinted, aucun mot de
 > passe et aucun captcha ne sont nécessaires : le bot lit les annonces publiques.
@@ -14,22 +14,23 @@ self-healing intégré.
 
 1. [Aperçu](#aperçu)
 2. [Démarrage en 30 secondes](#démarrage-en-30-secondes)
-3. [Mode démo](#mode-démo-recommandé-pour-commencer)
-4. [Installation détaillée](#installation-détaillée)
-5. [Créer son premier profil](#créer-son-premier-profil)
-6. [Comprendre les filtres](#comprendre-les-filtres)
-7. [Alertes Discord](#alertes-discord)
-8. [Proxys & self-healing](#proxys--self-healing)
-9. [Dashboard](#dashboard)
-10. [Configuration](#configuration)
-11. [Ligne de commande](#ligne-de-commande)
-12. [API REST](#api-rest)
-13. [Données, sauvegardes & vie privée](#données-sauvegardes--vie-privée)
-14. [Architecture du projet](#architecture-du-projet)
-15. [Dépannage](#dépannage)
-16. [Tests](#tests)
-17. [Limites & bonnes pratiques](#limites--bonnes-pratiques)
-18. [Licence](#licence)
+3. [Mode temps réel](#mode-temps-réel--détecter-à-la-seconde)
+4. [Mode démo](#mode-démo-recommandé-pour-commencer)
+5. [Installation détaillée](#installation-détaillée)
+6. [Créer son premier profil](#créer-son-premier-profil)
+7. [Comprendre les filtres](#comprendre-les-filtres)
+8. [Alertes Discord](#alertes-discord)
+9. [Proxys & self-healing](#proxys--self-healing)
+10. [Dashboard](#dashboard)
+11. [Configuration](#configuration)
+12. [Ligne de commande](#ligne-de-commande)
+13. [API REST](#api-rest)
+14. [Données, sauvegardes & vie privée](#données-sauvegardes--vie-privée)
+15. [Architecture du projet](#architecture-du-projet)
+16. [Dépannage](#dépannage)
+17. [Tests](#tests)
+18. [Limites & bonnes pratiques](#limites--bonnes-pratiques)
+19. [Licence](#licence)
 
 ---
 
@@ -37,6 +38,7 @@ self-healing intégré.
 
 | Fonction | Ce que fait Vinted Sniper |
 | --- | --- |
+| ⚡ **Détection en continu** | Chaque profil est sondé en boucle (1,5 s → 10 s adaptatif), pas toutes les 60 s. Détection incrémentale : page identique = analyse sautée. Flux poussé (SSE) vers le dashboard. |
 | 🧩 **Multi-profils** | Créez autant de profils nommés que voulu (« Sneakers Hype », « Luxe », « Tech »…), chacun avec ON/OFF, intervalle, prix, mots-clés, seuils vendeur et webhook dédié. |
 | 🧲 **Scraping à jour (2026)** | Lecture des cartes SSR de `/catalog` (96/page), replis RSC/JSON-LD/liens, tri « Plus récent », pagination. |
 | 🕵️ **Enrichissement vendeur** | Pseudo, note moyenne sur 5 (`4.8/5`), nombre d'avis, lien profil. Les infos manquantes sont récupérées sur la page vendeur et mises en cache. |
@@ -111,6 +113,74 @@ vendeur et le webhook, avec des conseils ciblés en cas d'échec.
 
 ---
 
+## Mode temps réel : détecter à la seconde
+
+Le moteur ne dort plus entre deux scans : il enchaîne les passages sur chaque
+profil actif, avec un intervalle **adaptatif**.
+
+```text
+annonce publiée          1 requête (page /catalog, tri « Plus récent »)
+      │                        │
+      ▼                        ▼
+   t = 0 s  ──────────►  t = 0,3 s   tête de liste modifiée → analyse des 24 premières cartes
+                                          │
+                                          ▼
+                                    t = 0,5 s   filtres + SQLite + flux SSE
+                                          │
+                                          ▼
+                                    t = 0,6 s   alerte Discord envoyée
+```
+
+**Pourquoi c'est rapide sans marteler Vinted**
+
+| Mécanisme | Effet |
+| --- | --- |
+| **Détection incrémentale** | On lit l'identifiant de la première annonce de la page. Identique au passage précédent → le HTML n'est **pas analysé** (0,1 ms au lieu de ~100 ms). |
+| **Analyse en tête de page** | Seules les 24 premières cartes (les plus récentes) sont converties en annonces ; le reste de la page est ignoré. |
+| **Relecture après rafale** | Dès qu'une nouveauté est trouvée, le passage suivant relit toute la page : aucune annonce n'est perdue si plusieurs arrivent d'un coup. |
+| **Intervalle adaptatif** | Silence → l'intervalle s'allonge progressivement (jusqu'à 10 s) ; nouveauté → retour immédiat à 1,5 s pendant 90 s (rafale). |
+| **Alerte avant enrichissement** | L'annonce part sur Discord dès qu'elle est validée ; description, photo HD et note vendeur sont complétées **après**, en tâche de fond, puis le dashboard est mis à jour. |
+| **Anti-blocage auto-régulé** | Un 403/429 ralentit temporairement le profil (×1,6 par blocage, jusqu'à ×8) puis revient à la vitesse normale après des passages réussis. |
+| **Flux poussé (SSE)** | Le dashboard reçoit les nouveautés par `/api/stream` : elles apparaissent sans attendre le prochain rafraîchissement. |
+
+**Les trois vitesses**
+
+| Réglage | Intervalle | Pour qui |
+| --- | --- | --- |
+| Par défaut (recommandé) | 1,5 s après une trouvaille, jusqu'à 10 s au calme | Usage normal : très réactif, discret. |
+| `--interval 2.5` | Minimum forcé à 2,5 s | Connexions modestes, plusieurs profils. |
+| `--turbo` | 1,5 s constant, aucun ralentissement | Chasse à la seconde près. **Risque de blocage nettement plus élevé.** |
+
+```bash
+python main.py                 # temps réel adaptatif (défaut)
+python main.py --turbo         # vitesse maximale constante
+python main.py --interval 3    # minimum personnalisé
+```
+
+Tout se règle aussi dans le dashboard : **Réglages → ⚡ Mode temps réel**,
+intervalle mini/maxi, et l'interrupteur « ⚡ Suivi temps réel » par profil
+(décochez-le pour revenir à un scan périodique classique).
+
+**Ce que vous verrez**
+
+* pastille **Temps réel** en haut à droite : le flux serveur est connecté ;
+* sur chaque carte de profil : `⚡ 1,5 s` + `prochain passage 0,8 s` ;
+* dans les statistiques : `⚡ 0,32 s de détection` (temps entre le début du
+  passage et la première nouveauté validée) ;
+* dans le flux : la nouvelle annonce apparaît avec un liseré et un toast ;
+* dans le journal : `⚡ 1 nouvelle(s) annonce(s) « Sneakers Hype » en 320 ms`.
+
+**Bande passante et fair-play**
+
+Chaque passage télécharge la page catalogue (≈ 300 Ko compressés, 2–4 Mo
+décompressés). À 1,5 s, cela représente plusieurs centaines de Mo par heure et
+par profil. Le mode adaptatif réduit fortement ce volume au calme. Si vous
+surveillez beaucoup de profils, espacez-les (`--interval`, ou décochez le temps
+réel sur les profils secondaires) : c'est le meilleur moyen de rester
+sous les radars **et** de garder une détection rapide sur l'essentiel.
+
+---
+
 ## Mode démo (recommandé pour commencer)
 
 ```bash
@@ -118,7 +188,9 @@ python main.py --demo
 ```
 
 * Deux profils d'exemple sont créés (« Sneakers Hype », « Vêtements de luxe »).
-* Des annonces fictives arrivent progressivement dans le flux.
+* Des annonces fictives apparaissent **en continu (toutes les 2 à 4 s)**, ce qui
+  permet de voir le mode temps réel à l'œuvre : détection, toast, flux poussé,
+  latence affichée, anti-doublon.
 * Aucune requête n'est envoyée à Vinted ; aucune alerte n'est postée sur Discord
   (les embeds sont seulement écrits dans le journal).
 * Un badge **MODE DÉMO** reste visible en haut du dashboard.
@@ -323,9 +395,11 @@ d'un profil) réinitialise tout le profil.
 
 ### Repères de prix et de scan
 
-* Intervalle minimum : **15 s** (le dashboard propose 45–90 s).
-* Délai entre deux requêtes : **2 s** par défaut. Ne descendez pas en dessous de
-  1 s : c'est le meilleur moyen de vous faire bloquer.
+* Temps réel : **1,5 s minimum**, 10 s au repos (adaptatif), ou `--turbo` pour
+  rester au minimum en permanence.
+* Intervalle hors temps réel : 60 s par défaut (`interval_seconds` du profil).
+* Délai entre deux requêtes « lourdes » (fiches article) : 2 s par défaut, mais
+  il est ignoré en mode temps réel au profit de requêtes parallèles bornées.
 * Budget de fiches détaillées : 15 par scan, réglable via
   `engine.detail_budget_per_scan`.
 * Scans simultanés : 2 profils par défaut, 5 maximum.
@@ -455,7 +529,15 @@ dashboard sont validés côté serveur (bornes, formats, URL Discord).
 
 | Clé | Défaut | Description |
 | --- | --- | --- |
-| `default_interval_seconds` | `60` | Intervalle par défaut (les profils ont le leur). |
+| `live_mode` | `true` | Suivi continu de tous les profils (temps réel). |
+| `realtime_min_interval` | `1.5` | Intervalle minimal (secondes), après une trouvaille ou en rafale. |
+| `realtime_max_interval` | `10.0` | Intervalle maximal (secondes) quand rien ne bouge. |
+| `realtime_growth` | `1.6` | Facteur de croissance de l'intervalle au repos. |
+| `realtime_burst_seconds` | `90` | Durée de la « rafale » rapide après une nouveauté. |
+| `realtime_jitter` | `0.15` | Variation aléatoire (anti-rythme robotique). |
+| `realtime_turbo` | `false` | Intervalle minimal constant (détection maximale). |
+| `realtime_head_items` | `24` | Cartes analysées en tête de page à chaque passage. |
+| `default_interval_seconds` | `60` | Intervalle des profils **hors** temps réel (les profils ont le leur). |
 | `min_request_delay` | `2.0` | Délai minimal entre requêtes (secondes). |
 | `max_concurrent_profiles` | `2` | Scans simultanés (1–5). |
 | `max_items_per_page` | `96` | Annonces demandées à Vinted par page (24–96). |
@@ -525,6 +607,8 @@ python main.py [options]
   --check [QUERY]    Diagnostic réel Vinted puis sortie (sans dashboard)
   --webhook URL      Webhook Discord à tester avec --check
   --domain DOMAINE   Domaine pour --check (défaut : www.vinted.fr)
+  --turbo            Vitesse maximale : intervalle minimal constant
+  --interval SEC     Force l'intervalle minimal temps réel (ex. 2.5)
   --version          Affiche la version
 ```
 
@@ -535,6 +619,7 @@ python main.py --demo --port 9001
 python main.py --config /etc/vinted/config.json --db /var/lib/vinted/sniper.db
 python main.py --host 0.0.0.0     # ⚠️ pensez à app.password si réseau partagé
 python main.py --check "jordan 4" # diagnostic réel, sans lancer le dashboard
+python main.py --turbo            # détection maximale (assume le risque)
 ```
 
 ---
@@ -613,7 +698,8 @@ curl http://127.0.0.1:8000/api/feed?limit=5
 │   ├── config.py            # chargement, validation, patch de config
 │   ├── models.py            # schémas Pydantic (profils, webhooks)
 │   ├── database.py          # SQLite : profils, vus, écartés, vendeurs, logs
-│   ├── engine.py            # ordonnanceur, scans, self-healing, alertes
+│   ├── engine.py            # sondage continu, détection incrémentale, SSE, alertes
+│   ├── realtime.py          # intervalles adaptatifs (min/max, rafale, turbo)
 │   ├── http_client.py       # curl_cffi, cookies, UA, pool de proxys
 │   ├── vinted_api.py        # URLs, parsing des cartes SSR + RSC, fiches, vendeurs
 │   ├── diagnostics.py       # test réel : session, catalogue, article, vendeur
@@ -627,31 +713,37 @@ curl http://127.0.0.1:8000/api/feed?limit=5
 │       ├── app.js
 │       └── favicon.svg
 ├── tests/                   # suite unittest (réseau local simulé)
+│   └── ui/run.js            # test d'interface headless (jsdom, npm test)
 └── data/                    # créé au lancement : SQLite + WAL
 ```
 
-### Flux d'un scan
+### Flux d'un passage (mode temps réel)
 
 ```text
-Scheduler (1 tâche/profil actif)
+Scheduler (tick 0,25 s) ─► profil dû ? ─► tâche de scan (concurrence bornée)
         │
         ▼
 Session Vinted (cookies anonymes, UA) ──► page /catalog (HTML SSR)
         │                                      │
-        │                                      ├─ 200 → cartes grid-item + RSC
-        │                                      └─ blocage → rotation proxy/UA,
-        │                                         purge cookies, sleep, retry
+        │                                      ├─ 403/429 → rotation proxy/UA,
+        │                                      │   purge cookies, backoff,
+        │                                      │   ralentissement ×1,6…×8
+        │                                      ▼
+        │                      1re annonce identique ? ──oui──► fin immédiate
+        │                                      │non
+        │                                      ▼
+        │                      cartes de tête (24) → annonces normalisées
         ▼
-Filtres locaux (prix, blacklist titre) ──► fiche annonce (description)
-        │                                      │
+Filtres rapides (prix, blacklist titre) ─► description / vendeur en parallèle
+        │                                      (seulement si un seuil l'exige)
         │                                      ▼
-        │                              filtres complets (blacklist description)
+        │                              filtres complets
         ▼                                      │
-Enrichissement vendeur (cache) ────────────────┤
-        │                                      ▼
-        │                              déduplication SQLite
-        ▼                                      │
-Alerte Discord (embed) ◄───────────────────────┘
+déduplication (cache mémoire + SQLite)  ◄──────┘
+        │
+        ├─► flux SSE → dashboard (immédiat)
+        ├─► alerte Discord (embed, immédiat)
+        └─► enrichissement différé (photo HD, description, vendeur) → item_update
 ```
 
 ---
@@ -688,11 +780,14 @@ python -m unittest discover -s tests -v
   429 → retry, proxy mort → fallback direct, quarantaine).
 * `tests/ui/run.js` : test d'interface headless (jsdom) du dashboard —
   `cd tests/ui && npm install && npm test`.
+* `tests/test_realtime.py` : intervalles adaptatifs, throttling anti-blocage,
+  détection incrémentale (page sautée, rafale > tête de page), flux SSE,
+  migrations SQLite temps réel.
 * `tests/test_parsing.py` : parseur SSR sur fixtures réalistes (cartes
   `grid-item`, payload RSC, page article OpenGraph, repli sans BeautifulSoup,
   filet de sécurité par liens).
 
-Aucun test ne contacte Vinted ni Discord.
+**93 tests** au total. Aucun ne contacte Vinted ni Discord.
 
 ---
 
@@ -710,6 +805,12 @@ Aucun test ne contacte Vinted ni Discord.
   le catalogue. La description et la note vendeur sont donc « best-effort » :
   une alerte peut partir avec une note inconnue, jamais avec une annonce
   manquante à cause de ça.
+* **« À la seconde » a une limite physique** : Vinted renvoie une page de
+  plusieurs Mo par passage et Datadome compte les requêtes par IP. Le mode
+  temps réel (1,5–10 s adaptatif) est le meilleur compromis ; `--turbo`
+  (1,5 s constant) peut tenir sur une IP résidentielle propre, mais attendez-vous
+  à des blocages si vous cumulez plusieurs profils ou un VPN partagé. Le moteur
+  ralentit alors automatiquement au lieu de s'acharner.
 * **Un usage massif nuira à tout le monde** : gardez des intervalles réalistes,
   limitez le nombre de profils, n'utilisez pas 50 proxys publics pour marteler
   le catalogue.

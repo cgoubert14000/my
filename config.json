@@ -6,6 +6,14 @@
     "password": ""
   },
   "engine": {
+    "live_mode": true,
+    "realtime_min_interval": 1.5,
+    "realtime_max_interval": 10.0,
+    "realtime_growth": 1.6,
+    "realtime_burst_seconds": 90,
+    "realtime_jitter": 0.15,
+    "realtime_turbo": false,
+    "realtime_head_items": 24,
     "default_interval_seconds": 60,
     "min_request_delay": 2.0,
     "max_concurrent_profiles": 2,
