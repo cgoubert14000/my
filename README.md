@@ -38,6 +38,7 @@ self-healing intégré.
 | Fonction | Ce que fait Vinted Sniper |
 | --- | --- |
 | 🧩 **Multi-profils** | Créez autant de profils nommés que voulu (« Sneakers Hype », « Luxe », « Tech »…), chacun avec ON/OFF, intervalle, prix, mots-clés, seuils vendeur et webhook dédié. |
+| 🧲 **Scraping à jour (2026)** | Lecture des cartes SSR de `/catalog` (96/page), replis RSC/JSON-LD/liens, tri « Plus récent », pagination. |
 | 🕵️ **Enrichissement vendeur** | Pseudo, note moyenne sur 5 (`4.8/5`), nombre d'avis, lien profil. Les infos manquantes sont récupérées sur la page vendeur et mises en cache. |
 | 🚫 **Blacklist stricte** | Refus des annonces « copie », « faux », « défaut », « taché »… sur le **titre et la description**, insensible aux accents et aux pluriels. |
 | 🔔 **Discord haut de gamme** | Embed complet : photo HD, titre, prix (+ port inclus), marque, taille, état, vendeur, étoiles, nombre d'avis, lien direct. |
@@ -46,12 +47,23 @@ self-healing intégré.
 | 📊 **Dashboard local** | Profils, flux photo en direct, journal, stats, réglages, test Discord, aperçu des filtres avant activation. |
 | 🧪 **Mode démo** | Découvrez toute l'interface avec des annonces fictives, sans toucher à Vinted ni à Discord. |
 
+> ⚠️ **Changement Vinted (septembre 2026)** : l'API interne
+> `/api/v2/catalog/items` renvoie désormais **404** et `__NEXT_DATA__` a
+> disparu. Vinted Sniper lit donc les **cartes rendues côté serveur** de la page
+> `/catalog` (`data-testid="grid-item"`, `product-item-id-*`), avec replis sur le
+> payload RSC et le JSON-LD. C'est la méthode qui fonctionne aujourd'hui, et elle
+> est testée sur des fixtures reproduisant le balisage réel.
+>
 > ⚠️ **Honnêteté technique** : aucun outil ne peut garantir le contournement
-> permanent de Cloudflare/Datadome. Vinted Sniper réduit fortement les blocages
+> permanent de Cloudflare/Datadome. Le bot réduit fortement les blocages
 > (empreinte TLS Chrome via `curl_cffi`, cookies de session, délais aléatoires,
 > rotation d'identité, backoff), mais si votre IP est durablement bannie, il
 > faudra un proxy résidentiel. Les proxys publics gratuits sont instables — le
 > pool les met en quarantaine automatiquement.
+>
+> 🩺 **Vérifiez toujours avec `python main.py --check`** : en 10–30 s, il teste la
+> session, le catalogue, une fiche article, le vendeur et le webhook, et vous dit
+> exactement ce qui bloque.
 
 ---
 
@@ -88,6 +100,15 @@ python main.py
 
 Arrêt : `Ctrl+C` dans le terminal (le moteur s'arrête proprement, la base reste intacte).
 
+Avant tout, vérifiez l'accès réel à Vinted :
+
+```bash
+python main.py --check "air max 97"
+```
+
+Le rapport affiche ✅/❌ pour la session, le catalogue, la fiche article, le
+vendeur et le webhook, avec des conseils ciblés en cas d'échec.
+
 ---
 
 ## Mode démo (recommandé pour commencer)
@@ -109,6 +130,50 @@ boutons ON/OFF avant de passer aux vraies recherches.
 > `rm data/demo.db*` (Windows : supprimez `data\demo.db*`).
 
 ---
+
+## Vérifier que le scan réel fonctionne (`--check`)
+
+```bash
+python main.py --check                          # recherche « nike » sur vinted.fr
+python main.py --check "air max 97"             # votre recherche
+python main.py --check "sac gucci" --webhook https://discord.com/api/webhooks/…
+python main.py --check "nike" --domain www.vinted.de
+```
+
+Ce que le diagnostic teste, dans l'ordre :
+
+1. **Configuration** : transport (`curl_cffi`/`httpx`), base SQLite, profils.
+2. **Session** : ouverture de `https://www.vinted.fr/`, cookies reçus
+   (`_vinted_fr_session`, `datadome`…).
+3. **Catalogue** : requête réelle `/catalog?search_text=…&order=newest_first`,
+   taille de la page, nombre de cartes extraites, statut HTTP.
+4. **Échantillon** : 3 annonces avec titre, prix, marque, taille et lien.
+5. **Fiche article** : description, photo HD.
+6. **Vendeur** : pseudo, note /5, nombre d'avis.
+7. **Webhook** : envoi réel d'un embed de test (si fourni).
+
+Aucun profil n'est créé et aucune annonce n'est enregistrée : c'est un test
+lecture seule. Le même diagnostic est disponible dans le dashboard via
+**🩺 Diagnostic**.
+
+Exemple de sortie saine :
+
+```text
+✅ Configuration locale — Transport curl_cffi · base data/vinted_sniper.db · 2 profil(s)
+✅ Session Vinted — Cookies obtenus : _vinted_fr_session, datadome
+✅ Catalogue Vinted — 96 annonce(s) extraite(s) sur une page de 3612 Ko · tri « Plus récent »
+✅ Échantillon d'annonces — Nike grey hoodie (8 €) · Nike Air Force 1 (15 €) …
+   • Nike grey hoodie · 8 € · Nike S
+     https://www.vinted.fr/items/10458643821-nike-grey-hoodie
+✅ Fiche article — Description : oui · photo HD : oui
+✅ Informations vendeur — @vendeur_test · 4.8/5 · 132 avis
+✅ Webhook Discord — Message de test envoyé.
+```
+
+Si le catalogue échoue, le message distingue **blocage anti-bot** (403/429),
+**page vide** (mot-clé sans résultat) et **structure HTML inconnue** (0 carte sur
+une page de plusieurs Mo) — trois causes très différentes, trois solutions
+différentes.
 
 ## Installation détaillée
 
@@ -133,10 +198,14 @@ cd my
 pip install -r requirements.txt
 ```
 
-`curl_cffi` est fortement recommandé : il reproduit l'empreinte TLS de Chrome,
-ce qui réduit nettement les blocages Cloudflare. S'il ne s'installe pas sur votre
-plateforme, l'application bascule automatiquement sur `httpx` (moins discret mais
-fonctionnel).
+Deux dépendances méritent un mot :
+
+* **`curl_cffi`** reproduit l'empreinte TLS de Chrome, ce qui réduit nettement les
+  blocages Cloudflare/Datadome. S'il ne s'installe pas, l'application bascule
+  automatiquement sur `httpx` (moins discret mais fonctionnel).
+* **`beautifulsoup4`** analyse les cartes SSR de Vinted. Un repli par expressions
+  régulières existe si elle est absente. Pour accélérer l'analyse des pages de
+  ~3,5 Mo : `pip install lxml` (détecté automatiquement, facultatif).
 
 ### 4. Lancement
 
@@ -236,7 +305,7 @@ sudo systemctl enable --now vinted-sniper
 | **Blacklist** | Stricte. Un seul mot présent ⇒ annonce rejetée, sans appel Discord. Cherchée sur le titre **et** la description. |
 | **Vérifier la description** | Active la lecture de la fiche annonce (requête supplémentaire, budget par scan). Désactivez-la pour économiser des requêtes si votre blacklist suffit sur les titres. |
 | **Note vendeur min.** | Ex. `4.5` ⇒ les vendeurs à `4.2/5` sont écartés. Si la note est inconnue, elle est récupérée sur le profil vendeur. |
-| **Avis vendeur min.** | Ex. `10` ⇒ protège des comptes créés la veille. Un vendeur sans nombre d'avis connu est ignoré **temporairement** (réessai au scan suivant). |
+| **Avis vendeur min.** | Ex. `10` ⇒ protège des comptes créés la veille. Si l'information vendeur est momentanément inaccessible, l'alerte n'est **pas** sacrifiée : elle part avec « note inconnue » et le journal le signale. |
 
 **Normalisation** : les comparaisons ignorent les accents, la casse et les
 apostrophes (`Taché` ≡ `tache`, `DÉFAUT` ≡ `defaut`). Les mots sont cherchés en
@@ -453,6 +522,9 @@ python main.py [options]
   --no-browser       N'ouvre pas le navigateur
   --config PATH      Fichier de configuration (défaut : config.json)
   --db PATH          Base SQLite (défaut : data/vinted_sniper.db)
+  --check [QUERY]    Diagnostic réel Vinted puis sortie (sans dashboard)
+  --webhook URL      Webhook Discord à tester avec --check
+  --domain DOMAINE   Domaine pour --check (défaut : www.vinted.fr)
   --version          Affiche la version
 ```
 
@@ -462,6 +534,7 @@ Exemples :
 python main.py --demo --port 9001
 python main.py --config /etc/vinted/config.json --db /var/lib/vinted/sniper.db
 python main.py --host 0.0.0.0     # ⚠️ pensez à app.password si réseau partagé
+python main.py --check "jordan 4" # diagnostic réel, sans lancer le dashboard
 ```
 
 ---
@@ -494,6 +567,7 @@ Toutes les routes sont sous `/api`, en JSON, sans authentification si
 | `POST` | `/proxies/discover` | Découverte immédiate. |
 | `POST` | `/proxies/reset` | Lève les quarantaines. |
 | `POST` | `/notifications/test` | Envoie un embed de test. |
+| `POST` | `/diagnose` | Test réel complet (`query`, `webhook`, `domain`). |
 
 Exemple :
 
@@ -541,7 +615,8 @@ curl http://127.0.0.1:8000/api/feed?limit=5
 │   ├── database.py          # SQLite : profils, vus, écartés, vendeurs, logs
 │   ├── engine.py            # ordonnanceur, scans, self-healing, alertes
 │   ├── http_client.py       # curl_cffi, cookies, UA, pool de proxys
-│   ├── vinted_api.py        # URLs de recherche, parsing, fiches, vendeurs
+│   ├── vinted_api.py        # URLs, parsing des cartes SSR + RSC, fiches, vendeurs
+│   ├── diagnostics.py       # test réel : session, catalogue, article, vendeur
 │   ├── filters.py           # prix, whitelist/blacklist, seuils vendeur
 │   ├── notify.py            # embeds Discord, rate limit, retries
 │   ├── utils.py             # texte, prix, dates, domaines
@@ -561,9 +636,9 @@ curl http://127.0.0.1:8000/api/feed?limit=5
 Scheduler (1 tâche/profil actif)
         │
         ▼
-Session Vinted (cookies anonymes, UA) ──► API /api/v2/catalog/items
+Session Vinted (cookies anonymes, UA) ──► page /catalog (HTML SSR)
         │                                      │
-        │                                      ├─ 200 → annonces normalisées
+        │                                      ├─ 200 → cartes grid-item + RSC
         │                                      └─ blocage → rotation proxy/UA,
         │                                         purge cookies, sleep, retry
         ▼
@@ -585,7 +660,8 @@ Alerte Discord (embed) ◄──────────────────
 
 | Symptôme | Piste |
 | --- | --- |
-| **403 / 429 en boucle** | Augmentez `min_request_delay` (3–5 s), réduisez le nombre de profils actifs, activez un proxy résidentiel, cliquez sur **↻ Session**. Le mode démo permet de vérifier que le reste fonctionne. |
+| **403 / 429 en boucle** | Lancez `python main.py --check`. Augmentez `min_request_delay` (3–5 s), réduisez le nombre de profils actifs, activez un proxy résidentiel, cliquez sur **↻ Session**. |
+| **0 annonce alors que Vinted répond** | Le diagnostic distingue page vide et structure inconnue. Si 0 carte sur une page de plusieurs Mo, Vinted a changé son HTML : ouvrez une issue avec la sortie de `--check`. |
 | **Aucune alerte alors que des annonces existent** | Lancez un **Aperçu** : les annonces sont peut-être écartées par la blacklist ou les seuils vendeur. Vérifiez aussi que le profil est actif et que le premier scan (baseline) est passé. Consultez le journal. |
 | **Pas de message Discord** | Testez avec **Tester Discord**. Vérifiez `notifications.enabled`, l'URL du webhook et que le salon autorise les webhooks. Les erreurs apparaissent en rouge dans le journal. |
 | **Photos absentes** | Vinted peut changer ses CDN. L'URL est stockée telle que fournie ; le dashboard affiche un placeholder. Réessayez plus tard ou augmentez `detail_fetch`. |
@@ -604,12 +680,17 @@ Alerte Discord (embed) ◄──────────────────
 python -m unittest discover -s tests -v
 ```
 
-* `tests/test_core.py` : normalisation, URLs Vinted, parsing, filtres, SQLite,
-  config, embeds.
+* `tests/test_core.py` : normalisation, URLs Vinted, textes compacts des cartes,
+  filtres, SQLite, config, embeds.
 * `tests/test_app.py` : API FastAPI + moteur complet en mode démo (scan, flux,
   aperçu, pause, validation).
 * `tests/test_http.py` : client HTTP contre un faux Vinted local (cookies,
   429 → retry, proxy mort → fallback direct, quarantaine).
+* `tests/ui/run.js` : test d'interface headless (jsdom) du dashboard —
+  `cd tests/ui && npm install && npm test`.
+* `tests/test_parsing.py` : parseur SSR sur fixtures réalistes (cartes
+  `grid-item`, payload RSC, page article OpenGraph, repli sans BeautifulSoup,
+  filet de sécurité par liens).
 
 Aucun test ne contacte Vinted ni Discord.
 
@@ -620,9 +701,15 @@ Aucun test ne contacte Vinted ni Discord.
 * **Pas de contournement de captcha** ni de résolution de challenge : le but est
   de rester sous les radars, pas de forcer. Si Vinted exige un captcha, le bot
   patiente et réessaie.
-* **Les endpoints publics changent.** Le parsing est volontairement tolérant
-  (API JSON puis HTML `__NEXT_DATA__`/JSON-LD/meta). Une mise à jour du projet
-  peut être nécessaire si Vinted modifie sa structure.
+* **Les endpoints publics changent.** C'est arrivé en septembre 2026 (API JSON
+  → 404). Le parsing est volontairement tolérant : cartes SSR `grid-item`, puis
+  payload RSC, puis JSON-LD, puis expressions régulières. Une mise à jour peut
+  rester nécessaire si Vinted modifie encore sa structure — `--check` vous le
+  dira immédiatement.
+* **Pages article protégées** : Datadome protège davantage les fiches article que
+  le catalogue. La description et la note vendeur sont donc « best-effort » :
+  une alerte peut partir avec une note inconnue, jamais avec une annonce
+  manquante à cause de ça.
 * **Un usage massif nuira à tout le monde** : gardez des intervalles réalistes,
   limitez le nombre de profils, n'utilisez pas 50 proxys publics pour marteler
   le catalogue.

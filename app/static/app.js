@@ -852,6 +852,79 @@
     }
   }
 
+  /* ── Diagnostic ─────────────────────────────────────────────────────── */
+
+  function openDiagnostic() {
+    $("#diagResults").replaceChildren();
+    $("#diagAdvice").replaceChildren();
+    $("#diagWebhook").value =
+      (state.config && state.config.discord && state.config.discord.default_webhook) || "";
+    openDialog("diagModal");
+  }
+
+  function renderDiagnostic(report) {
+    const list = $("#diagResults");
+    const advice = $("#diagAdvice");
+    list.replaceChildren();
+    advice.replaceChildren();
+    for (const step of report.steps || []) {
+      const icon = step.skipped ? "⏭️" : step.ok ? "✅" : "❌";
+      const row = el("div", `diag-step ${step.skipped ? "skip" : step.ok ? "ok" : "ko"}`);
+      row.appendChild(el("span", "diag-icon", icon));
+      const body = el("div", "diag-body");
+      body.appendChild(el("strong", "", step.label));
+      body.appendChild(el("p", "", step.detail));
+      if (step.key === "sample" && step.data && step.data.items) {
+        const ul = el("ul", "diag-samples");
+        for (const item of step.data.items.slice(0, 3)) {
+          const li = el("li");
+          const link = el("a", "", item.title);
+          link.href = item.url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          li.appendChild(link);
+          li.append(` — ${item.price}`);
+          ul.appendChild(li);
+        }
+        body.appendChild(ul);
+      }
+      row.appendChild(body);
+      list.appendChild(row);
+    }
+    for (const line of report.advice || []) {
+      advice.appendChild(el("p", "", line));
+    }
+    $("#diagHint").textContent =
+      `Terminé en ${report.duration_ms} ms · recherche « ${report.query} » · ${report.domain}` +
+      (report.ok ? " · accès réel confirmé" : " · voir les points à corriger");
+  }
+
+  async function runDiagnostic() {
+    const button = $("#diagRun");
+    const list = $("#diagResults");
+    button.disabled = true;
+    button.textContent = "Test en cours…";
+    list.replaceChildren(el("div", "hint", "Connexion à Vinted et analyse de la page…"));
+    $("#diagAdvice").replaceChildren();
+    try {
+      const report = await api("/diagnose", {
+        method: "POST",
+        body: JSON.stringify({
+          query: $("#diagQuery").value.trim() || "nike",
+          webhook: $("#diagWebhook").value.trim(),
+          domain: "www.vinted.fr",
+        }),
+      });
+      renderDiagnostic(report);
+      toast(report.ok ? "Vinted répond : le scan réel fonctionne." : "Diagnostic terminé : voir les étapes.", report.ok ? "success" : "error");
+    } catch (error) {
+      list.replaceChildren(el("div", "hint", `⚠ ${error.message}`));
+    } finally {
+      button.disabled = false;
+      button.textContent = "Lancer le diagnostic";
+    }
+  }
+
   /* ── Rafraîchissements ───────────────────────────────────────────────── */
 
   async function refreshStatus() {
@@ -937,6 +1010,7 @@
     $("#profileForm").addEventListener("submit", submitProfile);
     $("#settingsForm").addEventListener("submit", saveSettings);
     $("#webhookForm").addEventListener("submit", sendWebhookTest);
+    $("#diagRun").addEventListener("click", runDiagnostic);
 
     $("#feedFilter").addEventListener("change", (event) => {
       state.feedProfile = event.target.value;
@@ -965,6 +1039,7 @@
       if (name === "run-all") runAll();
       if (name === "discover-proxies") discoverProxies(action);
       if (name === "reset-proxies") resetProxies();
+      if (name === "diagnostic") openDiagnostic();
       if (name === "clear-logs") {
         state.logs = [];
         state.logSignature = "";

@@ -11,12 +11,21 @@ from fastapi.responses import JSONResponse
 from . import __version__
 from .config import ConfigError
 from .filters import matches_profile
-from .models import ConfigPatch, ProfileIn, ProfileOut, ToggleIn, WebhookTestIn
+from .diagnostics import run_diagnostics
+from .models import (
+    ConfigPatch,
+    DiagnoseIn,
+    ProfileIn,
+    ProfileOut,
+    ToggleIn,
+    WebhookTestIn,
+)
 from .utils import domain_of, utcnow_iso
 
 router = APIRouter()
 
 _preview_lock = asyncio.Lock()
+_diagnose_lock = asyncio.Lock()
 
 
 def _state(request: Request):
@@ -261,6 +270,29 @@ async def preview_profile(
             "note": "Aperçu basé sur les informations du catalogue ; la description "
             "complète est vérifiée lors du scan réel.",
         }
+
+
+@router.post("/diagnose")
+async def diagnose(payload: DiagnoseIn, request: Request) -> dict:
+    """Test réel de bout en bout : session, catalogue, fiche article, vendeur."""
+    state = _state(request)
+    if _diagnose_lock.locked():
+        raise HTTPException(status_code=429, detail="Un diagnostic est déjà en cours.")
+    async with _diagnose_lock:
+        try:
+            return await asyncio.wait_for(
+                run_diagnostics(
+                    state,
+                    query=payload.query,
+                    webhook=payload.webhook,
+                    domain=payload.domain,
+                ),
+                timeout=240,
+            )
+        except asyncio.TimeoutError:
+            raise HTTPException(
+                status_code=504, detail="Diagnostic interrompu (délai dépassé)."
+            )
 
 
 # ── Flux / historique / logs ─────────────────────────────────────────────────

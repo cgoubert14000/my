@@ -118,6 +118,7 @@
         <button class="btn btn-ghost btn-sm" type="button" data-action="renew-session">↻ Session</button>
         <button class="btn btn-ghost btn-sm" type="button" data-action="test-webhook">Tester Discord</button>
         <button class="btn btn-ghost btn-sm" type="button" data-action="run-all">▶ Tout scanner</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="diagnostic" title="Tester la connexion réelle à Vinted">🩺 Diagnostic</button>
       </div>
     </section>
 
@@ -289,6 +290,36 @@
   <footer class="modal-foot">
     <div class="btn-row">
       <button class="btn btn-ghost" type="button" data-close="previewModal">Fermer</button>
+    </div>
+  </footer>
+</dialog>
+
+<!-- ── Modale diagnostic ─────────────────────────────────────────────────── -->
+<dialog id="diagModal" class="modal modal-wide">
+  <header class="modal-head">
+    <div>
+      <h2>Diagnostic Vinted</h2>
+      <p class="panel-sub">Test réel : session, catalogue, fiche article, vendeur et webhook.</p>
+    </div>
+    <button class="icon-btn" type="button" data-close="diagModal" aria-label="Fermer">✕</button>
+  </header>
+  <div class="modal-body">
+    <div class="grid-2">
+      <label class="field"><span>Recherche à tester</span>
+        <input type="text" id="diagQuery" value="nike" maxlength="200"></label>
+      <label class="field"><span>Webhook à tester <small>(optionnel)</small></span>
+        <input type="url" id="diagWebhook" placeholder="https://discord.com/api/webhooks/…"></label>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" id="diagRun">Lancer le diagnostic</button>
+      <span class="hint" id="diagHint">Environ 10–30 s : une requête réelle est envoyée à Vinted.</span>
+    </div>
+    <div id="diagResults" class="diag-list"></div>
+    <div id="diagAdvice" class="diag-advice"></div>
+  </div>
+  <footer class="modal-foot">
+    <div class="btn-row">
+      <button class="btn btn-ghost" type="button" data-close="diagModal">Fermer</button>
     </div>
   </footer>
 </dialog>

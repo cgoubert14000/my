@@ -111,6 +111,34 @@ class ConfigPatch(BaseModel):
     patch: dict = Field(default_factory=dict)
 
 
+class DiagnoseIn(BaseModel):
+    query: str = Field(default="nike", max_length=200)
+    webhook: str = Field(default="")
+    domain: str = Field(default="www.vinted.fr")
+
+    @field_validator("query")
+    @classmethod
+    def _query(cls, value: str) -> str:
+        value = (value or "").strip()
+        return value or "nike"
+
+    @field_validator("webhook")
+    @classmethod
+    def _hook(cls, value: str) -> str:
+        value = (value or "").strip()
+        if value and not WEBHOOK_RE.match(value):
+            raise ValueError("Webhook Discord invalide.")
+        return value
+
+    @field_validator("domain")
+    @classmethod
+    def _domain(cls, value: str) -> str:
+        value = (value or "").strip().lower()
+        if not is_vinted_host(value):
+            raise ValueError("Domaine Vinted invalide (ex. www.vinted.fr).")
+        return value
+
+
 class WebhookTestIn(BaseModel):
     webhook: str = Field(default="")
     profile_name: str = Field(default="Test")

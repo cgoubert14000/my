@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 import unittest
@@ -20,11 +19,10 @@ from app.utils import (
     normalize_text,  # noqa: E402
     parse_money,
 )
-from app.vinted_api import (
+from app.vinted_api import (  # noqa: E402
     api_url_from_search,
-    items_from_html,  # noqa: E402
-    items_from_payload,
     normalize_item,
+    parse_compact_text,
     search_url,
 )
 
@@ -129,23 +127,41 @@ class ParsingTests(unittest.TestCase):
         self.assertEqual(item["url"], "https://www.vinted.fr/items/123456")
         self.assertEqual(item["seller_url"], "https://www.vinted.fr/member/77")
 
-    def test_nested_payload_and_wrapper(self):
-        payload = {"data": {"catalog": {"items": [SAMPLE_ITEM]}}}
-        items = items_from_payload(payload)
-        self.assertEqual(len(items), 1)
-        wrapped = normalize_item({"item": SAMPLE_ITEM}, "https://www.vinted.fr")
-        self.assertEqual(wrapped["id"], "123456")
+    def test_compact_text_french(self):
+        data = parse_compact_text(
+            "Nike Air Max 97 GS Sneaker Schwarz / Weiß – Gr. 36 (US 4Y), "
+            "Marque: Nike, État: Bon état, Taille: 36, 12.99 €, 14.34 €"
+        )
+        self.assertEqual(
+            data["title"], "Nike Air Max 97 GS Sneaker Schwarz / Weiß – Gr. 36 (US 4Y)"
+        )
+        self.assertEqual(data["brand"], "Nike")
+        self.assertEqual(data["condition"], "Bon état")
+        self.assertEqual(data["size"], "36")
+        self.assertEqual(data["price"], 12.99)
+        self.assertEqual(data["total_price"], 14.34)
+        self.assertEqual(data["currency"], "EUR")
 
-    def test_items_from_html(self):
-        payload = {
-            "props": {
-                "pageProps": {"items": [SAMPLE_ITEM, {"id": 2, "title": "Autre"}]}
-            }
-        }
-        page = f'<html><script id="__NEXT_DATA__" type="application/json">{json.dumps(payload)}</script></html>'
-        items = items_from_html(page)
-        self.assertEqual(len(items), 2)
-        self.assertEqual(items[0]["id"], 123456)
+    def test_compact_text_english_currency(self):
+        data = parse_compact_text(
+            "Vintage ceramic woven tray, Condition: Very good, 4.00 $, 4.90 $",
+            default_currency="EUR",
+        )
+        self.assertEqual(data["title"], "Vintage ceramic woven tray")
+        self.assertEqual(data["condition"], "Very good")
+        self.assertEqual(data["price"], 4.0)
+        self.assertEqual(data["currency"], "USD")
+
+    def test_compact_text_title_without_labels(self):
+        data = parse_compact_text("Lot de 3 t-shirts, 25,00 €")
+        self.assertEqual(data["title"], "Lot de 3 t-shirts")
+        self.assertEqual(data["price"], 25.0)
+
+    def test_compact_text_thousands(self):
+        data = parse_compact_text(
+            "Sac cuir, Marque: Hermès, État: Bon état, 1 250,00 €"
+        )
+        self.assertEqual(data["price"], 1250.0)
 
 
 def base_profile(**overrides):

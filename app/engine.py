@@ -315,6 +315,13 @@ class BotEngine:
 
                 outcome.pages += 1
                 outcome.items_seen += len(result.items)
+                if result.empty:
+                    self.db.log(
+                        "DEBUG",
+                        f"« {profile['name']} » : la recherche ne renvoie "
+                        f"aucune annonce (page vide, filtres trop stricts ?).",
+                        profile_id=profile_id,
+                    )
                 for item in result.items:
                     if not item.get("id"):
                         continue

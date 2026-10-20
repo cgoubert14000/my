@@ -374,6 +374,8 @@ class HttpClient:
         self._httpx_clients: dict[str | None, httpx.AsyncClient] = {}
         self._warm_lock = asyncio.Lock()
         self._warm_at: dict[str, float] = {}
+        #: Diagnostic : peu de tentatives, pauses courtes (réponse rapide à l'utilisateur).
+        self.fast_fail = False
         self._stats = {
             "requests": 0,
             "ok": 0,
@@ -599,6 +601,9 @@ class HttpClient:
     ) -> HttpResponse:
         attempts = max(1, int(attempts or self.config.get("http.max_retries", 3) + 1))
         timeout = int(timeout or self.config.get("http.timeout_seconds", 25))
+        if self.fast_fail:
+            attempts = min(attempts, 2)
+            timeout = min(timeout, 12)
         if use_proxy is None:
             use_proxy = self.proxies.enabled
         want_proxy = bool(use_proxy) and self.proxies.enabled
@@ -684,7 +689,7 @@ class HttpClient:
                     error=f"{type(exc).__name__}: {exc}"[:200],
                     elapsed_ms=elapsed,
                     attempts=attempt + 1,
-                    blocked=True,
+                    blocked=False,
                 )
                 if attempt < attempts - 1:
                     delay = min(2**attempt, 10) + random.uniform(0, 1.5)

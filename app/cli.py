@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import socket
 import sys
 import threading
@@ -10,6 +11,7 @@ import webbrowser
 from pathlib import Path
 
 from . import __version__
+from .diagnostics import run_diagnostics
 from .state import AppState
 from .web import create_app
 
@@ -77,9 +79,73 @@ def build_parser() -> argparse.ArgumentParser:
         "ou data/demo.db en mode démo).",
     )
     parser.add_argument(
+        "--check",
+        nargs="?",
+        const="nike",
+        metavar="RECHERCHE",
+        help="Diagnostic réel (session, catalogue, fiche article, vendeur) puis sortie, "
+        'sans lancer le dashboard. Exemple : python main.py --check "air max 97"',
+    )
+    parser.add_argument(
+        "--webhook",
+        default="",
+        help="Webhook Discord à tester avec --check.",
+    )
+    parser.add_argument(
+        "--domain",
+        default="www.vinted.fr",
+        help="Domaine Vinted pour --check (défaut : www.vinted.fr).",
+    )
+    parser.add_argument(
         "--version", action="version", version=f"Vinted Sniper {__version__}"
     )
     return parser
+
+
+async def _diagnose(state: AppState, args) -> dict:
+    try:
+        return await run_diagnostics(
+            state, query=args.check, webhook=args.webhook, domain=args.domain
+        )
+    finally:
+        await state.client.close()
+        await state.notifier.close()
+        state.db.close()
+
+
+def run_check(state: AppState, args) -> int:
+    """Affiche un rapport lisible et renvoie un code de sortie exploitable."""
+    print(BANNER, flush=True)
+    print(f"  Diagnostic Vinted Sniper v{__version__} — mode réel", flush=True)
+    print(f"  Recherche : {args.check} · domaine : {args.domain}\n", flush=True)
+    report = asyncio.run(_diagnose(state, args))
+
+    for step in report["steps"]:
+        icon = "⏭️" if step.get("skipped") else ("✅" if step["ok"] else "❌")
+        print(f"{icon} {step['label']} — {step['detail']}")
+        if step["key"] == "sample":
+            for sample in step["data"].get("items", [])[:3]:
+                print(
+                    f"     • {sample['title'][:60]} · {sample['price']} · "
+                    f"{sample['brand']} {sample['size']}"
+                )
+                print(f"       {sample['url']}")
+
+    print("\n💡 Conseils :")
+    for line in report["advice"]:
+        print(f"   - {line}")
+    print(f"\nTerminé en {report['duration_ms']} ms.")
+    if report["ok"]:
+        print(
+            "\n✅ Vinted répond et le parseur extrait de vraies annonces : "
+            "vous pouvez lancer `python main.py`."
+        )
+        return 0
+    print(
+        "\n❌ Le scan réel n'a pas abouti. Corrigez les points ci-dessus, "
+        "puis relancez `python main.py --check`."
+    )
+    return 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -90,7 +156,11 @@ def main(argv: list[str] | None = None) -> int:
         print("ℹ️  config.json absent, création avec les valeurs par défaut.")
     # En démo, on utilise une base séparée pour ne jamais polluer les vraies données.
     db_path = args.db or ("data/demo.db" if args.demo else "data/vinted_sniper.db")
-    state = AppState(config_path=config_path, db_path=db_path, demo=args.demo)
+    state = AppState(
+        config_path=config_path, db_path=db_path, demo=args.demo and not args.check
+    )
+    if args.check:
+        return run_check(state, args)
     host = args.host or str(state.config.get("app.host", "127.0.0.1"))
     requested_port = int(args.port or state.config.get("app.port", 8000))
     port = _free_port(host, requested_port)

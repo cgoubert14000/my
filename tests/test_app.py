@@ -200,6 +200,47 @@ class AppTests(unittest.TestCase):
         )
         self.assertEqual(invalid.status_code, 400)
 
+    def test_diagnose_endpoint(self):
+        response = self.client.post(
+            "/api/diagnose",
+            json={"query": "nike", "webhook": "", "domain": "www.vinted.fr"},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        report = response.json()
+        self.assertTrue(report["ok"])
+        keys = [step["key"] for step in report["steps"]]
+        self.assertEqual(keys[:4], ["setup", "session", "catalog", "sample"])
+        catalog = next(step for step in report["steps"] if step["key"] == "catalog")
+        self.assertTrue(catalog["ok"])
+        self.assertGreater(catalog["data"]["items"], 0)
+        self.assertTrue(report["advice"])
+        self.assertTrue(all("skipped" in step for step in report["steps"]))
+
+    def test_diagnose_skips_missing_enrichment(self):
+        """Sans annonce exploitable, article/vendeur sont marqués « ignoré »."""
+        state = self.state
+        original = state.api.search
+
+        async def empty_search(*args, **kwargs):
+            page = await original(*args, **kwargs)
+            page.items = []
+            return page
+
+        state.api.search = empty_search
+        try:
+            report = self.client.post("/api/diagnose", json={"query": "zzz"}).json()
+        finally:
+            state.api.search = original
+        steps = {step["key"]: step for step in report["steps"]}
+        self.assertTrue(steps["item"]["skipped"])
+        self.assertTrue(steps["seller"]["skipped"])
+        self.assertFalse(report["ok"])
+        self.assertFalse(any("best-effort" in line for line in report["advice"]))
+
+    def test_diagnose_rejects_bad_domain(self):
+        response = self.client.post("/api/diagnose", json={"domain": "example.com"})
+        self.assertEqual(response.status_code, 422)
+
     def test_webhook_test_dry_run(self):
         response = self.client.post(
             "/api/notifications/test",

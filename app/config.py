@@ -37,6 +37,7 @@ DEFAULTS: dict[str, Any] = {
         "timeout_seconds": 25,
         "max_retries": 3,
         "cookie_refresh_minutes": 25,
+        "use_json_api": False,
         "block_backoff_seconds": [30, 60, 120, 300, 600, 900],
         "user_agents": [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -98,6 +99,7 @@ EDITABLE: dict[str, tuple] = {
     "http.max_retries": ("int", 0, 6),
     "http.timeout_seconds": ("int", 5, 90),
     "http.cookie_refresh_minutes": ("int", 5, 240),
+    "http.use_json_api": ("bool",),
     "proxies.enabled": ("bool",),
     "proxies.prefer_proxies": ("bool",),
     "proxies.auto_discover": ("bool",),
