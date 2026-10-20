@@ -351,8 +351,15 @@
   <div class="modal-body">
     <div class="cat-toolbar">
       <input type="search" id="brandSearch" class="select" placeholder="Rechercher une marque (ex. nike)…" aria-label="Rechercher une marque">
-      <button type="button" class="btn btn-sm btn-ghost" id="brandReload" hidden>Recharger</button>
     </div>
+    <div class="cat-toolbar">
+      <input type="text" id="brandManual" class="select" style="max-width: 340px"
+             placeholder="URL ou ID d'une marque (ex. https://www.vinted.fr/brand/53-nike)"
+             aria-label="Ajouter une marque par URL ou identifiant">
+      <button type="button" class="btn btn-sm btn-ghost" id="brandAdd">Ajouter</button>
+    </div>
+    <p class="hint">La liste ci-dessous montre les ~100 marques les plus vendues par lettre.
+      Pour une marque plus rare : ouvrez sa fiche sur Vinted et collez son adresse ci-dessus.</p>
     <div id="brandLetters" class="brand-letters"></div>
     <div id="brandList" class="brand-list" aria-live="polite"></div>
   </div>

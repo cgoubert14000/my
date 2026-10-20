@@ -105,6 +105,13 @@ window.fetch = async (url, opts = {}) => {
     return reply({ ok: true, path, title: path === '/catalog' ? 'Toutes les catégories' : 'Hommes',
       children, source: path === '/catalog' ? 'local' : 'vinted', domain: 'www.vinted.fr' });
   }
+  if (u.includes('/api/brands/resolve')) {
+    const ref = decodeURIComponent((u.match(/ref=([^&]*)/) || [])[1] || '');
+    const match = ref.match(/\/brand\/(\d+)(?:-([a-z0-9-]+))?/i) || ref.match(/^(\d+)(?:-([a-z0-9-]+))?$/i);
+    if (!match) return reply({ detail: 'Référence non reconnue.' }, false, 422);
+    const name = (match[2] || 'marque').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    return reply({ ok: true, brand: { id: match[1], slug: match[2] || '', name } });
+  }
   if (u.includes('/api/brands')) {
     const search = decodeURIComponent((u.match(/search=([^&]*)/) || [])[1] || '');
     const letter = (u.match(/letter=([A-Z])/) || [])[1] || '';
@@ -208,10 +215,18 @@ setTimeout(async () => {
   nikeInput.checked = true;
   nikeInput.dispatchEvent(new window.Event('change', { bubbles: true }));
   assert(document.querySelector('#brandSelected').textContent.includes('Nike'), 'marque sélectionnée');
+  // Marque rare ajoutée par URL (toutes les marques Vinted sont atteignables)
+  document.querySelector('#brandManual').value = 'https://www.vinted.fr/brand/15464124-brak';
+  click(document.querySelector('#brandAdd'));
+  await new Promise((r) => setTimeout(r, 40));
+  assert(document.querySelector('#brandNote').textContent.includes('Brak'), 'marque ajoutee par URL');
+  assert(document.querySelector('#brandSelected').textContent.includes('Brak'), 'marque rare dans la selection');
+
   click(document.querySelector('#brandApply'));
   await new Promise((r) => setTimeout(r, 30));
   assert(document.querySelector('#pBrandsLabel').textContent.includes('Nike'), 'pastille marques mise à jour');
   assert(document.querySelector('#pUrl').value.includes('brand_ids[]=53'), 'URL contient brand_ids');
+  assert(document.querySelector('#pUrl').value.includes('brand_ids[]=15464124'), 'URL contient la marque rare');
 
   // Catégorie + marque : les deux filtres cohabitent dans l'URL
   click(document.querySelector('#pPickCategory'));

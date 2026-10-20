@@ -16,6 +16,7 @@ from app.brands import (
     filter_brands,
     letter_of,
     parse_brand_ids,
+    parse_brand_reference,
     parse_brands,
     popular,
     sanitize_letter,
@@ -105,6 +106,30 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(brand_labels(["53", "1775"]), "Nike, New Balance")
         self.assertEqual(brand_labels([], {}), "")
         self.assertEqual(brand_labels(["999"], {"999": "Marque maison"}), "Marque maison")
+
+
+class ReferenceTests(unittest.TestCase):
+    def test_full_url(self):
+        brand = parse_brand_reference("https://www.vinted.fr/brand/53-nike")
+        self.assertEqual(brand, {"id": "53", "slug": "nike", "name": "Nike"})
+
+    def test_path_only(self):
+        self.assertEqual(
+            parse_brand_reference("/brand/1775-new-balance")["name"], "New Balance"
+        )
+
+    def test_bare_id_and_slug(self):
+        self.assertEqual(parse_brand_reference("53")["name"], "Nike")
+        self.assertEqual(parse_brand_reference("15464124-brak")["name"], "Brak")
+
+    def test_unknown_id(self):
+        brand = parse_brand_reference("999999999")
+        self.assertEqual(brand["id"], "999999999")
+        self.assertTrue(brand["name"].startswith("Marque"))
+
+    def test_refuses_garbage(self):
+        for bad in ("", "Nike", "https://www.vinted.fr/catalog/5", "../brand/53"):
+            self.assertIsNone(parse_brand_reference(bad), bad)
 
 
 class ProfileUrlTests(unittest.TestCase):
@@ -272,6 +297,29 @@ class BrandEndpointTests(unittest.TestCase):
             f"/api/profiles/{profile['id']}/brands", json={"brand_ids": ["abc"]}
         )
         self.assertEqual(response.status_code, 422)
+
+    def test_resolve_brand_from_url(self):
+        data = self.client.get(
+            "/api/brands/resolve", params={"ref": "https://www.vinted.fr/brand/53-nike"}
+        )
+        self.assertEqual(data.status_code, 200, data.text)
+        self.assertEqual(data.json()["brand"], {"id": "53", "slug": "nike", "name": "Nike"})
+
+    def test_resolve_brand_refuses_garbage(self):
+        response = self.client.get("/api/brands/resolve", params={"ref": "/catalog/5"})
+        self.assertEqual(response.status_code, 422)
+
+    def test_resolved_brand_can_be_applied(self):
+        brand = self.client.get(
+            "/api/brands/resolve", params={"ref": "15464124-brak"}
+        ).json()["brand"]
+        profile = self.state.db.create_profile({"name": "Brak", "url": "nike"})
+        data = self.client.post(
+            f"/api/profiles/{profile['id']}/brands",
+            json={"brand_ids": [brand["id"]], "names": {brand["id"]: brand["name"]}},
+        ).json()["profile"]
+        self.assertIn("brand_ids[]=15464124", data["url"])
+        self.assertEqual(data["brands"], "Brak")
 
     def test_profile_stores_brand_label(self):
         created = self.client.post(

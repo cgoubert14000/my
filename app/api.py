@@ -18,6 +18,7 @@ from .brands import (
     filter_brands,
     letter_of,
     parse_brand_ids,
+    parse_brand_reference,
     parse_brands,
     popular as popular_brands,
     sanitize_letter,
@@ -82,6 +83,15 @@ def _profile_payload(row: dict, state) -> dict[str, Any]:
         }
     )
     return ProfileOut(**data).model_dump()
+
+
+def _profile_domain(state, profile: dict) -> str:
+    """Domaine Vinted du profil, ou ``www.vinted.fr`` pour un mot-clé seul."""
+    raw = domain_of(profile.get("url") or "", "www.vinted.fr")
+    if not is_vinted_host(raw):
+        default = str(state.config.get("http.default_domain", "www.vinted.fr"))
+        return default if is_vinted_host(default) else "www.vinted.fr"
+    return raw
 
 
 def _ok(message: str, **extra) -> dict:
@@ -241,7 +251,7 @@ async def set_profile_category(profile_id: int, payload: dict, request: Request)
     path = sanitize_path(str(payload.get("path") or ""))
     if path is None:
         raise HTTPException(status_code=422, detail="Chemin de catégorie invalide.")
-    domain = domain_of(profile.get("url") or "", "www.vinted.fr")
+    domain = _profile_domain(state, profile)
     url = build_profile_url(profile.get("url") or "", path, domain)
     label = str(payload.get("label") or "").strip()[:120] or path_label(path)
     row = state.db.update_profile(profile_id, {**profile, "url": url, "category": label})
@@ -346,6 +356,21 @@ async def brands(
         return {**payload, "brands": rows, "search": query}
 
 
+@router.get("/brands/resolve")
+async def resolve_brand(ref: str = Query(..., max_length=300)) -> dict:
+    """Résout une marque depuis son URL ou son identifiant Vinted."""
+    brand = parse_brand_reference(ref)
+    if not brand:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Référence non reconnue. Collez l'adresse de la marque "
+                "(https://www.vinted.fr/brand/53-nike) ou son identifiant (53)."
+            ),
+        )
+    return {"ok": True, "brand": brand}
+
+
 @router.post("/profiles/{profile_id}/brands")
 async def set_profile_brands(profile_id: int, payload: dict, request: Request) -> dict:
     """Applique un filtre de marques à un profil (catégorie et mots-clés conservés)."""
@@ -357,7 +382,7 @@ async def set_profile_brands(profile_id: int, payload: dict, request: Request) -
     brand_ids = parse_brand_ids(raw if not isinstance(raw, str) else raw)
     if raw and not brand_ids:
         raise HTTPException(status_code=422, detail="Identifiants de marque invalides.")
-    domain = domain_of(profile.get("url") or "", "www.vinted.fr")
+    domain = _profile_domain(state, profile)
     url = build_profile_url(profile.get("url") or "", None, brand_ids, domain)
     label = str(payload.get("label") or "").strip()[:200] or brand_labels(
         brand_ids, {str(k): str(v) for k, v in (payload.get("names") or {}).items()}

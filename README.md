@@ -249,9 +249,21 @@ identifiants viennent des pages Vinted, et la liste est mise en cache 6 h.
 
 * Si Vinted est momentanément inaccessible, le sélecteur affiche un **raccourci
   de marques populaires** (aucune requête réseau) au lieu d'échouer.
-* Une marque absente de la liste alphabétique (rare, très peu d'annonces) peut
-  toujours être ciblée en la saisissant comme **mot-clé** dans la recherche, ou
-  en collant directement une URL Vinted contenant `brand_ids[]`.
+### Toutes les marques, même les plus rares
+
+Vinted n'affiche que les **~100 marques les plus vendues** par lettre (≈2 600
+au total). Pour cibler une marque absente de ces listes — il en existe des
+milliers, jusqu'à des identifiants à 8 chiffres — le sélecteur propose un champ
+**« URL ou ID d'une marque »** :
+
+1. Ouvrez la fiche de la marque sur Vinted (par exemple
+   `https://www.vinted.fr/brand/15464124-brak`).
+2. Copiez son adresse, collez-la dans ce champ, cliquez **Ajouter**.
+3. La marque rejoint la sélection ; le filtre est aussi strict que les autres
+   (`brand_ids[]=15464124`).
+
+Un simple identifiant suffit aussi (`15464124`). C'est la garantie qu'aucune
+marque du catalogue n'est hors de portée.
 
 ---
 
@@ -748,6 +760,7 @@ Toutes les routes sont sous `/api`, en JSON, sans authentification si
 | `POST` | `/profiles/{id}/category` | Applique une catégorie au profil en gardant ses mots-clés. |
 | `GET` | `/brands` | Marques : populaires sans paramètre, sinon `letter=A` (réel) ou `search=nike`. |
 | `POST` | `/profiles/{id}/brands` | Applique un filtre de marques (`brand_ids: [...]`) en conservant catégorie et mots-clés. |
+| `GET` | `/brands/resolve` | Résout n'importe quelle marque depuis son URL ou son identifiant (`ref=…`). |
 
 Exemple :
 
@@ -890,10 +903,11 @@ python -m unittest discover -s tests -v
   réel, `build_profile_url` (mots-clés et prix conservés), endpoints
   `/api/categories` et `/api/profiles/{id}/category`.
 * `tests/test_brands.py` : parsing des pages `/brands/by_letter/…`, filtre de
-  recherche, URLs `catalog[]` + `brand_ids[]`, endpoints `/api/brands` et
+  recherche, URLs `catalog[]` + `brand_ids[]`, résolution d'une marque par URL
+  ou identifiant, endpoints `/api/brands`, `/api/brands/resolve` et
   `/api/profiles/{id}/brands`.
 
-**144 tests** au total. Aucun ne contacte Vinted ni Discord : le faux Vinted de
+**152 tests** au total. Aucun ne contacte Vinted ni Discord : le faux Vinted de
 `tests/fake_vinted.py` n'est jamais importé par l'application.
 
 ---

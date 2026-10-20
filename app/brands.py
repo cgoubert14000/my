@@ -92,6 +92,10 @@ def popular() -> list[dict]:
     return [brand.as_dict() for brand in sorted(brands, key=lambda b: b.name.lower())]
 
 
+#: Index id → nom, construit une seule fois.
+_POPULAR_BY_ID: dict[str, str] = {brand_id: name for brand_id, name in POPULAR}
+
+
 def _slugify(name: str) -> str:
     text = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
@@ -141,6 +145,32 @@ def parse_brands(html: str, origin: str = "") -> list[dict]:
         seen.add(brand_id)
         brands.append(Brand(brand_id, match.group("slug") or "", name).as_dict(origin))
     return brands
+
+
+def parse_brand_reference(raw: str) -> dict | None:
+    """Résout n'importe quelle marque Vinted depuis une URL ou un identifiant.
+
+    Accepte ``https://www.vinted.fr/brand/53-nike``, ``/brand/53-nike``,
+    ``53`` ou ``53-nike``. C'est la porte d'entrée vers **toutes** les marques,
+    y compris celles absent de la liste alphabétique (Vinted n'en affiche que
+    les ~100 plus volumineuses par lettre).
+    """
+    value = (raw or "").strip()
+    if not value or ".." in value:
+        return None
+    match = re.search(r"/brand/(\d{1,10})(?:-([a-z0-9_-]+))?", value, re.I)
+    if not match:
+        match = re.match(r"^(?:brand\s*[:#]?\s*)?(\d{1,10})(?:-([a-z0-9_-]+))?$", value, re.I)
+    if not match:
+        return None
+    brand_id = match.group(1)
+    slug = (match.group(2) or "").lower()
+    name = _POPULAR_BY_ID.get(brand_id)
+    if not name and slug:
+        name = slug.replace("-", " ").replace("_", " ").title()
+    if not name:
+        name = f"Marque {brand_id}"
+    return {"id": brand_id, "slug": slug, "name": name[:80]}
 
 
 def filter_brands(brands: list[dict], query: str) -> list[dict]:

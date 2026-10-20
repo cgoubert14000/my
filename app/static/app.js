@@ -1182,6 +1182,29 @@
     renderBrandList();
   }
 
+  async function addBrandFromReference() {
+    const input = $("#brandManual");
+    const raw = (input.value || "").trim();
+    if (!raw) return;
+    try {
+      const data = await api(`/brands/resolve?ref=${encodeURIComponent(raw)}`);
+      const brand = data.brand;
+      if (!state.brandDraft.some((row) => row.id === brand.id)) {
+        if (state.brandDraft.length >= 20) {
+          $("#brandNote").textContent = "20 marques maximum par profil.";
+          return;
+        }
+        state.brandDraft.push({ id: brand.id, name: brand.name });
+      }
+      input.value = "";
+      $("#brandNote").textContent = `Marque ajoutée : ${brand.name} (#${brand.id}).`;
+      renderBrandFooter();
+      renderBrandList();
+    } catch (error) {
+      $("#brandNote").textContent = `Référence non reconnue : ${error.message}`;
+    }
+  }
+
   async function loadBrands({ letter = "", search = "" } = {}) {
     state.brandLoading = true;
     renderBrandList();
@@ -1627,6 +1650,13 @@
       const query = ($("#brandSearch").value || "").trim();
       if (query.length >= 2) loadBrands({ search: query });
       else if (!query) loadBrands({ letter: state.brandLetter });
+    });
+    $("#brandAdd").addEventListener("click", addBrandFromReference);
+    $("#brandManual").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        addBrandFromReference();
+      }
     });
     $("#brandApply").addEventListener("click", () => {
       const rows = state.brandDraft;
