@@ -103,6 +103,17 @@ class NotifyLogThrottleTests(unittest.IsolatedAsyncioTestCase):
         errors = [row for row in self.db.recent_logs(limit=50) if row["level"] == "ERROR"]
         self.assertEqual(len(errors), 2)
 
+    def test_first_error_is_never_swallowed_at_boot(self):
+        """Machine fraîchement démarrée : ``monotonic()`` peut être < 60 s.
+
+        Bug observé en CI : la valeur par défaut 0.0 faisait croire que
+        l'erreur venait d'être journalisée, d'où zéro ligne au lieu d'une.
+        """
+        notifier = DiscordNotifier.__new__(DiscordNotifier)
+        notifier._log_throttle = {}
+        self.assertTrue(notifier._should_log("p", "erreur"))
+        self.assertFalse(notifier._should_log("p", "erreur"))
+
     async def test_throttle_window(self):
         self.assertTrue(self.notifier._should_log("p", "erreur"))
         self.assertFalse(self.notifier._should_log("p", "erreur"))

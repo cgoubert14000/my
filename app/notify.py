@@ -249,8 +249,12 @@ class DiscordNotifier:
         """
         now = time.monotonic()
         key = (label, error[:80])
-        last = self._log_throttle.get(key, 0.0)
-        if now - last < window:
+        # Pas de valeur par défaut à 0.0 : sur une machine fraîchement démarrée,
+        # ``time.monotonic()`` peut être inférieur à la fenêtre (60 s) et la
+        # première erreur serait alors silencieusement avalée — bug observé en
+        # CI (« 0 ligne de journal » au lieu de 1).
+        last = self._log_throttle.get(key)
+        if last is not None and now - last < window:
             return False
         self._log_throttle[key] = now
         if len(self._log_throttle) > 200:  # ménage
