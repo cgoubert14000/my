@@ -24,6 +24,10 @@
     streamState: "loading", // loading | live | offline
     streamItems: 0,
     lastEventAt: 0,
+    catTrail: [],      // [{path, name}]
+    catChildren: [],
+    catLoading: false,
+    formCategory: { path: "/catalog", label: "Toutes les catégories" },
   };
 
   const LEVEL_LABELS = { INFO: "INFO", DEBUG: "DBG", WARNING: "WARN", ERROR: "ERR", SUCCESS: "OK" };
@@ -171,7 +175,7 @@
     state.feed = state.feed.slice(0, limit);
     state.feedSignature = "";           // force un nouveau rendu
     renderFeed();
-    const card = document.querySelector(`[data-item="${id}"]`);
+    const card = document.querySelector(`.item-card[data-item="${id}"]`);
     if (card) {
       card.classList.add("is-fresh");
       setTimeout(() => card.classList.remove("is-fresh"), 2400);
@@ -289,7 +293,6 @@
         ? `En veille · ${(realtime.live_profiles || []).length}⚡`
         : "En veille";
     }
-    $("#demoBadge").classList.toggle("hidden", !status.demo);
     $("#pauseLabel").textContent = status.paused ? "Reprendre" : "Pause";
     $("#pauseIcon").textContent = status.paused ? "▶" : "❚❚";
     $("#versionLabel").textContent = `v${status.version || ""}`.trim();
@@ -410,6 +413,20 @@
     urlRow.appendChild(el("span", "", summary.query));
     urlRow.title = profile.url || "Aucune URL configurée";
     card.appendChild(urlRow);
+    if (profile.category) {
+      const categoryRow = el("div", "profile-category");
+      const chip = el("span", "meta-tag", `📂 ${profile.category}`);
+      chip.title = "Catégorie surveillée";
+      categoryRow.appendChild(chip);
+      if (profile.url && profile.url.startsWith("http")) {
+        const open = el("a", "meta-tag open-link", "Ouvrir sur Vinted ↗");
+        open.href = profile.url;
+        open.target = "_blank";
+        open.rel = "noopener noreferrer";
+        categoryRow.appendChild(open);
+      }
+      card.appendChild(categoryRow);
+    }
 
     /* Métadonnées */
     const meta = el("div", "profile-meta");
@@ -518,22 +535,34 @@
 
   /* ── Rendu : flux ────────────────────────────────────────────────────── */
 
-  function itemCard(item) {
-    const link = el("a", "item-card");
-    link.dataset.item = item.item_id || item.id || "";
-    link.href = item.url || "#";
+  function sellerLink(item, className = "seller-name") {
+    const name = item.seller_name ? `@${item.seller_name}` : "Vendeur inconnu";
+    if (!item.seller_url) return el("span", className, name);
+    const link = el("a", className, name);
+    link.href = item.seller_url;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.title = item.description
-      ? `${item.title || "Annonce Vinted"}\n\n${item.description}`
-      : item.title || "Annonce Vinted";
+    link.title = "Ouvrir le profil du vendeur sur Vinted";
+    return link;
+  }
 
-    const media = el("div", "item-media");
+  function itemCard(item) {
+    const card = el("article", "item-card");
+    card.dataset.item = item.item_id || item.id || "";
+    const href = item.url || "#";
+    const label = item.title || "Annonce Vinted";
+
+    /* Photo cliquable → annonce */
+    const media = el("a", "item-media");
+    media.href = href;
+    media.target = "_blank";
+    media.rel = "noopener noreferrer";
+    media.title = item.description ? `${label}\n\n${item.description}` : label;
     const fallback = el("div", "fallback", (item.brand || "V").slice(0, 2).toUpperCase());
     media.appendChild(fallback);
     if (item.image_url) {
       const img = new Image();
-      img.alt = item.title || "Photo de l'annonce";
+      img.alt = label;
       img.loading = "lazy";
       img.referrerPolicy = "no-referrer";
       img.addEventListener("load", () => fallback.remove());
@@ -545,10 +574,15 @@
       media.appendChild(el("span", "new-tag", "NOUVEAU"));
     }
     media.appendChild(el("span", "price-tag", formatMoney(item.price, item.currency)));
-    link.appendChild(media);
+    card.appendChild(media);
 
+    /* Corps */
     const body = el("div", "item-body");
-    body.appendChild(el("div", "item-title", item.title || "Annonce sans titre"));
+    const title = el("a", "item-title", label);
+    title.href = href;
+    title.target = "_blank";
+    title.rel = "noopener noreferrer";
+    body.appendChild(title);
 
     const tags = el("div", "item-tags");
     if (item.brand) tags.appendChild(el("span", "item-tag", item.brand));
@@ -557,12 +591,12 @@
     body.appendChild(tags);
 
     const seller = el("div", "item-seller");
-    seller.appendChild(el("span", "seller-name", item.seller_name ? `@${item.seller_name}` : "Vendeur inconnu"));
+    seller.appendChild(sellerLink(item));
     const rating = el("span", "seller-rating");
     if (item.seller_rating !== null && item.seller_rating !== undefined) {
       rating.append(`★ ${Number(item.seller_rating).toFixed(1)}`);
       if (item.seller_feedback !== null && item.seller_feedback !== undefined) {
-        rating.appendChild(el("small", "", ` · ${item.seller_feedback}`));
+        rating.appendChild(el("small", "", ` · ${item.seller_feedback} avis`));
       }
     } else {
       rating.append("—");
@@ -573,6 +607,12 @@
 
     const foot = el("div", "item-foot");
     foot.appendChild(el("span", "profile-chip", item.profile_name || profileName(item.profile_id)));
+    const open = el("a", "item-open", "Voir l'annonce ↗");
+    open.href = href;
+    open.target = "_blank";
+    open.rel = "noopener noreferrer";
+    open.title = href;
+    foot.appendChild(open);
     const time = el("time", "", relativeTime(item.found_at));
     time.dataset.found = item.found_at || "";
     if (item.notified === 0 && item.notify_error) {
@@ -581,8 +621,8 @@
     }
     foot.appendChild(time);
     body.appendChild(foot);
-    link.appendChild(body);
-    return link;
+    card.appendChild(body);
+    return card;
   }
 
   function renderFeed() {
@@ -715,6 +755,11 @@
     $("#pInterval").value = profile ? profile.interval_seconds : 60;
     $("#pLiveMode").checked = profile ? Boolean(profile.live_mode) : true;
     toggleIntervalField();
+    const category = profile
+      ? categoryFromUrl(profile.url, profile.category || "")
+      : { path: "/catalog", label: "Toutes les catégories" };
+    state.formCategory = category;
+    syncCategoryPill(category);
     $("#pPages").value = profile ? profile.pages : 1;
     $("#pMinPrice").value = profile && profile.min_price !== null ? profile.min_price : "";
     $("#pMaxPrice").value = profile && profile.max_price !== null ? profile.max_price : "";
@@ -735,10 +780,14 @@
 
   async function submitProfile(event) {
     event.preventDefault();
+    const category = state.formCategory || { path: "/catalog", label: "" };
+    const hasCategory = category.path && category.path !== "/catalog";
+    if (hasCategory) applyCategoryToFormUrl(category);
     const payload = {
       name: $("#pName").value.trim(),
       active: $("#pActive").checked,
       url: $("#pUrl").value.trim(),
+      category: hasCategory ? category.label : "",
       interval_seconds: Math.max(1, Number($("#pInterval").value) || 60),
       live_mode: $("#pLiveMode").checked,
       pages: Number($("#pPages").value) || 1,
@@ -780,6 +829,190 @@
       button.disabled = false;
       button.textContent = "Enregistrer";
     }
+  }
+
+  /* ── Catégories Vinted ──────────────────────────────────────────────── */
+
+  function profileDomainFromForm() {
+    const raw = ($("#pUrl").value || "").trim();
+    const match = raw.match(/^https?:\/\/([^/]+)/i);
+    return match ? match[1].toLowerCase() : "www.vinted.fr";
+  }
+
+  function currentCategoryPath() {
+    const trail = state.catTrail;
+    return trail.length ? trail[trail.length - 1].path : "/catalog";
+  }
+
+  function currentCategoryName() {
+    const trail = state.catTrail;
+    return trail.length ? trail[trail.length - 1].name : "Toutes les catégories";
+  }
+
+  function renderCategoryTrail() {
+    const box = $("#catBreadcrumb");
+    box.replaceChildren();
+    const root = el("button", "", "Toutes les catégories");
+    root.type = "button";
+    root.addEventListener("click", () => goCategory("/catalog"));
+    box.appendChild(root);
+    state.catTrail.forEach((node, index) => {
+      box.appendChild(el("span", "sep", "›"));
+      if (index === state.catTrail.length - 1) {
+        box.appendChild(el("span", "", node.name));
+        return;
+      }
+      const link = el("button", "", node.name);
+      link.type = "button";
+      link.addEventListener("click", () => {
+        state.catTrail = state.catTrail.slice(0, index + 1);
+        loadCategories(node.path, node.name);
+      });
+      box.appendChild(link);
+    });
+    $("#catSelected").textContent = state.catTrail.length
+      ? `Sélection : ${currentCategoryName()}`
+      : "Aucune catégorie choisie (toutes les annonces)";
+    $("#catChoose").textContent = state.catTrail.length
+      ? `Choisir « ${currentCategoryName()} »`
+      : "Chercher dans toutes les catégories";
+  }
+
+  function renderCategoryList() {
+    const list = $("#catList");
+    const filter = ($("#catFilter").value || "").trim().toLowerCase();
+    list.replaceChildren();
+    if (state.catLoading) {
+      list.appendChild(el("p", "cat-empty", "Lecture des catégories sur Vinted…"));
+      return;
+    }
+    const rows = state.catChildren.filter((row) => !filter || row.name.toLowerCase().includes(filter));
+    if (!rows.length) {
+      list.appendChild(el("p", "cat-empty", filter
+        ? "Aucune catégorie ne correspond au filtre."
+        : "Cette catégorie n'a pas de sous-catégorie : vous pouvez la choisir telle quelle."));
+      return;
+    }
+    for (const row of rows) {
+      const button = el("button", "cat-item");
+      button.type = "button";
+      button.dataset.path = row.path;
+      button.appendChild(el("span", "", row.name));
+      button.appendChild(el("span", "chev", "›"));
+      button.addEventListener("click", () => enterCategory(row));
+      list.appendChild(button);
+    }
+  }
+
+  function enterCategory(row) {
+    state.formCategory = { path: row.path, label: row.name };
+    state.catTrail.push({ path: row.path, name: row.name });
+    renderCategoryTrail();
+    loadCategories(row.path, row.name);
+  }
+
+  function goCategory(path, name = "Toutes les catégories") {
+    state.formCategory = { path, label: name };
+    state.catTrail = path === "/catalog" ? [] : [{ path, name }];
+    renderCategoryTrail();
+    loadCategories(path, name);
+  }
+
+  async function loadCategories(path, name = "") {
+    state.catLoading = true;
+    renderCategoryList();
+    const domain = profileDomainFromForm();
+    try {
+      const data = await api(`/categories?path=${encodeURIComponent(path)}&domain=${encodeURIComponent(domain)}`);
+      state.catChildren = data.children || [];
+      $("#catSub").textContent = data.source === "vinted"
+        ? `Sous-catégories de « ${data.title || name} » lues sur ${domain}`
+        : "Grandes catégories Vinted — cliquez pour explorer";
+      $("#catNote").textContent = data.source === "vinted" && !state.catChildren.length
+        ? "Dernier niveau : les annonces de cette catégorie seront surveillées."
+        : "";
+    } catch (error) {
+      state.catChildren = [];
+      $("#catNote").textContent = `Impossible de lire les sous-catégories : ${error.message}`;
+    } finally {
+      state.catLoading = false;
+      renderCategoryList();
+      renderCategoryTrail();
+    }
+  }
+
+  function openCategoryBrowser() {
+    state.catChildren = [];
+    const current = categoryFromUrl($("#pUrl").value, state.formCategory.label);
+    selectCategory(current, { updateUrl: false });
+    if (current.path && current.path !== "/catalog") {
+      state.catTrail = [{ path: current.path, name: current.label }];
+    }
+    $("#catFilter").value = "";
+    $("#catSub").textContent = "Grandes catégories Vinted — cliquez pour explorer";
+    renderCategoryTrail();
+    openDialog("categoryModal");
+    loadCategories(current.path || "/catalog", current.label || "");
+  }
+
+  function syncCategoryPill(category) {
+    const pill = $("#pCategoryLabel");
+    const isAll = !category.path || category.path === "/catalog";
+    pill.textContent = isAll ? "Toutes les catégories" : category.label;
+    pill.classList.toggle("is-all", isAll);
+    pill.title = isAll ? "Aucun filtre de catégorie" : category.path;
+  }
+
+  function splitSearchUrl(rawUrl) {
+    const domain = profileDomainFromForm();
+    const value = (rawUrl || "").trim();
+    if (!value) return { domain, path: "/catalog", search: "" };
+
+    const hasScheme = /^https?:\/\//i.test(value);
+    const hasDomain = /^[\w.-]*vinted\.[a-z.]{2,}(\/|$)/i.test(value);
+    const looksLikePath = value.startsWith("/") || /^catalog(\/|\?|$)/i.test(value);
+
+    if (!hasScheme && !hasDomain && !looksLikePath) {
+      // Simple mot-clé saisi à la main → recherche plein texte.
+      if (value.includes("=")) {
+        return { domain, path: "/catalog", search: `?${value.replace(/^\?/, "")}` };
+      }
+      return { domain, path: "/catalog", search: `?search_text=${encodeURIComponent(value)}` };
+    }
+    try {
+      const url = new URL(hasScheme ? value : `https://${value.replace(/^\/+/, "")}`);
+      return {
+        domain: url.hostname || domain,
+        path: url.pathname || "/catalog",
+        search: url.search || "",
+      };
+    } catch (_) {
+      return { domain, path: "/catalog", search: "" };
+    }
+  }
+
+  /* Écrit la catégorie choisie dans le champ URL, en conservant les mots-clés. */
+  function applyCategoryToFormUrl(category) {
+    const current = splitSearchUrl($("#pUrl").value);
+    $("#pUrl").value = `https://${current.domain}${category.path}${current.search || ""}`;
+  }
+
+  /* Devine la catégorie d'une URL collée à la main : /catalog/1231-men_shoes_new */
+  function categoryFromUrl(rawUrl, fallbackLabel = "") {
+    const { path } = splitSearchUrl(rawUrl);
+    const match = path.match(/^\/catalog\/(\d+)(?:-([a-z0-9_-]+))?/i);
+    if (!match) return { path: "/catalog", label: "Toutes les catégories" };
+    const slug = (match[2] || "").replace(/_/g, " ").replace(/-/g, " ");
+    return {
+      path: `/catalog/${match[1]}${match[2] ? `-${match[2]}` : ""}`,
+      label: fallbackLabel || (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : `Catégorie ${match[1]}`),
+    };
+  }
+
+  function selectCategory(category, { updateUrl = true } = {}) {
+    state.formCategory = category;
+    syncCategoryPill(category);
+    if (updateUrl) applyCategoryToFormUrl(category);
   }
 
   /* ── Actions profils ─────────────────────────────────────────────────── */
@@ -1126,7 +1359,6 @@
     try {
       state.config = await api("/config");
       fillSettings(state.config);
-      if (state.status && state.status.demo) $("#demoBadge").classList.remove("hidden");
     } catch (error) {
       toast(`Configuration : ${error.message}`, "error");
     }
@@ -1168,6 +1400,47 @@
     $("#webhookForm").addEventListener("submit", sendWebhookTest);
     $("#diagRun").addEventListener("click", runDiagnostic);
     $("#pLiveMode").addEventListener("change", toggleIntervalField);
+    $("#pPickCategory").addEventListener("click", openCategoryBrowser);
+    $("#pClearCategory").addEventListener("click", () => {
+      selectCategory({ path: "/catalog", label: "Toutes les catégories" });
+    });
+    $("#catFilter").addEventListener("input", () => {
+      state.catChildren = state.catChildren;
+      renderCategoryList();
+    });
+    $("#catRoot").addEventListener("click", () => {
+      state.catTrail = [];
+      state.formCategory = { path: "/catalog", label: "Toutes les catégories" };
+      renderCategoryTrail();
+      loadCategories("/catalog");
+    });
+    $("#catUp").addEventListener("click", () => {
+      if (!state.catTrail.length) return;
+      const trail = state.catTrail.slice(0, -1);
+      state.catTrail = trail;
+      const target = trail.length ? trail[trail.length - 1] : { path: "/catalog", name: "Toutes les catégories" };
+      state.formCategory = { path: target.path, label: target.name };
+      renderCategoryTrail();
+      loadCategories(target.path, target.name);
+    });
+    $("#catChoose").addEventListener("click", () => {
+      const trail = state.catTrail;
+      const chosen = trail.length
+        ? { path: trail[trail.length - 1].path, label: trail[trail.length - 1].name }
+        : { path: "/catalog", label: "Toutes les catégories" };
+      selectCategory(chosen);
+      closeDialog("categoryModal");
+      toast(chosen.path === "/catalog"
+        ? "Recherche sur toutes les catégories."
+        : `Catégorie appliquée : ${chosen.label}.`, "success");
+    });
+    $("#pUrl").addEventListener("change", () => {
+      if (($("#pUrl").value || "").trim()) {
+        const guessed = categoryFromUrl($("#pUrl").value);
+        state.formCategory = guessed;
+        syncCategoryPill(guessed);
+      }
+    });
 
     $("#feedFilter").addEventListener("change", (event) => {
       state.feedProfile = event.target.value;

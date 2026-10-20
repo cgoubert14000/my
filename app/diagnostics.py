@@ -68,7 +68,6 @@ async def _run_diagnostics(
         f"Transport {state.client.transport} · base {state.db_path} · "
         f"{len(state.db.list_profiles())} profil(s)",
         transport=state.client.transport,
-        python_demo=state.demo,
     )
 
     # ── 2. Session anonyme ───────────────────────────────────────────────
@@ -81,31 +80,20 @@ async def _run_diagnostics(
         session_error = f"{type(exc).__name__}: {exc}"
     cookies = cookie_domains.get(domain, [])
     has_session_cookie = any(name.endswith("_vinted_session") for name in cookies)
-    if state.demo:
-        add(
-            "session",
-            "Session Vinted",
-            True,
-            "Mode démo : session simulée, aucun cookie réel (les annonces sont fictives).",
-            cookies=[],
-            has_session_cookie=False,
-            http=0,
-        )
-    else:
-        add(
-            "session",
-            "Session Vinted",
-            session_ok and bool(cookies),
-            session_error
-            or (
-                f"Cookies obtenus : {', '.join(cookies)}"
-                if cookies
-                else "Aucun cookie reçu (page d'accueil inaccessible ou bloquée)."
-            ),
-            cookies=cookies,
-            has_session_cookie=has_session_cookie,
-            http=state.client.stats().get("ok", 0),
-        )
+    add(
+        "session",
+        "Session Vinted",
+        session_ok and bool(cookies),
+        session_error
+        or (
+            f"Cookies obtenus : {', '.join(cookies)}"
+            if cookies
+            else "Aucun cookie reçu (page d'accueil inaccessible ou bloquée)."
+        ),
+        cookies=cookies,
+        has_session_cookie=has_session_cookie,
+        http=state.client.stats().get("ok", 0),
+    )
 
     # ── 3. Catalogue réel ────────────────────────────────────────────────
     profile = {
@@ -275,7 +263,6 @@ async def _run_diagnostics(
         "ok": catalog_ok,
         "query": query,
         "domain": domain,
-        "demo": state.demo,
         "time": utcnow_iso(),
         "duration_ms": duration_ms,
         "steps": steps,

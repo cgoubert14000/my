@@ -1,4 +1,4 @@
-"""Tests d'intégration : API + moteur, en mode démo (aucun réseau)."""
+"""Tests d'intégration : API + moteur, avec un faux Vinted (aucun réseau)."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from app.state import AppState  # noqa: E402
 from app.web import create_app  # noqa: E402
+from tests.fake_vinted import FAKE_PROFILES, FakeVintedAPI  # noqa: E402
 
 
 class AppTests(unittest.TestCase):
@@ -38,8 +39,13 @@ class AppTests(unittest.TestCase):
             encoding="utf-8",
         )
         self.state = AppState(
-            config_path=config_path, db_path=root / "test.db", demo=True
+            config_path=config_path,
+            db_path=root / "test.db",
+            api_class=FakeVintedAPI,
         )
+        self.state.notifier.dry_run = True  # aucun envoi Discord réel
+        for payload in FAKE_PROFILES:
+            self.state.db.create_profile(payload)
         self.client = TestClient(create_app(self.state))
         self.client.__enter__()
 
@@ -51,7 +57,7 @@ class AppTests(unittest.TestCase):
     def test_health_and_status(self):
         health = self.client.get("/api/health").json()
         self.assertTrue(health["ok"])
-        self.assertTrue(health["demo"])
+        self.assertNotIn("demo", health)  # plus aucun mode démo
         status = self.client.get("/api/status").json()
         self.assertTrue(status["running"])
         self.assertTrue(status["paused"])
@@ -133,7 +139,7 @@ class AppTests(unittest.TestCase):
             if items:
                 break
             time.sleep(0.25)
-        self.assertTrue(items, "le flux devrait contenir des annonces de démo")
+        self.assertTrue(items, "le flux devrait contenir les annonces du faux Vinted")
         top = items[0]
         for key in (
             "item_id",
@@ -155,9 +161,7 @@ class AppTests(unittest.TestCase):
         ids = [item["item_id"] for item in items]
         self.assertEqual(len(ids), len(set(ids)))
         logs = self.client.get("/api/logs").json()["logs"]
-        self.assertTrue(
-            any("Scan" in log["message"] or "DÉMO" in log["message"] for log in logs)
-        )
+        self.assertTrue(any("Scan" in log["message"] for log in logs))
 
     def test_preview_does_not_persist(self):
         profile = self.client.get("/api/profiles").json()["profiles"][0]

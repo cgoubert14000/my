@@ -63,7 +63,7 @@ class DiscordNotifier:
         self.db = db
         self.limiter = RateLimiter(int(config.get("notifications.max_per_minute", 20)))
         self._client: httpx.AsyncClient | None = None
-        #: Mode démo : on journalise l'embed au lieu de poster sur Discord.
+        #: Mode test (tests automatisés uniquement) : journalise au lieu de poster.
         self.dry_run = False
         self.stats = {"sent": 0, "failed": 0, "last_error": None, "last_sent_at": None}
 

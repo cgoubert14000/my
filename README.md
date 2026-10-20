@@ -15,7 +15,7 @@ poussé par le serveur, rotation de proxys et self-healing intégré.
 1. [Aperçu](#aperçu)
 2. [Démarrage en 30 secondes](#démarrage-en-30-secondes)
 3. [Mode temps réel](#mode-temps-réel--détecter-à-la-seconde)
-4. [Mode démo](#mode-démo-recommandé-pour-commencer)
+4. [Toutes les catégories Vinted](#toutes-les-catégories-vinted)
 5. [Installation détaillée](#installation-détaillée)
 6. [Créer son premier profil](#créer-son-premier-profil)
 7. [Comprendre les filtres](#comprendre-les-filtres)
@@ -46,8 +46,8 @@ poussé par le serveur, rotation de proxys et self-healing intégré.
 | 🔔 **Discord haut de gamme** | Embed complet : photo HD, titre, prix (+ port inclus), marque, taille, état, vendeur, étoiles, nombre d'avis, lien direct. |
 | 🛡️ **Self-healing** | Sur 403/429/blocage : purge du proxy fautif, rotation User-Agent, renouvellement de session, pause intelligente, backoff, reprise automatique. |
 | ♻️ **Anti-doublon** | SQLite mémorise les annonces vues **par profil**, y compris après redémarrage. Mémoire négative pour ne pas re-tester dix fois la même annonce écartée. |
-| 📊 **Dashboard local** | Profils, flux photo en direct, journal, stats, réglages, test Discord, aperçu des filtres avant activation. |
-| 🧪 **Mode démo** | Découvrez toute l'interface avec des annonces fictives, sans toucher à Vinted ni à Discord. |
+| 🗂️ **Toutes les catégories** | Navigateur intégré : 9 catégories racines puis les sous-catégories réelles lues sur Vinted, jusqu'au niveau le plus fin, combinables avec vos mots-clés. |
+| 📊 **Dashboard local** | Profils, flux photo en direct (annonce cliquable, vendeur, catégorie), journal, stats, réglages, test Discord, aperçu des filtres avant activation. |
 
 > ⚠️ **Changement Vinted (septembre 2026)** : l'API interne
 > `/api/v2/catalog/items` renvoie désormais **404** et `__NEXT_DATA__` a
@@ -181,25 +181,41 @@ sous les radars **et** de garder une détection rapide sur l'essentiel.
 
 ---
 
-## Mode démo (recommandé pour commencer)
+## Toutes les catégories Vinted
 
-```bash
-python main.py --demo
+Un profil n'est pas limité à une recherche par mots-clés : il peut cibler
+n'importe quelle catégorie, y compris les sous-catégories les plus profondes.
+
+Dans le formulaire de profil, cliquez sur **Choisir une catégorie** :
+
+1. Le premier écran affiche les **9 univers Vinted** (Femmes, Hommes, Enfants,
+   Sports, Maison, Électronique, Loisirs, Jeux, Beauté). Cette liste est locale :
+   aucun appel réseau, ouverture instantanée.
+2. Cliquez sur un univers : le bot lit la page réelle
+   `https://www.vinted.fr/catalog/<id>` et affiche ses **sous-catégories
+   exactes** (Vêtements, Chaussures, Accessoires…).
+3. Continuez jusqu'au niveau voulu, puis **Choisir cette catégorie**.
+
+Le résultat est une URL `https://www.vinted.fr/catalog/<id>-<slug>` **qui
+conserve vos mots-clés et vos filtres de prix** :
+
+```text
+https://www.vinted.fr/catalog/1231-men_shoes_new?search_text=nike&price_from=20
 ```
 
-* Deux profils d'exemple sont créés (« Sneakers Hype », « Vêtements de luxe »).
-* Des annonces fictives apparaissent **en continu (toutes les 2 à 4 s)**, ce qui
-  permet de voir le mode temps réel à l'œuvre : détection, toast, flux poussé,
-  latence affichée, anti-doublon.
-* Aucune requête n'est envoyée à Vinted ; aucune alerte n'est postée sur Discord
-  (les embeds sont seulement écrits dans le journal).
-* Un badge **MODE DÉMO** reste visible en haut du dashboard.
+* La catégorie choisie apparaît en pastille sur la carte du profil
+  (**⌫** pour revenir à « Toutes les catégories »).
+* Fonctionne sur tous les domaines (`vinted.fr`, `.de`, `.it`…) : l'URL est
+  construite sur le domaine déjà présent dans le champ de recherche.
+* Les sous-catégories sont mises en cache **1 heure** (elles changent très
+  rarement) ; le premier niveau reste toujours disponible hors ligne.
+* API : `GET /api/categories?path=/catalog/5-mens` et
+  `POST /api/profiles/{id}/category` (voir [API REST](#api-rest)).
 
-C'est le moyen le plus rapide de tester les filtres, le rendu des alertes et les
-boutons ON/OFF avant de passer aux vraies recherches.
-
-> La démo utilise `data/demo.db`. Pour repartir de zéro :
-> `rm data/demo.db*` (Windows : supprimez `data\demo.db*`).
+> Si Vinted répond 403/429 pendant la navigation, le dashboard affiche un
+> message clair au lieu de planter ; réessayez après quelques minutes ou avec un
+> proxy configuré. Une fois la catégorie validée, le scan se poursuit exactement
+> comme une recherche classique.
 
 ---
 
@@ -289,9 +305,46 @@ python main.py --no-browser     # ne pas ouvrir le navigateur
 ```
 
 Si le port est occupé, le lanceur choisit automatiquement le suivant et
-l'affiche dans la console.
+l'affiche dans la console. Notez l'adresse affichée : c'est votre dashboard.
 
-### 5. Docker (optionnel)
+### 5. Premier lancement, pas à pas
+
+1. **Vérifier l'accès à Vinted** (10–30 s, aucun profil nécessaire) :
+
+   ```bash
+   python main.py --check "air max 97"
+   ```
+
+   Toutes les lignes doivent être ✅. Si une ligne est ❌, le rapport indique la
+   cause (IP bloquée, proxy, structure de page) et la correction à appliquer.
+   C'est la seule étape qui dépend de votre connexion : si elle passe, le reste
+   fonctionnera chez vous.
+
+2. **Démarrer le dashboard** : `python main.py`, puis ouvrez
+   <http://127.0.0.1:8000>.
+
+3. **Créer un profil** : bouton **+ Nouveau profil**. Saisissez un nom, la
+   recherche (`nike air max 97` ou une URL Vinted complète), un prix min/max
+   éventuel, vos mots-clés et votre blacklist. Cliquez sur **Choisir une
+   catégorie** si vous voulez restreindre à un rayon précis (voir
+   [Toutes les catégories Vinted](#toutes-les-catégories-vinted)).
+
+4. **Tester avant d'activer** : bouton **Aperçu** sur la carte du profil. Il
+   affiche les annonces réellement trouvées et celles qui sont écartées, avec le
+   motif (prix, mot blacklisté, note vendeur…). Aucun doublon n'est enregistré.
+
+5. **Brancher Discord** : collez l'URL du webhook dans le profil, puis
+   **Tester Discord** dans le panneau de contrôle. Un embed d'exemple arrive dans
+   le salon ; sinon, l'erreur exacte s'affiche dans le journal.
+
+6. **Activer** l'interrupteur du profil. Les nouvelles annonces apparaissent
+   dans le flux **en direct** (photo, titre cliquable, lien « Voir l'annonce »)
+   et partent sur Discord dans la seconde.
+
+> Le premier passage d'un profil sert de **référence** : il mémorise les
+> annonces déjà en ligne sans alerter. Les alertes commencent dès la suivante.
+
+### 6. Docker (optionnel)
 
 ```bash
 docker compose up --build -d
@@ -301,14 +354,13 @@ docker compose up --build -d
 Le `config.json` et le dossier `data/` sont montés en volumes : vos profils et
 votre historique survivent aux mises à jour de l'image.
 
-Pour lancer la démo dans Docker :
+Pour un test immédiat sans toucher à Vinted :
 
 ```bash
-docker compose run --rm --service-ports vinted-sniper \
-  python main.py --demo --host 0.0.0.0
+docker compose run --rm vinted-sniper python main.py --check "air max 97"
 ```
 
-### 6. Service permanent (Linux, systemd)
+### 7. Service permanent (Linux, systemd)
 
 `/etc/systemd/system/vinted-sniper.service` :
 
@@ -487,15 +539,18 @@ un compte personnel n'est effectuée.
 ## Dashboard
 
 * **Bandeau** : état du moteur (En veille / En pause / Hors ligne), uptime,
-  badge démo, bouton pause, création de profil.
+  latence du dernier scan, bouton pause, création de profil.
 * **Cartes stats** : profils actifs, annonces du jour, alertes envoyées, dernier
   scan, blocages et santé du pool.
 * **Profils** : interrupteur ON/OFF, URL/host, prix, intervalle, nombre de mots
   whitelist/blacklist, seuils vendeur, webhook, dernier scan, compteurs,
   erreurs éventuelles. Actions : **Scanner**, **Aperçu**, **Dupliquer**,
   **Supprimer**.
-* **Flux en direct** : photo, prix, marque, taille, état, vendeur + étoiles,
-  profil source, heure relative, lien direct. Filtrable par profil.
+* **Flux en direct** : chaque annonce est une carte avec sa **photo** (chargée
+  sans référent pour éviter le hotlink), son **titre cliquable**, un bouton
+  **« Voir l'annonce ↗ »**, le prix, la marque, la taille, l'état, le vendeur
+  (`@pseudo` + étoiles, lui aussi cliquable) et la catégorie du profil source.
+  Filtrable par profil.
 * **Contrôle** : compteurs de session, transport (`curl_cffi`/`httpx`), taille de
   la base, **↻ Session**, **Tester Discord**, **▶ Tout scanner**.
 * **Proxys & réseau** : pool disponible/quarantaine, cookies présents,
@@ -600,7 +655,6 @@ python main.py [options]
 
   --host HOST        Adresse d'écoute (défaut : config.json → 127.0.0.1)
   --port PORT        Port (défaut : 8000)
-  --demo             Annonces fictives, aucun envoi réel
   --no-browser       N'ouvre pas le navigateur
   --config PATH      Fichier de configuration (défaut : config.json)
   --db PATH          Base SQLite (défaut : data/vinted_sniper.db)
@@ -615,7 +669,7 @@ python main.py [options]
 Exemples :
 
 ```bash
-python main.py --demo --port 9001
+python main.py --port 9001        # dashboard seul, sans ouvrir le navigateur (--no-browser)
 python main.py --config /etc/vinted/config.json --db /var/lib/vinted/sniper.db
 python main.py --host 0.0.0.0     # ⚠️ pensez à app.password si réseau partagé
 python main.py --check "jordan 4" # diagnostic réel, sans lancer le dashboard
@@ -631,7 +685,7 @@ Toutes les routes sont sous `/api`, en JSON, sans authentification si
 
 | Méthode | Route | Rôle |
 | --- | --- | --- |
-| `GET` | `/health` | Ping + version + mode démo. |
+| `GET` | `/health` | Ping + version + état du moteur. |
 | `GET` | `/status` | Statut moteur, stats, HTTP, proxys, compteurs. |
 | `GET` | `/profiles` | Liste des profils. |
 | `POST` | `/profiles` | Création (validation complète). |
@@ -653,6 +707,8 @@ Toutes les routes sont sous `/api`, en JSON, sans authentification si
 | `POST` | `/proxies/reset` | Lève les quarantaines. |
 | `POST` | `/notifications/test` | Envoie un embed de test. |
 | `POST` | `/diagnose` | Test réel complet (`query`, `webhook`, `domain`). |
+| `GET` | `/categories` | Catégories (`path` optionnel) : locales au 1er niveau, réelles ensuite. |
+| `POST` | `/profiles/{id}/category` | Applique une catégorie au profil en gardant ses mots-clés. |
 
 Exemple :
 
@@ -703,16 +759,18 @@ curl http://127.0.0.1:8000/api/feed?limit=5
 │   ├── http_client.py       # curl_cffi, cookies, UA, pool de proxys
 │   ├── vinted_api.py        # URLs, parsing des cartes SSR + RSC, fiches, vendeurs
 │   ├── diagnostics.py       # test réel : session, catalogue, article, vendeur
+│   ├── categories.py        # arbre des catégories Vinted (local + lecture live)
 │   ├── filters.py           # prix, whitelist/blacklist, seuils vendeur
 │   ├── notify.py            # embeds Discord, rate limit, retries
 │   ├── utils.py             # texte, prix, dates, domaines
-│   ├── demo.py              # mode démonstration hors-ligne
 │   └── static/              # dashboard (HTML/CSS/JS, zéro dépendance)
 │       ├── index.html
 │       ├── styles.css
 │       ├── app.js
 │       └── favicon.svg
 ├── tests/                   # suite unittest (réseau local simulé)
+│   ├── fake_vinted.py       # faux Vinted pour les tests, jamais chargé en prod
+│   ├── test_categories.py   # catégories, URLs de profil, endpoints
 │   └── ui/run.js            # test d'interface headless (jsdom, npm test)
 └── data/                    # créé au lancement : SQLite + WAL
 ```
@@ -758,6 +816,7 @@ déduplication (cache mémoire + SQLite)  ◄──────┘
 | **Pas de message Discord** | Testez avec **Tester Discord**. Vérifiez `notifications.enabled`, l'URL du webhook et que le salon autorise les webhooks. Les erreurs apparaissent en rouge dans le journal. |
 | **Photos absentes** | Vinted peut changer ses CDN. L'URL est stockée telle que fournie ; le dashboard affiche un placeholder. Réessayez plus tard ou augmentez `detail_fetch`. |
 | **Images non cliquables / liens cassés** | Vérifiez que l'URL du profil est bien sur un domaine `vinted.*`. L'aperçu affiche l'URL normalisée. |
+| **Sous-catégories indisponibles** | Le 1er niveau est local ; les niveaux suivants sont lus sur Vinted (403/429 possible). Réessayez plus tard, les résultats sont mis en cache 1 h. |
 | **Le port 8000 est occupé** | Le lanceur choisit le port suivant. Sinon `--port 8080`. |
 | **`curl_cffi` ne s'installe pas** | L'app fonctionne avec `httpx` (fallback). Sur certaines architectures (Raspberry Pi ancien), installez une version récente de Python ou utilisez Docker. |
 | **La base grossit** | `retention_days` (30 par défaut) purge automatiquement. Vous pouvez supprimer `data/vinted_sniper.db*` pour repartir de zéro. |
@@ -774,8 +833,8 @@ python -m unittest discover -s tests -v
 
 * `tests/test_core.py` : normalisation, URLs Vinted, textes compacts des cartes,
   filtres, SQLite, config, embeds.
-* `tests/test_app.py` : API FastAPI + moteur complet en mode démo (scan, flux,
-  aperçu, pause, validation).
+* `tests/test_app.py` : API FastAPI + moteur complet sur un Vinted simulé
+  (scan, flux, aperçu, pause, validation).
 * `tests/test_http.py` : client HTTP contre un faux Vinted local (cookies,
   429 → retry, proxy mort → fallback direct, quarantaine).
 * `tests/ui/run.js` : test d'interface headless (jsdom) du dashboard —
@@ -786,8 +845,12 @@ python -m unittest discover -s tests -v
 * `tests/test_parsing.py` : parseur SSR sur fixtures réalistes (cartes
   `grid-item`, payload RSC, page article OpenGraph, repli sans BeautifulSoup,
   filet de sécurité par liens).
+* `tests/test_categories.py` : arbre des catégories, lecture du menu latéral
+  réel, `build_profile_url` (mots-clés et prix conservés), endpoints
+  `/api/categories` et `/api/profiles/{id}/category`.
 
-**93 tests** au total. Aucun ne contacte Vinted ni Discord.
+**118 tests** au total. Aucun ne contacte Vinted ni Discord : le faux Vinted de
+`tests/fake_vinted.py` n'est jamais importé par l'application.
 
 ---
 

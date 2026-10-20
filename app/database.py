@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     min_seller_feedback     INTEGER,
     pages                   INTEGER NOT NULL DEFAULT 1,
     notes                   TEXT NOT NULL DEFAULT '',
+    category                TEXT NOT NULL DEFAULT '',
     baseline_done           INTEGER NOT NULL DEFAULT 0,
     created_at              TEXT NOT NULL,
     updated_at              TEXT NOT NULL,
@@ -139,6 +140,7 @@ PROFILE_FIELDS = (
     "min_seller_feedback",
     "pages",
     "notes",
+    "category",
 )
 
 
@@ -171,6 +173,10 @@ class Database:
                 )
                 self._conn.execute(
                     "UPDATE profiles SET baseline_done = 1 WHERE scan_count > 0"
+                )
+            if "category" not in columns:
+                self._conn.execute(
+                    "ALTER TABLE profiles ADD COLUMN category TEXT NOT NULL DEFAULT ''"
                 )
             if "live_mode" not in columns:
                 # Les bases existantes passent en temps réel par défaut.
@@ -281,6 +287,7 @@ class Database:
             "min_seller_feedback": None,
             "pages": 1,
             "notes": "",
+            "category": "",
         }
         data = {**defaults, **dict(payload)}
         for key in ("whitelist", "blacklist"):

@@ -60,11 +60,6 @@ def build_parser() -> argparse.ArgumentParser:
         help="Port du dashboard (défaut : config.json → 8000).",
     )
     parser.add_argument(
-        "--demo",
-        action="store_true",
-        help="Mode démonstration : annonces fictives, aucun envoi réel.",
-    )
-    parser.add_argument(
         "--no-browser",
         action="store_true",
         help="N'ouvre pas automatiquement le navigateur.",
@@ -75,8 +70,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--db",
         default=None,
-        help="Chemin de la base SQLite (défaut : data/vinted_sniper.db, "
-        "ou data/demo.db en mode démo).",
+        help="Chemin de la base SQLite (défaut : data/vinted_sniper.db).",
     )
     parser.add_argument(
         "--check",
@@ -187,11 +181,8 @@ def main(argv: list[str] | None = None) -> int:
     if not config_path.exists() and config_path == Path("config.json"):
         # Premier lancement hors du dépôt : on crée une config par défaut.
         print("ℹ️  config.json absent, création avec les valeurs par défaut.")
-    # En démo, on utilise une base séparée pour ne jamais polluer les vraies données.
-    db_path = args.db or ("data/demo.db" if args.demo else "data/vinted_sniper.db")
-    state = AppState(
-        config_path=config_path, db_path=db_path, demo=args.demo and not args.check
-    )
+    db_path = args.db or "data/vinted_sniper.db"
+    state = AppState(config_path=config_path, db_path=db_path)
     _apply_speed_options(state, args)
     if args.check:
         return run_check(state, args)
@@ -209,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(BANNER, flush=True)
     print(
-        f"  Vinted Sniper v{__version__} — {'MODE DÉMO' if args.demo else 'mode réel'}",
+        f"  Vinted Sniper v{__version__} — mode réel",
         flush=True,
     )
     print(f"  Dashboard : http://{url_host}:{port}", flush=True)

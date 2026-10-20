@@ -37,7 +37,7 @@ const item = {
   title: 'Nike Air Max 97 Silver Bullet — Taille 42', price: 89, total_price: 94.5, currency: 'EUR',
   brand: 'Nike', size: '42', condition: 'Très bon état', url: 'https://www.vinted.fr/items/9000001',
   image_url: 'https://picsum.photos/seed/1/700/860', seller_name: 'maxime_snk', seller_rating: 4.9,
-  seller_feedback: 187, seller_url: '', favourites: 34, found_at: now, notified: 1, notify_error: null,
+  seller_feedback: 187, seller_url: 'https://www.vinted.fr/member/551001', favourites: 34, found_at: now, notified: 1, notify_error: null,
 };
 const config = {
   engine: { default_interval_seconds: 60, min_request_delay: 2, max_concurrent_profiles: 2,
@@ -49,7 +49,7 @@ const config = {
 };
 const status = {
   running: true, paused: false, uptime_seconds: 3725, uptime_human: '1 h 02', transport: 'curl_cffi',
-  profiles_total: 1, profiles_active: 1, profiles_configured: 1, inflight: [], global_cooldown: 0, demo: false,
+  profiles_total: 1, profiles_active: 1, profiles_configured: 1, inflight: [], global_cooldown: 0,
   stats: { scans: 12, scans_failed: 0, items_seen: 300, new_items: 2, alerts_sent: 2, alerts_failed: 0,
            blocked: 1, last_scan_at: now, last_error: null, last_block_at: null,
            unchanged: 410, last_detection_ms: 320 },
@@ -88,6 +88,23 @@ window.fetch = async (url, opts = {}) => {
   calls.push({ url: String(url), method: opts.method || 'GET', body: opts.body });
   const u = String(url);
   if (u.includes('/api/status')) return reply(status);
+  if (u.includes('/api/categories')) {
+    const path = decodeURIComponent((u.match(/path=([^&]*)/) || [])[1] || '/catalog');
+    const top = [
+      { id: '1904', name: 'Femmes', path: '/catalog/1904-women_root', url: 'https://www.vinted.fr/catalog/1904-women_root' },
+      { id: '5', name: 'Hommes', path: '/catalog/5-mens', url: 'https://www.vinted.fr/catalog/5-mens' },
+      { id: '1193', name: 'Enfants', path: '/catalog/1193-children_new', url: 'https://www.vinted.fr/catalog/1193-children_new' },
+      { id: '4332', name: 'Sport', path: '/catalog/4332-sports', url: 'https://www.vinted.fr/catalog/4332-sports' },
+      { id: '1918', name: 'Maison', path: '/catalog/1918-home', url: 'https://www.vinted.fr/catalog/1918-home' },
+      { id: '2994', name: 'Électronique', path: '/catalog/2994-electronics', url: 'https://www.vinted.fr/catalog/2994-electronics' },
+    ];
+    const children = path === '/catalog' ? top : [
+      { id: '2050', name: 'Vêtements', path: '/catalog/2050-men_clothing', url: 'https://www.vinted.fr/catalog/2050-men_clothing' },
+      { id: '1231', name: 'Chaussures', path: '/catalog/1231-men_shoes_new', url: 'https://www.vinted.fr/catalog/1231-men_shoes_new' },
+    ];
+    return reply({ ok: true, path, title: path === '/catalog' ? 'Toutes les catégories' : 'Hommes',
+      children, source: path === '/catalog' ? 'local' : 'vinted', domain: 'www.vinted.fr' });
+  }
   if (u.includes('/api/diagnose')) return reply({
     ok: true, query: 'nike', domain: 'www.vinted.fr', duration_ms: 1420,
     steps: [
@@ -139,7 +156,7 @@ setTimeout(async () => {
   assert(document.querySelector('#statProfiles').textContent === '1', 'stat profils');
   assert(document.querySelector('#statToday').textContent === '1', 'stat annonces du jour');
   assert(document.querySelectorAll('.log-line').length === 2, 'journal rendu');
-  assert(document.querySelector('#engineLabel').textContent === 'En veille', 'état moteur');
+  assert(document.querySelector('#engineLabel').textContent.includes('En veille'), 'état moteur');
   assert(document.querySelector('#cfgInterval').value === '60', 'réglages remplis');
   assert(document.querySelector('#feedFilter').options.length === 2, 'filtre profils rempli');
 
@@ -211,6 +228,40 @@ setTimeout(async () => {
   assert(document.querySelector('[data-item="9100042"]').classList.contains('is-fresh'),
     'flux : animation « fresh »');
   assert(document.querySelector('#feedGrid').children.length === 2, 'flux : 2 annonces');
+
+  // Liens cliquables & images
+  const card = document.querySelector('.item-card[data-item="9000001"]');
+  assert(card && card.tagName === 'ARTICLE', 'carte annonce = article');
+  const media = card.querySelector('a.item-media');
+  assert(media.href.endsWith('/items/9000001'), 'photo cliquable vers l annonce');
+  assert(media.getAttribute('target') === '_blank', 'photo ouverte dans un nouvel onglet');
+  const img = media.querySelector('img');
+  assert(img && img.src.includes('picsum'), 'image affichee');
+  assert(img && img.referrerPolicy === 'no-referrer', 'image sans referer (anti-hotlink)');
+  assert(card.querySelector('a.item-title').href.endsWith('/items/9000001'), 'titre cliquable');
+  assert(card.querySelector('a.item-open').textContent.includes("Voir l'annonce"), 'bouton Voir l annonce');
+  const sellerLink = card.querySelector('.item-seller a');
+  assert(sellerLink && sellerLink.href.endsWith('/member/551001'), 'lien vendeur');
+
+  // Catégories
+  assert(document.querySelector('#pCategoryLabel').textContent.includes('Toutes les catégories'),
+    'categorie : valeur par defaut');
+  click(document.querySelector('#pPickCategory'));
+  assert(document.querySelector('#categoryModal').open === true, 'explorateur de categories ouvert');
+  await new Promise((r) => setTimeout(r, 30));
+  let catButtons = document.querySelectorAll('.cat-item');
+  assert(catButtons.length >= 5, 'categories de premier niveau listees');
+  click(catButtons[1]); // « Hommes »
+  await new Promise((r) => setTimeout(r, 30));
+  assert(document.querySelector('#catBreadcrumb').textContent.includes('Hommes'), 'fil d Ariane mis a jour');
+  catButtons = document.querySelectorAll('.cat-item');
+  assert(catButtons.length === 2, 'sous-categories chargees depuis Vinted');
+  click(catButtons[1]); // « Chaussures »
+  await new Promise((r) => setTimeout(r, 30));
+  click(document.querySelector('#catChoose'));
+  assert(document.querySelector('#pCategoryLabel').textContent.includes('Chaussures'), 'categorie appliquee au profil');
+  assert(document.querySelector('#pUrl').value.includes('/catalog/1231-men_shoes_new'), 'URL du profil mise a jour');
+  assert(document.querySelector('#pUrl').value.includes('search_text'), 'mots-cles conserves');
 
   // Diagnostic
   click(document.querySelector('[data-action="diagnostic"]'));

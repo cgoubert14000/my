@@ -554,9 +554,12 @@ class StreamEndpointTests(unittest.TestCase):
         config_path.write_text(
             json.dumps({"engine": {"start_paused": True}}), encoding="utf-8"
         )
+        from tests.fake_vinted import FakeVintedAPI
+
         self.state = AppState(
-            config_path=config_path, db_path=root / "test.db", demo=True
+            config_path=config_path, db_path=root / "test.db", api_class=FakeVintedAPI
         )
+        self.state.notifier.dry_run = True
         self.client = TestClient(self.state_app())
         self.client.__enter__()
 

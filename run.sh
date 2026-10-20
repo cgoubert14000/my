@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Vinted Sniper — installation + lancement en une commande.
-# Usage : ./run.sh [--demo] [--port 9000] [--host 0.0.0.0] ...
+# Usage : ./run.sh [--port 9000] [--host 0.0.0.0] [--turbo] ...
 set -euo pipefail
 cd "$(dirname "$0")"
 

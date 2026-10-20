@@ -4,12 +4,21 @@ from __future__ import annotations
 
 import asyncio
 import json
+import time
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from . import __version__
+from .categories import (
+    build_profile_url,
+    page_title,
+    parse_children,
+    path_label,
+    sanitize_path,
+    top_level,
+)
 from .config import ConfigError
 from .filters import matches_profile
 from .diagnostics import run_diagnostics
@@ -21,12 +30,16 @@ from .models import (
     ToggleIn,
     WebhookTestIn,
 )
-from .utils import domain_of, utcnow_iso
+from .utils import domain_of, is_vinted_host, utcnow_iso
 
 router = APIRouter()
 
 _preview_lock = asyncio.Lock()
 _diagnose_lock = asyncio.Lock()
+_category_lock = asyncio.Lock()
+#: Cache des sous-catégories lues sur Vinted : {(domain, path): (ts, payload)}.
+_category_cache: dict[tuple[str, str], tuple[float, dict]] = {}
+CATEGORY_CACHE_SECONDS = 3600
 
 
 def _state(request: Request):
@@ -39,6 +52,7 @@ def _profile_payload(row: dict, state) -> dict[str, Any]:
     data.update(
         {
             "domain": domain_of(row.get("url") or "", "www.vinted.fr"),
+            "category": row.get("category") or "",
             "running": profile_id in state.engine._inflight,
             "next_run_at": state.engine.next_run_for(profile_id),
             "seconds_to_next": state.engine.seconds_to_next(profile_id),
@@ -65,7 +79,6 @@ async def health(request: Request) -> dict:
     return {
         "ok": True,
         "version": __version__,
-        "demo": state.demo,
         "time": utcnow_iso(),
         "engine": "running" if state.engine._running else "stopped",
         "paused": state.engine.paused,
@@ -80,7 +93,6 @@ async def status(request: Request) -> dict:
     status.update(
         {
             "version": __version__,
-            "demo": state.demo,
             "now": utcnow_iso(),
             "db_path": str(state.db_path),
             "db_size": state.db_size(),
@@ -118,6 +130,111 @@ async def update_config(payload: ConfigPatch, request: Request) -> dict:
         "INFO", "Configuration mise à jour depuis le dashboard.", source="system"
     )
     return _ok("Configuration enregistrée.", config=updated)
+
+
+# ── Catégories ────────────────────────────────────────────────────────────────
+
+
+@router.get("/categories")
+async def categories(
+    request: Request,
+    path: str = Query("", max_length=200),
+    domain: str = Query("www.vinted.fr", max_length=80),
+    refresh: bool = Query(False),
+) -> dict:
+    """Arbre des catégories : liste locale, puis sous-catégories lues en direct.
+
+    ``path`` vide → grandes catégories (aucune requête réseau).
+    ``path=/catalog/5-mens`` → sous-catégories réelles de cette page Vinted.
+    """
+    state = _state(request)
+    domain = (domain or "www.vinted.fr").strip().lower()
+    if not is_vinted_host(domain):
+        raise HTTPException(status_code=422, detail="Domaine Vinted invalide.")
+    clean = sanitize_path(path)
+    if clean is None:
+        raise HTTPException(status_code=422, detail="Chemin de catégorie invalide.")
+    origin = f"https://{domain}"
+
+    if clean == "/catalog":
+        return {
+            "ok": True,
+            "path": "/catalog",
+            "title": "Toutes les catégories",
+            "children": [item.as_dict(origin) for item in top_level()],
+            "source": "local",
+            "domain": domain,
+        }
+
+    key = (domain, clean)
+    now = time.time()
+    cached = _category_cache.get(key)
+    if cached and not refresh and now - cached[0] < CATEGORY_CACHE_SECONDS:
+        return {**cached[1], "cached": True}
+
+    url = f"{origin}{clean}"
+    if _category_lock.locked():
+        if cached:
+            return {**cached[1], "cached": True}
+        raise HTTPException(status_code=429, detail="Exploration déjà en cours.")
+    async with _category_lock:
+        await state.api.ensure_session(origin + "/")
+        response = await state.client.get(
+            url,
+            headers={
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "same-origin",
+            },
+            referer=origin + "/",
+            attempts=2,
+        )
+        if response.blocked:
+            raise HTTPException(
+                status_code=503,
+                detail="Vinted a bloqué la requête. Réessayez dans un instant.",
+            )
+        if not response.ok:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Catégorie inaccessible ({response.short_error}).",
+            )
+        payload = {
+            "ok": True,
+            "path": clean,
+            "title": page_title(response.text) or path_label(clean),
+            "children": parse_children(response.text, origin, exclude=clean),
+            "source": "vinted",
+            "domain": domain,
+            "html_bytes": len(response.text or ""),
+        }
+        _category_cache[key] = (now, payload)
+        return payload
+
+
+@router.post("/profiles/{profile_id}/category")
+async def set_profile_category(profile_id: int, payload: dict, request: Request) -> dict:
+    """Applique une catégorie à un profil en conservant sa recherche et ses filtres."""
+    state = _state(request)
+    profile = state.db.get_profile(profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profil introuvable.")
+    path = sanitize_path(str(payload.get("path") or ""))
+    if path is None:
+        raise HTTPException(status_code=422, detail="Chemin de catégorie invalide.")
+    domain = domain_of(profile.get("url") or "", "www.vinted.fr")
+    url = build_profile_url(profile.get("url") or "", path, domain)
+    label = str(payload.get("label") or "").strip()[:120] or path_label(path)
+    row = state.db.update_profile(profile_id, {**profile, "url": url, "category": label})
+    state.db.clear_ignored(profile_id)
+    state.engine.invalidate_profile(profile_id)
+    state.db.log(
+        "INFO",
+        f"Catégorie de « {profile['name']} » : {label}.",
+        profile_id=profile_id,
+    )
+    return {"ok": True, "profile": _profile_payload(row, state)}
 
 
 # ── Profils ───────────────────────────────────────────────────────────────────
@@ -435,7 +552,4 @@ async def test_notification(payload: WebhookTestIn, request: Request) -> dict:
             status_code=400,
             content={"ok": False, "error": error or "Envoi impossible."},
         )
-    return _ok(
-        "Message de test envoyé sur Discord."
-        + (" (simulé — mode démo)" if state.demo else "")
-    )
+    return _ok("Message de test envoyé sur Discord.")

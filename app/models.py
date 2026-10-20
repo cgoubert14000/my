@@ -33,6 +33,8 @@ class ProfileBase(BaseModel):
     min_seller_feedback: int | None = Field(default=None, ge=0, le=1_000_000)
     pages: int = Field(default=1, ge=1, le=5)
     notes: str = Field(default="", max_length=600)
+    #: Libellé de la catégorie choisie (l'URL du profil reste la source de vérité).
+    category: str = Field(default="", max_length=120)
 
     model_config = ConfigDict(str_strip_whitespace=True)
 

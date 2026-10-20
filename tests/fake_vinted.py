@@ -1,9 +1,8 @@
-"""Mode démonstration : données fictives pour tester l'UI hors-ligne.
+"""Faux Vinted utilisé **uniquement par les tests** (aucun réseau).
 
-Activé par ``python main.py --demo``. Aucune requête n'est envoyée à Vinted et
-aucune alerte réelle n'est postée sur Discord : les embeds sont seulement
-journalisés. Pratique pour découvrir le dashboard, régler ses filtres et faire
-une démo.
+Ce module ne fait pas partie de l'application : il n'y a pas de mode démo.
+L'application envoie de vraies requêtes à Vinted ; les tests, eux, injectent
+cette classe pour vérifier le moteur hors ligne.
 """
 
 from __future__ import annotations
@@ -11,10 +10,10 @@ from __future__ import annotations
 import asyncio
 import itertools
 
-from .utils import origin_of
-from .vinted_api import DEFAULT_DOMAIN, SearchPage, VintedAPI
+from app.utils import origin_of
+from app.vinted_api import DEFAULT_DOMAIN, SearchPage, VintedAPI
 
-DEMO_ITEMS: list[dict] = [
+ITEMS: list[dict] = [
     {
         "id": "9000001",
         "title": "Nike Air Max 97 Silver Bullet — Taille 42",
@@ -272,9 +271,9 @@ DEMO_ITEMS: list[dict] = [
 ]
 
 
-#: Modèles utilisés au-delà des annonces « scénarisées », pour que la démo
+#: Modèles utilisés au-delà des annonces « scénarisées », pour que le flux
 #: continue de produire de nouvelles annonces (marché vivant, en continu).
-DEMO_EXTRA: list[dict] = [
+EXTRA_ITEMS: list[dict] = [
     {
         "title": "Nike Dunk Low Panda — 44",
         "brand": "Nike",
@@ -398,14 +397,8 @@ DEMO_EXTRA: list[dict] = [
 ]
 
 
-class DemoVintedAPI(VintedAPI):
-    """Remplace l'API Vinted : révèle de nouvelles annonces fictives en continu.
-
-    Le but est de pouvoir constater le fonctionnement temps réel hors-ligne :
-    toutes les 2 à 4 secondes, une annonce « apparaît » et déclenche
-    exactement le même chemin qu'en production (filtres, SQLite, SSE, Discord
-    simulé).
-    """
+class FakeVintedAPI(VintedAPI):
+    """API scriptée pour les tests : révèle des annonces à chaque passage."""
 
     def __init__(self, client, db, config):
         super().__init__(client, db, config)
@@ -419,9 +412,9 @@ class DemoVintedAPI(VintedAPI):
         return True
 
     def _materialize(self, index: int, origin: str) -> dict:
-        """Construit l'annonce n° ``index`` du flux de démonstration (0 = plus récente)."""
-        if index < len(DEMO_ITEMS):
-            raw = DEMO_ITEMS[index]
+        """Construit l'annonce n° ``index`` du flux simulé (0 = plus récente)."""
+        if index < len(ITEMS):
+            raw = ITEMS[index]
             item = dict(raw)
             item["currency"] = "EUR"
             item["url"] = f"{origin}/items/{raw['id']}"
@@ -432,19 +425,18 @@ class DemoVintedAPI(VintedAPI):
             item["is_closed"] = False
             return item
 
-        rank = index - len(DEMO_ITEMS)
-        template = DEMO_EXTRA[rank % len(DEMO_EXTRA)]
+        rank = index - len(ITEMS)
+        template = EXTRA_ITEMS[rank % len(EXTRA_ITEMS)]
         item_id = str(9100000 + rank)
-        seller_id = f"56{1000 + (rank % len(DEMO_EXTRA))}"
+        seller_id = f"56{1000 + (rank % len(EXTRA_ITEMS))}"
         item = {
             "id": item_id,
             "title": template["title"],
-            "price": round(template["price"] + (rank // len(DEMO_EXTRA)) * 3.0, 2),
+            "price": round(template["price"] + (rank // len(EXTRA_ITEMS)) * 3.0, 2),
             "brand": template["brand"],
             "size": template["size"],
             "condition": template["condition"],
-            "description": "Annonce de démonstration générée automatiquement "
-            "pour illustrer la détection en temps réel.",
+            "description": "Description de test.",
             "currency": "EUR",
             "seller_name": template["seller"],
             "seller_id": seller_id,
@@ -453,7 +445,7 @@ class DemoVintedAPI(VintedAPI):
             "favourites": (rank * 7) % 60,
             "url": f"{origin}/items/{item_id}",
             "seller_url": f"{origin}/member/{seller_id}",
-            "image_url": f"https://picsum.photos/seed/demo{rank}/700/860",
+            "image_url": f"https://picsum.photos/seed/fake{rank}/700/860",
             "is_reserved": False,
             "is_hidden": False,
             "is_closed": False,
@@ -473,7 +465,7 @@ class DemoVintedAPI(VintedAPI):
         profile_id = int(profile.get("id") or 0)
         origin = origin_of(profile.get("url") or f"https://{DEFAULT_DOMAIN}")
         if page > 1:
-            return SearchPage(items=[], url="demo://catalog", empty=True)
+            return SearchPage(items=[], url="fake://catalog", empty=True)
 
         visible = self._revealed.get(profile_id, 5)
         # 0 à 2 nouvelles annonces par passage : rythme d'un marché actif.
@@ -484,8 +476,8 @@ class DemoVintedAPI(VintedAPI):
         items.reverse()  # tri « Plus récent » : les nouvelles en premier
         return SearchPage(
             items=items,
-            url="demo://catalog",
-            total=len(DEMO_ITEMS) + 60,
+            url="fake://catalog",
+            total=len(ITEMS) + 60,
             newest_id=items[0]["id"] if items else None,
             head_key=",".join(row["id"] for row in items[:20]),
         )
@@ -502,7 +494,7 @@ class DemoVintedAPI(VintedAPI):
         return item
 
 
-DEMO_PROFILES = [
+FAKE_PROFILES = [
     {
         "name": "Sneakers Hype",
         "active": True,
@@ -518,7 +510,7 @@ DEMO_PROFILES = [
         "min_seller_rating": 4.0,
         "min_seller_feedback": 5,
         "pages": 1,
-        "notes": "Exemple de profil — activez vos propres recherches après la démo.",
+        "notes": "Exemple de profil de test.",
     },
     {
         "name": "Vêtements de luxe",

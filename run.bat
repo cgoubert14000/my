@@ -1,6 +1,6 @@
 @echo off
 REM Vinted Sniper - installation + lancement en une commande (Windows).
-REM Usage : run.bat --demo
+REM Usage : run.bat --port 9000 --host 0.0.0.0
 setlocal
 cd /d "%~dp0"
 
