@@ -1,0 +1,76 @@
+==========================================================
+  VINTED SNIPER 1.2.0  —  demarrage en 30 secondes
+==========================================================
+
+WINDOWS  (le plus simple)
+-------------------------
+1. Decompressez TOUT le dossier ou vous voulez (Bureau, Documents...).
+2. Double-cliquez sur  DEMARRER-WINDOWS.bat
+   (ou directement sur  vinted-sniper.exe)
+3. Votre navigateur s'ouvre sur  http://127.0.0.1:8000
+   -> bouton "+ Nouveau profil" -> collez votre recherche -> activez.
+
+Rien a installer : l'executable contient deja Python et toutes les
+dependances. Comptez 5 a 15 secondes au premier demarrage.
+
+LINUX / MACOS
+-------------
+1. Decompressez l'archive.
+2. Dans un terminal, dans ce dossier :
+       chmod +x demarrer-linux-macos.sh
+       ./demarrer-linux-macos.sh
+   (macOS : double-clic sur Demarrer-mac.command)
+   Le script cree un environnement Python isole et lance le dashboard.
+   Necessite Python 3.10+ (installez-le depuis python.org si besoin).
+
+VERIFIER AVANT DE COMPTER SUR LES ALERTES
+-----------------------------------------
+Dans le terminal (ou une invite de commandes dans ce dossier) :
+
+       vinted-sniper.exe --check "air max 97"        (Windows)
+       python main.py --check "air max 97"           (Linux / macOS)
+
+Toutes les lignes doivent etre OK. Ce test dit exactement ce qui bloque
+(IP refusee par Vinted, proxy, structure de page). Si votre IP est bloquee,
+aucun outil ne peut la debloquer : il faut un proxy residentiel.
+
+PREMIERE UTILISATION
+--------------------
+* Creez un profil : nom, recherche (mots-cles ou URL Vinted complete),
+  prix min/max, mots-cles souhaites, blacklist ("copie", "faux"...) et
+  votre webhook Discord.
+* "Choisir une categorie" permet de naviguer dans TOUT le catalogue
+  Vinted (9 univers puis les sous-categories reelles), en gardant vos
+  mots-cles et vos prix.
+* Bouton "Apercu" : montre les annonces trouvees et celles ecartees,
+  avec le motif. Rien n'est enregistre.
+* Le premier scan d'un profil sert de reference (aucune alerte) ;
+  les alertes commencent au suivant, en une a deux secondes.
+* Activez l'interrupteur : les nouvelles annonces arrivent dans le flux
+  (photo + lien direct) et sur Discord.
+
+OU SONT MES DONNEES ?
+---------------------
+A cote du programme :
+  config.json                    reglages
+  data/vinted_sniper.db          profils, annonces vues, historique
+Copiez ce fichier pour sauvegarder. Supprimez-le pour repartir de zero
+(programme ferme).
+
+ARRETER
+-------
+Fermez la fenetre noire, ou Ctrl+C dedans. La base reste intacte.
+
+SI WINDOWS AFFICHE UN AVERTISSEMENT (SmartScreen)
+-------------------------------------------------
+"Informations complementaires" -> "Executer quand meme".
+L'executable n'est pas signe (certificat payant) : c'est normal pour un
+projet open-source. Le code source complet est dans le dossier app/ ;
+vous pouvez aussi compiler vous-meme avec Creer-executable-windows.bat.
+
+FIREWALL
+--------
+Si Windows demande l'autorisation reseau : autorisez les reseaux prives
+uniquement (le dashboard ecoute sur 127.0.0.1 par defaut).
+
+GUIDE COMPLET : README.md (installation, API, depannage, architecture).
