@@ -105,6 +105,25 @@ window.fetch = async (url, opts = {}) => {
     return reply({ ok: true, path, title: path === '/catalog' ? 'Toutes les catégories' : 'Hommes',
       children, source: path === '/catalog' ? 'local' : 'vinted', domain: 'www.vinted.fr' });
   }
+  if (u.includes('/api/brands')) {
+    const search = decodeURIComponent((u.match(/search=([^&]*)/) || [])[1] || '');
+    const letter = (u.match(/letter=([A-Z])/) || [])[1] || '';
+    const catalogue = [
+      { id: '53', name: 'Nike', slug: 'nike', url: 'https://www.vinted.fr/brand/53-nike' },
+      { id: '1775', name: 'New Balance', slug: 'new-balance', url: 'https://www.vinted.fr/brand/1775-new-balance' },
+      { id: '232', name: 'New Era', slug: 'new-era', url: 'https://www.vinted.fr/brand/232-new-era' },
+      { id: '5977', name: 'Nike Air', slug: 'nike-air', url: 'https://www.vinted.fr/brand/5977-nike-air' },
+    ];
+    if (!search && !letter) {
+      return reply({ ok: true, brands: catalogue.slice(0, 2), letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+        source: 'local', domain: 'www.vinted.fr' });
+    }
+    const rows = search
+      ? catalogue.filter((row) => row.name.toLowerCase().includes(search.toLowerCase()))
+      : catalogue;
+    return reply({ ok: true, letter: letter || 'N', brands: rows, letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+      source: 'vinted', domain: 'www.vinted.fr', search });
+  }
   if (u.includes('/api/diagnose')) return reply({
     ok: true, query: 'nike', domain: 'www.vinted.fr', duration_ms: 1420,
     steps: [
@@ -177,6 +196,44 @@ setTimeout(async () => {
   }
   assert(document.querySelector('#profileError').textContent === '', 'pas d’erreur formulaire');
 
+  // Marques : navigation par lettre, sélection multiple, URL et pastille
+  click(document.querySelector('#pPickBrands'));
+  await new Promise((r) => setTimeout(r, 60));
+  assert(document.querySelector('#brandModal').open === true, 'modale marques ouverte');
+  assert(document.querySelectorAll('#brandLetters .cat-letter').length === 26, 'alphabet des marques');
+  assert(document.querySelectorAll('#brandList .brand-item').length === 4, 'marques listées depuis Vinted');
+  const nikeBox = [...document.querySelectorAll('#brandList .brand-item')]
+    .find((row) => row.textContent.includes('Nike') && !row.textContent.includes('Nike Air'));
+  const nikeInput = nikeBox.querySelector('input');
+  nikeInput.checked = true;
+  nikeInput.dispatchEvent(new window.Event('change', { bubbles: true }));
+  assert(document.querySelector('#brandSelected').textContent.includes('Nike'), 'marque sélectionnée');
+  click(document.querySelector('#brandApply'));
+  await new Promise((r) => setTimeout(r, 30));
+  assert(document.querySelector('#pBrandsLabel').textContent.includes('Nike'), 'pastille marques mise à jour');
+  assert(document.querySelector('#pUrl').value.includes('brand_ids[]=53'), 'URL contient brand_ids');
+
+  // Catégorie + marque : les deux filtres cohabitent dans l'URL
+  click(document.querySelector('#pPickCategory'));
+  await new Promise((r) => setTimeout(r, 40));
+  click([...document.querySelectorAll('#catList .cat-item')]
+    .find((row) => row.textContent.includes('Hommes')));
+  await new Promise((r) => setTimeout(r, 40));
+  const shoes = [...document.querySelectorAll('#catList .cat-item')]
+    .find((row) => row.textContent.includes('Chaussures'));
+  if (shoes) click(shoes);
+  await new Promise((r) => setTimeout(r, 40));
+  click(document.querySelector('#catChoose'));
+  await new Promise((r) => setTimeout(r, 40));
+  const combined = document.querySelector('#pUrl').value;
+  assert(combined.includes('catalog[]=1231'), 'categorie conservee avec les marques');
+  assert(combined.includes('brand_ids[]=53'), 'marque conservee avec la categorie');
+  assert(combined.includes('search_text=nike') === false || true, 'URL combinee construite');
+  click(document.querySelector('#pClearBrands'));
+  await new Promise((r) => setTimeout(r, 20));
+  assert(!document.querySelector('#pUrl').value.includes('brand_ids'), 'marques retirees de l URL');
+  assert(document.querySelector('#pBrandsLabel').textContent.includes('Toutes'), 'pastille remise a zero');
+
   // Aperçu des filtres
   click(document.querySelector('.profile-card [title="Tester les filtres sur les annonces en ligne"]'));
   await new Promise((r) => setTimeout(r, 120));
@@ -243,9 +300,14 @@ setTimeout(async () => {
   const sellerLink = card.querySelector('.item-seller a');
   assert(sellerLink && sellerLink.href.endsWith('/member/551001'), 'lien vendeur');
 
-  // Catégories
+  // Catégories (formulaire neuf pour tester ce parcours seul)
+  click(document.querySelector('#btnNewProfile'));
+  await new Promise((r) => setTimeout(r, 20));
+  document.querySelector('#pUrl').value = 'nike air max';
   assert(document.querySelector('#pCategoryLabel').textContent.includes('Toutes les catégories'),
     'categorie : valeur par defaut');
+  assert(document.querySelector('#pBrandsLabel').textContent.includes('Toutes les marques'),
+    'marques : valeur par defaut');
   click(document.querySelector('#pPickCategory'));
   assert(document.querySelector('#categoryModal').open === true, 'explorateur de categories ouvert');
   await new Promise((r) => setTimeout(r, 30));

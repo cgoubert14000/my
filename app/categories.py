@@ -169,15 +169,50 @@ def path_label(path: str, name: str = "") -> str:
     return slug.replace("_", " ").replace("-", " ").title()[:120]
 
 
-def build_profile_url(
-    current_url: str, path: str, domain: str = "www.vinted.fr"
-) -> str:
-    """Applique une catégorie à une URL de recherche en conservant les filtres.
+def category_id_from_path(path: str | None) -> str:
+    """Identifiant numérique d'un chemin de catégorie (``""`` si racine)."""
+    clean = normalize_path(path)
+    match = re.match(r"^/catalog/(\d+)", clean)
+    return match.group(1) if match else ""
 
-    Exemple : ``https://www.vinted.fr/catalog?search_text=nike`` + ``/catalog/5``
-    → ``https://www.vinted.fr/catalog/5?search_text=nike``.
+
+def category_id_from_url(url: str) -> str:
+    """Identifiant de catégorie présent dans une URL (chemin ou ``catalog[]``)."""
+    from urllib.parse import parse_qsl, urlparse
+
+    value = (url or "").strip()
+    if not value:
+        return ""
+    parsed = urlparse(value if "://" in value else f"https://{value}")
+    from_path = category_id_from_path(parsed.path or "")
+    if from_path:
+        return from_path
+    for key, item in parse_qsl(parsed.query, keep_blank_values=True):
+        if key in {"catalog[]", "catalog"}:
+            match = re.match(r"^(\d+)", str(item).strip())
+            if match:
+                return match.group(1)
+    return ""
+
+
+def compose_query(pairs: list[tuple[str, str]]) -> str:
+    """Assemble une query string en gardant les crochets littéraux.
+
+    Vinted construit ses propres liens avec ``brand_ids[]=53`` (non encodé) :
+    on reproduit exactement cette forme, vérifiée sur le site.
     """
-    from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+    from urllib.parse import quote, quote_plus
+
+    return "&".join(
+        f"{quote(str(key), safe='[]')}={quote_plus(str(value))}"
+        for key, value in pairs
+        if str(key)
+    )
+
+
+def _split_source(current_url: str, domain: str) -> tuple[str, str, list[tuple[str, str]]]:
+    """Décompose une URL (ou un mot-clé) en (domaine, chemin, paramètres)."""
+    from urllib.parse import parse_qsl, urlparse
 
     value = (current_url or "").strip()
     if value.startswith(("http://", "https://")):
@@ -185,22 +220,85 @@ def build_profile_url(
         netloc = parsed.netloc or domain
         if "vinted." not in netloc.lower():  # mot-clé ou domaine inattendu
             netloc = domain
-        query = parsed.query
+        path = parsed.path or "/catalog"
+        params = [
+            (key, item)
+            for key, item in parse_qsl(parsed.query, keep_blank_values=True)
+            if key
+        ]
+        return netloc, path, params
+    if value and "=" in value:  # « search_text=nike »
+        return domain, "/catalog", [(k, v) for k, v in parse_qsl(value, keep_blank_values=True) if k]
+    if value:  # simple mot-clé
+        return domain, "/catalog", [("search_text", value)]
+    return domain, "/catalog", []
+
+
+#: Paramètres pilotés par le sélecteur : toujours reconstruits, jamais dupliqués.
+_MANAGED = {"catalog[]", "catalog", "brand_ids[]", "brand_ids", "page", "time"}
+
+
+def build_profile_url(
+    current_url: str,
+    path: str | None = None,
+    brand_ids: list[str] | None = None,
+    domain: str = "www.vinted.fr",
+) -> str:
+    """Construit l'URL d'un profil en conservant mots-clés et filtres.
+
+    * ``path`` : catégorie à appliquer (``None`` = ne pas y toucher).
+    * ``brand_ids`` : marques à appliquer (``None`` = ne pas y toucher,
+      ``[]`` = retirer le filtre de marque).
+
+    Sans marque, la catégorie reste dans le chemin
+    (``/catalog/1231-men_shoes_new?search_text=nike``), forme vérifiée sur
+    Vinted. Dès qu'une marque est sélectionnée, l'URL passe en paramètres
+    (``/catalog?catalog[]=1231&brand_ids[]=53``) : c'est la seule forme où
+    Vinted applique réellement ``brand_ids[]``.
+    """
+    from urllib.parse import urlunparse
+
+    netloc, current_path, params = _split_source(current_url, domain)
+
+    # Catégorie : argument explicite, sinon celle déjà présente dans l'URL.
+    if path is None:
+        cat_id = category_id_from_url(current_url)
+        clean_path = current_path if cat_id else "/catalog"
+        if cat_id:
+            clean_path = f"/catalog/{cat_id}"
     else:
-        netloc = domain
-        query = ""
-        if value and "=" in value:  # « search_text=nike »
-            query = value
-        elif value:  # simple mot-clé
-            query = urlencode({"search_text": value})
-    params = [(k, v) for k, v in parse_qsl(query, keep_blank_values=True) if k]
-    return urlunparse(
-        (
-            "https",
-            netloc,
-            normalize_path(path),
-            "",
-            urlencode(params, doseq=True),
-            "",
-        )
-    )
+        cat_id = category_id_from_path(path)
+        clean_path = normalize_path(path)
+
+    # Marques : argument explicite, sinon celles déjà présentes dans l'URL.
+    if brand_ids is None:
+        brands = [
+            value
+            for key, value in params
+            if key.startswith("brand_ids") and str(value).strip().isdigit()
+        ]
+        brands = list(dict.fromkeys(brands))
+    else:
+        brands = [str(brand_id).strip() for brand_id in brand_ids if str(brand_id).strip().isdigit()]
+        brands = list(dict.fromkeys(brands))
+
+    kept = [(key, value) for key, value in params if key not in _MANAGED]
+    kept = [
+        (key, value)
+        for key, value in kept
+        if not (brands and key.startswith("brand_ids")) and not (cat_id and key.startswith("catalog"))
+    ]
+
+    if brands:
+        query = []
+        if cat_id:
+            query.append(("catalog[]", cat_id))
+        query.extend(("brand_ids[]", brand_id) for brand_id in brands)
+        query.extend(kept)
+        return urlunparse(("https", netloc, "/catalog", "", compose_query(query), ""))
+
+    if cat_id and kept:
+        return urlunparse(("https", netloc, clean_path, "", compose_query(kept), ""))
+    if cat_id:
+        return urlunparse(("https", netloc, clean_path, "", "", ""))
+    return urlunparse(("https", netloc, "/catalog", "", compose_query(kept), ""))

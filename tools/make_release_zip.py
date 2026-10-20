@@ -10,8 +10,6 @@ d'être construit localement. Le zip est écrit à la racine du dépôt.
 
 from __future__ import annotations
 
-import io
-import shutil
 import subprocess
 import sys
 import tempfile

@@ -28,6 +28,11 @@
     catChildren: [],
     catLoading: false,
     formCategory: { path: "/catalog", label: "Toutes les catégories" },
+    formBrands: [],    // [{id, name}]
+    brandRows: [],
+    brandDraft: [],
+    brandLetter: "A",
+    brandLoading: false,
   };
 
   const LEVEL_LABELS = { INFO: "INFO", DEBUG: "DBG", WARNING: "WARN", ERROR: "ERR", SUCCESS: "OK" };
@@ -427,6 +432,13 @@
       }
       card.appendChild(categoryRow);
     }
+    if (profile.brands) {
+      const brandRow = el("div", "profile-category");
+      const chip = el("span", "meta-tag", `🏷️ ${profile.brands}`);
+      chip.title = "Marques filtrées";
+      brandRow.appendChild(chip);
+      card.appendChild(brandRow);
+    }
 
     /* Métadonnées */
     const meta = el("div", "profile-meta");
@@ -760,6 +772,9 @@
       : { path: "/catalog", label: "Toutes les catégories" };
     state.formCategory = category;
     syncCategoryPill(category);
+    const brandRows = profile ? brandsFromUrl(profile.url, profile.brands || "") : [];
+    state.formBrands = brandRows;
+    syncBrandsPill();
     $("#pPages").value = profile ? profile.pages : 1;
     $("#pMinPrice").value = profile && profile.min_price !== null ? profile.min_price : "";
     $("#pMaxPrice").value = profile && profile.max_price !== null ? profile.max_price : "";
@@ -782,12 +797,14 @@
     event.preventDefault();
     const category = state.formCategory || { path: "/catalog", label: "" };
     const hasCategory = category.path && category.path !== "/catalog";
-    if (hasCategory) applyCategoryToFormUrl(category);
+    const brands = state.formBrands || [];
+    if (hasCategory || brands.length) rebuildFormUrl();
     const payload = {
       name: $("#pName").value.trim(),
       active: $("#pActive").checked,
       url: $("#pUrl").value.trim(),
       category: hasCategory ? category.label : "",
+      brands: brands.length ? brands.map((row) => row.name).join(", ") : "",
       interval_seconds: Math.max(1, Number($("#pInterval").value) || 60),
       live_mode: $("#pLiveMode").checked,
       pages: Number($("#pPages").value) || 1,
@@ -963,6 +980,19 @@
     pill.title = isAll ? "Aucun filtre de catégorie" : category.path;
   }
 
+  const MANAGED_PARAMS = new Set([
+    "catalog[]", "catalog", "brand_ids[]", "brand_ids", "page", "time",
+  ]);
+
+  /* Crochets littéraux dans la query string, comme les liens de Vinted. */
+  function encodeQuery(pairs) {
+    return pairs
+      .filter(([key]) => key)
+      .map(([key, value]) =>
+        `${encodeURIComponent(key).replace(/%5B%5D/g, "[]")}=${encodeURIComponent(value)}`)
+      .join("&");
+  }
+
   function splitSearchUrl(rawUrl) {
     const domain = profileDomainFromForm();
     const value = (rawUrl || "").trim();
@@ -991,28 +1021,212 @@
     }
   }
 
-  /* Écrit la catégorie choisie dans le champ URL, en conservant les mots-clés. */
-  function applyCategoryToFormUrl(category) {
-    const current = splitSearchUrl($("#pUrl").value);
-    $("#pUrl").value = `https://${current.domain}${category.path}${current.search || ""}`;
+  function searchParams(rawUrl) {
+    const { search } = splitSearchUrl(rawUrl);
+    const raw = (search || "").replace(/^\?/, "");
+    const params = [];
+    if (!raw) return params;
+    new URLSearchParams(raw).forEach((value, key) => params.push([key, value]));
+    return params;
   }
 
-  /* Devine la catégorie d'une URL collée à la main : /catalog/1231-men_shoes_new */
+  function catalogIdFrom(path) {
+    const match = (path || "").match(/^\/catalog\/(\d+)/i);
+    return match ? match[1] : "";
+  }
+
+  /* Écrit dans #pUrl la catégorie + les marques choisies, sans perdre mots-clés ni prix. */
+  function rebuildFormUrl() {
+    const current = splitSearchUrl($("#pUrl").value);
+    const kept = searchParams($("#pUrl").value).filter(([key]) => !MANAGED_PARAMS.has(key));
+    const catPath = (state.formCategory && state.formCategory.path) || "/catalog";
+    const catId = catalogIdFrom(catPath);
+    const brands = (state.formBrands || []).map((row) => row.id).filter(Boolean);
+    let url;
+    if (brands.length) {
+      /* Vinted n'applique brand_ids[] qu'en paramètres (?catalog[]=…&brand_ids[]=…). */
+      const pairs = [];
+      if (catId) pairs.push(["catalog[]", catId]);
+      brands.forEach((id) => pairs.push(["brand_ids[]", id]));
+      pairs.push(...kept);
+      url = `https://${current.domain}/catalog${pairs.length ? `?${encodeQuery(pairs)}` : ""}`;
+    } else {
+      const path = catId ? catPath : "/catalog";
+      url = `https://${current.domain}${path}${kept.length ? `?${encodeQuery(kept)}` : ""}`;
+    }
+    $("#pUrl").value = url;
+    return url;
+  }
+
+  /* Devine la catégorie d'une URL collée à la main (chemin ou catalog[]). */
   function categoryFromUrl(rawUrl, fallbackLabel = "") {
     const { path } = splitSearchUrl(rawUrl);
-    const match = path.match(/^\/catalog\/(\d+)(?:-([a-z0-9_-]+))?/i);
-    if (!match) return { path: "/catalog", label: "Toutes les catégories" };
-    const slug = (match[2] || "").replace(/_/g, " ").replace(/-/g, " ");
+    const query = searchParams(rawUrl).find(([key]) => key === "catalog[]" || key === "catalog");
+    const slugMatch = path.match(/^\/catalog\/(\d+)(?:-([a-z0-9_-]+))?/i);
+    const id = slugMatch ? slugMatch[1] : ((String(query ? query[1] : "").match(/^(\d+)/) || [])[1] || "");
+    if (!id) return { path: "/catalog", label: "Toutes les catégories" };
+    const slug = (slugMatch && slugMatch[2] ? slugMatch[2] : "").replace(/_/g, " ").replace(/-/g, " ");
     return {
-      path: `/catalog/${match[1]}${match[2] ? `-${match[2]}` : ""}`,
-      label: fallbackLabel || (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : `Catégorie ${match[1]}`),
+      path: `/catalog/${id}${slugMatch && slugMatch[2] ? `-${slugMatch[2]}` : ""}`,
+      label: fallbackLabel || (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : `Catégorie ${id}`),
     };
+  }
+
+  function brandsFromUrl(rawUrl, fallbackLabel = "") {
+    const ids = [...new Set(
+      searchParams(rawUrl)
+        .filter(([key]) => key === "brand_ids[]" || key === "brand_ids")
+        .map(([, value]) => String(value).trim())
+        .filter((value) => /^\d+$/.test(value)),
+    )];
+    const names = (fallbackLabel || "").split(",").map((part) => part.trim()).filter(Boolean);
+    return ids.map((id, index) => ({ id, name: names[index] || `Marque ${id}` }));
+  }
+
+  function syncCategoryPill(category) {
+    const pill = $("#pCategoryLabel");
+    const isAll = !category.path || category.path === "/catalog";
+    pill.textContent = isAll ? "Toutes les catégories" : category.label;
+    pill.classList.toggle("is-all", isAll);
+    pill.title = isAll ? "Aucun filtre de catégorie" : category.path;
+  }
+
+  function syncBrandsPill() {
+    const pill = $("#pBrandsLabel");
+    if (!pill) return;
+    const rows = state.formBrands || [];
+    const isAll = !rows.length;
+    pill.textContent = isAll ? "Toutes les marques" : rows.map((row) => row.name).join(", ");
+    pill.classList.toggle("is-all", isAll);
+    pill.title = isAll
+      ? "Aucun filtre de marque"
+      : rows.map((row) => `${row.name} (#${row.id})`).join(", ");
   }
 
   function selectCategory(category, { updateUrl = true } = {}) {
     state.formCategory = category;
     syncCategoryPill(category);
-    if (updateUrl) applyCategoryToFormUrl(category);
+    if (updateUrl) rebuildFormUrl();
+  }
+
+  function selectBrands(rows, { updateUrl = true } = {}) {
+    state.formBrands = rows;
+    syncBrandsPill();
+    if (updateUrl) rebuildFormUrl();
+  }
+
+  /* ── Marques Vinted ─────────────────────────────────────────────────── */
+
+  const BRAND_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  function renderBrandLetters() {
+    const box = $("#brandLetters");
+    box.replaceChildren();
+    for (const letter of BRAND_LETTERS) {
+      const button = el("button", "cat-letter", letter);
+      button.type = "button";
+      button.classList.toggle("is-active", letter === state.brandLetter);
+      button.addEventListener("click", () => {
+        state.brandLetter = letter;
+        $("#brandSearch").value = "";
+        renderBrandLetters();
+        loadBrands({ letter });
+      });
+      box.appendChild(button);
+    }
+  }
+
+  function renderBrandList() {
+    const list = $("#brandList");
+    list.replaceChildren();
+    if (state.brandLoading) {
+      list.appendChild(el("p", "cat-empty", "Lecture des marques sur Vinted…"));
+      return;
+    }
+    const rows = state.brandRows || [];
+    if (!rows.length) {
+      list.appendChild(el("p", "cat-empty",
+        "Aucune marque trouvée. Essayez une autre lettre, ou utilisez le nom de la marque comme mot-clé."));
+      return;
+    }
+    const selected = new Set(state.brandDraft.map((row) => row.id));
+    for (const row of rows) {
+      const label = el("label", "brand-item");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = row.id;
+      input.checked = selected.has(row.id);
+      input.addEventListener("change", () => toggleBrand(row, input.checked));
+      label.appendChild(input);
+      label.appendChild(el("span", "", row.name));
+      label.appendChild(el("span", "chev", `#${row.id}`));
+      list.appendChild(label);
+    }
+  }
+
+  function renderBrandFooter() {
+    const count = state.brandDraft.length;
+    $("#brandSelected").textContent = count
+      ? `${count} marque(s) sélectionnée(s) : ${state.brandDraft.map((row) => row.name).join(", ")}`
+      : "Aucune marque sélectionnée (toutes les marques)";
+    const button = $("#brandApply");
+    button.textContent = count ? `Filtrer sur ${count} marque(s)` : "Chercher toutes les marques";
+    button.disabled = count > 20;
+  }
+
+  function toggleBrand(row, checked) {
+    const rows = state.brandDraft.filter((item) => item.id !== row.id);
+    if (checked && rows.length < 20) rows.push({ id: row.id, name: row.name });
+    state.brandDraft = rows;
+    renderBrandFooter();
+    renderBrandList();
+  }
+
+  async function loadBrands({ letter = "", search = "" } = {}) {
+    state.brandLoading = true;
+    renderBrandList();
+    const domain = profileDomainFromForm();
+    const params = new URLSearchParams({ domain });
+    if (search) params.set("search", search);
+    if (letter) params.set("letter", letter);
+    try {
+      const data = await api(`/brands?${params.toString()}`);
+      state.brandRows = data.brands || [];
+      if (data.letter) state.brandLetter = data.letter;
+      $("#brandNote").textContent = data.source === "vinted"
+        ? `Marques réelles lues sur ${domain} — cochez celles qui vous intéressent.`
+        : "Marques populaires (aucune requête réseau). Tapez une lettre pour charger la liste complète.";
+    } catch (error) {
+      state.brandRows = [];
+      $("#brandNote").textContent = `Liste indisponible : ${error.message}`;
+      try {
+        const fallback = await api("/brands");
+        state.brandRows = fallback.brands || [];
+        $("#brandNote").textContent =
+          "Vinted injoignable : marques populaires affichées. Vous pouvez aussi saisir la marque comme mot-clé.";
+      } catch (_) {
+        /* rien de plus à proposer */
+      }
+    } finally {
+      state.brandLoading = false;
+      renderBrandLetters();
+      renderBrandList();
+    }
+  }
+
+  function openBrandBrowser() {
+    state.brandDraft = (state.formBrands || []).map((row) => ({ ...row }));
+    state.brandRows = [];
+    state.brandLetter = state.brandDraft.length
+      ? (state.brandDraft[0].name[0] || "A").toUpperCase()
+      : state.brandLetter || "A";
+    $("#brandSearch").value = "";
+    $("#brandNote").textContent = "Lecture des marques sur Vinted…";
+    renderBrandLetters();
+    renderBrandFooter();
+    renderBrandList();
+    openDialog("brandModal");
+    loadBrands({ letter: state.brandLetter });
   }
 
   /* ── Actions profils ─────────────────────────────────────────────────── */
@@ -1404,6 +1618,24 @@
     $("#pClearCategory").addEventListener("click", () => {
       selectCategory({ path: "/catalog", label: "Toutes les catégories" });
     });
+    $("#pPickBrands").addEventListener("click", openBrandBrowser);
+    $("#pClearBrands").addEventListener("click", () => {
+      selectBrands([]);
+      toast("Filtre de marques retiré.", "success");
+    });
+    $("#brandSearch").addEventListener("input", () => {
+      const query = ($("#brandSearch").value || "").trim();
+      if (query.length >= 2) loadBrands({ search: query });
+      else if (!query) loadBrands({ letter: state.brandLetter });
+    });
+    $("#brandApply").addEventListener("click", () => {
+      const rows = state.brandDraft;
+      selectBrands(rows);
+      closeDialog("brandModal");
+      toast(rows.length
+        ? `Marques appliquées : ${rows.map((row) => row.name).join(", ")}.`
+        : "Recherche sur toutes les marques.", "success");
+    });
     $("#catFilter").addEventListener("input", () => {
       state.catChildren = state.catChildren;
       renderCategoryList();
@@ -1439,6 +1671,8 @@
         const guessed = categoryFromUrl($("#pUrl").value);
         state.formCategory = guessed;
         syncCategoryPill(guessed);
+        state.formBrands = brandsFromUrl($("#pUrl").value);
+        syncBrandsPill();
       }
     });
 

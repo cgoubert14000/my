@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     pages                   INTEGER NOT NULL DEFAULT 1,
     notes                   TEXT NOT NULL DEFAULT '',
     category                TEXT NOT NULL DEFAULT '',
+    brands                  TEXT NOT NULL DEFAULT '',
     baseline_done           INTEGER NOT NULL DEFAULT 0,
     created_at              TEXT NOT NULL,
     updated_at              TEXT NOT NULL,
@@ -141,6 +142,7 @@ PROFILE_FIELDS = (
     "pages",
     "notes",
     "category",
+    "brands",
 )
 
 
@@ -177,6 +179,10 @@ class Database:
             if "category" not in columns:
                 self._conn.execute(
                     "ALTER TABLE profiles ADD COLUMN category TEXT NOT NULL DEFAULT ''"
+                )
+            if "brands" not in columns:
+                self._conn.execute(
+                    "ALTER TABLE profiles ADD COLUMN brands TEXT NOT NULL DEFAULT ''"
                 )
             if "live_mode" not in columns:
                 # Les bases existantes passent en temps réel par défaut.
@@ -288,6 +294,7 @@ class Database:
             "pages": 1,
             "notes": "",
             "category": "",
+            "brands": "",
         }
         data = {**defaults, **dict(payload)}
         for key in ("whitelist", "blacklist"):

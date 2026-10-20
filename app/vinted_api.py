@@ -196,6 +196,12 @@ class SearchPage:
 # ─── URLs ─────────────────────────────────────────────────────────────────────
 
 
+def _set_param(params: list[tuple[str, str]], key: str, value: str) -> list[tuple[str, str]]:
+    """Remplace un paramètre unique en conservant l'ordre et les doublons."""
+    kept = [(k, v) for k, v in params if k != key]
+    return [*kept, (key, str(value))]
+
+
 def search_url(
     raw: str | None,
     domain: str = DEFAULT_DOMAIN,
@@ -221,16 +227,22 @@ def search_url(
         url = base + "/catalog?" + urlencode({"search_text": value})
 
     parsed = urlparse(url)
-    params = dict(parse_qsl(parsed.query, keep_blank_values=True))
-    params.pop("time", None)  # jeton éphémère ajouté par le navigateur
-    params["order"] = order
-    params["page"] = str(max(1, int(page)))
+    # Liste de paires : ``brand_ids[]`` et ``catalog[]`` peuvent être répétés.
+    params = [
+        (key, value)
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if key != "time"  # jeton éphémère ajouté par le navigateur
+    ]
+    params = _set_param(params, "order", order)
+    params = _set_param(params, "page", str(max(1, int(page))))
     if min_price is not None:
-        params["price_from"] = str(int(round(float(min_price))))
+        params = _set_param(params, "price_from", str(int(round(float(min_price)))))
     if max_price is not None:
-        params["price_to"] = str(int(round(float(max_price))))
-    if (min_price is not None or max_price is not None) and "currency" not in params:
-        params["currency"] = currency_for_domain(parsed.netloc or domain)
+        params = _set_param(params, "price_to", str(int(round(float(max_price)))))
+    if (min_price is not None or max_price is not None) and not any(
+        key == "currency" for key, _ in params
+    ):
+        params = _set_param(params, "currency", currency_for_domain(parsed.netloc or domain))
 
     return urlunparse(
         (

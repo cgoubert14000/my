@@ -16,21 +16,22 @@ poussé par le serveur, rotation de proxys et self-healing intégré.
 2. [Démarrage en 30 secondes](#démarrage-en-30-secondes)
 3. [Mode temps réel](#mode-temps-réel--détecter-à-la-seconde)
 4. [Toutes les catégories Vinted](#toutes-les-catégories-vinted)
-5. [Installation détaillée](#installation-détaillée)
-6. [Créer son premier profil](#créer-son-premier-profil)
-7. [Comprendre les filtres](#comprendre-les-filtres)
-8. [Alertes Discord](#alertes-discord)
-9. [Proxys & self-healing](#proxys--self-healing)
-10. [Dashboard](#dashboard)
-11. [Configuration](#configuration)
-12. [Ligne de commande](#ligne-de-commande)
-13. [API REST](#api-rest)
-14. [Données, sauvegardes & vie privée](#données-sauvegardes--vie-privée)
-15. [Architecture du projet](#architecture-du-projet)
-16. [Dépannage](#dépannage)
-17. [Tests](#tests)
-18. [Limites & bonnes pratiques](#limites--bonnes-pratiques)
-19. [Licence](#licence)
+5. [Filtrer par marque](#filtrer-par-marque)
+6. [Installation détaillée](#installation-détaillée)
+7. [Créer son premier profil](#créer-son-premier-profil)
+8. [Comprendre les filtres](#comprendre-les-filtres)
+9. [Alertes Discord](#alertes-discord)
+10. [Proxys & self-healing](#proxys--self-healing)
+11. [Dashboard](#dashboard)
+12. [Configuration](#configuration)
+13. [Ligne de commande](#ligne-de-commande)
+14. [API REST](#api-rest)
+15. [Données, sauvegardes & vie privée](#données-sauvegardes--vie-privée)
+16. [Architecture du projet](#architecture-du-projet)
+17. [Dépannage](#dépannage)
+18. [Tests](#tests)
+19. [Limites & bonnes pratiques](#limites--bonnes-pratiques)
+20. [Licence](#licence)
 
 ---
 
@@ -46,6 +47,7 @@ poussé par le serveur, rotation de proxys et self-healing intégré.
 | 🔔 **Discord haut de gamme** | Embed complet : photo HD, titre, prix (+ port inclus), marque, taille, état, vendeur, étoiles, nombre d'avis, lien direct. |
 | 🛡️ **Self-healing** | Sur 403/429/blocage : purge du proxy fautif, rotation User-Agent, renouvellement de session, pause intelligente, backoff, reprise automatique. |
 | ♻️ **Anti-doublon** | SQLite mémorise les annonces vues **par profil**, y compris après redémarrage. Mémoire négative pour ne pas re-tester dix fois la même annonce écartée. |
+| 🏷️ **Toutes les marques** | Sélecteur de marques réel : liste alphabétique lue sur Vinted (≈100 marques par lettre, triées par volume), recherche intégrée, combinaison de plusieurs marques avec catégorie, mots-clés et prix. Filtre strict côté Vinted (`brand_ids[]`). |
 | 🗂️ **Toutes les catégories** | Navigateur intégré : 9 catégories racines puis les sous-catégories réelles lues sur Vinted, jusqu'au niveau le plus fin, combinables avec vos mots-clés. |
 | 📊 **Dashboard local** | Profils, flux photo en direct (annonce cliquable, vendeur, catégorie), journal, stats, réglages, test Discord, aperçu des filtres avant activation. |
 
@@ -216,6 +218,40 @@ https://www.vinted.fr/catalog/1231-men_shoes_new?search_text=nike&price_from=20
 > message clair au lieu de planter ; réessayez après quelques minutes ou avec un
 > proxy configuré. Une fois la catégorie validée, le scan se poursuit exactement
 > comme une recherche classique.
+
+---
+
+## Filtrer par marque
+
+En plus des catégories, chaque profil peut se limiter à une ou plusieurs marques.
+
+Dans le formulaire de profil, cliquez sur **🏷️ Choisir des marques** :
+
+1. La liste s'ouvre sur la lettre **A** et lit en direct
+   `https://www.vinted.fr/brands/by_letter/A` (≈100 marques par lettre, triées
+   par volume d'annonces).
+2. Tapez les premières lettres dans **Rechercher une marque** : le filtre
+   s'applique instantanément, sans nouvelle requête inutile.
+3. Cochez autant de marques que voulu (20 maximum), puis **Filtrer sur N
+   marque(s)**. Les pastilles apparaissent dans le formulaire et sur la carte du
+   profil ; **Toutes** retire le filtre.
+
+Le filtre est **strict**, appliqué par Vinted lui-même :
+
+```text
+https://www.vinted.fr/catalog?catalog[]=1231&brand_ids[]=53&brand_ids[]=1775&search_text=nike
+```
+
+Cette forme (catégorie + marques + mots-clés + prix) a été vérifiée sur le
+site : la page ne renvoie que les annonces des marques cochées, dans la
+catégorie choisie, avec vos mots-clés. Le bot n'invente aucune marque : les
+identifiants viennent des pages Vinted, et la liste est mise en cache 6 h.
+
+* Si Vinted est momentanément inaccessible, le sélecteur affiche un **raccourci
+  de marques populaires** (aucune requête réseau) au lieu d'échouer.
+* Une marque absente de la liste alphabétique (rare, très peu d'annonces) peut
+  toujours être ciblée en la saisissant comme **mot-clé** dans la recherche, ou
+  en collant directement une URL Vinted contenant `brand_ids[]`.
 
 ---
 
@@ -549,7 +585,8 @@ un compte personnel n'est effectuée.
 * **Flux en direct** : chaque annonce est une carte avec sa **photo** (chargée
   sans référent pour éviter le hotlink), son **titre cliquable**, un bouton
   **« Voir l'annonce ↗ »**, le prix, la marque, la taille, l'état, le vendeur
-  (`@pseudo` + étoiles, lui aussi cliquable) et la catégorie du profil source.
+  (`@pseudo` + étoiles, lui aussi cliquable) et les filtres du profil source
+  (catégorie et marques).
   Filtrable par profil.
 * **Contrôle** : compteurs de session, transport (`curl_cffi`/`httpx`), taille de
   la base, **↻ Session**, **Tester Discord**, **▶ Tout scanner**.
@@ -709,6 +746,8 @@ Toutes les routes sont sous `/api`, en JSON, sans authentification si
 | `POST` | `/diagnose` | Test réel complet (`query`, `webhook`, `domain`). |
 | `GET` | `/categories` | Catégories (`path` optionnel) : locales au 1er niveau, réelles ensuite. |
 | `POST` | `/profiles/{id}/category` | Applique une catégorie au profil en gardant ses mots-clés. |
+| `GET` | `/brands` | Marques : populaires sans paramètre, sinon `letter=A` (réel) ou `search=nike`. |
+| `POST` | `/profiles/{id}/brands` | Applique un filtre de marques (`brand_ids: [...]`) en conservant catégorie et mots-clés. |
 
 Exemple :
 
@@ -760,6 +799,7 @@ curl http://127.0.0.1:8000/api/feed?limit=5
 │   ├── vinted_api.py        # URLs, parsing des cartes SSR + RSC, fiches, vendeurs
 │   ├── diagnostics.py       # test réel : session, catalogue, article, vendeur
 │   ├── categories.py        # arbre des catégories Vinted (local + lecture live)
+│   ├── brands.py            # marques : liste réelle par lettre, cache, URLs
 │   ├── filters.py           # prix, whitelist/blacklist, seuils vendeur
 │   ├── notify.py            # embeds Discord, rate limit, retries
 │   ├── utils.py             # texte, prix, dates, domaines
@@ -817,6 +857,7 @@ déduplication (cache mémoire + SQLite)  ◄──────┘
 | **Photos absentes** | Vinted peut changer ses CDN. L'URL est stockée telle que fournie ; le dashboard affiche un placeholder. Réessayez plus tard ou augmentez `detail_fetch`. |
 | **Images non cliquables / liens cassés** | Vérifiez que l'URL du profil est bien sur un domaine `vinted.*`. L'aperçu affiche l'URL normalisée. |
 | **Sous-catégories indisponibles** | Le 1er niveau est local ; les niveaux suivants sont lus sur Vinted (403/429 possible). Réessayez plus tard, les résultats sont mis en cache 1 h. |
+| **Marques indisponibles** | La liste est lue sur `/brands/by_letter/<lettre>` (cache 6 h). En cas de blocage, le sélecteur bascule sur les marques populaires ; vous pouvez aussi saisir la marque comme mot-clé. |
 | **Le port 8000 est occupé** | Le lanceur choisit le port suivant. Sinon `--port 8080`. |
 | **`curl_cffi` ne s'installe pas** | L'app fonctionne avec `httpx` (fallback). Sur certaines architectures (Raspberry Pi ancien), installez une version récente de Python ou utilisez Docker. |
 | **La base grossit** | `retention_days` (30 par défaut) purge automatiquement. Vous pouvez supprimer `data/vinted_sniper.db*` pour repartir de zéro. |
@@ -848,8 +889,11 @@ python -m unittest discover -s tests -v
 * `tests/test_categories.py` : arbre des catégories, lecture du menu latéral
   réel, `build_profile_url` (mots-clés et prix conservés), endpoints
   `/api/categories` et `/api/profiles/{id}/category`.
+* `tests/test_brands.py` : parsing des pages `/brands/by_letter/…`, filtre de
+  recherche, URLs `catalog[]` + `brand_ids[]`, endpoints `/api/brands` et
+  `/api/profiles/{id}/brands`.
 
-**118 tests** au total. Aucun ne contacte Vinted ni Discord : le faux Vinted de
+**144 tests** au total. Aucun ne contacte Vinted ni Discord : le faux Vinted de
 `tests/fake_vinted.py` n'est jamais importé par l'application.
 
 ---

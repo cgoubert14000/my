@@ -11,6 +11,17 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from . import __version__
+from .brands import (
+    brands_url,
+    brand_ids_from_url,
+    brand_labels,
+    filter_brands,
+    letter_of,
+    parse_brand_ids,
+    parse_brands,
+    popular as popular_brands,
+    sanitize_letter,
+)
 from .categories import (
     build_profile_url,
     page_title,
@@ -36,6 +47,11 @@ router = APIRouter()
 
 _preview_lock = asyncio.Lock()
 _diagnose_lock = asyncio.Lock()
+_brand_lock = asyncio.Lock()
+#: Cache des marques lues sur Vinted : {(domain, letter): (ts, payload)}.
+_brand_cache: dict[tuple[str, str], tuple[float, dict]] = {}
+BRAND_CACHE_SECONDS = 6 * 3600
+
 _category_lock = asyncio.Lock()
 #: Cache des sous-catégories lues sur Vinted : {(domain, path): (ts, payload)}.
 _category_cache: dict[tuple[str, str], tuple[float, dict]] = {}
@@ -53,6 +69,8 @@ def _profile_payload(row: dict, state) -> dict[str, Any]:
         {
             "domain": domain_of(row.get("url") or "", "www.vinted.fr"),
             "category": row.get("category") or "",
+            "brands": row.get("brands") or "",
+            "brand_ids": brand_ids_from_url(row.get("url") or ""),
             "running": profile_id in state.engine._inflight,
             "next_run_at": state.engine.next_run_for(profile_id),
             "seconds_to_next": state.engine.seconds_to_next(profile_id),
@@ -232,6 +250,126 @@ async def set_profile_category(profile_id: int, payload: dict, request: Request)
     state.db.log(
         "INFO",
         f"Catégorie de « {profile['name']} » : {label}.",
+        profile_id=profile_id,
+    )
+    return {"ok": True, "profile": _profile_payload(row, state)}
+
+
+# ── Marques ───────────────────────────────────────────────────────────────────
+
+
+@router.get("/brands")
+async def brands(
+    request: Request,
+    letter: str = Query("", max_length=2),
+    search: str = Query("", max_length=60),
+    domain: str = Query("www.vinted.fr", max_length=80),
+    refresh: bool = Query(False),
+) -> dict:
+    """Marques proposées par Vinted.
+
+    * sans ``letter`` ni ``search`` → raccourci local (aucun réseau) ;
+    * ``letter=N`` → marques réelles de la page ``/brands/by_letter/N`` ;
+    * ``search=nike`` → mêmes marques, filtrées sur le nom.
+    """
+    state = _state(request)
+    domain = (domain or "www.vinted.fr").strip().lower()
+    if not is_vinted_host(domain):
+        raise HTTPException(status_code=422, detail="Domaine Vinted invalide.")
+    origin = f"https://{domain}"
+    query = (search or "").strip()
+
+    if letter and not sanitize_letter(letter):
+        raise HTTPException(status_code=422, detail="Lettre invalide (A-Z attendu).")
+    letter_value = sanitize_letter(letter) or sanitize_letter(letter_of(query))
+    if not letter_value:
+        if query:
+            raise HTTPException(
+                status_code=422,
+                detail="Indiquez une marque commençant par une lettre A-Z.",
+            )
+        return {
+            "ok": True,
+            "letters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+            "brands": popular_brands(),
+            "source": "local",
+            "domain": domain,
+        }
+
+    key = (domain, letter_value)
+    now = time.time()
+    cached = _brand_cache.get(key)
+    if cached and not refresh and now - cached[0] < BRAND_CACHE_SECONDS:
+        rows = filter_brands(cached[1]["brands"], query)
+        return {**cached[1], "brands": rows, "cached": True, "search": query}
+
+    url = brands_url(origin, letter_value)
+    if _brand_lock.locked():
+        if cached:
+            rows = filter_brands(cached[1]["brands"], query)
+            return {**cached[1], "brands": rows, "cached": True, "search": query}
+        raise HTTPException(status_code=429, detail="Lecture des marques déjà en cours.")
+    async with _brand_lock:
+        await state.api.ensure_session(origin + "/")
+        response = await state.client.get(
+            url,
+            headers={
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "same-origin",
+            },
+            referer=origin + "/brands",
+            attempts=2,
+        )
+        if response.blocked:
+            raise HTTPException(
+                status_code=503,
+                detail="Vinted a bloqué la requête. Réessayez dans un instant.",
+            )
+        if not response.ok:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Liste des marques inaccessible ({response.short_error}).",
+            )
+        payload = {
+            "ok": True,
+            "letter": letter_value,
+            "domain": domain,
+            "letters": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+            "brands": parse_brands(response.text, origin),
+            "source": "vinted",
+            "url": url,
+        }
+        _brand_cache[key] = (now, payload)
+        rows = filter_brands(payload["brands"], query)
+        return {**payload, "brands": rows, "search": query}
+
+
+@router.post("/profiles/{profile_id}/brands")
+async def set_profile_brands(profile_id: int, payload: dict, request: Request) -> dict:
+    """Applique un filtre de marques à un profil (catégorie et mots-clés conservés)."""
+    state = _state(request)
+    profile = state.db.get_profile(profile_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profil introuvable.")
+    raw = payload.get("brand_ids")
+    brand_ids = parse_brand_ids(raw if not isinstance(raw, str) else raw)
+    if raw and not brand_ids:
+        raise HTTPException(status_code=422, detail="Identifiants de marque invalides.")
+    domain = domain_of(profile.get("url") or "", "www.vinted.fr")
+    url = build_profile_url(profile.get("url") or "", None, brand_ids, domain)
+    label = str(payload.get("label") or "").strip()[:200] or brand_labels(
+        brand_ids, {str(k): str(v) for k, v in (payload.get("names") or {}).items()}
+    )
+    if not label:
+        label = f"{len(brand_ids)} marque(s)" if brand_ids else ""
+    row = state.db.update_profile(profile_id, {**profile, "url": url, "brands": label})
+    state.db.clear_ignored(profile_id)
+    state.engine.invalidate_profile(profile_id)
+    state.db.log(
+        "INFO",
+        f"Marques de « {profile['name']} » : {label or 'toutes'}.",
         profile_id=profile_id,
     )
     return {"ok": True, "profile": _profile_payload(row, state)}

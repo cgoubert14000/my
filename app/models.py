@@ -35,6 +35,8 @@ class ProfileBase(BaseModel):
     notes: str = Field(default="", max_length=600)
     #: Libellé de la catégorie choisie (l'URL du profil reste la source de vérité).
     category: str = Field(default="", max_length=120)
+    #: Libellé des marques filtrées (les identifiants vivent dans l'URL).
+    brands: str = Field(default="", max_length=200)
 
     model_config = ConfigDict(str_strip_whitespace=True)
 
@@ -107,6 +109,8 @@ class ProfileOut(ProfileBase):
     next_run_at: str | None = None
     seconds_to_next: float | None = None
     poll_interval: float | None = None
+    #: Identifiants de marque présents dans l'URL (``brand_ids[]``).
+    brand_ids: list[str] = Field(default_factory=list)
     #: > 1 quand le moteur a ralenti ce profil après des blocages.
     throttle: float = 1.0
     effective_webhook: bool = False
