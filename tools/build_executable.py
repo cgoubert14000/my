@@ -24,6 +24,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+# La console Windows est en cp1252 : sans cela, les emojis font planter le build.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+    except (AttributeError, OSError, ValueError):
+        pass
+
 ROOT = Path(__file__).resolve().parent.parent
 NAME = "vinted-sniper" if sys.platform != "win32" else "vinted-sniper"
 
@@ -94,7 +101,7 @@ def main() -> int:
     import PyInstaller
 
     print(f"Python {sys.version.split()[0]} · PyInstaller {PyInstaller.__version__}")
-    print("Construction de l'exécutable… (1 à 3 minutes)", flush=True)
+    print("Construction de l'exécutable... (1 a 3 minutes)", flush=True)
     result = subprocess.run(args, cwd=ROOT)
     if result.returncode != 0:
         print("Échec de la construction.")
@@ -106,9 +113,9 @@ def main() -> int:
         return 1
 
     size_mb = binary.stat().st_size / (1024 * 1024)
-    print(f"\n✅ Exécutable prêt : {binary}  ({size_mb:.1f} Mo)")
-    print("   Double-cliquez dessus (ou lancez-le dans un terminal) :")
-    print("   le dashboard s'ouvre sur http://127.0.0.1:8000")
+    print(f"\n[OK] Exécutable prêt : {binary}  ({size_mb:.1f} Mo)")
+    print("     Double-cliquez dessus (ou lancez-le dans un terminal) :")
+    print("     le dashboard s'ouvre sur http://127.0.0.1:8000")
     return 0
 
 
