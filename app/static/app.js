@@ -241,7 +241,12 @@
       source.addEventListener("blocked", (event) => {
         try {
           const data = JSON.parse(event.data);
-          toast(`⚠ Blocage Vinted (profil ${data.profile_id}) — self-healing en cours.`, "error");
+          const reason = String(data.error || "");
+          const interactive = /challenge-platform|captcha-delivery|just a moment|cf-chl/i.test(reason);
+          const advice = interactive
+            ? "vérification navigateur : le bot laisse l'IP respirer (1 à 5 min). Si ça dure, changez d'IP."
+            : "nouvelle tentative automatique dans quelques secondes.";
+          toast(`⚠ Blocage Vinted (profil ${data.profile_id}) — ${advice}`, "error");
         } catch (_) { /* ignore */ }
       });
       source.onerror = () => setStreamState("offline");

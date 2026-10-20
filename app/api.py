@@ -699,7 +699,10 @@ async def scan_profile(profile_id: int, request: Request) -> dict:
     state = _state(request)
     result = await state.engine.scan_now(profile_id)
     if not result.get("ok"):
-        raise HTTPException(status_code=409, detail=result.get("error"))
+        # 429 quand c'est un blocage Vinted : le dashboard peut afficher un
+        # message d'attente plutôt qu'une erreur générique.
+        code = 429 if result.get("blocked") else 409
+        raise HTTPException(status_code=code, detail=result.get("error"))
     return result
 
 

@@ -339,12 +339,28 @@ class BotEngine:
             failures = self._failures.get(profile_id, 1)
             error = str(outcome.error or "")
             hard = bool(re.search(r"HTTP (401|403|407|429|451|503)", error))
+            # « challenge-platform », « captcha-delivery »… : Vinted exige une
+            # vérification navigateur. Réessayer toutes les 20 s ne fait que
+            # prolonger le blocage : on laisse respirer l'IP.
+            interactive = bool(
+                re.search(r"challenge-platform|captcha-delivery|cf-chl|just a moment", error, re.I)
+            )
             # Défi Datadome (HTTP 200) : renouveler la session à chaque passage
             # jetait le cookie posé par la page de vérification — donc nouveau
             # défi au scan suivant, indéfiniment. On garde la session et on
             # laisse simplement retomber la pression.
             self._slow_down(profile, cap=8.0 if hard else 3.0)
-            if hard or failures >= 3:
+            if interactive and not hard:
+                delay = self._challenge_backoff(profile_id)
+                self.db.log(
+                    "WARNING",
+                    f"Vérification navigateur exigée par Vinted ({error}). "
+                    f"Pause de {human_duration(delay)} : insister prolongerait "
+                    f"le blocage. Changez d'IP (partage de connexion, proxy) "
+                    f"si cela dure.",
+                    profile_id=profile_id,
+                )
+            elif hard or failures >= 3:
                 self._force_renew.add(domain)
                 delay = self._backoff(profile_id)
                 self.db.log(
@@ -444,6 +460,16 @@ class BotEngine:
         base = max(15, int(self._settings.max_interval or 15))
         delay = min(base * (2 ** min(failures, 4)), 900)
         return max(10.0, float(delay))
+
+    def _challenge_backoff(self, profile_id: int) -> float:
+        """Pause après une vérification navigateur : 60 s, 2 min, 5 min.
+
+        Contrairement à un simple ralentissement, insister ici **aggrave** le
+        blocage (Cloudflare/Datadome comptent les tentatives). Mieux vaut
+        laisser l'IP respirer que brûler le quota pour rien.
+        """
+        failures = max(1, self._failures.get(profile_id, 1))
+        return float(min(60 * (2 ** min(failures - 1, 3)), 300))
 
     def _soft_backoff(self, profile_id: int) -> float:
         """Reprise après un défi anti-bot : courte, pour ne rien manquer.
@@ -1064,6 +1090,21 @@ class BotEngine:
             return {"ok": False, "error": "Ce profil est déjà en cours de scan."}
         if not profile.get("url"):
             return {"ok": False, "error": "Renseignez d'abord une URL de recherche."}
+        # Vinted vient de renvoyer une page de vérification : relancer un scan
+        # immédiatement ne peut pas réussir et prolonge le blocage. On refuse
+        # en expliquant le délai restant, plutôt que d'insister en silence.
+        cooldown = getattr(self.client, "block_cooldown_left", None)
+        wait = float(cooldown(25)) if callable(cooldown) else 0.0
+        if wait > 0:
+            return {
+                "ok": False,
+                "blocked": True,
+                "error": (
+                    f"Vinted exige une vérification navigateur. "
+                    f"Réessayez dans {int(wait)} s (insister prolonge le blocage). "
+                    "Si cela dure : partage de connexion du téléphone ou proxy."
+                ),
+            }
         self._launch(profile)  # fonctionne aussi quand le moteur est en pause
         self.db.log(
             "INFO",

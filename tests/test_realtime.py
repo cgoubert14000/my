@@ -242,6 +242,10 @@ class FakeClient:
     def stats(self):
         return {"proxy_pool": {"enabled": False, "total": 0, "available": 0}}
 
+    def block_cooldown_left(self, seconds: float = 25.0) -> float:
+        last = float(getattr(self, "_last_block_at", 0.0) or 0.0)
+        return max(0.0, float(seconds) - (time.time() - last)) if last else 0.0
+
 
 def item(item_id: str, price: float = 89.0, title: str = "Nike Air Max 97") -> dict:
     return {
@@ -451,6 +455,36 @@ class EngineRealtimeTests(unittest.TestCase):
         # 3e échec : là, on renouvelle la session.
         engine._after_scan(profile, _blocked())
         self.assertIn("www.vinted.fr", engine._force_renew)
+
+    def test_interactive_challenge_backs_off_for_minutes(self):
+        """Défi « challenge-platform » : pause longue, pas de harcèlement.
+
+        Insister toutes les 20 s prolonge un blocage Cloudflare/Datadome :
+        on laisse l'IP respirer 60 s, 2 min, 5 min.
+        """
+        engine = BotEngine(self.config, self.db, FakeClient(), FakeAPI([[]]), FakeNotifier())
+        engine.paused = False
+        profile = self.db.get_profile(self.profile["id"])
+        delays = []
+        for _ in range(4):
+            outcome = ScanOutcome()
+            outcome.status = "blocked"
+            outcome.error = "blocage anti-bot (HTTP 200 — page « challenge-platform »)"
+            delays.append(engine._after_scan(profile, outcome))
+        self.assertEqual(delays[0], 60.0)
+        self.assertEqual(delays[1], 120.0)
+        self.assertEqual(delays[2], 240.0)
+        self.assertEqual(delays[3], 300.0)
+
+    def test_manual_scan_is_refused_right_after_a_block(self):
+        """Cliquer « scan » pendant un blocage ne doit pas relancer un défi."""
+        engine = BotEngine(self.config, self.db, FakeClient(), FakeAPI([[]]), FakeNotifier())
+        engine.client._last_block_at = time.time()
+        result = asyncio.run(engine.scan_now(self.profile["id"]))
+        self.assertFalse(result["ok"])
+        self.assertTrue(result.get("blocked"))
+        self.assertIn("vérification", result["error"])
+        self.assertGreater(engine.client.block_cooldown_left(25), 20)
 
     def test_soft_backoff_is_short_and_capped(self):
         """Reprise après défi anti-bot : 20 s, 40 s, 80 s… plafond 90 s.

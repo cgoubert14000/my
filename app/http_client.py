@@ -76,6 +76,23 @@ def _is_challenge(text: str) -> bool:
     return any(marker in sample for marker in CHALLENGE_MARKERS)
 
 
+#: Marqueurs d'une vérification **interactive** (Cloudflare / Datadome) :
+#: impossible à passer sans navigateur, et insister ne fait qu'allonger le ban.
+INTERACTIVE_MARKERS = (
+    "challenge-platform",
+    "captcha-delivery",
+    "dd-captcha",
+    "just a moment",
+    "cf-chl",
+)
+
+
+def is_interactive_challenge(text: str) -> bool:
+    """La page demande-t-elle une vérification navigateur (pas un simple 429) ?"""
+    sample = (text or "")[:20000].lower()
+    return any(marker in sample for marker in INTERACTIVE_MARKERS)
+
+
 def block_reason(text: str) -> str:
     """Quel marqueur a fait conclure à un blocage (utile dans le journal)."""
     sample = (text or "")[:20000].lower()
@@ -604,6 +621,13 @@ class HttpClient:
             {str(k).lower(): str(v) for k, v in response.headers.items()},
             response,
         )
+
+    def block_cooldown_left(self, seconds: float = 25.0) -> float:
+        """Secondes restantes avant de pouvoir réessayer après un blocage."""
+        last = float(self._stats.get("last_block_at") or 0)
+        if not last:
+            return 0.0
+        return max(0.0, float(seconds) - (time.time() - last))
 
     def recently_blocked(self, seconds: float = 90.0) -> bool:
         """Un blocage a-t-il eu lieu il y a moins de ``seconds`` ?

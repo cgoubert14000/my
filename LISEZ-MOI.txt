@@ -1,34 +1,30 @@
 ==========================================================
-  VINTED SNIPER 1.3.4  —  demarrage en 30 secondes
+  VINTED SNIPER 1.3.5  —  demarrage en 30 secondes
 
-  IMPORTANT SI VOUS AVIEZ "blocage anti-bot (HTTP 200)" A CHAQUE SCAN
-  - Le mot "datadome" etait present dans la liste des signaux de
-    blocage... or la page catalogue NORMALE de Vinted charge ce script.
-    Resultat : des pages parfaitement valides etaient declarees
-    bloquees, et aucune annonce n'etait lue. Corrige : un blocage n'est
-    retenu que si la grille d'annonces est absente.
-  - Le User-Agent changeait a chaque requete alors que les cookies
-    restaient : empreinte incoherente pour Datadome, donc nouveau defi
-    a chaque passage. Une seule identite par domaine desormais.
-  - Le journal dit maintenant POURQUOI : "page « just a moment »",
-    "defi Datadome « captcha-delivery »", etc.
-  - Une page de verification HTTP 200 ne provoque plus 30-60 s d'attente
-    (5 s max) : ce n'est pas un quota epuise.
+  VOTRE JOURNAL DIT : page « challenge-platform »
+  C'est une verification navigateur (Cloudflare) servie a la place du
+  catalogue. Le bot ne peut pas executer ce JavaScript, et insister
+  AGGRAVE le blocage (les tentatives sont comptees).
 
-  NOUVEAU EN 1.3.3
-  - Cookies conserves sur un HTTP 200, session renouvelee seulement
-    apres 3 blocages consecutifs, reprise en 20/40/80 s (plafond 90 s).
+  NOUVEAU EN 1.3.5
+  - Pause intelligente : 60 s, 2 min, 5 min apres une verification, au
+    lieu de reessayer toutes les 20 s.
+  - Le bouton "scan" est refuse pendant 25 s apres un blocage, avec le
+    temps restant affiche : cliquer en boucle enfoncait le clou.
+  - Message clair dans le dashboard (attendre / changer d'IP).
 
-  RAPPEL 1.3.2
-  - Temps reel : 1 tentative / 10 s ; fiche article bornee a 3,5 s.
-  - Journal du dashboard pousse en direct, interface sans clignotement.
-  - Marques : import complet (~57 000) avec progression.
-  - Tailles : lettres, pointures 35 -> 43, bloc XS/34/6 -> XXL/44/16,
-    6 etats, 12 couleurs.
+  LE TEST QUI TRANCHE EN 60 SECONDES
+  1. Coupez le Wi-Fi.
+  2. Activez le partage de connexion du telephone, connectez le PC.
+  3. Relancez vinted-sniper.exe et lancez un scan.
+     - Les annonces arrivent -> c'etait votre adresse IP. Attendez 1 h,
+       ou gardez cette connexion.
+     - Meme blocage -> ce n'est pas l'IP : proxy residentiel necessaire.
 
-  SI CA BLOQUE ENCORE
-  1. Regardez le motif entre guillemets dans le journal.
-  2. "just a moment" ou "captcha-delivery" = defi navigateur : attendez
-     15 a 60 min sans interroger Vinted, ou changez d'IP (partage de
-     connexion du telephone, proxy residentiel).
-  3. Ne cliquez pas "scan" en boucle : chaque clic relance un defi.
+  RAPPEL
+  - 1.3.4 : le mot "datadome" ne fait plus passer une page valide pour
+    un blocage (faux positif corrige), User-Agent figé par domaine.
+  - 1.3.3 : cookies conserves sur HTTP 200, session renouvelee apres
+    3 blocages seulement.
+  - 1.3.2 : temps reel 1 tentative / 10 s, fiche article bornee a 3,5 s,
+    journal pousse en direct, interface sans clignotement.

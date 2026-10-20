@@ -665,6 +665,28 @@ qu'elle ne l'est, et sont corrigés :
 | Le mot « datadome » figurait dans les **marqueurs de blocage** — or la page catalogue normale charge ce script | Un blocage n'est retenu que si la **grille d'annonces est absente** ; le journal nomme le marqueur exact (`page « just a moment »`, `défi Datadome « captcha-delivery »`) (1.3.4) |
 | Attente de 30-60 s après une page de vérification HTTP 200 | Pause plafonnée à **5 s** : ce n'est pas un quota épuisé (1.3.4) |
 
+### « challenge-platform » : vérification Cloudflare
+
+Si le journal affiche `page « challenge-platform »`, ce n'est plus un doute :
+Vinted sert une **page de vérification navigateur** (Cloudflare) au lieu du
+catalogue. Cette page contient du JavaScript que le bot ne peut pas exécuter —
+et **insister aggrave le blocage** (les tentatives sont comptées).
+
+Depuis la 1.3.5, le bot réagit comme il faut :
+
+* pause de **60 s, 2 min, 5 min** (au lieu de réessayer toutes les 20 s) ;
+* le bouton **scan manuel est refusé pendant 25 s** après un blocage, avec le
+  temps restant — cliquer en boucle enfonçait le clou ;
+* le message du dashboard conseille l'action utile au lieu de « self-healing ».
+
+**Le test qui tranche en 60 secondes** : coupez le Wi-Fi, activez le partage de
+connexion de votre téléphone, relancez le scan.
+
+* les annonces arrivent → c'est bien l'adresse IP qui était visée ; attendez ou
+  gardez cette connexion ;
+* même blocage → ce n'est pas l'IP mais la détection navigateur : il faut un
+  proxy résidentiel, ou attendre plusieurs heures.
+
 Ce qui reste vrai, sans langue de bois : un défi Datadome est lié à votre
 adresse IP. Si Vinted le sert à chaque requête, aucun outil honnête ne peut le
 contourner. Dans ce cas :
