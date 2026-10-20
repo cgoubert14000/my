@@ -466,7 +466,7 @@ class DemoVintedAPI(VintedAPI):
         page: int = 1,
         domain: str = DEFAULT_DOMAIN,
         *,
-        known_newest: str | None = None,
+        known_head: str | None = None,
         head_limit: int | None = None,
     ) -> SearchPage:
         await asyncio.sleep(0.22)
@@ -487,6 +487,7 @@ class DemoVintedAPI(VintedAPI):
             url="demo://catalog",
             total=len(DEMO_ITEMS) + 60,
             newest_id=items[0]["id"] if items else None,
+            head_key=",".join(row["id"] for row in items[:20]),
         )
 
     async def enrich_item(

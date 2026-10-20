@@ -181,17 +181,24 @@ class FakeAPI:
         page=1,
         domain="www.vinted.fr",
         *,
-        known_newest=None,
+        known_head=None,
         head_limit=None,
     ):
-        self.calls.append({"known_newest": known_newest, "head_limit": head_limit})
+        self.calls.append({"known_head": known_head, "head_limit": head_limit})
         batch = self.batches.pop(0) if self.batches else []
         newest = batch[0]["id"] if batch else None
-        if known_newest and newest == known_newest:
+        head_key = ",".join(row["id"] for row in batch[:20])
+        if known_head and head_key == known_head:
             return SearchPage(
-                items=[], url="fake://catalog", unchanged=True, newest_id=newest
+                items=[],
+                url="fake://catalog",
+                unchanged=True,
+                newest_id=newest,
+                head_key=head_key,
             )
-        return SearchPage(items=list(batch), url="fake://catalog", newest_id=newest)
+        return SearchPage(
+            items=list(batch), url="fake://catalog", newest_id=newest, head_key=head_key
+        )
 
     async def enrich_item(self, item, domain="www.vinted.fr", profile_id=None):
         if self.description:
@@ -312,11 +319,11 @@ class EngineRealtimeTests(unittest.TestCase):
         third = self._scan(engine)
         self.assertFalse(third.unchanged)
         self.assertEqual(third.new_items, 0)
-        self.assertIsNone(api.calls[-1]["known_newest"])
+        self.assertIsNone(api.calls[-1]["known_head"])
 
         fourth = self._scan(engine)
         self.assertTrue(fourth.unchanged)
-        self.assertEqual(api.calls[-1]["known_newest"], "2")
+        self.assertEqual(api.calls[-1]["known_head"], "2,1")
         self.assertEqual(len(notifier.sent), 1, "aucune alerte en double")
 
         scans = self.db.latest_scans(5)
@@ -360,16 +367,33 @@ class EngineRealtimeTests(unittest.TestCase):
         notifier = FakeNotifier()
         engine = self._engine(api, notifier)
         self._scan(engine)
-        self.assertEqual(api.calls[0]["known_newest"], None)
+        self.assertEqual(api.calls[0]["known_head"], None)
         second = self._scan(engine)
         self.assertEqual(second.new_items, 1)
         # Trouvaille → le passage suivant relit la page entière.
         self.assertIn(self.profile["id"], engine._deep_next)
         third = self._scan(engine)
-        self.assertIsNone(api.calls[2]["known_newest"])
+        self.assertIsNone(api.calls[2]["known_head"])
         self.assertIsNone(api.calls[2]["head_limit"])
         self.assertEqual(third.new_items, 1)
         self.assertEqual([row["id"] for row in notifier.sent], ["2", "3"])
+
+    def test_sponsored_card_on_top_does_not_hide_new_items(self):
+        """Une annonce sponsorisée figée en tête ne doit pas masquer les nouveautés.
+
+        Cas réel relevé sur vinted.fr : les premières cartes ne sont pas toujours
+        triées par identifiant décroissant (emplacements sponsorisés). Comparer
+        uniquement la première carte raterait les annonces insérées juste après.
+        """
+        sponsored = item("S1", price=90.0, title="Sponsorisée — Nike Air Max")
+        api = FakeAPI([[sponsored, item("1")], [sponsored, item("2"), item("1")]])
+        notifier = FakeNotifier()
+        engine = self._engine(api, notifier)
+        self._scan(engine)  # baseline
+        outcome = self._scan(engine)
+        self.assertFalse(outcome.unchanged)
+        self.assertEqual(outcome.new_items, 1)
+        self.assertEqual([row["id"] for row in notifier.sent], ["2"])
 
     def test_unchanged_scan_is_silent(self):
         """Une page identique ne produit ni alerte, ni avertissement."""
@@ -461,10 +485,10 @@ class EngineRealtimeTests(unittest.TestCase):
         engine = self._engine(FakeAPI([[]]), FakeNotifier())
         self.db.add_seen(self.profile["id"], item("7"))
         self.assertIn("7", engine._seen(self.profile["id"]))
-        engine._newest[self.profile["id"]] = "7"
+        engine._head[self.profile["id"]] = "7"
         engine.invalidate_profile(self.profile["id"])
         self.assertNotIn(self.profile["id"], engine._seen_cache)
-        self.assertNotIn(self.profile["id"], engine._newest)
+        self.assertNotIn(self.profile["id"], engine._head)
 
 
 class DatabaseRealtimeTests(unittest.TestCase):

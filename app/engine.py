@@ -98,7 +98,7 @@ class BotEngine:
 
         # ── Temps réel ───────────────────────────────────────────────────
         self._settings = LiveSettings.from_config(config)
-        self._newest: dict[int, str] = {}
+        self._head: dict[int, str] = {}
         #: Profils dont le prochain passage doit analyser toute la page (rafale).
         self._deep_next: set[int] = set()
         self._last_found: dict[int, float] = {}
@@ -201,7 +201,7 @@ class BotEngine:
         """Oublie les caches d'un profil (après « oublier les annonces vues »)."""
         self._seen_cache.pop(profile_id, None)
         self._ignored_cache.pop(profile_id, None)
-        self._newest.pop(profile_id, None)
+        self._head.pop(profile_id, None)
         self._interval.pop(profile_id, None)
         self._last_found.pop(profile_id, None)
         self._throttle.pop(profile_id, None)
@@ -480,13 +480,13 @@ class BotEngine:
                 known = (
                     None
                     if deep
-                    else (self._newest.get(profile_id) if page == 1 else None)
+                    else (self._head.get(profile_id) if page == 1 else None)
                 )
                 result = await self.api.search(
                     profile,
                     page=page,
                     domain=domain,
-                    known_newest=known,
+                    known_head=known,
                     head_limit=None if deep else head_limit,
                 )
                 if deep:
@@ -514,8 +514,8 @@ class BotEngine:
                         outcome.unchanged = True
                         self.stats.unchanged += 1
                         break
-                    if result.newest_id:
-                        self._newest[profile_id] = result.newest_id
+                    if result.head_key:
+                        self._head[profile_id] = result.head_key
 
                 outcome.pages += 1
                 outcome.items_seen += len(result.items)

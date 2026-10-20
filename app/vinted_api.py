@@ -181,8 +181,10 @@ class SearchPage:
     html_bytes: int = 0
     #: Page identique au dernier passage : aucune analyse n'a été nécessaire.
     unchanged: bool = False
-    #: Identifiant de l'annonce la plus récente (détection incrémentale).
+    #: Identifiant de l'annonce la plus récente (télémétrie).
     newest_id: str | None = None
+    #: Empreinte des premières cartes : sert à détecter une page inchangée.
+    head_key: str | None = None
     #: Temps passé à analyser le HTML (ms), pour le diagnostic de latence.
     parse_ms: int = 0
 
@@ -1285,14 +1287,15 @@ class VintedAPI:
         page: int = 1,
         domain: str = DEFAULT_DOMAIN,
         *,
-        known_newest: str | None = None,
+        known_head: str | None = None,
         head_limit: int | None = None,
     ) -> SearchPage:
         """Interroge le catalogue : HTML SSR en priorité, API JSON en option.
 
-        ``known_newest`` active la détection incrémentale : si la première
-        annonce de la page est identique au dernier passage, la page est
-        considérée inchangée et n'est pas analysée (gain CPU + latence).
+        ``known_head`` active la détection incrémentale : on compare l'empreinte
+        des :data:`HEAD_FINGERPRINT` premières cartes (et non la seule première,
+        car Vinted insère des annonces sponsorisées en tête de liste). Empreinte
+        identique ⇒ page inchangée, HTML non analysé.
         ``head_limit`` borne l'analyse aux N premières cartes (mode temps réel).
         """
         web_url = search_url(
@@ -1345,7 +1348,9 @@ class VintedAPI:
 
         html = response.text or ""
         newest = newest_item_id(html)
-        if known_newest and newest and newest == known_newest:
+        head = head_item_ids(html, HEAD_FINGERPRINT)
+        head_key = ",".join(head) if head else None
+        if known_head and head_key and head_key == known_head:
             return SearchPage(
                 items=[],
                 url=web_url,
@@ -1353,6 +1358,7 @@ class VintedAPI:
                 html_bytes=len(html),
                 unchanged=True,
                 newest_id=newest,
+                head_key=head_key,
             )
 
         started = time.perf_counter()
@@ -1374,6 +1380,7 @@ class VintedAPI:
             empty=empty,
             html_bytes=len(html),
             newest_id=newest,
+            head_key=head_key,
             parse_ms=parse_ms,
         )
 
@@ -1463,6 +1470,10 @@ class VintedAPI:
 
 _GRID_MARKER = 'data-testid="grid-item"'
 _ITEM_ID_IN_HTML_RE = re.compile(r"product-item-id-(\d+)")
+
+#: Nombre de cartes dont on compare les identifiants pour dire « page inchangée ».
+#: 20 et non 1 : Vinted peut épingler des annonces sponsorisées en tête.
+HEAD_FINGERPRINT = 20
 
 
 def newest_item_id(html: str) -> str | None:
