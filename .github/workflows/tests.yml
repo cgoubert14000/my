@@ -4,6 +4,7 @@ on:
   push:
     branches: [main, "arena/**"]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   unittest:
@@ -23,7 +24,9 @@ jobs:
       - name: Lancer la suite (aucun réseau externe requis)
         env:
           TESTS_STALL_TIMEOUT: "240"
-        run: python tools/run_tests.py
+        run: |
+          set -o pipefail
+          python tools/run_tests.py 2>&1 | tee tests-run.log
 
       - name: Rapport d'échec (PR + fichier suivi)
         if: failure()
@@ -33,7 +36,7 @@ jobs:
           {
             echo "### Tests en échec — $(git rev-parse --short HEAD) — $(date -u +%H:%M:%SZ)"
             echo '```'
-            timeout 320 python tools/run_tests.py 2>&1 | tail -45 || true
+            tail -45 tests-run.log || echo "aucune trace disponible" 
             echo '```'
           } > report.md
           cat report.md
