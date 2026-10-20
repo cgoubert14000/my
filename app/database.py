@@ -363,14 +363,24 @@ class Database:
         words = [word for word in key.split() if word][:5]
         if not words:
             return "", []
+        # La clé compacte (sans espaces) attrape les marques ponctuées :
+        # « C.P. Company » -> « c p company » -> « cpcompany », donc « cp » marche.
+        compact = "REPLACE(search_key, ' ', '')"
         if prefix:
-            clause = " AND ".join("(search_key LIKE ? OR search_key LIKE ?)" for _ in words)
-            params: list[str] = []
-            for word in words:
-                params.extend([f"{word}%", f"% {word}%"])
-            return clause, params
-        clause = " AND ".join("search_key LIKE ?" for _ in words)
-        return clause, [f"%{word}%" for word in words]
+            first, *rest = words
+            clauses = [f"({compact} LIKE ? OR search_key LIKE ? OR search_key LIKE ?)"]
+            params: list[str] = [f"{first}%", f"{first}%", f"% {first}%"]
+            for word in rest:
+                clauses.append("search_key LIKE ?")
+                params.append(f"%{word}%")
+            return " AND ".join(clauses), params
+        clause = " AND ".join(
+            f"(search_key LIKE ? OR {compact} LIKE ?)" for _ in words
+        )
+        params = []
+        for word in words:
+            params.extend([f"%{word}%", f"%{word}%"])
+        return clause, params
 
     def search_brands(
         self, query: str, limit: int = 60, prefix: bool = False
@@ -380,10 +390,16 @@ class Database:
         if not clause:
             return []
         cap = 500 if prefix else 200
+        # Les marques qui commencent vraiment par la saisie passent devant.
+        rank = ""
+        if prefix:
+            key = brand_search_key(query).split()[0]
+            rank = "CASE WHEN REPLACE(search_key, ' ', '') LIKE ? THEN 0 ELSE 1 END, "
+            params = [*params, f"{key}%"]
         with self._lock:
             rows = self._conn.execute(
                 f"SELECT id, slug, name FROM brands WHERE {clause} "
-                "ORDER BY LENGTH(name), name LIMIT ?",
+                f"ORDER BY {rank}LENGTH(name), name LIMIT ?",
                 (*params, max(1, min(int(limit), cap))),
             ).fetchall()
         return [{"id": row["id"], "slug": row["slug"], "name": row["name"]} for row in rows]

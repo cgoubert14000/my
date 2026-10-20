@@ -852,6 +852,11 @@ class BotEngine:
             or self.config.get("engine.enrich_sellers", True)
         ):
             return
+        # Vague de blocages en cours : la fiche article et le profil vendeur
+        # seraient des requêtes perdues, et de nouveaux signaux pour Datadome.
+        if getattr(self.client, "recently_blocked", None) and self.client.recently_blocked(120):
+            self._enrich_deferred = getattr(self, "_enrich_deferred", 0) + 1
+            return
         task = asyncio.create_task(
             self._enrich_later(profile, item, domain),
             name=f"enrich-{profile['id']}-{item['id']}",

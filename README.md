@@ -232,8 +232,12 @@ Dans le formulaire de profil, cliquez sur **🏷️ Choisir des marques** :
 1. **Tapez la première lettre suffit** : dans le champ *Rechercher une marque*,
    saisir « n » affiche **toutes** les marques qui commencent par N (Nike, New
    Balance, Naked Wolfe, Nina Ricci…), « ni » restreint à Nike/Nina Ricci. La
-   recherche est un vrai **préfixe de mot**, insensible aux accents et à la
-   casse (`h` → H&M), pas un « contient ».
+   recherche est un vrai **préfixe de mot**, insensible aux accents, à la casse
+   et à la **ponctuation** : « cp » trouve **C.P. Company**, « hm » et « h&m »
+   trouvent **H&M**, « coq » trouve Le Coq Sportif. Les marques qui commencent
+   réellement par la saisie sont classées en premier.
+   Si l'index local est vide au moment de la saisie, il est **importé
+   automatiquement** (≈10 s, une seule fois) au lieu d'afficher « aucune marque ».
 2. Elle interroge l'**index local** (`GET /api/brands?search=n&prefix=1`), donc
    instantanément et sans réseau. Le nombre total est affiché, même quand
    l'affichage est plafonné à 300 lignes pour rester fluide.
@@ -635,6 +639,31 @@ webhook est supprimé/invalide.
 
 Le moteur applique aussi un backoff par profil et une courte pause globale
 lorsque plusieurs profils se font bloquer en même temps.
+
+### Mon IP peut-elle être bloquée ?
+
+Réponse honnête, sans promesse en l'air :
+
+* Vinted (via Datadome) ne « bannit » pas une adresse résidentielle pour une
+  simple consultation : il la **ralentit** — 403/429, page de vérification,
+  puis des pauses de plus en plus longues. C'est exactement ce que montrent des
+  journaux comme `Blocage détecté (HTTP 200, proxy=direct) → rotation + purge
+  cookies` suivi de `Smart sleep 30s`.
+* Un blocage **permanent** arrive surtout quand le rythme reste agressif
+  pendant des heures, ou avec des dizaines de profils qui interrogent le même
+  domaine en parallèle. Un compte Vinted n'est pas concerné ici : le bot ne se
+  connecte jamais.
+* Ce que le bot fait déjà pour vous : délais aléatoires, backoff progressif,
+  rotation d'User-Agent et de cookies, purge de session après blocage, veille
+  temps réel adaptative, et — depuis la 1.3.1 — **aucune requête de confort**
+  (fiche article, profil vendeur) pendant une vague de blocages, car ces appels
+  échouent et ajoutent des signaux.
+* Ce qui réduit vraiment le risque : **un proxy (idéalement résidentiel)**,
+  l'option « Utiliser les proxys » cochée, **un profil par thème**, un
+  intervalle ≥ 1,5 s et `pages = 1`. Un pool public gratuit est souvent plus
+  lent et plus bloqué que votre propre connexion : à utiliser en secours.
+* Ce qui est garanti : rien. Aucun outil ne peut promettre « zéro blocage » ;
+  le seul moyen de ne pas exposer son IP est de passer par un proxy ou un VPS.
 
 ### Activer les proxys
 

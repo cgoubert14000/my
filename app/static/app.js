@@ -36,6 +36,8 @@
     brandLetter: "A",
     brandLoading: false,
     brandIndex: { total: 0, updated_at: null },
+    brandImporting: false,
+    brandAutoImportFailed: false,
   };
 
   const LEVEL_LABELS = { INFO: "INFO", DEBUG: "DBG", WARNING: "WARN", ERROR: "ERR", SUCCESS: "OK" };
@@ -1422,6 +1424,7 @@
 
   async function importBrands(button) {
     button.disabled = true;
+    state.brandAutoImportFailed = false;
     const domain = profileDomainFromForm();
     try {
       renderBrandIndex(await api(`/brands/sync?domain=${encodeURIComponent(domain)}`, { method: "POST" }));
@@ -1466,7 +1469,48 @@
     }
   }
 
+  /* L'index local est la seule source fiable pour « toutes les marques qui
+     commencent par cp ». S'il est vide au moment d'une recherche, on l'importe
+     une fois, tout seul, au lieu d'afficher « aucune marque ». */
+  async function ensureBrandIndex(maxWaitMs = 14000) {
+    if (state.brandIndex.total) return true;
+    if (state.brandImporting) return Boolean(state.brandIndex.total);
+    try {
+      await refreshBrandIndex();
+      if (state.brandIndex.total) return true;
+      if (state.brandAutoImportFailed) return false;
+      state.brandImporting = true;
+      $("#brandNote").textContent =
+        "Index des marques vide : import automatique en cours (≈10 s, une seule fois)…";
+      const domain = profileDomainFromForm();
+      renderBrandIndex(await api(`/brands/sync?domain=${encodeURIComponent(domain)}`, { method: "POST" }));
+      const started = Date.now();
+      while (Date.now() - started < maxWaitMs) {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        const data = await api("/brands/sync");
+        const stillRunning = renderBrandIndex(data);
+        if (!stillRunning) break;
+      }
+      if (state.brandIndex.total) {
+        toast(`${state.brandIndex.total.toLocaleString("fr-FR")} marques importées : recherche complète active.`, "success");
+        return true;
+      }
+      state.brandAutoImportFailed = true;
+      $("#brandNote").textContent =
+        "Import impossible (Vinted injoignable pour l'instant). Réessayez avec le bouton ⬇, "
+        + "ou collez l'URL de la marque dans le champ ci-dessus.";
+      return false;
+    } catch (error) {
+      state.brandAutoImportFailed = true;
+      $("#brandNote").textContent = `Import impossible : ${error.message}. Le bouton ⬇ réessaiera.`;
+      return false;
+    } finally {
+      state.brandImporting = false;
+    }
+  }
+
   async function loadBrands({ letter = "", search = "" } = {}) {
+    if (search) await ensureBrandIndex();
     state.brandLoading = true;
     renderBrandList();
     const domain = profileDomainFromForm();

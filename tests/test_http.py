@@ -9,6 +9,7 @@ import json
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -169,6 +170,21 @@ class HttpClientTests(unittest.IsolatedAsyncioTestCase):
         await self.client.close()
         self.db.close()
         self.tmp.cleanup()
+
+    async def test_recently_blocked_uses_last_block_timestamp(self):
+        """Pendant une vague de blocages, on met les requêtes de confort en pause."""
+        self.assertFalse(self.client.recently_blocked())
+        self.client._stats["last_block_at"] = time.time()
+        self.assertTrue(self.client.recently_blocked())
+        self.assertTrue(self.client.recently_blocked(120))
+        self.client._stats["last_block_at"] = time.time() - 300
+        self.assertFalse(self.client.recently_blocked(120))
+
+    async def test_block_sets_last_block_timestamp(self):
+        FakeVinted.fail_api_once = True
+        response = await self.client.get(self.base + "/api/v2/catalog/items", attempts=1)
+        self.assertTrue(response.blocked)
+        self.assertTrue(self.client.recently_blocked())
 
     async def test_warm_up_sets_session_cookie(self):
         ok = await self.client.warm_up(self.base + "/")

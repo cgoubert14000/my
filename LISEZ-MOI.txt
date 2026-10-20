@@ -1,7 +1,7 @@
 ==========================================================
-  VINTED SNIPER 1.3.0  —  demarrage en 30 secondes
+  VINTED SNIPER 1.3.1  —  demarrage en 30 secondes
 
-  NOUVEAU EN 1.3
+  NOUVEAU EN 1.3.1
   - Filtres Vinted complets dans le formulaire : tailles (XS -> XXXL,
     pointures 35 -> 43), etat (6 choix), couleurs (12), prix et tri.
   - Marques : tapez une seule lettre, toutes les marques qui commencent
@@ -9,3 +9,7 @@
   - Nouvelle interface : verre depoli, halos indigo/cyan, animations.
   - Les filtres sont ecrits dans l'URL du profil : Vinted les applique
     lui-meme, donc moins de requetes et des resultats exacts.
+  - Marques : "cp" trouve C.P. Company, "hm" trouve H&M (ponctuation ignoree).
+    Si l'index est vide, il s'importe tout seul a la premiere recherche.
+  - Journal plus lisible : plus 70 lignes "webhook absent" d'un coup.
+  - Pendant les blocages Vinted, le bot ne lance plus de requetes inutiles.

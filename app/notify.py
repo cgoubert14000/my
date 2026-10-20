@@ -62,6 +62,8 @@ class DiscordNotifier:
         self.config = config
         self.db = db
         self.limiter = RateLimiter(int(config.get("notifications.max_per_minute", 20)))
+        #: Anti-spam du journal : même erreur pour le même profil = 1 ligne / min.
+        self._log_throttle: dict[tuple[str, str], float] = {}
         self._client: httpx.AsyncClient | None = None
         #: Mode test (tests automatisés uniquement) : journalise au lieu de poster.
         self.dry_run = False
@@ -230,7 +232,7 @@ class DiscordNotifier:
                 f"[{label}]",
                 profile_id=(profile or {}).get("id"),
             )
-        elif not ok:
+        elif not ok and self._should_log(label, str(error or "")):
             self.db.log(
                 "ERROR",
                 f"Échec notification Discord [{label}] : {error} "
@@ -238,6 +240,23 @@ class DiscordNotifier:
                 profile_id=(profile or {}).get("id"),
             )
         return ok, error
+
+    def _should_log(self, label: str, error: str, window: float = 60.0) -> bool:
+        """Une seule ligne de journal par minute et par cause.
+
+        Sans webhook configuré, un scan peut produire des dizaines d'échecs
+        identiques : le journal devient illisible et masque les vrais problèmes.
+        """
+        now = time.monotonic()
+        key = (label, error[:80])
+        last = self._log_throttle.get(key, 0.0)
+        if now - last < window:
+            return False
+        self._log_throttle[key] = now
+        if len(self._log_throttle) > 200:  # ménage
+            for stale in [k for k, v in self._log_throttle.items() if now - v > window]:
+                self._log_throttle.pop(stale, None)
+        return True
 
     async def send_test(
         self, webhook: str = "", profile_name: str = "Test"

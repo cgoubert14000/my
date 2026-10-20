@@ -314,6 +314,15 @@ class ProxyPool:
                 f"Découverte auto : {total} proxy(s) ajouté(s) au pool.",
                 source="proxy",
             )
+            if not self.config.get("proxies.enabled", False):
+                # Piège classique : un pool rempli mais inutilisé, donc tout
+                # part en direct et l'IP personnelle prend les blocages.
+                self.db.log(
+                    "WARNING",
+                    "Proxys découverts mais désactivés : les requêtes partent en direct "
+                    "(votre IP). Cochez « Utiliser les proxys » dans les réglages pour les employer.",
+                    source="proxy",
+                )
         return total
 
 
@@ -536,6 +545,16 @@ class HttpClient:
             {str(k).lower(): str(v) for k, v in response.headers.items()},
             response,
         )
+
+    def recently_blocked(self, seconds: float = 90.0) -> bool:
+        """Un blocage a-t-il eu lieu il y a moins de ``seconds`` ?
+
+        Pendant une vague de blocages (Datadome), mieux vaut **ne pas** lancer
+        les requêtes de confort (fiche article, profil vendeur) : elles
+        n'aboutissent pas et aggravent la détection.
+        """
+        last = float(self._stats.get("last_block_at") or 0)
+        return bool(last) and (time.time() - last) < float(seconds)
 
     @staticmethod
     def _looks_blocked(text: str) -> bool:

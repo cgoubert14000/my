@@ -161,16 +161,19 @@ window.fetch = async (url, opts = {}) => {
       { id: '1775', name: 'New Balance', slug: 'new-balance', url: 'https://www.vinted.fr/brand/1775-new-balance' },
       { id: '232', name: 'New Era', slug: 'new-era', url: 'https://www.vinted.fr/brand/232-new-era' },
       { id: '5977', name: 'Nike Air', slug: 'nike-air', url: 'https://www.vinted.fr/brand/5977-nike-air' },
+      { id: '8888', name: 'C.P. Company', slug: 'c-p-company', url: 'https://www.vinted.fr/brand/8888-c-p-company' },
     ];
     if (!search && !letter) {
       return reply({ ok: true, brands: catalogue.slice(0, 2), letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
         source: 'local', domain: 'www.vinted.fr' });
     }
     const prefixMode = /prefix=1/.test(u);
+    // Même logique que le serveur : ponctuation aplatie (« C.P. Company » -> « cpcompany »).
+    const compact = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
     const rows = search
       ? catalogue.filter((row) => (prefixMode
-        ? row.name.toLowerCase().startsWith(search.toLowerCase())
-        : row.name.toLowerCase().includes(search.toLowerCase())))
+        ? compact(row.name).startsWith(compact(search))
+        : compact(row.name).includes(compact(search))))
       : catalogue;
     if (prefixMode) {
       return reply({ ok: true, brands: rows, prefix: true, total: rows.length, returned: rows.length,
@@ -257,7 +260,25 @@ setTimeout(async () => {
   await new Promise((r) => setTimeout(r, 60));
   assert(document.querySelector('#brandModal').open === true, 'modale marques ouverte');
   assert(document.querySelectorAll('#brandLetters .cat-letter').length === 26, 'alphabet des marques');
-  assert(document.querySelectorAll('#brandList .brand-item').length === 4, 'marques listées depuis Vinted');
+
+  // Bug signalé : « cp » ne trouvait rien alors que « C.P. Company » existe.
+  // Ici l'index est vide : la saisie doit déclencher l'import toute seule.
+  const brandSearchBox = document.querySelector('#brandSearch');
+  brandSearchBox.value = 'cp';
+  brandSearchBox.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 4200));
+  const cpRows = [...document.querySelectorAll('#brandList .brand-item')].map((row) => row.textContent);
+  assert(cpRows.some((name) => name.includes('C.P. Company')), 'cp trouve C.P. Company');
+  assert(calls.some((c) => c.url.includes('/api/brands/sync') && c.method === 'POST'),
+    'index importe automatiquement a la premiere recherche');
+  assert(document.querySelector('#brandIndex').textContent.includes('57'),
+    'index complet annonce apres import automatique');
+
+  // Retour au mode lettre pour la suite du scénario
+  brandSearchBox.value = '';
+  brandSearchBox.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 150));
+  assert(document.querySelectorAll('#brandList .brand-item').length === 5, 'marques listées depuis Vinted');
   const nikeBox = [...document.querySelectorAll('#brandList .brand-item')]
     .find((row) => row.textContent.includes('Nike') && !row.textContent.includes('Nike Air'));
   const nikeInput = nikeBox.querySelector('input');
