@@ -1,0 +1,82 @@
+{
+  "app": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "open_browser": true,
+    "password": ""
+  },
+  "engine": {
+    "live_mode": true,
+    "realtime_min_interval": 1.5,
+    "realtime_max_interval": 10.0,
+    "realtime_growth": 1.6,
+    "realtime_burst_seconds": 90,
+    "realtime_jitter": 0.15,
+    "realtime_turbo": false,
+    "realtime_head_items": 24,
+    "default_interval_seconds": 60,
+    "min_request_delay": 2.0,
+    "max_concurrent_profiles": 2,
+    "max_items_per_page": 96,
+    "enrich_sellers": true,
+    "detail_fetch": true,
+    "seller_cache_ttl_hours": 24,
+    "retention_days": 30,
+    "baseline_first_scan": true,
+    "detail_budget_per_scan": 15,
+    "start_paused": false
+  },
+  "http": {
+    "impersonate": "chrome124",
+    "timeout_seconds": 25,
+    "max_retries": 3,
+    "cookie_refresh_minutes": 25,
+    "block_backoff_seconds": [
+      30,
+      60,
+      120,
+      300,
+      600,
+      900
+    ],
+    "user_agents": [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:130.0) Gecko/20100101 Firefox/130.0",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+    ],
+    "use_json_api": false
+  },
+  "proxies": {
+    "enabled": false,
+    "prefer_proxies": false,
+    "auto_discover": true,
+    "list": [],
+    "sources": [
+      "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",
+      "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt",
+      "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all"
+    ],
+    "max_pool_size": 40,
+    "cooldown_seconds": 300,
+    "ban_after_failures": 3,
+    "discover_interval_seconds": 600
+  },
+  "discord": {
+    "default_webhook": "",
+    "username": "Vinted Sniper",
+    "avatar_url": "",
+    "mention": ""
+  },
+  "notifications": {
+    "enabled": true,
+    "max_per_minute": 20,
+    "max_attempts": 5
+  },
+  "dashboard": {
+    "feed_size": 60,
+    "logs_size": 300
+  }
+}
