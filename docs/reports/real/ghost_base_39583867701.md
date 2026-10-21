@@ -1,13 +1,13 @@
 # Session ghost — Base (chain id 8453)
 
 **Réseau réel** — RPC `base-rpc.publicnode.com` — adresses vérifiées en direct : True
-Généré le 2026-10-21T15:18:28+00:00 ; durée 292.76 min ; blocs 52894493 → 52903276 (7006 vus)
+Généré le 2026-10-21T15:21:37+00:00 ; durée 295.9 min ; blocs 52894493 → 52903370 (7099 vus)
 
 ## Connexion
-- Requêtes RPC : 96076 ; erreurs : 328 ; latence p50/p95 : 300.6/950.1 ms
-- Rafraîchissements d'état : 7006 ; âge des données au dernier bloc : 4.03 s ; changements de frais LP observés (pools à frais dynamiques) : 24510
-- Flux d'événements (WebSocket Swap/Sync) : connecté ; événements appliqués : 101791 ; cycles déclenchés par événement : 4377 ; avance médiane sur le rafraîchissement multicall : 382 ms
-- Gaz : base fee 0.005000 gwei ; prix ETH (pool le plus profond) : 2,504.38 $
+- Requêtes RPC : 97362 ; erreurs : 328 ; latence p50/p95 : 312.9/873.8 ms
+- Rafraîchissements d'état : 7099 ; âge des données au dernier bloc : 2.13 s ; changements de frais LP observés (pools à frais dynamiques) : 24867
+- Flux d'événements (WebSocket Swap/Sync) : connecté ; événements appliqués : 105034 ; cycles déclenchés par événement : 4461 ; avance médiane sur le rafraîchissement multicall : 415 ms
+- Gaz : base fee 0.005000 gwei ; prix ETH (pool le plus profond) : 2,502.45 $
 - Fournisseurs de flash loan : MORPHO 0.0 bps (vérifié=True), BALANCER_V2 0.0 bps (vérifié=True), AAVE_V3 5.0 bps (vérifié=True)
 
 ## Univers suivi : 578 pools, 326 jetons, 21598 routes
@@ -19,72 +19,72 @@ Généré le 2026-10-21T15:18:28+00:00 ; durée 292.76 min ; blocs 52894493 → 
 
 | DEX | Paire | Frais (ppm) | Profondeur ($) | Prix (token1 par token0) | Bloc | Adresse |
 |---|---|---:|---:|---:|---:|---|
-| uniswap_v3 | WETH/USDC | 3000 | 158,779,601 | 2,504.383165 | 52903276 | `0x6c561B446416E1A00E8E93E221854d6eA4171372` |
-| aerodrome | USDC/AERO | 3000 | 38,722,620 | 1.153392 | 52903276 | `0x6cDcb1C4A4D1C3C6d054b27AC5B77e89eAFb971d` |
-| aerodrome | WETH/VVV | 3000 | 18,544,023 | 91.307349 | 52903276 | `0x01784ef301D79e4B2DF3a21ad9a536d4cF09A5Ce` |
-| uniswap_v3 | WETH/cbBTC | 500 | 16,852,437 | 0.029611 | 52903276 | `0x7AeA2E8A3843516afa07293a10Ac8E49906dabD1` |
-| aerodrome_slipstream | WETH/cbBTC | 2500 | 13,313,280 | 0.029570 | 52903276 | `0x70aCDF2Ad0bf2402C957154f944c19Ef4e1cbAE1` |
-| uniswap_v3 | WETH/cbBTC | 3000 | 10,657,771 | 0.029558 | 52903276 | `0x8c7080564B5A792A33Ef2FD473fbA6364d5495e5` |
-| uniswap_v3 | USDC/cbBTC | 500 | 9,914,530 | 0.000012 | 52903276 | `0xfBB6Eed8e7aa03B138556eeDaF5D271A5E1e43ef` |
-| uniswap_v3 | WETH/USDC | 500 | 8,887,447 | 2,501.605494 | 52903276 | `0xd0b53D9277642d899DF5C87A3966A349A798F224` |
-| aerodrome | WETH/USDC | 3000 | 8,462,241 | 2,504.373548 | 52903276 | `0xcDAC0d6c6C59727a65F871236188350531885C43` |
-| aerodrome_slipstream | USDC/cbBTC | 362 | 7,441,495 | 0.000012 | 52903276 | `0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb` |
-| uniswap_v3 | JITOSOL/cbBTC | 100 | 7,421,042 | 0.001667 | 52903276 | `0xe2B8c33AE97658ceaD06AfD47c7F3857e5851871` |
-| aerodrome_slipstream | WETH/USDC | 862 | 7,343,530 | 2,501.227331 | 52903276 | `0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59` |
-| aerodrome_slipstream | USDC/cbBTC | 580 | 6,855,140 | 0.000012 | 52903276 | `0x4e962BB3889Bf030368F56810A9c96B83CB3E778` |
-| pancakeswap_v3 | WETH/cbBTC | 100 | 5,694,441 | 0.029603 | 52903276 | `0xC211e1f853A898Bd1302385CCdE55f33a8C4B3f3` |
-| aerodrome | fBOMB/AERO | 10000 | 5,006,332 | 0.023135 | 52903276 | `0xbBf71AAD6E1F8D180D3B1D898528654c1d18b2fF` |
-| aerodrome_slipstream | WETH/wstETH | 90 | 4,826,783 | 0.802390 | 52903276 | `0x861A2922bE165a5Bd41b1E482B49216b465e1B5F` |
-| pancakeswap_v3 | WETH/USDC | 100 | 4,591,150 | 2,500.684907 | 52903276 | `0x72AB388E2E2F6FaceF59E3C3FA2C4E29011c2D38` |
-| aerodrome_slipstream | cbBTC/LBTC | 200 | 4,489,197 | 0.998741 | 52903276 | `0xA44D3Bb767d953711EA4Bce8C0F01f4d7D299aF6` |
-| aerodrome | VIRTUAL/WETH | 10000 | 4,339,852 | 0.000279 | 52903276 | `0x21594b992F68495dD28d605834b58889d0a727c7` |
-| aerodrome_slipstream | USDC/AERO | 10000 | 4,320,123 | 1.159829 | 52903276 | `0xBE00fF35AF70E8415D0eB605a286D8A45466A4c1` |
-| aerodrome | WETH/KTA | 3000 | 4,115,025 | 35,128.908976 | 52903276 | `0xd9eDC75a3a797Ec92Ca370F19051BAbebfb2edEe` |
-| aerodrome_slipstream | WETH/USDT | 460 | 3,855,882 | 2,504.911855 | 52903276 | `0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b` |
-| aerodrome | WETH/AERO | 10000 | 3,427,721 | 2,878.953918 | 52903276 | `0x7f670f78B17dEC44d5Ef68a48740b6f8849cc2e6` |
-| aerodrome_slipstream | WETH/VVV | 2796 | 2,859,622 | 91.282538 | 52903276 | `0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c` |
-| aerodrome_slipstream | WETH/ZEN | 1500 | 2,782,388 | 392.523820 | 52903276 | `0x0392B12a1cEb0cd13af5Ea448CF5586EA609852D` |
-| aerodrome_slipstream | WETH/MORPHO | 2700 | 2,648,044 | 1,041.855848 | 52903276 | `0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c` |
-| aerodrome_slipstream | cbETH/WETH | 60 | 2,591,623 | 1.142100 | 52903276 | `0x47cA96Ea59C13F72745928887f84C9F52C3D7348` |
-| aerodrome_slipstream | WETH/bsdETH | 100 | 2,296,274 | 0.915907 | 52903276 | `0x2ae9DF02539887d4EbcE0230168a302d34784c82` |
-| aerodrome | WETH/FAI | 10000 | 2,293,530 | 1,209,705.333977 | 52903276 | `0x5447F7FE76894d98753A0A6d69B9cb840037c13D` |
-| uniswap_v3 | USDC/cbBTC | 3000 | 2,286,773 | 0.000012 | 52903276 | `0xeC558e484cC9f2210714E345298fdc53B253c27D` |
-| aerodrome_slipstream | AERO/cbBTC | 2700 | 2,220,405 | 0.000010 | 52903276 | `0xdFe5F275020def30993f042174Fc2D335678b626` |
-| pancakeswap_v3 | USDC/cbBTC | 100 | 2,087,437 | 0.000012 | 52903276 | `0xb94b22332ABf5f89877A14Cc88f2aBC48c34B3Df` |
-| aerodrome | USDC/alUSDb (stable) | 500 | 2,027,078 | 1.383640 | 52903276 | `0x32d6Ec4400fBdd4085ce1e1664C48F8D21c4f9aa` |
-| uniswap_v3 | BNKR/WETH | 10000 | 1,991,496 | 0.000000 | 52903276 | `0xAEC085E5A5CE8d96A7bDd3eB3A62445d4f6CE703` |
-| aerodrome | weETH_04c0/WETH | 500 | 1,951,066 | 1.105712 | 52903276 | `0x91F0f34916Ca4E2cCe120116774b0e4fA0cdcaA8` |
-| uniswap_v3 | XDP/USDC | 100 | 1,803,459 | 0.019011 | 52903276 | `0x2dF380544B88AdB3ad0A94100dcC45fd705aAE2d` |
-| aerodrome_slipstream | WETH/AAVE | 3000 | 1,770,276 | 15.935730 | 52903276 | `0x4a79B0168296c0eF7b8F314973B82aD406a29f1B` |
-| aerodrome | WETH/msETH (stable) | 500 | 1,727,839 | 2.312927 | 52903276 | `0xDE4FB30cCC2f1210FcE2c8aD66410C586C8D1f9A` |
-| uniswap_v3 | WETH/AERO | 3000 | 1,716,137 | 2,890.025579 | 52903276 | `0x3d5D143381916280ff91407FeBEB52f2b60f33Cf` |
-| aerodrome | USDC/MAI (stable) | 3000 | 1,708,180 | 1.493922 | 52903276 | `0x2a1463CeBE85315224c536AfD389b381B43F3206` |
-| aerodrome_slipstream | cbBTC/ZEN | 2500 | 1,665,113 | 13,269.249893 | 52903276 | `0x47f9e291bb766Fc307Ad7BBa4f29f3Eab6A97101` |
-| aerodrome_slipstream | USDC/ZCHF | 500 | 1,458,025 | 0.826498 | 52903276 | `0x80891885537e20E240987385490017Fc03D9d7Ed` |
-| aerodrome | fBOMB/USDC | 10000 | 1,448,451 | 0.019948 | 52903276 | `0xFf8e0bD2d8F02904e7e18Dd00ea50aeC68f37A10` |
-| aerodrome_slipstream | EURC/USDC | 70 | 1,427,551 | 1.122284 | 52903276 | `0xE846373C1a92B167b4E9cd5d8E4d6B1Db9E90EC7` |
-| uniswap_v3 | DRB/WETH | 10000 | 1,384,458 | 0.000000 | 52903276 | `0x5116773e18A9C7bB03EBB961b38678E45E238923` |
-| uniswap_v3 | CLANKER/WETH | 10000 | 1,375,978 | 0.004774 | 52903276 | `0xC1a6FBeDAe68E1472DbB91FE29B51F7a0Bd44F97` |
-| uniswap_v2 | VIRTUAL/WETH | 3000 | 1,364,835 | 0.000279 | 52903276 | `0xE31c372a7Af875b3B5E0F3713B17ef51556da667` |
-| aerodrome | WETH/cbBTC | 3000 | 1,339,116 | 0.029551 | 52903276 | `0x2578365B3dfA7FfE60108e181EFb79FeDdec2319` |
-| aerodrome_slipstream | WETH/uSOL | 1500 | 1,291,019 | 23.130679 | 52903276 | `0x0225Ba893D5f8Ecd6d2022f9dEC59b34F61098A1` |
-| pancakeswap_v3 | WETH/USDC | 500 | 1,288,678 | 2,501.649498 | 52903276 | `0xB775272E537cc670C65DC852908aD47015244EaF` |
-| uniswap_v3 | WETH/doginme | 10000 | 1,249,691 | 35,089,355.479892 | 52903276 | `0xADE9BcD4b968EE26Bed102dd43A55f6A8c2416df` |
-| aerodrome | WETH/WELL | 10000 | 1,233,508 | 1,117,586.932850 | 52903276 | `0x89D0F320ac73dd7d9513FFC5bc58D1161452a657` |
-| aerodrome | USDC/SEND | 3000 | 1,232,141 | 64.006086 | 52903276 | `0x69bc1d350fE13F499c6AedEd2C5eA9471b2a599A` |
-| aerodrome_slipstream | msUSD/USDC | 500 | 1,218,310 | 0.886746 | 52903276 | `0x7501bc8Bb51616F79bfA524E464fb7B41f0B10fB` |
-| aerodrome | WETH/EDEL | 7000 | 1,216,254 | 72,583.236486 | 52903276 | `0x566beE7EF7b39f29d150AB3be6b6242C17CC5A31` |
-| uniswap_v3 | WETH/BRETT | 10000 | 1,210,418 | 480,334.370200 | 52903276 | `0xBA3F945812a83471d709BCe9C3CA699A19FB46f7` |
-| aerodrome | USDC/NOCK | 3000 | 1,209,452 | 43.075341 | 52903276 | `0x85f1Aa3a70fEdd1C52705c15BAEd143e675CD626` |
-| aerodrome_slipstream | weETH_04c0/WETH | 85 | 1,185,224 | 1.106158 | 52903276 | `0xbD3cd0D9d429b41F0a2e1C026552Bd598294d5E0` |
-| aerodrome | msUSD/USDC (stable) | 500 | 1,182,511 | 0.437175 | 52903276 | `0xcEFC8B799a8EE5D9b312aeca73262645D664AaF7` |
-| uniswap_v3 | WETH/TOSHI | 10000 | 1,135,028 | 20,541,019.296195 | 52903276 | `0x4b0Aaf3EBb163dd45F663b38b6d93f6093EBC2d3` |
+| uniswap_v3 | WETH/USDC | 3000 | 158,726,181 | 2,502.451045 | 52903370 | `0x6c561B446416E1A00E8E93E221854d6eA4171372` |
+| aerodrome | USDC/AERO | 3000 | 38,595,870 | 1.160980 | 52903370 | `0x6cDcb1C4A4D1C3C6d054b27AC5B77e89eAFb971d` |
+| aerodrome | WETH/VVV | 3000 | 18,539,446 | 91.211458 | 52903370 | `0x01784ef301D79e4B2DF3a21ad9a536d4cF09A5Ce` |
+| uniswap_v3 | WETH/cbBTC | 500 | 16,822,316 | 0.029593 | 52903370 | `0x7AeA2E8A3843516afa07293a10Ac8E49906dabD1` |
+| aerodrome_slipstream | WETH/cbBTC | 2500 | 13,306,268 | 0.029570 | 52903370 | `0x70aCDF2Ad0bf2402C957154f944c19Ef4e1cbAE1` |
+| uniswap_v3 | WETH/cbBTC | 3000 | 10,652,200 | 0.029558 | 52903370 | `0x8c7080564B5A792A33Ef2FD473fbA6364d5495e5` |
+| uniswap_v3 | USDC/cbBTC | 500 | 9,913,895 | 0.000012 | 52903370 | `0xfBB6Eed8e7aa03B138556eeDaF5D271A5E1e43ef` |
+| uniswap_v3 | WETH/USDC | 500 | 8,887,970 | 2,495.971041 | 52903370 | `0xd0b53D9277642d899DF5C87A3966A349A798F224` |
+| aerodrome | WETH/USDC | 3000 | 8,458,976 | 2,502.486068 | 52903370 | `0xcDAC0d6c6C59727a65F871236188350531885C43` |
+| aerodrome_slipstream | USDC/cbBTC | 600 | 8,133,748 | 0.000012 | 52903370 | `0x4e962BB3889Bf030368F56810A9c96B83CB3E778` |
+| aerodrome_slipstream | USDC/cbBTC | 368 | 7,441,225 | 0.000012 | 52903370 | `0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb` |
+| uniswap_v3 | JITOSOL/cbBTC | 100 | 7,419,593 | 0.001667 | 52903370 | `0xe2B8c33AE97658ceaD06AfD47c7F3857e5851871` |
+| aerodrome_slipstream | WETH/USDC | 892 | 7,087,905 | 2,496.230235 | 52903370 | `0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59` |
+| pancakeswap_v3 | WETH/cbBTC | 100 | 5,691,299 | 0.029592 | 52903370 | `0xC211e1f853A898Bd1302385CCdE55f33a8C4B3f3` |
+| aerodrome | fBOMB/AERO | 10000 | 4,989,930 | 0.023135 | 52903370 | `0xbBf71AAD6E1F8D180D3B1D898528654c1d18b2fF` |
+| aerodrome_slipstream | WETH/wstETH | 90 | 4,823,059 | 0.802390 | 52903370 | `0x861A2922bE165a5Bd41b1E482B49216b465e1B5F` |
+| pancakeswap_v3 | WETH/USDC | 100 | 4,590,840 | 2,496.957865 | 52903370 | `0x72AB388E2E2F6FaceF59E3C3FA2C4E29011c2D38` |
+| aerodrome_slipstream | cbBTC/LBTC | 200 | 4,488,539 | 0.998741 | 52903370 | `0xA44D3Bb767d953711EA4Bce8C0F01f4d7D299aF6` |
+| aerodrome | VIRTUAL/WETH | 10000 | 4,336,504 | 0.000279 | 52903370 | `0x21594b992F68495dD28d605834b58889d0a727c7` |
+| aerodrome | WETH/KTA | 3000 | 4,112,269 | 35,121.753007 | 52903370 | `0xd9eDC75a3a797Ec92Ca370F19051BAbebfb2edEe` |
+| aerodrome_slipstream | USDC/AERO | 10000 | 3,760,295 | 1.159829 | 52903370 | `0xBE00fF35AF70E8415D0eB605a286D8A45466A4c1` |
+| aerodrome_slipstream | WETH/USDT | 472 | 3,465,349 | 2,499.423000 | 52903370 | `0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b` |
+| aerodrome | WETH/AERO | 10000 | 3,415,211 | 2,879.842742 | 52903370 | `0x7f670f78B17dEC44d5Ef68a48740b6f8849cc2e6` |
+| aerodrome_slipstream | WETH/VVV | 2760 | 2,858,588 | 91.205484 | 52903370 | `0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c` |
+| aerodrome_slipstream | WETH/MORPHO | 2703 | 2,653,482 | 1,041.843721 | 52903370 | `0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c` |
+| aerodrome_slipstream | cbETH/WETH | 60 | 2,589,623 | 1.142100 | 52903370 | `0x47cA96Ea59C13F72745928887f84C9F52C3D7348` |
+| aerodrome_slipstream | WETH/ZEN | 1500 | 2,410,153 | 392.362112 | 52903370 | `0x0392B12a1cEb0cd13af5Ea448CF5586EA609852D` |
+| aerodrome_slipstream | WETH/bsdETH | 100 | 2,294,502 | 0.915907 | 52903370 | `0x2ae9DF02539887d4EbcE0230168a302d34784c82` |
+| aerodrome | WETH/FAI | 10000 | 2,291,761 | 1,209,705.333977 | 52903370 | `0x5447F7FE76894d98753A0A6d69B9cb840037c13D` |
+| uniswap_v3 | USDC/cbBTC | 3000 | 2,286,588 | 0.000012 | 52903370 | `0xeC558e484cC9f2210714E345298fdc53B253c27D` |
+| aerodrome_slipstream | AERO/cbBTC | 2700 | 2,265,308 | 0.000010 | 52903370 | `0xdFe5F275020def30993f042174Fc2D335678b626` |
+| pancakeswap_v3 | USDC/cbBTC | 100 | 2,087,308 | 0.000012 | 52903370 | `0xb94b22332ABf5f89877A14Cc88f2aBC48c34B3Df` |
+| aerodrome | USDC/alUSDb (stable) | 500 | 2,027,078 | 1.383640 | 52903370 | `0x32d6Ec4400fBdd4085ce1e1664C48F8D21c4f9aa` |
+| uniswap_v3 | BNKR/WETH | 10000 | 1,989,955 | 0.000000 | 52903370 | `0xAEC085E5A5CE8d96A7bDd3eB3A62445d4f6CE703` |
+| aerodrome | weETH_04c0/WETH | 500 | 1,949,561 | 1.105712 | 52903370 | `0x91F0f34916Ca4E2cCe120116774b0e4fA0cdcaA8` |
+| aerodrome_slipstream | cbBTC/ZEN | 2500 | 1,837,491 | 13,269.249893 | 52903370 | `0x47f9e291bb766Fc307Ad7BBa4f29f3Eab6A97101` |
+| uniswap_v3 | XDP/USDC | 100 | 1,802,665 | 0.018999 | 52903370 | `0x2dF380544B88AdB3ad0A94100dcC45fd705aAE2d` |
+| aerodrome_slipstream | WETH/AAVE | 3000 | 1,768,999 | 15.934504 | 52903370 | `0x4a79B0168296c0eF7b8F314973B82aD406a29f1B` |
+| aerodrome | WETH/msETH (stable) | 500 | 1,723,623 | 2.312927 | 52903370 | `0xDE4FB30cCC2f1210FcE2c8aD66410C586C8D1f9A` |
+| uniswap_v3 | WETH/AERO | 3000 | 1,711,572 | 2,898.482557 | 52903370 | `0x3d5D143381916280ff91407FeBEB52f2b60f33Cf` |
+| aerodrome | USDC/MAI (stable) | 3000 | 1,708,180 | 1.493922 | 52903370 | `0x2a1463CeBE85315224c536AfD389b381B43F3206` |
+| aerodrome_slipstream | USDC/ZCHF | 500 | 1,458,025 | 0.826498 | 52903370 | `0x80891885537e20E240987385490017Fc03D9d7Ed` |
+| aerodrome | fBOMB/USDC | 10000 | 1,448,452 | 0.019948 | 52903370 | `0xFf8e0bD2d8F02904e7e18Dd00ea50aeC68f37A10` |
+| aerodrome_slipstream | EURC/USDC | 70 | 1,427,551 | 1.122283 | 52903370 | `0xE846373C1a92B167b4E9cd5d8E4d6B1Db9E90EC7` |
+| uniswap_v3 | CLANKER/WETH | 10000 | 1,392,871 | 0.004849 | 52903370 | `0xC1a6FBeDAe68E1472DbB91FE29B51F7a0Bd44F97` |
+| uniswap_v3 | DRB/WETH | 10000 | 1,383,372 | 0.000000 | 52903370 | `0x5116773e18A9C7bB03EBB961b38678E45E238923` |
+| uniswap_v2 | VIRTUAL/WETH | 3000 | 1,363,782 | 0.000279 | 52903370 | `0xE31c372a7Af875b3B5E0F3713B17ef51556da667` |
+| aerodrome | WETH/cbBTC | 3000 | 1,338,501 | 0.029551 | 52903370 | `0x2578365B3dfA7FfE60108e181EFb79FeDdec2319` |
+| pancakeswap_v3 | WETH/USDC | 500 | 1,290,588 | 2,496.149553 | 52903370 | `0xB775272E537cc670C65DC852908aD47015244EaF` |
+| aerodrome_slipstream | WETH/uSOL | 1500 | 1,290,066 | 23.130679 | 52903370 | `0x0225Ba893D5f8Ecd6d2022f9dEC59b34F61098A1` |
+| uniswap_v3 | WETH/doginme | 10000 | 1,248,563 | 35,103,020.313927 | 52903370 | `0xADE9BcD4b968EE26Bed102dd43A55f6A8c2416df` |
+| aerodrome | WETH/WELL | 10000 | 1,232,556 | 1,117,586.932850 | 52903370 | `0x89D0F320ac73dd7d9513FFC5bc58D1161452a657` |
+| aerodrome | USDC/SEND | 3000 | 1,232,141 | 64.006086 | 52903370 | `0x69bc1d350fE13F499c6AedEd2C5eA9471b2a599A` |
+| aerodrome_slipstream | msUSD/USDC | 500 | 1,218,310 | 0.886746 | 52903370 | `0x7501bc8Bb51616F79bfA524E464fb7B41f0B10fB` |
+| aerodrome | WETH/EDEL | 7000 | 1,215,597 | 72,549.724331 | 52903370 | `0x566beE7EF7b39f29d150AB3be6b6242C17CC5A31` |
+| aerodrome | USDC/NOCK | 3000 | 1,214,361 | 42.727819 | 52903370 | `0x85f1Aa3a70fEdd1C52705c15BAEd143e675CD626` |
+| uniswap_v3 | WETH/BRETT | 10000 | 1,209,362 | 480,461.903645 | 52903370 | `0xBA3F945812a83471d709BCe9C3CA699A19FB46f7` |
+| aerodrome_slipstream | weETH_04c0/WETH | 85 | 1,184,309 | 1.106158 | 52903370 | `0xbD3cd0D9d429b41F0a2e1C026552Bd598294d5E0` |
+| aerodrome | msUSD/USDC (stable) | 500 | 1,182,511 | 0.437175 | 52903370 | `0xcEFC8B799a8EE5D9b312aeca73262645D664AaF7` |
+| uniswap_v3 | WETH/TOSHI | 10000 | 1,134,152 | 20,541,019.296195 | 52903370 | `0x4b0Aaf3EBb163dd45F663b38b6d93f6093EBC2d3` |
 
 ## Recherche d'opportunités
-- Cycles : 11382 ; routes examinées : 245828436 ; candidats optimisés : 1339545 ; net attendu > 0 : 1037 ; dernier cycle 120.2 ms
-- Rejets (moteur) : {'spread_below_threshold': 242374535, 'liquidity_below_min': 1952598, 'negative_expected_net': 1338508, 'pool_quarantined': 136358, 'cycle_budget_exhausted': 14071, 'borrow_bound_too_small': 11329}
-- Enregistrements de la session : 1339545 ; net attendu > 0 : 1037 ; simulés (eth_call de la vraie tx) : 62 (ok 40, échec 22) ; étiquettes ghost N+1 : 2/48 positives
-- Décisions : {'REJECTED': 1339545} ; motifs de rejet : {'below_safety_margin': 820, 'negative_expected_net': 1338508, 'p_lower_below_threshold': 824, 'price_impact': 67, 'reliability_not_demonstrated': 213, 'simulation_failed': 22, 'stale_data': 53}
+- Cycles : 11559 ; routes examinées : 249651282 ; candidats optimisés : 1360314 ; net attendu > 0 : 1051 ; dernier cycle 243.2 ms
+- Rejets (moteur) : {'spread_below_threshold': 246144943, 'liquidity_below_min': 1984090, 'negative_expected_net': 1359263, 'pool_quarantined': 136358, 'cycle_budget_exhausted': 14071, 'borrow_bound_too_small': 11506}
+- Enregistrements de la session : 1360314 ; net attendu > 0 : 1051 ; simulés (eth_call de la vraie tx) : 64 (ok 42, échec 22) ; étiquettes ghost N+1 : 2/49 positives
+- Décisions : {'REJECTED': 1360314} ; motifs de rejet : {'below_safety_margin': 832, 'negative_expected_net': 1359263, 'p_lower_below_threshold': 832, 'price_impact': 67, 'reliability_not_demonstrated': 219, 'simulation_failed': 22, 'stale_data': 53}
 
 ## Meilleures opportunités de la session (net attendu, toutes charges déduites)
 
@@ -117,7 +117,7 @@ Généré le 2026-10-21T15:18:28+00:00 ; durée 292.76 min ; blocs 52894493 → 
 | 52902489 | USDC→[aerodrome_slipstream]→XSGD→[aerodrome_slipstream]→WETH→[pancakeswap_v3]→USDC | 215.402909 USDC | 0.069035 USDC | 0.000000 USDC | 0.007835 USDC | 0.061200 USDC (0.0563 €) | — | 2.84 | 0.116 (n=200) | REJECTED | p_lower_below_threshold(0.12<0.75) |
 
 ## Fiabilité et décision
-- Observations ghost : 1701 ; taux observé 0.099 ; borne inférieure crédible (0.9) 0.090 ; seuil 0.75 → **FIABILITÉ INSUFFISANTE**
+- Observations ghost : 1702 ; taux observé 0.099 ; borne inférieure crédible (0.9) 0.090 ; seuil 0.75 → **FIABILITÉ INSUFFISANTE**
 - Statut de maturité : **FIABILITÉ INSUFFISANTE** — borne inférieure 9.0% < 75%
 - Critères : ✅ chain_verified; ❌ tests_passed; ❌ contract_tested; ❌ financial_math_validated; ✅ no_critical_issues; ✅ simulations_realistic; ✅ reliability_documented; ❌ p_success_ge_threshold; ✅ emergency_stop_ok; ❌ budget_and_limits_configured; ❌ signer_available; ✅ data_fresh; ✅ model_calibrated
 
