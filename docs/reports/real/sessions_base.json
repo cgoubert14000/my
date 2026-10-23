@@ -1,6 +1,6 @@
 {
  "chain": "base",
- "generated_at": "2026-10-23T13:32:58Z",
+ "generated_at": "2026-10-23T13:36:01Z",
  "sessions": [
   {
    "run": "38419015127",
@@ -1227,15 +1227,15 @@
   {
    "run": "39956760347",
    "final": true,
-   "generated_at": "2026-10-23T13:32:58+00:00",
-   "duration_min": 33.51,
-   "blocks_seen": 990,
+   "generated_at": "2026-10-23T13:36:01+00:00",
+   "duration_min": 36.56,
+   "blocks_seen": 1082,
    "pools": 544,
    "tokens": 316,
    "routes": 19376,
-   "cycle_ms": 147.9,
-   "candidates": 156903,
-   "positive_expected_net": 81,
+   "cycle_ms": 251.5,
+   "candidates": 170930,
+   "positive_expected_net": 83,
    "simulated": 8,
    "sim_ok": 0,
    "sim_failed": 8,
@@ -1246,16 +1246,16 @@
    "status": "FIABILITÉ INSUFFISANTE",
    "ws": true,
    "rpc_errors": 0,
-   "fee_changes": 2213,
+   "fee_changes": 2514,
    "quarantined": 0,
-   "eth_usd": 2400.0298656477617
+   "eth_usd": 2400.0303701888474
   }
  ],
  "totals": {
-  "duration_min": 13846.569999999998,
-  "blocks_seen": 380285,
-  "candidates": 73451924,
-  "positive_expected_net": 31823,
+  "duration_min": 13849.619999999997,
+  "blocks_seen": 380377,
+  "candidates": 73465951,
+  "positive_expected_net": 31825,
   "simulated": 2947,
   "sim_ok": 1066,
   "sim_failed": 1881,
