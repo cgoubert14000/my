@@ -15456,3 +15456,6 @@ block 53015602 | FIABILITÉ INSUFFISANTE | candidates 1036030 | positive 234 | g
 2026-10-24 05:42:35,479 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 750 → 2700 ppm
 block 53015604 | FIABILITÉ INSUFFISANTE | candidates 1036218 | positive 234 | ghost {'pending': 0, 'labeled': 9, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=2093 | rpc err 5 p50 220 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_40043383669.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_40043383669.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_40043383669_opportunities.csv.gz"}
+2026-10-24 05:42:47,022 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 403 → 400 ppm
+2026-10-24 05:42:47,022 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 2700 → 750 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (1e08e338)
