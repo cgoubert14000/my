@@ -14814,3 +14814,25 @@ block 53046222 | FIABILITÉ INSUFFISANTE | candidates 1583934 | positive 1389 | 
 2026-10-24 22:43:13,546 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1380 → 1360 ppm
 2026-10-24 22:43:15,581 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 609 ppm
 block 53046223 | FIABILITÉ INSUFFISANTE | candidates 1584032 | positive 1389 | ghost {'pending': 0, 'labeled': 76, 'positives': 1, 'errors': 0, 'rate': 0.013157894736842105} | rel n=2331 | rpc err 35 p50 248 ms
+2026-10-24 22:43:28,607 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 609 → 150 ppm
+2026-10-24 22:43:28,608 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1360 → 1340 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (9abc9b3c)
+2026-10-24 22:43:31,862 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 330 → 332 ppm
+2026-10-24 22:43:31,863 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1340 → 1320 ppm
+2026-10-24 22:43:33,512 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 609 ppm
+block 53046232 | FIABILITÉ INSUFFISANTE | candidates 1584662 | positive 1389 | ghost {'pending': 0, 'labeled': 76, 'positives': 1, 'errors': 0, 'rate': 0.013157894736842105} | rel n=2331 | rpc err 35 p50 244 ms
+2026-10-24 22:43:33,880 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 609 → 150 ppm
+2026-10-24 22:43:33,881 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1320 → 1300 ppm
+block 53046235 | FIABILITÉ INSUFFISANTE | candidates 1585092 | positive 1389 | ghost {'pending': 0, 'labeled': 76, 'positives': 1, 'errors': 0, 'rate': 0.013157894736842105} | rel n=2331 | rpc err 35 p50 287 ms
+2026-10-24 22:43:39,850 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1300 → 1280 ppm
+block 53046237 | FIABILITÉ INSUFFISANTE | candidates 1585792 | positive 1389 | ghost {'pending': 0, 'labeled': 76, 'positives': 1, 'errors': 0, 'rate': 0.013157894736842105} | rel n=2331 | rpc err 35 p50 268 ms
+2026-10-24 22:43:45,839 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1280 → 1260 ppm
+2026-10-24 22:43:45,843 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 118 → 127 ppm
+block 53046240 | FIABILITÉ INSUFFISANTE | candidates 1586564 | positive 1389 | ghost {'pending': 0, 'labeled': 76, 'positives': 1, 'errors': 0, 'rate': 0.013157894736842105} | rel n=2331 | rpc err 35 p50 273 ms
+2026-10-24 22:43:51,856 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1260 → 1240 ppm
+2026-10-24 22:43:51,857 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2709 → 2706 ppm
+2026-10-24 22:43:53,528 INFO arbbot.collector: pool 0x82321f3BEB69f503380D6B233857d5C43562e2D0 (aerodrome_slipstream) fee changed 3024 → 3020 ppm
+block 53046242 | FIABILITÉ INSUFFISANTE | candidates 1587052 | positive 1389 | ghost {'pending': 0, 'labeled': 76, 'positives': 1, 'errors': 0, 'rate': 0.013157894736842105} | rel n=2331 | rpc err 35 p50 267 ms
+2026-10-24 22:43:57,995 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 1240 → 1220 ppm
+block 53046245 | FIABILITÉ INSUFFISANTE | candidates 1587282 | positive 1389 | ghost {'pending': 0, 'labeled': 76, 'positives': 1, 'errors': 0, 'rate': 0.013157894736842105} | rel n=2331 | rpc err 35 p50 296 ms
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_40114739429.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_40114739429.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_40114739429_opportunities.csv.gz"}
