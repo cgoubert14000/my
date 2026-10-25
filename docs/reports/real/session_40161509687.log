@@ -1,0 +1,106 @@
+=== real-market session: chain=base minutes=330.0 candidates=['base-rpc.publicnode.com', 'mainnet.base.org', 'base.llamarpc.com', 'base.drpc.org', '1rpc.io', 'base-mainnet.public.blastapi.io', 'base.meowrpc.com', 'base.blockpi.network', 'endpoints.omniatech.io', 'base.gateway.tenderly.co']
+[preflight] base-rpc.publicnode.com: ok=True state_override=True p50=99.6 ms head_age=2.9 s failed=[]
+[preflight] mainnet.base.org: ok=True state_override=True p50=72.3 ms head_age=2.0 s failed=[]
+[preflight] base.llamarpc.com: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] base.drpc.org: ok=True state_override=True p50=62.9 ms head_age=1.7 s failed=[]
+[preflight] 1rpc.io: ok=True state_override=True p50=73.5 ms head_age=2.1 s failed=[]
+[preflight] base-mainnet.public.blastapi.io: ok=True state_override=True p50=95.0 ms head_age=2.2 s failed=[]
+[preflight] base.meowrpc.com: ok=False state_override=False p50=1225.8 ms head_age=13.8 s failed=['multicall3', 'tokens', 'factory:uniswap_v3', 'factory:uniswap_v2', 'factory:sushiswap_v2', 'factory:sushiswap_v3', 'factory:pancakeswap_v3', 'factory:pancakeswap_v2', 'factory:aerodrome', 'factory:aerodrome_slipstream', 'l1_fee_oracle']
+[preflight] base.blockpi.network: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] endpoints.omniatech.io: ok=False state_override=False p50=None ms head_age=None s failed=['rpc_reachable']
+[preflight] base.gateway.tenderly.co: ok=True state_override=True p50=90.9 ms head_age=2.8 s failed=[]
+=== chosen RPC: base-rpc.publicnode.com ; fallbacks: ['mainnet.base.org', 'base.drpc.org', '1rpc.io', 'base-mainnet.public.blastapi.io', 'base.gateway.tenderly.co']
+=== websocket base-rpc.publicnode.com: OK (head 53056420 after 1.7 s)
+=== full verify-chain (pools, depth, flash-loan capacity) on the chosen endpoint
+2026-10-25 04:23:10,236 WARNING arbbot.rpc: rpc error (the method debug_traceTransaction does not exist/is not available) → switching to https://mainnet.base.org
+2026-10-25 04:23:10,575 WARNING arbbot.rpc: rpc error (rejected due to request filter settings) → switching to https://base.drpc.org
+2026-10-25 04:23:11,162 WARNING arbbot.rpc: rpc error (transaction not found) → switching to https://1rpc.io/base
+[31m╭─[0m[31m────────────────────[0m[31m [0m[1;31mTraceback [0m[1;2;31m(most recent call last)[0m[31m [0m[31m─────────────────────[0m[31m─╮[0m
+[31m│[0m [2m/home/runner/work/my/my/backend/arbbot/[0m[1mcli.py[0m:132 in verify_chain            [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m129 [0m[2m│   [0m                                                                   [31m│[0m
+[31m│[0m   [2m130 [0m[2m│   [0ms = get_settings()                                                 [31m│[0m
+[31m│[0m   [2m131 [0m[2m│   [0m_logging([33m"[0m[33mWARNING[0m[33m"[0m)                                                [31m│[0m
+[31m│[0m [31m❱ [0m132 [2m│   [0mrep = [1;4masyncio.run(_verify(s, discover_pools=[0m[1;4;95mnot[0m[1;4m no_pools, [0m         [31m│[0m
+[31m│[0m       [1;4mlog=typer.echo))[0m                                                       [31m│[0m
+[31m│[0m   [2m133 [0m[2m│   [0m[94mfor[0m c [95min[0m rep.checks:                                               [31m│[0m
+[31m│[0m   [2m134 [0m[2m│   │   [0mtyper.echo([33mf[0m[33m"[0m[33m{[0m[33m'[0m[33mOK [0m[33m'[0m[90m [0m[94mif[0m[90m [0mc.ok[90m [0m[94melse[0m[90m [0m([33m'[0m[33mKO [0m[33m'[0m[90m [0m[94mif[0m[90m [0mc.blocking[90m [0m[94melse[0m[90m [0m    [31m│[0m
+[31m│[0m       [33m'[0m[33mWARN[0m[33m'[0m)[33m}[0m[33m [0m[33m{[0mc.name[33m:[0m[33m28s[0m[33m}[0m[33m [0m[33m{[0mc.detail[33m}[0m[33m"[0m)                                     [31m│[0m
+[31m│[0m   [2m135 [0m[2m│   [0m[94mfor[0m k, v [95min[0m rep.network.items():                                   [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/[0m[1mrunners.py[0m:19 [31m│[0m
+[31m│[0m 0 in run                                                                     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m187 [0m[2m│   │   │   [0m[33m"[0m[33masyncio.run() cannot be called from a running event [0m      [31m│[0m
+[31m│[0m       [33mloop[0m[33m"[0m)                                                                 [31m│[0m
+[31m│[0m   [2m188 [0m[2m│   [0m                                                                   [31m│[0m
+[31m│[0m   [2m189 [0m[2m│   [0m[94mwith[0m Runner(debug=debug) [94mas[0m runner:                                [31m│[0m
+[31m│[0m [31m❱ [0m190 [2m│   │   [0m[94mreturn[0m [1;4mrunner.run(main)[0m                                        [31m│[0m
+[31m│[0m   [2m191 [0m                                                                       [31m│[0m
+[31m│[0m   [2m192 [0m                                                                       [31m│[0m
+[31m│[0m   [2m193 [0m[94mdef[0m[90m [0m[92m_cancel_all_tasks[0m(loop):                                           [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/[0m[1mrunners.py[0m:11 [31m│[0m
+[31m│[0m 8 in run                                                                     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m115 [0m[2m│   │   [0m                                                               [31m│[0m
+[31m│[0m   [2m116 [0m[2m│   │   [0m[96mself[0m._interrupt_count = [94m0[0m                                      [31m│[0m
+[31m│[0m   [2m117 [0m[2m│   │   [0m[94mtry[0m:                                                           [31m│[0m
+[31m│[0m [31m❱ [0m118 [2m│   │   │   [0m[94mreturn[0m [96mself[0m._loop.run_until_complete(task)                 [31m│[0m
+[31m│[0m   [2m119 [0m[2m│   │   [0m[94mexcept[0m exceptions.CancelledError:                              [31m│[0m
+[31m│[0m   [2m120 [0m[2m│   │   │   [0m[94mif[0m [96mself[0m._interrupt_count > [94m0[0m:                              [31m│[0m
+[31m│[0m   [2m121 [0m[2m│   │   │   │   [0muncancel = [96mgetattr[0m(task, [33m"[0m[33muncancel[0m[33m"[0m, [94mNone[0m)             [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/asyncio/[0m[1mbase_events.p[0m [31m│[0m
+[31m│[0m [1my[0m:654 in run_until_complete                                                  [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m 651 [0m[2m│   │   [0m[94mif[0m [95mnot[0m future.done():                                         [31m│[0m
+[31m│[0m   [2m 652 [0m[2m│   │   │   [0m[94mraise[0m [96mRuntimeError[0m([33m'[0m[33mEvent loop stopped before Future [0m     [31m│[0m
+[31m│[0m        [33mcompleted.[0m[33m'[0m)                                                          [31m│[0m
+[31m│[0m   [2m 653 [0m[2m│   │   [0m                                                              [31m│[0m
+[31m│[0m [31m❱ [0m 654 [2m│   │   [0m[94mreturn[0m [1;4mfuture.result()[0m                                        [31m│[0m
+[31m│[0m   [2m 655 [0m[2m│   [0m                                                                  [31m│[0m
+[31m│[0m   [2m 656 [0m[2m│   [0m[94mdef[0m[90m [0m[92mstop[0m([96mself[0m):                                                   [31m│[0m
+[31m│[0m   [2m 657 [0m[2;90m│   │   [0m[33m"""Stop running the event loop.[0m                               [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/backend/arbbot/ops/[0m[1mverify.py[0m:193 in verify_chain     [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m190 [0m[2m│   │   │   [0mtargets.append(([33m"[0m[33mexecutor(.env)[0m[33m"[0m,                          [31m│[0m
+[31m│[0m       settings.executor_address))                                            [31m│[0m
+[31m│[0m   [2m191 [0m[2m│   │   [0m[94mfor[0m name, addr [95min[0m targets:                                     [31m│[0m
+[31m│[0m   [2m192 [0m[2m│   │   │   [0m[94mtry[0m:                                                       [31m│[0m
+[31m│[0m [31m❱ [0m193 [2m│   │   │   │   [0mcode = [94mawait[0m rpc.get_code(addr)                        [31m│[0m
+[31m│[0m   [2m194 [0m[2m│   │   │   │   [0msrc = [33m"[0m[33m"[0m [94mif[0m chain.id == [33m"[0m[33mlocal[0m[33m"[0m [94melse[0m [33mf[0m[33m"[0m[33m — source: [0m     [31m│[0m
+[31m│[0m       [33m{[0maddress_source(addr)[33m}[0m[33m"[0m                                                [31m│[0m
+[31m│[0m   [2m195 [0m[2m│   │   │   │   [0mrep.add([33mf[0m[33m"[0m[33mcode:[0m[33m{[0mname[33m}[0m[33m"[0m, [96mlen[0m(code) > [94m0[0m, [33mf[0m[33m"[0m[33m{[0maddr[33m}[0m[33m [0m       [31m│[0m
+[31m│[0m       [33m([0m[33m{[0m[96mlen[0m(code)[33m}[0m[33m bytes)[0m[33m{[0msrc[33m}[0m[33m"[0m)                                             [31m│[0m
+[31m│[0m   [2m196 [0m[2m│   │   │   [0m[94mexcept[0m RpcError [94mas[0m e:                                      [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/backend/arbbot/data/[0m[1mrpc.py[0m:241 in get_code           [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m238 [0m[2m│   │   [0m[94mreturn[0m [94mawait[0m [96mself[0m.request([33m"[0m[33meth_feeHistory[0m[33m"[0m, [[96mhex[0m(blocks),      [31m│[0m
+[31m│[0m       [33m"[0m[33mlatest[0m[33m"[0m, percentiles [95mor[0m [[94m25[0m, [94m50[0m, [94m75[0m]])                                [31m│[0m
+[31m│[0m   [2m239 [0m[2m│   [0m                                                                   [31m│[0m
+[31m│[0m   [2m240 [0m[2m│   [0m[94masync[0m [94mdef[0m[90m [0m[92mget_code[0m([96mself[0m, address: [96mstr[0m) -> [96mbytes[0m:                   [31m│[0m
+[31m│[0m [31m❱ [0m241 [2m│   │   [0m[94mreturn[0m [96mbytes[0m.fromhex(([1;4;94mawait[0m[1;4m [0m[1;4;96mself[0m[1;4m.request([0m[1;4;33m"[0m[1;4;33meth_getCode[0m[1;4;33m"[0m[1;4m, [0m       [31m│[0m
+[31m│[0m       [1;4m[address, [0m[1;4;33m"[0m[1;4;33mlatest[0m[1;4;33m"[0m[1;4m])[0m)[[94m2[0m:])                                             [31m│[0m
+[31m│[0m   [2m242 [0m[2m│   [0m                                                                   [31m│[0m
+[31m│[0m   [2m243 [0m[2m│   [0m[94masync[0m [94mdef[0m[90m [0m[92mget_balance[0m([96mself[0m, address: [96mstr[0m) -> [96mint[0m:                  [31m│[0m
+[31m│[0m   [2m244 [0m[2m│   │   [0m[94mreturn[0m [96mint[0m([94mawait[0m [96mself[0m.request([33m"[0m[33meth_getBalance[0m[33m"[0m, [address,      [31m│[0m
+[31m│[0m       [33m"[0m[33mlatest[0m[33m"[0m]), [94m16[0m)                                                        [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m [2m/home/runner/work/my/my/backend/arbbot/data/[0m[1mrpc.py[0m:171 in request            [31m│[0m
+[31m│[0m                                                                              [31m│[0m
+[31m│[0m   [2m168 [0m[2m│   │   │   │   [0mmsg = orjson.loads(body)                               [31m│[0m
+[31m│[0m   [2m169 [0m[2m│   │   │   │   [0m[94mif[0m [33m"[0m[33merror[0m[33m"[0m [95min[0m msg:                                     [31m│[0m
+[31m│[0m   [2m170 [0m[2m│   │   │   │   │   [0merr = msg[[33m"[0m[33merror[0m[33m"[0m]                                 [31m│[0m
+[31m│[0m [31m❱ [0m171 [2m│   │   │   │   │   [0mtext = [96mstr[0m(err.get([33m"[0m[33mmessage[0m[33m"[0m, [33m"[0m[33m"[0m))                 [31m│[0m
+[31m│[0m   [2m172 [0m[2m│   │   │   │   │   [0m[94mif[0m [33m"[0m[33mrevert[0m[33m"[0m [95min[0m text.lower() [95mor[0m err.get([33m"[0m[33mcode[0m[33m"[0m) ==  [31m│[0m
+[31m│[0m       [94m3[0m:                                                                     [31m│[0m
+[31m│[0m   [2m173 [0m[2m│   │   │   │   │   │   [0m[94mraise[0m RevertError(text, code=err.get([33m"[0m[33mcode[0m[33m"[0m),  [31m│[0m
+[31m│[0m       data=err.get([33m"[0m[33mdata[0m[33m"[0m))                                                  [31m│[0m
+[31m│[0m   [2m174 [0m[2m│   │   │   │   │   [0m[94mraise[0m RpcError(text, code=err.get([33m"[0m[33mcode[0m[33m"[0m),         [31m│[0m
+[31m│[0m       data=err.get([33m"[0m[33mdata[0m[33m"[0m))                                                  [31m│[0m
+[31m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+[1;91mAttributeError: [0m[32m'str'[0m object has no attribute [32m'get'[0m
+!!! verify-chain failed on the chosen endpoint; aborting
