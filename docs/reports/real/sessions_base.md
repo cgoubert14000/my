@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-26T02:36:33Z)
+# Sessions de marché réel — base (généré 2026-10-26T02:39:39Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -62,8 +62,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [40162313342](https://github.com/cgoubert14000/my/actions/runs/40162313342) | 2026-10-25T10:09:35+00:00 | 330 | 9762 | 541 / 309 / 19696 | 91 | 1209563 | 1043 | 13 / 55 | 2 / 60 | 2414 / 8.7 % | FIABILITÉ INSUFFISANTE |
 | [40183657130](https://github.com/cgoubert14000/my/actions/runs/40183657130) | 2026-10-25T15:45:20+00:00 | 330 | 9859 | 530 / 304 / 19588 | 372 | 801153 | 569 | 28 / 18 | 0 / 40 | 2454 / 8.6 % | FIABILITÉ INSUFFISANTE |
 | [40208484637](https://github.com/cgoubert14000/my/actions/runs/40208484637) | 2026-10-25T21:20:19+00:00 | 330 | 9880 | 531 / 306 / 19476 | 177 | 733792 | 1540 | 26 / 74 | 3 / 84 | 2538 / 8.4 % | FIABILITÉ INSUFFISANTE |
-| [40235061138](https://github.com/cgoubert14000/my/actions/runs/40235061138) | 2026-10-26T02:36:33+00:00 | 310 | 9278 | 533 / 308 / 19442 | 334 | 638306 | 651 | 49 / 10 | 8 / 50 | 2588 / 8.5 % | FIABILITÉ INSUFFISANTE |
+| [40235061138](https://github.com/cgoubert14000/my/actions/runs/40235061138) | 2026-10-26T02:39:39+00:00 | 314 | 9370 | 533 / 308 / 19442 | 538 | 646870 | 651 | 49 / 10 | 8 / 50 | 2588 / 8.5 % | FIABILITÉ INSUFFISANTE |
 
-**Totaux** : 17425 min, 485259 blocs, 85700855 candidats, 42810 à net attendu > 0, 1394 simulations réussies / 2305 échouées, 239/2603 étiquettes N+1 positives.
+**Totaux** : 17428 min, 485351 blocs, 85709419 candidats, 42810 à net attendu > 0, 1394 simulations réussies / 2305 échouées, 239/2603 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
