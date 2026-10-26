@@ -1,0 +1,106 @@
+[
+ {
+  "url": "https://base-rpc.publicnode.com",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 14.4,
+  "head_age_s": 1.2,
+  "seconds": 3.4
+ },
+ {
+  "url": "https://mainnet.base.org",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 15.8,
+  "head_age_s": 0.7,
+  "seconds": 3.7
+ },
+ {
+  "url": "https://base.llamarpc.com",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "rpc_reachable"
+  ],
+  "latency_p50_ms": null,
+  "head_age_s": null,
+  "seconds": 1.9
+ },
+ {
+  "url": "https://base.drpc.org",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 34.9,
+  "head_age_s": 2.5,
+  "seconds": 4.6
+ },
+ {
+  "url": "https://1rpc.io/base",
+  "ok": false,
+  "error": "AttributeError(\"'str' object has no attribute 'get'\")"
+ },
+ {
+  "url": "https://base-mainnet.public.blastapi.io",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 24.0,
+  "head_age_s": 1.5,
+  "seconds": 3.7
+ },
+ {
+  "url": "https://base.meowrpc.com",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "multicall3",
+   "tokens",
+   "factory:uniswap_v3",
+   "factory:uniswap_v2",
+   "factory:sushiswap_v2",
+   "factory:sushiswap_v3",
+   "factory:pancakeswap_v3",
+   "factory:pancakeswap_v2",
+   "factory:aerodrome",
+   "factory:aerodrome_slipstream",
+   "l1_fee_oracle"
+  ],
+  "latency_p50_ms": 1109.4,
+  "head_age_s": 12.8,
+  "seconds": 63.3
+ },
+ {
+  "url": "https://base.blockpi.network/v1/rpc/public",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "rpc_reachable"
+  ],
+  "latency_p50_ms": null,
+  "head_age_s": null,
+  "seconds": 1.9
+ },
+ {
+  "url": "https://endpoints.omniatech.io/v1/base/mainnet/public",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "rpc_reachable"
+  ],
+  "latency_p50_ms": null,
+  "head_age_s": null,
+  "seconds": 2.2
+ },
+ {
+  "url": "https://base.gateway.tenderly.co",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 28.4,
+  "head_age_s": 2.4,
+  "seconds": 3.6
+ }
+]
