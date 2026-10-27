@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-27T01:20:57Z)
+# Sessions de marché réel — base (généré 2026-10-27T01:21:01Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
