@@ -1,0 +1,112 @@
+[
+ {
+  "url": "https://base-rpc.publicnode.com",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 89.9,
+  "head_age_s": 2.0,
+  "seconds": 7.7
+ },
+ {
+  "url": "https://mainnet.base.org",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 73.4,
+  "head_age_s": 1.5,
+  "seconds": 5.9
+ },
+ {
+  "url": "https://base.llamarpc.com",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "rpc_reachable"
+  ],
+  "latency_p50_ms": null,
+  "head_age_s": null,
+  "seconds": 1.8
+ },
+ {
+  "url": "https://base.drpc.org",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 20.7,
+  "head_age_s": 0.5,
+  "seconds": 4.2
+ },
+ {
+  "url": "https://1rpc.io/base",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "rpc_reachable"
+  ],
+  "latency_p50_ms": null,
+  "head_age_s": null,
+  "seconds": 5.6
+ },
+ {
+  "url": "https://base-mainnet.public.blastapi.io",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 86.6,
+  "head_age_s": 3.1,
+  "seconds": 6.4
+ },
+ {
+  "url": "https://base.meowrpc.com",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "multicall3",
+   "tokens",
+   "factory:uniswap_v3",
+   "factory:uniswap_v2",
+   "factory:sushiswap_v2",
+   "factory:sushiswap_v3",
+   "factory:pancakeswap_v3",
+   "factory:pancakeswap_v2",
+   "factory:aerodrome",
+   "factory:aerodrome_slipstream",
+   "l1_fee_oracle"
+  ],
+  "latency_p50_ms": 982.5,
+  "head_age_s": 13.8,
+  "seconds": 66.1
+ },
+ {
+  "url": "https://base.blockpi.network/v1/rpc/public",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "rpc_reachable"
+  ],
+  "latency_p50_ms": null,
+  "head_age_s": null,
+  "seconds": 1.9
+ },
+ {
+  "url": "https://endpoints.omniatech.io/v1/base/mainnet/public",
+  "ok": false,
+  "state_override": false,
+  "failed_blocking": [
+   "rpc_reachable"
+  ],
+  "latency_p50_ms": null,
+  "head_age_s": null,
+  "seconds": 2.5
+ },
+ {
+  "url": "https://base.gateway.tenderly.co",
+  "ok": true,
+  "state_override": true,
+  "failed_blocking": [],
+  "latency_p50_ms": 93.8,
+  "head_age_s": 2.3,
+  "seconds": 6.8
+ }
+]
