@@ -14259,3 +14259,10 @@ block 53187838 | FIABILITÉ INSUFFISANTE | candidates 600709 | positive 213 | gh
 block 53187838 | FIABILITÉ INSUFFISANTE | candidates 600709 | positive 213 | ghost {'pending': 0, 'labeled': 14, 'positives': 4, 'errors': 0, 'rate': 0.2857142857142857} | rel n=2892 | rpc err 470 p50 200 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_40604702419.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_40604702419.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_40604702419_opportunities.csv.gz"}
 2026-10-28 05:24:03,137 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+2026-10-28 05:24:04,905 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2733 → 2730 ppm
+2026-10-28 05:24:05,626 INFO arbbot.collector: pool 0x70aCDF2Ad0bf2402C957154f944c19Ef4e1cbAE1 (aerodrome_slipstream) fee changed 2505 → 2500 ppm
+2026-10-28 05:24:05,627 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2718 → 2715 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (45e148025)
+2026-10-28 05:24:05,783 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.drpc.org
+2026-10-28 05:24:05,783 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-mainnet.public.blastapi.io
+2026-10-28 05:24:05,783 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.gateway.tenderly.co
