@@ -1,0 +1,12 @@
+{
+  "name": "vinted-sniper-ui-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Test d'interface headless (jsdom) du dashboard Vinted Sniper",
+  "scripts": {
+    "test": "node run.js"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}

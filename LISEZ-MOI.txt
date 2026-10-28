@@ -1,0 +1,79 @@
+==========================================================
+  VINTED SNIPER 1.3.9  —  demarrage en 30 secondes
+
+  LES MARQUES, SANS RESEAU
+  Votre index local contient 56 000+ marques : vous pouvez
+  maintenant le sortir dans un fichier, ou en charger un.
+
+  1. Exporter (2 facons)
+     - Dashboard > bouton « Choisir des marques » >
+       « Exporter la liste (CSV) » (telechargement direct).
+     - En ligne de commande :
+       vinted-sniper.exe --export-brands marques-vinted
+       -> marques-vinted.csv + marques-vinted.json
+
+  2. Recharger ailleurs
+     vinted-sniper.exe --import-brands marques-vinted.csv
+     ou simplement poser le fichier « brands.csv » a cote de
+     l'executable : il est charge tout seul au demarrage si la
+     base est vide (jamais d'ecrasement d'un index existant).
+
+  FORMAT DU FICHIER (le plus simple possible)
+     id,slug,name
+     53,nike,Nike
+     7,h-m,H&M
+     364,zara,Zara
+  Un fichier JSON [{"id":"53","slug":"nike","name":"Nike"}] est
+  aussi accepte, ainsi qu'un CSV sans en-tete.
+
+  NOUVEAU EN 1.3.9
+  - --export-brands / --import-brands (ligne de commande).
+  - Bouton « Exporter la liste (CSV) » dans la modale Marques.
+  - Chargement automatique du pack de marques au demarrage.
+  - tools/make_brand_pack.py : fabrique app/data/brands.csv
+    (embarque dans l'executable, donc disponible hors ligne).
+
+  NOUVEAU EN 1.3.8
+  - Lancement du navigateur : port explicite verifie en HTTP, chemin
+    de profil absolu, code de sortie remonte, 4 tentatives max
+    (profil persistant, profil systeme, autre navigateur).
+  - Secours cURL : import d'une session copiee du navigateur.
+  - Message d'erreur explicite quand tout echoue (quoi faire).
+
+  NOUVEAU EN 1.3.7
+  - Deblocage gratuit via le navigateur local (Edge/Chrome, CDP),
+    sans aucune dependance supplementaire.
+  - FlareSolverr / Byparr acceptes en priorite si vous en avez un.
+
+  NOUVEAU EN 1.3.6
+  - Plus de « Hors ligne » pendant un blocage : la pastille affiche
+    « Verification Vinted ».
+  - Flux SSE auto-repare (reconnexion + chien de garde 45 s).
+  - Bandeau Cloudflare : cause (votre IP), age, bouton de test.
+  - Bandeau « aucun webhook » : sans webhook, aucune alerte ne part.
+  - Demarrage express : un mot-cle suffit pour creer un profil.
+
+  NOUVEAU EN 1.3.5
+  - Pause intelligente : 60 s, 2 min, 5 min apres une verification, au
+    lieu de reessayer toutes les 20 s.
+  - Le bouton "scan" est refuse pendant 25 s apres un blocage, avec le
+    temps restant affiche : cliquer en boucle enfoncait le clou.
+  - Message clair dans le dashboard (attendre / changer d'IP).
+
+  LE TEST QUI TRANCHE EN 60 SECONDES
+  1. Coupez le Wi-Fi.
+  2. Activez le partage de connexion du telephone, connectez le PC.
+  3. Relancez vinted-sniper.exe et lancez un scan.
+     - Les annonces arrivent -> c'etait votre adresse IP. Attendez 1 h,
+       ou gardez cette connexion.
+     - Meme blocage -> ce n'est pas l'IP : proxy residentiel necessaire.
+
+  RAPPEL
+  - 1.3.5 : pause 60 s / 2 min / 5 min apres une verification, scan
+    manuel refuse 25 s, message clair au lieu de « self-healing ».
+  - 1.3.4 : le mot "datadome" ne fait plus passer une page valide pour
+    un blocage (faux positif corrige), User-Agent figé par domaine.
+  - 1.3.3 : cookies conserves sur HTTP 200, session renouvelee apres
+    3 blocages seulement.
+  - 1.3.2 : temps reel 1 tentative / 10 s, fiche article bornee a 3,5 s,
+    journal pousse en direct, interface sans clignotement.

@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vinted Sniper — dashboard</title>
+  <meta name="description" content="Veille Vinted multi-profils, alertes Discord, auto-hébergée.">
+  <link rel="icon" href="/favicon.ico" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<div class="ambient-grid" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 3l2.6 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.7 19.8l1.1-6.1L3.3 9.4l6.1-.8L12 3z" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <h1>Vinted <span>Sniper</span></h1>
+      <p>Veille temps réel · multi-profils · auto-hébergée</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <span id="livePill" class="live-pill is-loading" title="Flux poussé par le serveur">
+      <span class="live-dot"></span><span id="liveLabel">Connexion…</span>
+    </span>
+    <span id="enginePill" class="engine-pill is-loading" title="État du moteur">
+      <span class="dot"></span><span id="engineLabel">Connexion…</span>
+    </span>
+    <button id="btnPause" class="btn btn-ghost" type="button" title="Mettre le moteur en pause">
+      <span id="pauseIcon">❚❚</span><span id="pauseLabel">Pause</span>
+    </button>
+    <button id="btnNewProfile" class="btn btn-primary" type="button">＋ Nouveau profil</button>
+  </div>
+</header>
+
+<section class="stats" id="stats" aria-label="Statistiques">
+  <article class="stat-card">
+    <div class="stat-icon">◎</div>
+    <div class="stat-body"><span class="stat-label">Profils actifs</span>
+      <strong id="statProfiles">—</strong><small id="statProfilesSub">—</small></div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-icon">🛍</div>
+    <div class="stat-body"><span class="stat-label">Annonces aujourd'hui</span>
+      <strong id="statToday">—</strong><small id="statTodaySub">—</small></div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-icon">🔔</div>
+    <div class="stat-body"><span class="stat-label">Alertes envoyées</span>
+      <strong id="statAlerts">—</strong><small id="statAlertsSub">—</small></div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-icon">⚡</div>
+    <div class="stat-body"><span class="stat-label">Dernier scan</span>
+      <strong id="statLastScan">—</strong><small id="statLastScanSub">—</small></div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-icon">🛡</div>
+    <div class="stat-body"><span class="stat-label">Blocages détectés</span>
+      <strong id="statBlocks">—</strong><small id="statBlocksSub">—</small></div>
+  </article>
+</section>
+
+<div id="blockBanner" class="alert-banner is-critical hidden" role="alert">
+  <span class="alert-emoji" aria-hidden="true">🛡️</span>
+  <span id="blockBannerText"><b>Vinted demande une vérification navigateur (Cloudflare).</b>
+    Le blocage vient de <b>votre adresse IP</b>, pas du bot : insister ne fait que prolonger la
+    vérification. Coupez le Wi-Fi et passez par le partage de connexion de votre téléphone,
+    ou attendez 1 h. <span id="blockBannerAge"></span></span>
+  <button class="btn btn-primary btn-sm" type="button" id="blockBannerSolve"
+          title="Ouvre une fenêtre du navigateur : Cloudflare valide la session, le bot la récupère">
+    🔓 Débloquer avec mon navigateur</button>
+  <button class="btn btn-ghost btn-sm" type="button" id="blockBannerTest">🩺 Tester</button>
+  <button class="btn btn-ghost btn-sm" type="button" id="blockBannerHide">Masquer</button>
+</div>
+
+<div id="alertBanner" class="alert-banner hidden" role="status">
+  <span class="alert-emoji" aria-hidden="true">🔔</span>
+  <span><b>Aucun webhook Discord configuré.</b> Les annonces seront détectées et affichées ici,
+    mais <b>aucune alerte ne partira</b> sur Discord.</span>
+  <button class="btn btn-primary btn-sm" type="button" id="alertBannerFix">Configurer le webhook</button>
+</div>
+
+<main class="layout">
+  <div class="col-main">
+    <section class="panel quick-start hidden" id="quickStart">
+      <header class="panel-head">
+        <div>
+          <h2>Démarrage express</h2>
+          <p class="panel-sub">Un mot-clé, un clic : le bot surveille Vinted en continu et alerte sur Discord.</p>
+        </div>
+        <span class="chip chip-green">mode simple</span>
+      </header>
+      <form id="quickForm" class="qs-grid" autocomplete="off">
+        <label class="field qs-wide"><span>1 · Ce que vous cherchez</span>
+          <input type="text" id="qsQuery" maxlength="120" required
+                 placeholder="ex. nike tech fleece, air max 95, zara robe…"></label>
+        <label class="field"><span>2 · Prix max (€, optionnel)</span>
+          <input type="number" id="qsMaxPrice" min="0" step="1" placeholder="ex. 80"></label>
+        <label class="field qs-wide"><span>3 · Webhook Discord (optionnel)</span>
+          <input type="url" id="qsWebhook" placeholder="https://discord.com/api/webhooks/…"></label>
+        <div class="qs-actions">
+          <button class="btn btn-primary" type="submit" id="qsSubmit">🚀 Démarrer le snipe</button>
+          <button class="btn btn-ghost" type="button" id="qsAdvanced">Mode avancé (marques, tailles, filtres…)</button>
+        </div>
+        <p class="hint qs-wide" id="qsHint">Détection en 1 à 3 s après publication, image et lien cliquable inclus.
+          Vous pourrez affiner les filtres juste après.</p>
+        <p class="form-error qs-wide" id="qsError" role="alert"></p>
+      </form>
+    </section>
+
+    <section class="panel" id="profilesPanel">
+      <header class="panel-head">
+        <div>
+          <h2>Profils de snipe</h2>
+          <p class="panel-sub">Chaque profil surveille sa propre recherche, ses filtres et son webhook.</p>
+        </div>
+        <span id="profilesCount" class="chip chip-muted">—</span>
+      </header>
+      <div id="profilesGrid" class="profiles-grid"></div>
+      <div id="profilesEmpty" class="empty-state hidden">
+        <div class="empty-emoji">🎯</div>
+        <h3>Aucun profil pour l'instant</h3>
+        <p>Créez votre premier profil : collez une URL de recherche Vinted, ajoutez une blacklist et un webhook Discord.</p>
+        <button class="btn btn-primary" type="button" data-action="new-profile">Créer un profil</button>
+      </div>
+    </section>
+
+    <section class="panel" id="feedPanel">
+      <header class="panel-head">
+        <div>
+          <h2>Flux en direct</h2>
+          <p class="panel-sub">Les dernières annonces validées par vos filtres.</p>
+        </div>
+        <div class="panel-tools">
+          <select id="feedFilter" class="select" aria-label="Filtrer par profil">
+            <option value="all">Tous les profils</option>
+          </select>
+          <span id="feedCount" class="chip chip-muted">0</span>
+        </div>
+      </header>
+      <div id="feedGrid" class="feed-grid"></div>
+      <div id="feedEmpty" class="empty-state hidden">
+        <div class="empty-emoji">📡</div>
+        <h3>Le flux est calme</h3>
+        <p>Les nouvelles annonces correspondant à vos filtres apparaîtront ici en quelques secondes.</p>
+      </div>
+    </section>
+  </div>
+
+  <aside class="col-side">
+    <section class="panel">
+      <header class="panel-head compact"><h2>Contrôle</h2><span id="uptimeChip" class="chip chip-muted">—</span></header>
+      <dl class="kv">
+        <div><dt>Scans (session)</dt><dd id="ctlScans">—</dd></div>
+        <div><dt>Nouvelles annonces</dt><dd id="ctlNew">—</dd></div>
+        <div><dt>Alertes échouées</dt><dd id="ctlFailed">—</dd></div>
+        <div><dt>Transport</dt><dd id="ctlTransport">—</dd></div>
+        <div><dt>Base SQLite</dt><dd id="ctlDb">—</dd></div>
+      </dl>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" type="button" data-action="renew-session">↻ Session</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="test-webhook">Tester Discord</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="run-all">▶ Tout scanner</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="diagnostic" title="Tester la connexion réelle à Vinted">🩺 Diagnostic</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header class="panel-head compact">
+        <h2>Proxys &amp; réseau</h2>
+        <span id="proxyChip" class="chip chip-muted">—</span>
+      </header>
+      <dl class="kv">
+        <div><dt>Pool disponible</dt><dd id="proxyAvailable">—</dd></div>
+        <div><dt>En quarantaine</dt><dd id="proxyQuarantined">—</dd></div>
+        <div><dt>Cookies de session</dt><dd id="cookieState">—</dd></div>
+      </dl>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" type="button" data-action="discover-proxies">Découvrir</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="reset-proxies">Lever bans</button>
+      </div>
+      <p class="hint">Les proxys publics sont instables : un pool sain se construit aussi avec vos propres proxys (config.json ou réglages).</p>
+    </section>
+
+    <section class="panel">
+      <header class="panel-head compact"><h2>Réglages rapides</h2></header>
+      <form id="settingsForm" class="stack" autocomplete="off">
+        <div class="toggle-list">
+          <label class="switch-line" title="Sonde le catalogue en continu pour détecter les annonces à la seconde">
+            <span>⚡ Mode temps réel (tous les profils)</span>
+            <input type="checkbox" id="cfgLive" class="switch"></label>
+          <label class="switch-line" title="Intervalle fixe au minimum : détection la plus rapide, risque de blocage plus élevé">
+            <span>Turbo (intervalle minimal constant)</span>
+            <input type="checkbox" id="cfgTurbo" class="switch"></label>
+        </div>
+        <div class="grid-3">
+          <label class="field"><span>Intervalle mini (s)</span>
+            <input type="number" id="cfgRealtimeMin" min="0.5" max="60" step="0.5"></label>
+          <label class="field"><span>Intervalle maxi (s)</span>
+            <input type="number" id="cfgRealtimeMax" min="2" max="600" step="1"></label>
+          <label class="field"><span>Délai requêtes (s)</span>
+            <input type="number" id="cfgDelay" min="0.5" max="30" step="0.5"></label>
+        </div>
+        <div class="grid-2">
+          <label class="field"><span>Intervalle hors temps réel (s)</span>
+            <input type="number" id="cfgInterval" min="1" max="3600" step="1"></label>
+          <label class="field"><span>Scans parallèles</span>
+            <input type="number" id="cfgConcurrency" min="1" max="5" step="1"></label>
+        </div>
+        <label class="field"><span>Annonces / page</span>
+          <input type="number" id="cfgPerPage" min="24" max="96" step="12"></label>
+        <fieldset class="field-group">
+          <legend>🔓 Déblocage Cloudflare (gratuit)</legend>
+          <label class="field"><span>Navigateur utilisé (vide = détection auto : Edge, Chrome…)</span>
+            <input type="text" id="cfgBrowserPath" placeholder="C:\Program Files\Google\Chrome\Application\chrome.exe"></label>
+          <label class="field"><span>FlareSolverr / Byparr (optionnel, Docker local)</span>
+            <input type="url" id="cfgSolverUrl" placeholder="http://127.0.0.1:8191"></label>
+          <label class="switch-line"><span>Fenêtre invisible (headless)</span>
+            <input type="checkbox" id="cfgHeadless" class="switch"></label>
+          <details class="curl-help">
+            <summary>Secours : coller une session copiée du navigateur</summary>
+            <p class="hint">Dans Edge ou Chrome : <b>F12</b> → onglet <b>Réseau</b> → clic droit sur la
+              requête <code>catalog</code> → <b>Copier → Copier en tant que cURL</b>. Collez la
+              commande ici : les cookies (y compris <code>cf_clearance</code>) et le User-Agent exact
+              sont récupérés ensemble, ce que Cloudflare exige.</p>
+            <textarea id="cfgCurl" rows="4" placeholder="curl 'https://www.vinted.fr/catalog?...' -H 'Cookie: cf_clearance=...'"></textarea>
+            <button class="btn btn-ghost btn-sm" type="button" id="cfgCurlImport">Importer cette session</button>
+            <p class="hint" id="cfgCurlStatus"></p>
+          </details>
+        </fieldset>
+        <label class="field"><span>Webhook Discord par défaut</span>
+          <input type="url" id="cfgWebhook" placeholder="https://discord.com/api/webhooks/…"></label>
+        <label class="field"><span>Mention (optionnel)</span>
+          <input type="text" id="cfgMention" placeholder="@here ou <@&amp;role_id>"></label>
+        <div class="toggle-list">
+          <label class="switch-line"><span>Notifications Discord</span>
+            <input type="checkbox" id="cfgNotifications" class="switch"></label>
+          <label class="switch-line"><span>Rotation de proxys</span>
+            <input type="checkbox" id="cfgProxies" class="switch"></label>
+          <label class="switch-line"><span>Priorité aux proxys</span>
+            <input type="checkbox" id="cfgPreferProxies" class="switch"></label>
+          <label class="switch-line"><span>Découverte auto</span>
+            <input type="checkbox" id="cfgAutoDiscover" class="switch"></label>
+          <label class="switch-line"><span>Baseline au 1<sup>er</sup> scan</span>
+            <input type="checkbox" id="cfgBaseline" class="switch"></label>
+        </div>
+        <label class="field"><span>Vos proxys <small>(un par ligne, optionnel)</small></span>
+          <textarea id="cfgProxyList" rows="3" placeholder="http://user:pass@ip:port&#10;socks5://ip:port"></textarea>
+          <small>Formats acceptés : <code>ip:port</code>, <code>http://</code>, <code>https://</code>, <code>socks5://</code>. Les proxys publics découverts automatiquement sont éphémères.</small>
+        </label>
+        <button class="btn btn-primary btn-block" type="submit">Enregistrer les réglages</button>
+        <p class="hint">La baseline enregistre les annonces déjà en ligne sans alerter : seules les nouveautés déclenchent un message.</p>
+      </form>
+    </section>
+
+    <section class="panel logs-panel">
+      <header class="panel-head compact">
+        <h2>Journal en temps réel</h2>
+        <button class="icon-btn" type="button" data-action="clear-logs" title="Vider l'affichage">⌫</button>
+      </header>
+      <div id="logList" class="log-list" aria-live="polite"></div>
+    </section>
+  </aside>
+</main>
+
+<footer class="foot">
+  <span>Vinted Sniper <span id="versionLabel"></span> — open-source, 100 % local.</span>
+  <span>Respectez les CGU de Vinted et les limites de débit : cet outil est prévu pour un usage personnel raisonnable.</span>
+</footer>
+
+<!-- ── Modale profil ─────────────────────────────────────────────────────── -->
+<dialog id="profileModal" class="modal">
+  <form id="profileForm" method="dialog" autocomplete="off">
+    <header class="modal-head">
+      <div>
+        <h2 id="profileModalTitle">Nouveau profil</h2>
+        <p class="panel-sub">Recherche, filtres et notification en un seul bloc.</p>
+      </div>
+      <button class="icon-btn" type="button" data-close="profileModal" aria-label="Fermer">✕</button>
+    </header>
+    <div class="modal-body">
+      <div class="grid-2">
+        <label class="field"><span>Nom du profil <em>*</em></span>
+          <input type="text" id="pName" maxlength="80" required placeholder="Sneakers Hype"></label>
+        <label class="field" id="pIntervalField"><span>Intervalle hors temps réel (s)</span>
+          <input type="number" id="pInterval" min="1" max="3600" step="1" value="60">
+          <small>Utilisé seulement si le suivi temps réel est désactivé.</small></label>
+      </div>
+
+      <div class="field">
+        <span>Catégorie Vinted <small>(optionnel — toutes les catégories sont explorables)</small></span>
+        <div class="category-row">
+          <span id="pCategoryLabel" class="category-pill">Toutes les catégories</span>
+          <button type="button" class="btn btn-sm btn-ghost" id="pPickCategory">📂 Choisir une catégorie…</button>
+          <button type="button" class="btn btn-sm btn-ghost" id="pClearCategory">Toutes</button>
+        </div>
+        <small>La catégorie est appliquée à la recherche ci-dessous sans perdre vos mots-clés.</small>
+      </div>
+
+      <div class="field">
+        <span>Marques Vinted <small>(optionnel — liste réelle lue sur Vinted, combinaison possible)</small></span>
+        <div class="category-row">
+          <span id="pBrandsLabel" class="category-pill is-all">Toutes les marques</span>
+          <button type="button" class="btn btn-sm btn-ghost" id="pPickBrands">🏷️ Choisir des marques…</button>
+          <button type="button" class="btn btn-sm btn-ghost" id="pClearBrands">Toutes</button>
+        </div>
+        <small>Filtre strict côté Vinted (<code>brand_ids[]</code>) : la recherche ne renvoie que ces marques.</small>
+      </div>
+
+      <div class="field filter-field">
+        <span>Filtres Vinted <small>(tailles, état, couleurs, prix, tri — écrits dans l'URL de recherche)</small></span>
+        <div id="filterPanel" class="filter-panel" aria-live="polite">
+          <p class="hint">Chargement du catalogue de filtres…</p>
+        </div>
+        <div class="filter-toolbar">
+          <span id="filterSummary" class="chip chip-muted">Aucun filtre Vinted</span>
+          <button type="button" class="btn btn-sm btn-ghost" id="filterClear">Tout effacer</button>
+        </div>
+        <small>Les identifiants sont ceux de Vinted (vérifiés sur vinted.fr) : le site applique le filtre avant que le moteur ne lise les annonces.</small>
+      </div>
+
+      <label class="field">
+        <span>URL de recherche Vinted <em>*</em></span>
+        <input type="text" id="pUrl" placeholder="https://www.vinted.fr/catalog?search_text=nike%20air%20max">
+        <small>Collez l'URL d'une recherche Vinted (ou un simple mot-clé). Le tri « Plus récent » et la pagination sont appliqués automatiquement.</small>
+      </label>
+
+      <div class="grid-3">
+        <label class="field"><span>Prix min</span>
+          <input type="number" id="pMinPrice" min="0" step="1" placeholder="—"></label>
+        <label class="field"><span>Prix max</span>
+          <input type="number" id="pMaxPrice" min="0" step="1" placeholder="—"></label>
+        <label class="field"><span>Pages à scanner</span>
+          <input type="number" id="pPages" min="1" max="5" step="1" value="1"></label>
+      </div>
+
+      <div class="grid-2">
+        <label class="field"><span>Mots-clés inclus <small>(whitelist)</small></span>
+          <textarea id="pWhitelist" rows="3" placeholder="nike&#10;jordan&#10;adidas"></textarea>
+          <small>Un par ligne ou séparés par des virgules. Vide = tout accepter.</small></label>
+        <label class="field"><span>Blacklist stricte</span>
+          <textarea id="pBlacklist" rows="3" placeholder="copie&#10;faux&#10;défaut&#10;taché"></textarea>
+          <small>Vérifiée sur le titre <b>et</b> la description.</small></label>
+      </div>
+
+      <div class="grid-3">
+        <label class="field"><span>Mode whitelist</span>
+          <select id="pKeywordMode">
+            <option value="any">Au moins un mot</option>
+            <option value="all">Tous les mots</option>
+          </select></label>
+        <label class="field"><span>Note vendeur min.</span>
+          <input type="number" id="pMinRating" min="0" max="5" step="0.1" placeholder="ex. 4.5"></label>
+        <label class="field"><span>Avis vendeur min.</span>
+          <input type="number" id="pMinFeedback" min="0" step="1" placeholder="ex. 10"></label>
+      </div>
+
+      <label class="field"><span>Webhook Discord dédié <small>(optionnel)</small></span>
+        <input type="url" id="pWebhook" placeholder="https://discord.com/api/webhooks/…">
+        <small>Prioritaire sur le webhook global : idéal pour un salon par thème.</small></label>
+
+      <label class="field"><span>Notes</span>
+        <textarea id="pNotes" rows="2" maxlength="600" placeholder="Stratégie, taille habituelle, budget…"></textarea></label>
+
+      <div class="toggle-list inline">
+        <label class="switch-line" title="Sonde le catalogue en continu (1,5 s → 10 s) pour détecter les annonces à la seconde">
+          <span>⚡ Suivi temps réel</span>
+          <input type="checkbox" id="pLiveMode" class="switch" checked></label>
+        <label class="switch-line"><span>Profil actif</span>
+          <input type="checkbox" id="pActive" class="switch" checked></label>
+        <label class="switch-line"><span>Vérifier la description</span>
+          <input type="checkbox" id="pCheckDescription" class="switch" checked></label>
+      </div>
+    </div>
+    <footer class="modal-foot">
+      <span class="modal-error" id="profileError" role="alert"></span>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm hidden" type="button" id="pClearSeen" title="Réinitialiser l'anti-doublon de ce profil">Oublier les annonces vues</button>
+        <button class="btn btn-ghost" type="button" data-close="profileModal">Annuler</button>
+        <button class="btn btn-primary" type="submit" id="profileSubmit">Enregistrer</button>
+      </div>
+    </footer>
+  </form>
+</dialog>
+
+<!-- ── Modale catégories ─────────────────────────────────────────────────── -->
+<dialog id="categoryModal" class="modal modal-wide">
+  <header class="modal-head">
+    <div>
+      <h2>Choisir une catégorie</h2>
+      <p class="panel-sub" id="catSub">Navigation en direct dans le catalogue Vinted</p>
+    </div>
+    <button class="icon-btn" type="button" data-close="categoryModal" aria-label="Fermer">✕</button>
+  </header>
+  <div class="modal-body">
+    <div id="catBreadcrumb" class="cat-breadcrumb"></div>
+    <div class="cat-toolbar">
+      <button type="button" class="btn btn-sm btn-ghost" id="catUp">← Niveau supérieur</button>
+      <button type="button" class="btn btn-sm btn-ghost" id="catRoot">Toutes les catégories</button>
+      <input type="search" id="catFilter" class="select" placeholder="Filtrer…" aria-label="Filtrer les catégories">
+    </div>
+    <div id="catList" class="cat-list" aria-live="polite"></div>
+    <p class="hint" id="catNote"></p>
+  </div>
+  <footer class="modal-foot">
+    <span class="hint" id="catSelected">Aucune sous-catégorie sélectionnée</span>
+    <div class="btn-row">
+      <button class="btn btn-ghost" type="button" data-close="categoryModal">Annuler</button>
+      <button class="btn btn-primary" type="button" id="catChoose">Choisir cette catégorie</button>
+    </div>
+  </footer>
+</dialog>
+
+<!-- ── Modale marques ────────────────────────────────────────────────────── -->
+<dialog id="brandModal" class="modal modal-wide">
+  <header class="modal-head">
+    <div>
+      <h2>Choisir des marques</h2>
+      <p class="panel-sub" id="brandNote">Lecture des marques sur Vinted…</p>
+    </div>
+    <button class="icon-btn" type="button" data-close="brandModal" aria-label="Fermer">✕</button>
+  </header>
+  <div class="modal-body">
+    <div class="cat-toolbar">
+      <button type="button" class="btn btn-sm btn-primary" id="brandImport">⬇ Importer toutes les marques Vinted</button>
+      <a class="btn btn-sm btn-ghost" id="brandExport" href="/api/brands/export" download>💾 Exporter la liste (CSV)</a>
+      <span class="hint" id="brandIndex">Index local : aucun — importez-le une fois (≈10 s)</span>
+    </div>
+    <div class="cat-toolbar">
+      <input type="search" id="brandSearch" class="select" placeholder="Rechercher une marque (ex. nike)…" aria-label="Rechercher une marque">
+    </div>
+    <div class="cat-toolbar">
+      <input type="text" id="brandManual" class="select" style="max-width: 340px"
+             placeholder="URL ou ID d'une marque (ex. https://www.vinted.fr/brand/53-nike)"
+             aria-label="Ajouter une marque par URL ou identifiant">
+      <button type="button" class="btn btn-sm btn-ghost" id="brandAdd">Ajouter</button>
+    </div>
+    <p class="hint">Tapez les premières lettres d'une marque : <b>toutes</b> celles qui commencent par
+      cette saisie s'affichent (index local de ~57 000 marques, une fois importé). Les lettres restent
+      un raccourci, et vous pouvez toujours coller l'adresse d'une marque rare.</p>
+    <div id="brandLetters" class="brand-letters"></div>
+    <div id="brandList" class="brand-list" aria-live="polite"></div>
+  </div>
+  <footer class="modal-foot">
+    <span class="hint" id="brandSelected">Aucune marque sélectionnée (toutes les marques)</span>
+    <div class="btn-row">
+      <button class="btn btn-ghost" type="button" data-close="brandModal">Annuler</button>
+      <button class="btn btn-primary" type="button" id="brandApply">Chercher toutes les marques</button>
+    </div>
+  </footer>
+</dialog>
+
+<!-- ── Modale aperçu des filtres ─────────────────────────────────────────── -->
+<dialog id="previewModal" class="modal modal-wide">
+  <header class="modal-head">
+    <div>
+      <h2>Aperçu des filtres</h2>
+      <p class="panel-sub" id="previewSub">Analyse des annonces en ligne…</p>
+    </div>
+    <button class="icon-btn" type="button" data-close="previewModal" aria-label="Fermer">✕</button>
+  </header>
+  <div class="modal-body">
+    <div id="previewSummary" class="preview-summary"></div>
+    <div id="previewList" class="preview-list"></div>
+    <p class="hint" id="previewNote"></p>
+  </div>
+  <footer class="modal-foot">
+    <div class="btn-row">
+      <button class="btn btn-ghost" type="button" data-close="previewModal">Fermer</button>
+    </div>
+  </footer>
+</dialog>
+
+<!-- ── Modale diagnostic ─────────────────────────────────────────────────── -->
+<dialog id="diagModal" class="modal modal-wide">
+  <header class="modal-head">
+    <div>
+      <h2>Diagnostic Vinted</h2>
+      <p class="panel-sub">Test réel : session, catalogue, fiche article, vendeur et webhook.</p>
+    </div>
+    <button class="icon-btn" type="button" data-close="diagModal" aria-label="Fermer">✕</button>
+  </header>
+  <div class="modal-body">
+    <div class="grid-2">
+      <label class="field"><span>Recherche à tester</span>
+        <input type="text" id="diagQuery" value="nike" maxlength="200"></label>
+      <label class="field"><span>Webhook à tester <small>(optionnel)</small></span>
+        <input type="url" id="diagWebhook" placeholder="https://discord.com/api/webhooks/…"></label>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" type="button" id="diagRun">Lancer le diagnostic</button>
+      <span class="hint" id="diagHint">Environ 10–30 s : une requête réelle est envoyée à Vinted.</span>
+    </div>
+    <div id="diagResults" class="diag-list"></div>
+    <div id="diagAdvice" class="diag-advice"></div>
+  </div>
+  <footer class="modal-foot">
+    <div class="btn-row">
+      <button class="btn btn-ghost" type="button" data-close="diagModal">Fermer</button>
+    </div>
+  </footer>
+</dialog>
+
+<!-- ── Modale test webhook ───────────────────────────────────────────────── -->
+<dialog id="webhookModal" class="modal modal-narrow">
+  <form id="webhookForm" method="dialog">
+    <header class="modal-head">
+      <div><h2>Tester un webhook Discord</h2>
+        <p class="panel-sub">Un embed de test sera envoyé immédiatement.</p></div>
+      <button class="icon-btn" type="button" data-close="webhookModal" aria-label="Fermer">✕</button>
+    </header>
+    <div class="modal-body">
+      <label class="field"><span>URL du webhook</span>
+        <input type="url" id="testWebhookUrl" placeholder="https://discord.com/api/webhooks/…"></label>
+      <label class="field"><span>Nom affiché</span>
+        <input type="text" id="testWebhookName" placeholder="Test Vinted Sniper"></label>
+      <p class="modal-error" id="webhookError" role="alert"></p>
+    </div>
+    <footer class="modal-foot">
+      <div class="btn-row">
+        <button class="btn btn-ghost" type="button" data-close="webhookModal">Annuler</button>
+        <button class="btn btn-primary" type="submit">Envoyer le test</button>
+      </div>
+    </footer>
+  </form>
+</dialog>
+
+<!-- ── Confirmation ──────────────────────────────────────────────────────── -->
+<dialog id="confirmModal" class="modal modal-narrow">
+  <header class="modal-head">
+    <div><h2 id="confirmTitle">Confirmer</h2><p class="panel-sub" id="confirmText"></p></div>
+  </header>
+  <footer class="modal-foot">
+    <div class="btn-row">
+      <button class="btn btn-ghost" type="button" data-close="confirmModal">Annuler</button>
+      <button class="btn btn-danger" type="button" id="confirmYes">Confirmer</button>
+    </div>
+  </footer>
+</dialog>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<script src="/static/app.js" defer></script>
+</body>
+</html>

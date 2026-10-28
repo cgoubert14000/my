@@ -1,0 +1,26 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+node_modules/
+*.log
+data/
+*.db
+*.db-wal
+*.db-shm
+config.local.json
+.env
+.DS_Store
+package-lock.json
+dist/
+build/
+_delivery/
+*.spec
+VintedSniper-*.zip
+
+# Le pack de marques embarqué (app/data/brands.csv) doit être versionné,
+# contrairement aux données locales (data/).
+!app/data/
+!app/data/**
