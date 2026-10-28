@@ -1656,6 +1656,8 @@
       label.textContent = `Import interrompu : ${data.error}`;
       return false;
     }
+    const exportLink = document.querySelector("#brandExport");
+    if (exportLink) exportLink.classList.toggle("hidden", !state.brandIndex.total);
     if (state.brandIndex.total) {
       const when = data.updated_at ? new Date(data.updated_at).toLocaleString("fr-FR") : "—";
       label.textContent = `${state.brandIndex.total.toLocaleString("fr-FR")} marques disponibles localement `

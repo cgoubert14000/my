@@ -665,6 +665,36 @@ qu'elle ne l'est, et sont corrigés :
 | Le mot « datadome » figurait dans les **marqueurs de blocage** — or la page catalogue normale charge ce script | Un blocage n'est retenu que si la **grille d'annonces est absente** ; le journal nomme le marqueur exact (`page « just a moment »`, `défi Datadome « captcha-delivery »`) (1.3.4) |
 | Attente de 30-60 s après une page de vérification HTTP 200 | Pause plafonnée à **5 s** : ce n'est pas un quota épuisé (1.3.4) |
 
+### 1.3.9 — emporter les 57 000 marques avec soi
+
+L'index des marques (≈56 400 entrées issues des sitemaps Vinted) vit dans
+`data/vinted_sniper.db`. La 1.3.9 permet de le **sortir dans un fichier**, de
+l'**embarquer** dans le bot, et donc de travailler **sans réseau** — utile quand
+Cloudflare bloque tout.
+
+| Commande | Effet |
+| --- | --- |
+| `vinted-sniper.exe --export-brands marques-vinted` | écrit `marques-vinted.csv` (**id,slug,name**) et `marques-vinted.json` |
+| `vinted-sniper.exe --import-brands marques-vinted.csv` | charge un fichier dans la base locale (idempotent) |
+| `python tools/make_brand_pack.py marques-vinted.csv` | fabrique `app/data/brands.csv` + `.json`, embarqués dans l'exécutable |
+| Dashboard → Marques → **💾 Exporter la liste (CSV)** | téléchargement direct, sans ligne de commande |
+
+**Chargement automatique** : au démarrage, si la table `brands` est vide, le
+bot cherche `brands.csv` / `brands.json` / `marques.csv` / `marques-vinted.csv`
+à côté de l'exécutable, dans `app/data/`, puis dans le dossier courant. Un index
+déjà présent n'est **jamais** écrasé (données en ligne plus fraîches).
+
+Format du fichier, volontairement le plus simple possible :
+
+```csv
+id,slug,name
+53,nike,Nike
+7,h-m,H&M
+364,zara,Zara
+```
+
+Export réel chez un utilisateur : **56 433 marques**, CSV ≈ 1,8 Mo.
+
 ### 1.3.8 — « Le navigateur n'a pas ouvert son port de débogage »
 
 Cette erreur est apparue chez un utilisateur sous Windows. Trois causes

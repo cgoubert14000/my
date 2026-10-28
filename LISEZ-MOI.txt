@@ -1,27 +1,37 @@
 ==========================================================
-  VINTED SNIPER 1.3.8  —  demarrage en 30 secondes
+  VINTED SNIPER 1.3.9  —  demarrage en 30 secondes
 
-  SI VOUS AVEZ VU :
-  « Le navigateur n'a pas ouvert son port de debogage »
-  -> C'est corrige en 1.3.8 : le bot reessaie avec un profil neuf,
-     puis avec un autre navigateur (Chrome si Edge echoue), et
-     affiche desormais la raison exacte (code de sortie + detail).
+  LES MARQUES, SANS RESEAU
+  Votre index local contient 56 000+ marques : vous pouvez
+  maintenant le sortir dans un fichier, ou en charger un.
 
-  DEBLOQUER EN 2 CLICS (gratuit)
-  1. Bandeau rouge -> « Debloquer avec mon navigateur ».
-  2. Une fenetre Edge s'ouvre sur Vinted. Cochez la case si
-     Cloudflare la demande ; des que le catalogue s'affiche, la
-     fenetre se ferme et les scans repartent.
+  1. Exporter (2 facons)
+     - Dashboard > bouton « Choisir des marques » >
+       « Exporter la liste (CSV) » (telechargement direct).
+     - En ligne de commande :
+       vinted-sniper.exe --export-brands marques-vinted
+       -> marques-vinted.csv + marques-vinted.json
 
-  PLAN B, TOUJOURS DISPONIBLE (aucune automatisation)
-  Reglages -> « Deblocage Cloudflare » -> « Secours : coller une
-  session copiee du navigateur » :
-  1. Ouvrez Vinted dans Edge, F12, onglet Reseau.
-  2. Clic droit sur la requete « catalog » -> Copier -> Copier en
-     tant que cURL.
-  3. Collez dans le champ, cliquez « Importer cette session ».
-  Les cookies (dont cf_clearance) ET le User-Agent exact sont
-  recuperes ensemble : c'est ce que Cloudflare verifie.
+  2. Recharger ailleurs
+     vinted-sniper.exe --import-brands marques-vinted.csv
+     ou simplement poser le fichier « brands.csv » a cote de
+     l'executable : il est charge tout seul au demarrage si la
+     base est vide (jamais d'ecrasement d'un index existant).
+
+  FORMAT DU FICHIER (le plus simple possible)
+     id,slug,name
+     53,nike,Nike
+     7,h-m,H&M
+     364,zara,Zara
+  Un fichier JSON [{"id":"53","slug":"nike","name":"Nike"}] est
+  aussi accepte, ainsi qu'un CSV sans en-tete.
+
+  NOUVEAU EN 1.3.9
+  - --export-brands / --import-brands (ligne de commande).
+  - Bouton « Exporter la liste (CSV) » dans la modale Marques.
+  - Chargement automatique du pack de marques au demarrage.
+  - tools/make_brand_pack.py : fabrique app/data/brands.csv
+    (embarque dans l'executable, donc disponible hors ligne).
 
   NOUVEAU EN 1.3.8
   - Lancement du navigateur : port explicite verifie en HTTP, chemin

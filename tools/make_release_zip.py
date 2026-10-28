@@ -24,6 +24,8 @@ FOLDER = f"VintedSniper-{__version__}"
 EXE_NAME = "vinted-sniper.exe"
 SKIP_DIRS = {".git", ".venv", "venv", "__pycache__", "node_modules", "data",
              "dist", "build", ".ruff_cache", "_delivery"}
+#: ``app/data`` est livré exprès : il contient l'index des marques.
+KEEP_DIRS = {("app", "data")}
 SKIP_SUFFIX = {".pyc", ".db", ".db-wal", ".db-shm", ".log"}
 
 
@@ -63,7 +65,13 @@ def find_exe(tmp: Path) -> Path:
 def file_list() -> list[Path]:
     files = []
     for path in ROOT.rglob("*"):
-        if any(part in SKIP_DIRS for part in path.parts):
+        try:
+            parts = path.relative_to(ROOT).parts
+        except ValueError:  # pragma: no cover - hors dépôt
+            continue
+        # « data » est ignoré partout… sauf dans app/data (pack de marques).
+        keep = any(parts[: len(prefix)] == prefix for prefix in KEEP_DIRS)
+        if not keep and any(part in SKIP_DIRS for part in parts):
             continue
         if path.is_file() and path.suffix not in SKIP_SUFFIX:
             if path.name in {f"{FOLDER}.zip", "LISEZ-MOI.txt"}:

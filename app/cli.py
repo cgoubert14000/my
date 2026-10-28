@@ -115,6 +115,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="Force l'intervalle minimal du mode temps réel (ex. --interval 2.5).",
     )
     parser.add_argument(
+        "--export-brands",
+        nargs="?",
+        const="marques-vinted",
+        metavar="FICHIER",
+        help="Exporte TOUTES les marques de l'index local (CSV + JSON) puis sortie. "
+        "Exemple : vinted-sniper.exe --export-brands marques-vinted",
+    )
+    parser.add_argument(
+        "--import-brands",
+        default="",
+        metavar="FICHIER",
+        help="Importe un fichier de marques (.csv ou .json) dans la base locale, "
+        "puis sortie.",
+    )
+    parser.add_argument(
         "--version", action="version", version=f"Vinted Sniper {__version__}"
     )
     return parser
@@ -266,6 +281,71 @@ def run_check(state: AppState, args) -> int:
     return 1
 
 
+def run_export_brands(state: AppState, destination: str) -> int:
+    """Écrit le catalogue complet des marques dans un CSV et un JSON."""
+    from .brand_pack import export_rows, write_brand_files
+
+    rows = export_rows(state.db)
+    total = state.db.brand_stats().get("total", 0)
+    if not rows:
+        print(
+            "\n❌ Aucune marque en base : lancez d'abord l'import depuis le dashboard\n"
+            "   (Modale Marques → bouton ⬇) ou depuis un fichier :\n"
+            "   vinted-sniper.exe --import-brands mes-marques.csv\n",
+            flush=True,
+        )
+        state.db.close()
+        return 1
+    report = write_brand_files(rows, destination)
+    print("", flush=True)
+    print(f"✅ {report['rows']} marque(s) exportée(s) (index local : {total}).", flush=True)
+    print(
+        f"   CSV  : {report['csv']}  ({report['csv_bytes'] / 1024:.0f} Ko)",
+        flush=True,
+    )
+    print(
+        f"   JSON : {report['json']}  ({report['json_bytes'] / 1024:.0f} Ko)",
+        flush=True,
+    )
+    print(
+        "\n   Pour l'embarquer dans le bot : placez le CSV dans app/data/brands.csv\n"
+        "   (ou à côté de l'exécutable, sous le nom brands.csv) : il sera chargé\n"
+        "   automatiquement au premier démarrage, sans réseau.",
+        flush=True,
+    )
+    state.db.close()
+    return 0
+
+
+def run_import_brands(state: AppState, source: str) -> int:
+    """Charge un fichier de marques dans la base (idempotent)."""
+    from .brand_pack import read_brand_file
+
+    path = Path(source)
+    if not path.is_file():
+        print(f"\n❌ Fichier introuvable : {path}\n", flush=True)
+        state.db.close()
+        return 1
+    try:
+        rows = read_brand_file(path)
+    except (ValueError, OSError) as error:
+        print(f"\n❌ Fichier illisible : {error}\n", flush=True)
+        state.db.close()
+        return 1
+    imported = state.db.upsert_brands(rows) if rows else 0
+    total = state.db.brand_stats().get("total", 0)
+    print("", flush=True)
+    print(f"✅ {imported} marque(s) importée(s) depuis {path.name}.", flush=True)
+    print(f"   Index local : {total} marque(s).", flush=True)
+    if not imported:
+        print(
+            "   (Fichier vide, ou colonnes attendues : id,slug,name.)",
+            flush=True,
+        )
+    state.db.close()
+    return 0 if imported else 1
+
+
 def _prepare_frozen_runtime() -> None:
     """Exécutable autonome : tout se passe à côté du binaire.
 
@@ -296,6 +376,10 @@ def main(argv: list[str] | None = None) -> int:
     db_path = args.db or "data/vinted_sniper.db"
     state = AppState(config_path=config_path, db_path=db_path)
     _apply_speed_options(state, args)
+    if args.export_brands:
+        return run_export_brands(state, args.export_brands)
+    if args.import_brands:
+        return run_import_brands(state, args.import_brands)
     if args.check:
         return run_check(state, args)
     host = args.host or str(state.config.get("app.host", "127.0.0.1"))

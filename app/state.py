@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .brand_pack import seed_database as seed_brands
 from .config import ConfigStore
 from .database import Database
 from .engine import BotEngine
@@ -43,6 +44,7 @@ class AppState:
                 f"{interrupted} scan(s) interrompu(s) par un arrêt précédent.",
                 source="system",
             )
+        self._seed_brand_index()
         self.db.log("INFO", f"Interface prête — {self.db_path}", source="system")
         await self.engine.start()
 
@@ -53,6 +55,26 @@ class AppState:
         self.db.log("INFO", "Application arrêtée.", source="system")
         self.db.close()
         self._started = False
+
+    def _seed_brand_index(self) -> None:
+        """Charge l'index des marques livré avec le bot (1er démarrage).
+
+        Sans cela, il fallait attendre l'import des sitemaps Vinted (~57 000
+        entrées) avant de pouvoir chercher une marque : impossible quand
+        Cloudflare bloque les pages. Le fichier embarqué règle le problème.
+        """
+        try:
+            report = seed_brands(self.db, extra_dirs=[self.db_path.parent])
+        except Exception as error:  # pragma: no cover - fichier corrompu
+            self.db.log("WARNING", f"Index de marques ignoré : {error}", source="brands")
+            return
+        if report.get("imported"):
+            self.db.log(
+                "SUCCESS",
+                f"Index des marques chargé depuis {Path(report['source']).name} : "
+                f"{report['total']} marques disponibles immédiatement.",
+                source="brands",
+            )
 
     def db_size(self) -> int:
         try:

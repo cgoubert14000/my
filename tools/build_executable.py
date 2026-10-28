@@ -50,6 +50,7 @@ HIDDEN_IMPORTS = [
     "app.web",
     "app.api",
     "app.browser_session",
+    "app.brand_pack",
 ]
 
 
@@ -79,6 +80,8 @@ def main() -> int:
         NAME,
         "--add-data",
         f"{ROOT / 'app' / 'static'}{SEP}app/static",
+        "--add-data",
+        f"{ROOT / 'app' / 'data'}{SEP}app/data",
         "--collect-all",
         "curl_cffi",
         "--distpath",

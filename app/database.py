@@ -382,6 +382,17 @@ class Database:
             params.extend([f"%{word}%", f"%{word}%"])
         return clause, params
 
+    def list_brands(self, limit: int | None = None) -> list[dict]:
+        """Toutes les marques de l'index (export, sauvegarde, partage)."""
+        sql = "SELECT id, slug, name FROM brands ORDER BY name COLLATE NOCASE"
+        params: tuple = ()
+        if limit:
+            sql += " LIMIT ?"
+            params = (int(limit),)
+        with self._lock:
+            rows = self._conn.execute(sql, params).fetchall()
+        return [{"id": row["id"], "slug": row["slug"], "name": row["name"]} for row in rows]
+
     def search_brands(
         self, query: str, limit: int = 60, prefix: bool = False
     ) -> list[dict]:

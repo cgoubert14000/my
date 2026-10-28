@@ -11,7 +11,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
 
 from . import __version__
 from .brands import (
@@ -38,6 +38,7 @@ from .categories import (
     sanitize_path,
     top_level,
 )
+from .brand_pack import export_rows as export_brand_rows
 from .browser_session import BrowserError, SolverError, harvest, session_from_curl
 from .config import ConfigError
 from .filters import matches_profile
@@ -550,6 +551,35 @@ async def _run_brand_sync(state, domain: str) -> None:
 async def brand_sync_status(request: Request) -> dict:
     """État de l'index complet des marques."""
     return _brand_sync_snapshot(_state(request))
+
+
+@router.get("/brands/export")
+async def brands_export(request: Request) -> PlainTextResponse:
+    """Télécharge l'index complet des marques (CSV ``id,slug,name``).
+
+    Sert à partager la liste avec un autre outil — ou à la réinjecter dans une
+    autre instance via ``--import-brands`` ou ``app/data/brands.csv``.
+    """
+    state = _state(request)
+    rows = export_brand_rows(state.db)
+    if not rows:
+        raise HTTPException(
+            status_code=404,
+            detail="Aucune marque en base : lancez d'abord l'import de l'index.",
+        )
+    lines = ["id,slug,name"]
+    for row in rows:
+        name = str(row.get("name") or "").replace('"', '""')
+        slug = str(row.get("slug") or "").replace('"', '""')
+        lines.append(f'{row["id"]},{slug},"{name}"' if ("," in name or '"' in name) else f'{row["id"]},{slug},{name}')
+    state.db.log("INFO", f"Export de {len(rows)} marque(s) depuis le dashboard.", source="brands")
+    return PlainTextResponse(
+        "\n".join(lines) + "\n",
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": 'attachment; filename="marques-vinted.csv"',
+        },
+    )
 
 
 @router.post("/brands/sync")

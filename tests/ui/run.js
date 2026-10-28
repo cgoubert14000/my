@@ -563,6 +563,12 @@ setTimeout(async () => {
   assert(document.querySelector('#cfgCurlStatus').textContent.includes('cf_clearance'),
     'secours cURL : confirmation affichée');
 
+  // Export des marques : lien de téléchargement du CSV
+  const exportLink = document.querySelector('#brandExport');
+  assert(Boolean(exportLink), 'export des marques : lien présent');
+  assert(exportLink.getAttribute('href') === '/api/brands/export', 'export : URL du CSV');
+  assert(!exportLink.classList.contains('hidden'), 'export visible quand l’index existe');
+
   assert(errors.length === 0, 'aucune erreur JS : ' + errors.join(' | '));
   window.close();
 }, 300);
