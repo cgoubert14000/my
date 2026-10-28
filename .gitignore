@@ -19,3 +19,8 @@ build/
 _delivery/
 *.spec
 VintedSniper-*.zip
+
+# Le pack de marques embarqué (app/data/brands.csv) doit être versionné,
+# contrairement aux données locales (data/).
+!app/data/
+!app/data/**

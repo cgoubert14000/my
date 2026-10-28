@@ -80,8 +80,11 @@ def main() -> int:
         NAME,
         "--add-data",
         f"{ROOT / 'app' / 'static'}{SEP}app/static",
-        "--add-data",
-        f"{ROOT / 'app' / 'data'}{SEP}app/data",
+        *(
+            ["--add-data", f"{ROOT / 'app' / 'data'}{SEP}app/data"]
+            if (ROOT / "app" / "data").is_dir()
+            else []
+        ),
         "--collect-all",
         "curl_cffi",
         "--distpath",
