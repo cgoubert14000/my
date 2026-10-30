@@ -29017,3 +29017,42 @@ block 53299079 | FIABILITÉ INSUFFISANTE | candidates 2104500 | positive 6600 | 
 2026-10-30 19:11:51,205 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 743 → 713 ppm
 2026-10-30 19:11:51,205 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 358 → 356 ppm
 block 53299082 | FIABILITÉ INSUFFISANTE | candidates 2104776 | positive 6600 | ghost {'pending': 0, 'labeled': 222, 'positives': 80, 'errors': 0, 'rate': 0.36036036036036034} | rel n=3872 | rpc err 95 p50 80 ms
+2026-10-30 19:12:09,262 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 713 → 150 ppm
+2026-10-30 19:12:09,263 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 380 → 360 ppm
+2026-10-30 19:12:09,267 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 2720 → 2717 ppm
+2026-10-30 19:12:09,270 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 226 → 217 ppm
+2026-10-30 19:12:09,559 INFO arbbot.collector: pool 0x70aCDF2Ad0bf2402C957154f944c19Ef4e1cbAE1 (aerodrome_slipstream) fee changed 2515 → 2510 ppm
+2026-10-30 19:12:09,559 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 600 → 556 ppm
+2026-10-30 19:12:09,559 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 356 → 348 ppm
+2026-10-30 19:12:09,560 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2700 → 2715 ppm
+2026-10-30 19:12:09,560 INFO arbbot.collector: pool 0x82321f3BEB69f503380D6B233857d5C43562e2D0 (aerodrome_slipstream) fee changed 3020 → 3016 ppm
+2026-10-30 19:12:09,561 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 451 → 448 ppm
+2026-10-30 19:12:09,562 INFO arbbot.collector: pool 0xE846373C1a92B167b4E9cd5d8E4d6B1Db9E90EC7 (aerodrome_slipstream) fee changed 73 → 70 ppm
+2026-10-30 19:12:09,563 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 2717 → 2714 ppm
+2026-10-30 19:12:09,565 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 217 → 163 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (5fbfc11e0)
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_41064782131.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_41064782131.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_41064782131_opportunities.csv.gz"}
+2026-10-30 19:12:35,131 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+2026-10-30 19:12:35,131 WARNING arbbot.rpc: rpc error () → switching to https://base.drpc.org
+2026-10-30 19:12:35,132 WARNING arbbot.rpc: rpc error () → switching to https://base-mainnet.public.blastapi.io
+2026-10-30 19:12:35,132 WARNING arbbot.rpc: rpc error () → switching to https://base.gateway.tenderly.co
+2026-10-30 19:12:35,160 WARNING arbbot.rpc: rpc error () → switching to https://base-rpc.publicnode.com
+2026-10-30 19:12:35,160 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+2026-10-30 19:12:35,160 WARNING arbbot.rpc: rpc error () → switching to https://base.drpc.org
+2026-10-30 19:12:35,160 WARNING arbbot.rpc: rpc error () → switching to https://base-mainnet.public.blastapi.io
+2026-10-30 19:12:35,160 WARNING arbbot.rpc: rpc error () → switching to https://base.gateway.tenderly.co
+2026-10-30 19:12:35,160 WARNING arbbot.rpc: rpc error () → switching to https://base-rpc.publicnode.com
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base.drpc.org
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base-mainnet.public.blastapi.io
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base.gateway.tenderly.co
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base-rpc.publicnode.com
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base.drpc.org
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base-mainnet.public.blastapi.io
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base.gateway.tenderly.co
+2026-10-30 19:12:35,161 WARNING arbbot.rpc: rpc error () → switching to https://base-rpc.publicnode.com
+2026-10-30 19:12:35,162 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+2026-10-30 19:12:35,164 WARNING arbbot.rpc: rpc error () → switching to https://base.drpc.org
+2026-10-30 19:12:35,174 WARNING arbbot.rpc: rpc error () → switching to https://base-mainnet.public.blastapi.io
+2026-10-30 19:12:35,178 WARNING arbbot.rpc: rpc error () → switching to https://base.gateway.tenderly.co
