@@ -11264,3 +11264,10 @@ block 53329487 | FIABILITÉ INSUFFISANTE | candidates 962276 | positive 1015 | g
 2026-10-31 12:05:27,542 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 127 → 118 ppm
 block 53329489 | FIABILITÉ INSUFFISANTE | candidates 962492 | positive 1015 | ghost {'pending': 0, 'labeled': 38, 'positives': 6, 'errors': 0, 'rate': 0.15789473684210525} | rel n=3945 | rpc err 75 p50 226 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_41176794462.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_41176794462.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_41176794462_opportunities.csv.gz"}
+2026-10-31 12:05:44,690 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2853 → 2847 ppm
+2026-10-31 12:05:44,691 INFO arbbot.collector: pool 0x82321f3BEB69f503380D6B233857d5C43562e2D0 (aerodrome_slipstream) fee changed 3064 → 3060 ppm
+2026-10-31 12:05:44,694 INFO arbbot.collector: pool 0xE846373C1a92B167b4E9cd5d8E4d6B1Db9E90EC7 (aerodrome_slipstream) fee changed 73 → 70 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (d1150b82d)
+2026-10-31 12:05:45,942 WARNING arbbot.rpc: rpc error ([Errno None] Can not write request body for https://base-rpc.publicnode.com) → switching to https://mainnet.base.org
+2026-10-31 12:05:45,942 WARNING arbbot.rpc: rpc error ([Errno None] Can not write request body for https://base-rpc.publicnode.com) → switching to https://base.drpc.org
+2026-10-31 12:05:45,942 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-mainnet.public.blastapi.io
