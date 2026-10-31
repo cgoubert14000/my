@@ -1,4 +1,4 @@
-# Sessions de marché réel — base (généré 2026-10-31T12:05:56Z)
+# Sessions de marché réel — base (généré 2026-10-31T12:15:51Z)
 
 Chaque ligne vient du rapport final de la session (`ghost_<chain>_<run>.json`) ; la session en cours vient de `latest_<chain>.json`.
 Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur l'état réel ; « ghost N+1 » = re-simulation au bloc suivant.
@@ -86,7 +86,8 @@ Aucune transaction n'a été signée : « simulées » = eth_call du contrat sur
 | [41113506366](https://github.com/cgoubert14000/my/actions/runs/41113506366) | 2026-10-31T00:50:19+00:00 | 330 | 9434 | 497 / 288 / 18532 | 560 | 1437024 | 520 | 16 / 14 | 0 / 26 | 3898 / 12.3 % | FIABILITÉ INSUFFISANTE |
 | [41152433823](https://github.com/cgoubert14000/my/actions/runs/41152433823) | 2026-10-31T06:28:12+00:00 | 330 | 9603 | 506 / 291 / 18872 | 137 | 1145871 | 123 | 2 / 13 | 0 / 9 | 3907 / 12.2 % | FIABILITÉ INSUFFISANTE |
 | [41176794462](https://github.com/cgoubert14000/my/actions/runs/41176794462) | 2026-10-31T12:05:37+00:00 | 330 | 9793 | 503 / 290 / 18766 | 343 | 962492 | 1015 | 27 / 29 | 6 / 38 | 3945 / 12.3 % | FIABILITÉ INSUFFISANTE |
+| [41199640107](https://github.com/cgoubert14000/my/actions/runs/41199640107) | 2026-10-31T12:15:50+00:00 | 3 | 91 | 500 / 290 / 18658 | 78 | 10340 | 0 | 0 / 0 | 0 / 0 | 3945 / 12.3 % | FIABILITÉ INSUFFISANTE |
 
-**Totaux** : 25040 min, 705223 blocs, 111362193 candidats, 73187 à net attendu > 0, 2374 simulations réussies / 3089 échouées, 510/3960 étiquettes N+1 positives.
+**Totaux** : 25043 min, 705314 blocs, 111372533 candidats, 73187 à net attendu > 0, 2374 simulations réussies / 3089 échouées, 510/3960 étiquettes N+1 positives.
 
 Décision de maturité : elle n'est jamais prise sur cette table mais par le moteur (≥ 30 observations par segment, borne inférieure ≥ 75 %) ; tant que le statut est APPRENTISSAGE / FIABILITÉ INSUFFISANTE, aucun passage en réel n'est proposé.
