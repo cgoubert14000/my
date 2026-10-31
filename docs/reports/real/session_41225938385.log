@@ -12004,3 +12004,5 @@ block 53349695 | FIABILITÉ INSUFFISANTE | candidates 1244154 | positive 928 | g
 block 53349698 | FIABILITÉ INSUFFISANTE | candidates 1244460 | positive 928 | ghost {'pending': 0, 'labeled': 62, 'positives': 6, 'errors': 0, 'rate': 0.0967741935483871} | rel n=4032 | rpc err 0 p50 113 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_41225938385.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_41225938385.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_41225938385_opportunities.csv.gz"}
 2026-10-31 23:19:22,140 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+2026-10-31 23:19:23,298 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 750 → 2700 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (d3b2f185b)
