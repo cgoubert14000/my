@@ -20602,3 +20602,9 @@ block 53430549 | FIABILITÉ INSUFFISANTE | candidates 1615939 | positive 2600 | 
 2026-11-02 20:14:11,256 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 713 → 150 ppm
 block 53430552 | FIABILITÉ INSUFFISANTE | candidates 1616059 | positive 2600 | ghost {'pending': 0, 'labeled': 118, 'positives': 27, 'errors': 0, 'rate': 0.2288135593220339} | rel n=4759 | rpc err 45 p50 90 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_41464018120.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_41464018120.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_41464018120_opportunities.csv.gz"}
+2026-11-02 20:14:34,715 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 439 → 436 ppm
+2026-11-02 20:14:34,720 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 154 → 145 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (54f0d641b)
+2026-11-02 20:14:38,714 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://mainnet.base.org
+2026-11-02 20:14:38,714 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.drpc.org
+2026-11-02 20:14:38,715 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-mainnet.public.blastapi.io
