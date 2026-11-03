@@ -14119,3 +14119,5 @@ block 53440655 | FIABILITÉ INSUFFISANTE | candidates 950306 | positive 381 | gh
 block 53440658 | FIABILITÉ INSUFFISANTE | candidates 950510 | positive 381 | ghost {'pending': 0, 'labeled': 18, 'positives': 1, 'errors': 0, 'rate': 0.05555555555555555} | rel n=4777 | rpc err 35 p50 145 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_41517585920.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_41517585920.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_41517585920_opportunities.csv.gz"}
 2026-11-03 01:51:15,461 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 624 → 150 ppm
+2026-11-03 01:51:17,098 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 406 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (6be28cf30)
