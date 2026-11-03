@@ -6928,3 +6928,163 @@ block 53475822 | FIABILITÉ INSUFFISANTE | candidates 474053 | positive 519 | gh
 2026-11-03 21:23:31,484 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 579 → 150 ppm
 2026-11-03 21:23:31,485 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2126 → 2123 ppm
 2026-11-03 21:23:31,485 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2718 → 2721 ppm
+2026-11-03 21:23:33,722 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 624 ppm
+2026-11-03 21:23:33,724 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2721 → 2724 ppm
+2026-11-03 21:23:33,725 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 400 → 409 ppm
+2026-11-03 21:23:33,729 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 150 → 510 ppm
+2026-11-03 21:23:33,730 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 109 → 118 ppm
+2026-11-03 21:23:35,457 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 624 → 150 ppm
+2026-11-03 21:23:35,457 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2733 → 2730 ppm
+2026-11-03 21:23:35,457 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 332 → 330 ppm
+2026-11-03 21:23:35,463 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 510 → 150 ppm
+2026-11-03 21:23:37,439 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 400 → 412 ppm
+2026-11-03 21:23:37,440 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 330 → 332 ppm
+2026-11-03 21:23:38,691 WARNING arbbot.collector: ws disconnected (no close frame received or sent); reconnecting in 1.0s
+2026-11-03 21:23:40,976 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 300 → 280 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (cd1ac22ae)
+2026-11-03 21:23:41,879 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2724 → 2727 ppm
+2026-11-03 21:23:43,963 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2727 → 2730 ppm
+2026-11-03 21:23:45,815 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 609 ppm
+2026-11-03 21:23:45,816 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2123 → 2120 ppm
+block 53475839 | FIABILITÉ INSUFFISANTE | candidates 475871 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 174 ms
+2026-11-03 21:23:48,977 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 609 → 150 ppm
+2026-11-03 21:23:49,751 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2730 → 2727 ppm
+2026-11-03 21:23:51,547 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 400 ppm
+block 53475842 | FIABILITÉ INSUFFISANTE | candidates 476248 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 155 ms
+2026-11-03 21:23:53,608 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 400 → 100 ppm
+2026-11-03 21:23:55,526 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 409 → 406 ppm
+2026-11-03 21:23:57,562 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 579 ppm
+2026-11-03 21:23:57,563 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2120 → 2117 ppm
+block 53475845 | FIABILITÉ INSUFFISANTE | candidates 476483 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 155 ms
+2026-11-03 21:23:59,544 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 579 → 150 ppm
+2026-11-03 21:23:59,545 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4550 → 4545 ppm
+2026-11-03 21:23:59,546 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2730 → 2727 ppm
+2026-11-03 21:23:59,546 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 280 → 260 ppm
+2026-11-03 21:24:01,701 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 118 → 109 ppm
+block 53475847 | FIABILITÉ INSUFFISANTE | candidates 476826 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 148 ms
+2026-11-03 21:24:05,577 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2727 → 2724 ppm
+block 53475849 | FIABILITÉ INSUFFISANTE | candidates 476979 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 199 ms
+2026-11-03 21:24:11,647 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2117 → 2114 ppm
+block 53475852 | FIABILITÉ INSUFFISANTE | candidates 477336 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 155 ms
+2026-11-03 21:24:15,839 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 549 ppm
+2026-11-03 21:24:17,544 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 549 → 150 ppm
+2026-11-03 21:24:17,545 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4545 → 4540 ppm
+block 53475855 | FIABILITÉ INSUFFISANTE | candidates 477624 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 158 ms
+2026-11-03 21:24:19,573 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2724 → 2721 ppm
+2026-11-03 21:24:19,574 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 260 → 240 ppm
+block 53475857 | FIABILITÉ INSUFFISANTE | candidates 477898 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 160 ms
+2026-11-03 21:24:23,489 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 535 ppm
+2026-11-03 21:24:23,490 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2114 → 2111 ppm
+2026-11-03 21:24:25,664 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 535 → 150 ppm
+block 53475859 | FIABILITÉ INSUFFISANTE | candidates 478078 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 201 ms
+2026-11-03 21:24:28,820 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 412 → 400 ppm
+2026-11-03 21:24:31,708 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 418 ppm
+block 53475862 | FIABILITÉ INSUFFISANTE | candidates 478415 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 568 p50 162 ms
+2026-11-03 21:24:33,687 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-03 21:24:34,069 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2721 → 2718 ppm
+2026-11-03 21:24:34,077 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 418 → 409 ppm
+2026-11-03 21:24:35,874 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 409 → 100 ppm
+2026-11-03 21:24:37,717 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2111 → 2108 ppm
+2026-11-03 21:24:37,717 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4540 → 4535 ppm
+block 53475865 | FIABILITÉ INSUFFISANTE | candidates 478895 | positive 519 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 569 p50 189 ms
+2026-11-03 21:24:39,568 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 240 → 220 ppm
+2026-11-03 21:24:42,046 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 549 ppm
+block 53475868 | FIABILITÉ INSUFFISANTE | candidates 479422 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 569 p50 189 ms
+2026-11-03 21:24:43,976 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 549 → 564 ppm
+2026-11-03 21:24:43,977 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2727 → 2724 ppm
+2026-11-03 21:24:45,591 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 564 → 579 ppm
+2026-11-03 21:24:47,711 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-03 21:24:47,721 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-03 21:24:47,735 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-03 21:24:47,739 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-03 21:24:47,755 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-03 21:24:47,757 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-03 21:24:47,763 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-03 21:24:47,763 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-03 21:24:47,763 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-03 21:24:47,797 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-03 21:24:47,800 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+block 53475868 | FIABILITÉ INSUFFISANTE | candidates 479534 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 209 ms
+2026-11-03 21:24:49,330 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 579 → 150 ppm
+2026-11-03 21:24:49,963 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 594 ppm
+2026-11-03 21:24:49,963 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2718 → 2715 ppm
+2026-11-03 21:24:49,965 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 406 → 403 ppm
+2026-11-03 21:24:49,971 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 412 ppm
+2026-11-03 21:24:51,833 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 594 → 150 ppm
+2026-11-03 21:24:51,839 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 150 → 504 ppm
+2026-11-03 21:24:51,841 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 412 → 100 ppm
+block 53475872 | FIABILITÉ INSUFFISANTE | candidates 479910 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 207 ms
+2026-11-03 21:24:53,606 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 504 → 150 ppm
+2026-11-03 21:24:57,502 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2108 → 2105 ppm
+2026-11-03 21:24:57,506 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 2600 → 2609 ppm
+block 53475875 | FIABILITÉ INSUFFISANTE | candidates 480210 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 209 ms
+2026-11-03 21:24:59,523 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 220 → 200 ppm
+2026-11-03 21:24:59,527 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 2609 → 2606 ppm
+2026-11-03 21:25:01,580 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4535 → 4530 ppm
+2026-11-03 21:25:03,668 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2715 → 2712 ppm
+block 53475877 | FIABILITÉ INSUFFISANTE | candidates 480418 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 209 ms
+2026-11-03 21:25:05,601 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 430 ppm
+2026-11-03 21:25:08,939 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 430 → 100 ppm
+block 53475880 | FIABILITÉ INSUFFISANTE | candidates 480616 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 219 ms
+2026-11-03 21:25:09,575 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 624 ppm
+2026-11-03 21:25:09,575 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 400 → 460 ppm
+2026-11-03 21:25:09,575 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 332 → 330 ppm
+2026-11-03 21:25:09,576 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 200 → 400 ppm
+2026-11-03 21:25:11,652 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 624 → 150 ppm
+2026-11-03 21:25:11,653 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 750 → 2700 ppm
+2026-11-03 21:25:13,547 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 2700 → 750 ppm
+2026-11-03 21:25:13,553 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 109 → 127 ppm
+block 53475883 | FIABILITÉ INSUFFISANTE | candidates 481042 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 226 ms
+2026-11-03 21:25:15,942 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 400 → 380 ppm
+2026-11-03 21:25:17,809 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2105 → 2102 ppm
+2026-11-03 21:25:17,811 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 403 → 406 ppm
+block 53475885 | FIABILITÉ INSUFFISANTE | candidates 481269 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 228 ms
+2026-11-03 21:25:23,759 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 639 ppm
+2026-11-03 21:25:23,759 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2712 → 2709 ppm
+block 53475888 | FIABILITÉ INSUFFISANTE | candidates 481639 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 228 ms
+2026-11-03 21:25:25,733 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 639 → 150 ppm
+2026-11-03 21:25:25,733 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 460 → 448 ppm
+2026-11-03 21:25:29,136 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2724 → 2721 ppm
+block 53475891 | FIABILITÉ INSUFFISANTE | candidates 481847 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 228 ms
+2026-11-03 21:25:31,889 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4530 → 4525 ppm
+2026-11-03 21:25:31,889 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 380 → 360 ppm
+2026-11-03 21:25:31,895 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 424 ppm
+2026-11-03 21:25:33,511 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 424 → 100 ppm
+block 53475893 | FIABILITÉ INSUFFISANTE | candidates 482129 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 236 ms
+2026-11-03 21:25:37,570 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2102 → 2099 ppm
+block 53475895 | FIABILITÉ INSUFFISANTE | candidates 482291 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 238 ms
+2026-11-03 21:25:39,551 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 448 → 436 ppm
+block 53475898 | FIABILITÉ INSUFFISANTE | candidates 482458 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 248 ms
+2026-11-03 21:25:45,568 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 360 → 340 ppm
+2026-11-03 21:25:48,586 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 421 ppm
+2026-11-03 21:25:49,408 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2709 → 2706 ppm
+2026-11-03 21:25:49,415 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 421 → 100 ppm
+block 53475900 | FIABILITÉ INSUFFISANTE | candidates 482663 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 236 ms
+2026-11-03 21:25:53,589 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 436 ppm
+block 53475903 | FIABILITÉ INSUFFISANTE | candidates 482909 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 229 ms
+2026-11-03 21:25:55,603 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 436 → 100 ppm
+2026-11-03 21:25:59,429 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 340 → 320 ppm
+block 53475905 | FIABILITÉ INSUFFISANTE | candidates 483114 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 220 ms
+2026-11-03 21:26:03,610 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4525 → 4520 ppm
+block 53475907 | FIABILITÉ INSUFFISANTE | candidates 483278 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 206 ms
+2026-11-03 21:26:05,751 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 750 → 2700 ppm
+block 53475910 | FIABILITÉ INSUFFISANTE | candidates 483462 | positive 521 | ghost {'pending': 0, 'labeled': 12, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4917 | rpc err 580 p50 220 ms
+2026-11-03 21:26:09,797 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 594 ppm
+2026-11-03 21:26:09,798 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 2099 → 2096 ppm
+2026-11-03 21:26:10,873 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 594 → 579 ppm
+2026-11-03 21:26:11,836 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 579 → 150 ppm
+2026-11-03 21:26:11,836 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 436 → 424 ppm
+2026-11-03 21:26:11,837 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2721 → 2718 ppm
+2026-11-03 21:26:14,107 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 320 → 300 ppm
+block 53475913 | FIABILITÉ INSUFFISANTE | candidates 483831 | positive 536 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4920 | rpc err 580 p50 195 ms
+2026-11-03 21:26:15,573 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 100 → 418 ppm
+2026-11-03 21:26:17,796 INFO arbbot.collector: pool 0xCDD442e2De893c07146B2F1072f8e077559f9aa4 (aerodrome_slipstream) fee changed 2606 → 2615 ppm
+2026-11-03 21:26:17,799 INFO arbbot.collector: pool 0x3f0296BF652e19bca772EC3dF08b32732F93014A (aerodrome_slipstream) fee changed 418 → 100 ppm
+block 53475915 | FIABILITÉ INSUFFISANTE | candidates 484046 | positive 536 | ghost {'pending': 0, 'labeled': 15, 'positives': 0, 'errors': 0, 'rate': 0.0} | rel n=4920 | rpc err 580 p50 203 ms
+2026-11-03 21:26:25,201 INFO arbbot.collector: pool 0xdFe5F275020def30993f042174Fc2D335678b626 (aerodrome_slipstream) fee changed 2700 → 750 ppm
+2026-11-03 21:26:26,412 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 424 → 412 ppm
+2026-11-03 21:26:31,151 INFO arbbot.collector: pool 0x4F5905e36ac07eE1F01ffB939aA7f212A58D5CDF (aerodrome_slipstream) fee changed 127 → 118 ppm
+2026-11-03 21:26:31,954 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 564 ppm
+2026-11-03 21:26:33,612 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 564 → 150 ppm
+2026-11-03 21:26:33,612 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2706 → 2703 ppm
+2026-11-03 21:26:35,467 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 300 → 280 ppm
