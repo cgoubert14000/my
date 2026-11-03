@@ -19640,3 +19640,21 @@ report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_416413332
 2026-11-03 18:42:05,473 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 788 → 150 ppm
 2026-11-03 18:42:07,718 WARNING arbbot.collector: ws disconnected (no close frame received or sent); reconnecting in 1.0s
 2026-11-03 18:42:07,722 INFO arbbot.collector: pool 0xE846373C1a92B167b4E9cd5d8E4d6B1Db9E90EC7 (aerodrome_slipstream) fee changed 73 → 76 ppm
+2026-11-03 18:42:11,583 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2745 → 2742 ppm
+2026-11-03 18:42:11,585 INFO arbbot.collector: pool 0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c (aerodrome_slipstream) fee changed 2712 → 2709 ppm
+2026-11-03 18:42:14,133 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-03 18:42:14,133 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-03 18:42:14,133 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-03 18:42:14,146 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-03 18:42:14,208 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-03 18:42:14,302 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-03 18:42:14,312 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-03 18:42:14,314 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-03 18:42:15,875 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-03 18:42:16,418 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 568 → 556 ppm
+2026-11-03 18:42:19,665 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 433 → 439 ppm
+2026-11-03 18:42:21,647 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 150 → 788 ppm
+2026-11-03 18:42:23,555 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 788 → 150 ppm
+2026-11-03 18:42:25,833 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2742 → 2739 ppm
+2026-11-03 18:42:25,834 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 300 → 500 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (87c89289a)
