@@ -10003,3 +10003,7 @@ block 54531132 | FIABILITÉ INSUFFISANTE | candidates 1018486 | positive 604 | g
 block 54531166 | FIABILITÉ INSUFFISANTE | candidates 1019041 | positive 604 | ghost {'pending': 0, 'labeled': 46, 'positives': 10, 'errors': 0, 'rate': 0.21739130434782608} | rel n=6117 | rpc err 45 p50 110 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_42402061487.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_42402061487.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_42402061487_opportunities.csv.gz"}
 2026-11-08 00:10:31,204 WARNING arbbot.rpc: rpc error () → switching to https://mainnet.base.org
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (62cc5e55e)
+2026-11-08 00:10:33,173 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.drpc.org
+2026-11-08 00:10:33,173 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base-mainnet.public.blastapi.io
+2026-11-08 00:10:33,173 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://base.gateway.tenderly.co
