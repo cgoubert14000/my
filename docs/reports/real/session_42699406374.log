@@ -11409,3 +11409,5 @@ block 55440860 | FIABILITÉ INSUFFISANTE | candidates 1109604 | positive 1241 | 
 block 55440889 | FIABILITÉ INSUFFISANTE | candidates 1109764 | positive 1241 | ghost {'pending': 0, 'labeled': 102, 'positives': 34, 'errors': 0, 'rate': 0.3333333333333333} | rel n=7203 | rpc err 240 p50 417 ms
 block 55440917 | FIABILITÉ INSUFFISANTE | candidates 1109964 | positive 1241 | ghost {'pending': 0, 'labeled': 102, 'positives': 34, 'errors': 0, 'rate': 0.3333333333333333} | rel n=7203 | rpc err 240 p50 414 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_42699406374.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_42699406374.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_42699406374_opportunities.csv.gz"}
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (a97bab270)
+2026-11-10 02:42:58,158 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://mainnet.base.org
