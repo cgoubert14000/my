@@ -14979,3 +14979,5 @@ block 55643013 | FIABILITÉ INSUFFISANTE | candidates 1411708 | positive 6237 | 
 2026-11-10 13:56:27,863 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 469 → 466 ppm
 block 55643038 | FIABILITÉ INSUFFISANTE | candidates 1412059 | positive 6237 | ghost {'pending': 0, 'labeled': 214, 'positives': 78, 'errors': 0, 'rate': 0.3644859813084112} | rel n=7505 | rpc err 115 p50 187 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_42782029286.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_42782029286.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_42782029286_opportunities.csv.gz"}
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (bc305870a)
+2026-11-10 13:56:43,265 WARNING arbbot.rpc: rpc error (Server disconnected) → switching to https://mainnet.base.org
