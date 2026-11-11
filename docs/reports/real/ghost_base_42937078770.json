@@ -1,7 +1,7 @@
 {
  "kind": "ghost_session",
- "generated_at": "2026-11-11T06:46:23+00:00",
- "generated_ts": 1794379583.527,
+ "generated_at": "2026-11-11T06:46:40+00:00",
+ "generated_ts": 1794379600.502,
  "started_at": 1794359763.892,
  "head_block_ts": 1794379560,
  "chain": {
@@ -18,27 +18,27 @@
   }
  },
  "is_devnet": false,
- "duration_min": 330.33,
+ "duration_min": 330.61,
  "blocks": {
   "first": 55846916,
   "last": 55945925,
   "seen": 23793
  },
  "rpc": {
-  "requests": 259721,
-  "errors": 115,
-  "retries": 115,
-  "latency_p50_ms": 105.17209899990121,
+  "requests": 259757,
+  "errors": 132,
+  "retries": 132,
+  "latency_p50_ms": 121.1449860020366,
   "latency_p95_ms": 1185.530677998031,
   "latency_max_ms": 1767.3744999992778,
-  "error_rate": 0.00044278283234701853
+  "error_rate": 0.0005081672486208264
  },
  "collector": {
   "blocks_seen": 23793,
   "refreshes": 23793,
   "last_refresh_ms": 144.9,
   "last_block": 55945925,
-  "block_age_s": 8.52,
+  "block_age_s": 25.49,
   "last_block_ts": 1794379560,
   "ws_connected": true,
   "ws_reconnects": 1,
@@ -50,7 +50,7 @@
   "events_applied": 1508,
   "events_ignored": 39232,
   "event_lead_p50_ms": 305.7739734649658,
-  "last_event_age_s": 2046.4
+  "last_event_age_s": 2063.4
  },
  "gas": {
   "block_number": 55945925,
@@ -3796,8 +3796,8 @@
    },
    {
     "name": "data_fresh",
-    "ok": true,
-    "detail": "data age 1645 ms, rpc_ok=True"
+    "ok": false,
+    "detail": "data age 16868 ms, rpc_ok=True"
    },
    {
     "name": "model_calibrated",
@@ -3843,7 +3843,7 @@
    "simulations_ok": 56,
    "simulations_failed": 8,
    "sim_mismatch_recent": 0,
-   "data_stale": false,
+   "data_stale": true,
    "rpc_degraded": false,
    "test_reports": {
     "pytest": {

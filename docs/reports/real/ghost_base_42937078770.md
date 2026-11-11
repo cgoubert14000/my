@@ -1,11 +1,11 @@
 # Session ghost — Base (chain id 8453)
 
 **Réseau réel** — RPC `base-rpc.publicnode.com` — adresses vérifiées en direct : True
-Généré le 2026-11-11T06:46:23+00:00 ; durée 330.33 min ; blocs 55846916 → 55945925 (23793 vus)
+Généré le 2026-11-11T06:46:40+00:00 ; durée 330.61 min ; blocs 55846916 → 55945925 (23793 vus)
 
 ## Connexion
-- Requêtes RPC : 259721 ; erreurs : 115 ; latence p50/p95 : 105.2/1,185.5 ms
-- Rafraîchissements d'état : 23793 ; âge des données au dernier bloc : 8.52 s ; changements de frais LP observés (pools à frais dynamiques) : 8859
+- Requêtes RPC : 259757 ; erreurs : 132 ; latence p50/p95 : 121.1/1,185.5 ms
+- Rafraîchissements d'état : 23793 ; âge des données au dernier bloc : 25.49 s ; changements de frais LP observés (pools à frais dynamiques) : 8859
 - Flux d'événements (WebSocket Swap/Sync) : connecté ; événements appliqués : 1508 ; cycles déclenchés par événement : 574 ; avance médiane sur le rafraîchissement multicall : 306 ms
 - Gaz : base fee 0.005000 gwei ; prix ETH (pool le plus profond) : 2,061.41 $
 - Fournisseurs de flash loan : MORPHO 0.0 bps (vérifié=True), BALANCER_V2 0.0 bps (vérifié=True), AAVE_V3 5.0 bps (vérifié=True)
@@ -119,7 +119,7 @@ Généré le 2026-11-11T06:46:23+00:00 ; durée 330.33 min ; blocs 55846916 → 
 ## Fiabilité et décision
 - Observations ghost : 7988 ; taux observé 0.211 ; borne inférieure crédible (0.9) 0.205 ; seuil 0.75 → **FIABILITÉ INSUFFISANTE**
 - Statut de maturité : **FIABILITÉ INSUFFISANTE** — borne inférieure 20.5% < 75%
-- Critères : ✅ chain_verified; ❌ tests_passed; ❌ contract_tested; ❌ financial_math_validated; ✅ no_critical_issues; ✅ simulations_realistic; ✅ reliability_documented; ❌ p_success_ge_threshold; ✅ emergency_stop_ok; ❌ budget_and_limits_configured; ❌ signer_available; ✅ data_fresh; ✅ model_calibrated
+- Critères : ✅ chain_verified; ❌ tests_passed; ❌ contract_tested; ❌ financial_math_validated; ✅ no_critical_issues; ✅ simulations_realistic; ✅ reliability_documented; ❌ p_success_ge_threshold; ✅ emergency_stop_ok; ❌ budget_and_limits_configured; ❌ signer_available; ❌ data_fresh; ✅ model_calibrated
 
 Fichiers : `*.json` (tout l'état), `*_opportunities.csv.gz` (candidats avec toutes les colonnes de coût : tous les positifs/simulés/étiquetés, puis les meilleurs négatifs, 30 000 lignes max — l'intégralité reste dans la base SQLite de la session).
 
