@@ -733454,3 +733454,2551 @@ Traceback (most recent call last):
     raise SolidlyMathError("!y")
 arbbot.core.math_solidly.SolidlyMathError: !y
 block 58575067 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 391 ms
+2026-11-17 08:49:57,852 ERROR arbbot.runtime: engine cycle failed at block 58575089: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:57,917 ERROR arbbot.runtime: event cycle failed at block 58575089: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:58,179 ERROR arbbot.runtime: engine cycle failed at block 58575090: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:58,207 ERROR arbbot.runtime: event cycle failed at block 58575090: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:58,734 ERROR arbbot.runtime: engine cycle failed at block 58575091: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:59,270 ERROR arbbot.runtime: engine cycle failed at block 58575092: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:59,297 ERROR arbbot.runtime: event cycle failed at block 58575092: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:59,577 ERROR arbbot.runtime: engine cycle failed at block 58575093: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:59,605 ERROR arbbot.runtime: event cycle failed at block 58575093: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:49:59,879 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 146 → 131 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (b84468adf)
+2026-11-17 08:50:03,560 ERROR arbbot.runtime: engine cycle failed at block 58575119: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:03,919 ERROR arbbot.runtime: engine cycle failed at block 58575120: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:04,250 ERROR arbbot.runtime: engine cycle failed at block 58575121: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:04,277 ERROR arbbot.runtime: event cycle failed at block 58575121: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:04,591 ERROR arbbot.runtime: engine cycle failed at block 58575122: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:04,617 ERROR arbbot.runtime: event cycle failed at block 58575122: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:04,937 ERROR arbbot.runtime: engine cycle failed at block 58575123: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:05,205 ERROR arbbot.runtime: engine cycle failed at block 58575124: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:05,232 ERROR arbbot.runtime: event cycle failed at block 58575124: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:05,525 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 131 → 115 ppm
+block 58575124 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 376 ms
+2026-11-17 08:50:08,628 ERROR arbbot.runtime: engine cycle failed at block 58575147: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:10,098 ERROR arbbot.runtime: engine cycle failed at block 58575148: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:11,131 ERROR arbbot.runtime: engine cycle failed at block 58575149: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:11,159 ERROR arbbot.runtime: event cycle failed at block 58575149: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+block 58575149 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 376 ms
+2026-11-17 08:50:15,443 ERROR arbbot.runtime: engine cycle failed at block 58575173: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:15,681 ERROR arbbot.runtime: engine cycle failed at block 58575174: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:16,041 ERROR arbbot.runtime: engine cycle failed at block 58575175: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:16,274 ERROR arbbot.runtime: engine cycle failed at block 58575176: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:16,300 ERROR arbbot.runtime: event cycle failed at block 58575176: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:16,793 ERROR arbbot.runtime: engine cycle failed at block 58575177: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:17,204 ERROR arbbot.runtime: engine cycle failed at block 58575178: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:17,385 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 115 → 123 ppm
+block 58575178 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 367 ms
+2026-11-17 08:50:20,755 ERROR arbbot.runtime: engine cycle failed at block 58575207: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:21,014 ERROR arbbot.runtime: engine cycle failed at block 58575208: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:21,335 ERROR arbbot.runtime: engine cycle failed at block 58575209: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:21,341 ERROR arbbot.runtime: event cycle failed at block 58575209: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:21,615 ERROR arbbot.runtime: engine cycle failed at block 58575210: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:21,885 ERROR arbbot.runtime: engine cycle failed at block 58575211: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:22,481 ERROR arbbot.runtime: engine cycle failed at block 58575212: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+block 58575212 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 367 ms
+2026-11-17 08:50:26,086 ERROR arbbot.runtime: engine cycle failed at block 58575233: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:26,152 ERROR arbbot.runtime: event cycle failed at block 58575233: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:26,467 ERROR arbbot.runtime: engine cycle failed at block 58575234: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:26,783 ERROR arbbot.runtime: engine cycle failed at block 58575235: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:26,810 ERROR arbbot.runtime: event cycle failed at block 58575235: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:27,085 ERROR arbbot.runtime: engine cycle failed at block 58575236: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:27,112 ERROR arbbot.runtime: event cycle failed at block 58575236: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:27,755 ERROR arbbot.runtime: engine cycle failed at block 58575237: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+block 58575237 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 366 ms
+2026-11-17 08:50:31,041 ERROR arbbot.runtime: engine cycle failed at block 58575260: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:31,550 ERROR arbbot.runtime: engine cycle failed at block 58575261: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:31,577 ERROR arbbot.runtime: event cycle failed at block 58575261: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:31,906 ERROR arbbot.runtime: engine cycle failed at block 58575262: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:31,933 ERROR arbbot.runtime: event cycle failed at block 58575262: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:32,248 ERROR arbbot.runtime: engine cycle failed at block 58575263: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:32,837 ERROR arbbot.runtime: engine cycle failed at block 58575264: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:32,862 ERROR arbbot.runtime: event cycle failed at block 58575264: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+block 58575264 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 371 ms
+2026-11-17 08:50:37,005 ERROR arbbot.runtime: engine cycle failed at block 58575285: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:37,071 ERROR arbbot.runtime: event cycle failed at block 58575285: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:37,349 ERROR arbbot.runtime: engine cycle failed at block 58575286: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:37,375 ERROR arbbot.runtime: event cycle failed at block 58575286: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:37,985 ERROR arbbot.runtime: engine cycle failed at block 58575287: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:38,227 ERROR arbbot.runtime: engine cycle failed at block 58575288: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:38,854 ERROR arbbot.runtime: engine cycle failed at block 58575289: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:38,881 ERROR arbbot.runtime: event cycle failed at block 58575289: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:39,034 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 123 → 100 ppm
+2026-11-17 08:50:39,035 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2703 → 2709 ppm
+2026-11-17 08:50:39,040 INFO arbbot.collector: pool 0xE846373C1a92B167b4E9cd5d8E4d6B1Db9E90EC7 (aerodrome_slipstream) fee changed 76 → 70 ppm
+block 58575289 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 370 ms
+2026-11-17 08:50:42,507 ERROR arbbot.runtime: engine cycle failed at block 58575315: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:42,915 ERROR arbbot.runtime: engine cycle failed at block 58575316: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:42,942 ERROR arbbot.runtime: event cycle failed at block 58575316: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:43,267 ERROR arbbot.runtime: engine cycle failed at block 58575317: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:43,969 ERROR arbbot.runtime: engine cycle failed at block 58575318: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:43,995 ERROR arbbot.runtime: event cycle failed at block 58575318: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:44,214 ERROR arbbot.runtime: engine cycle failed at block 58575319: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:44,241 ERROR arbbot.runtime: event cycle failed at block 58575319: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:44,431 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 100 → 123 ppm
+2026-11-17 08:50:44,431 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2709 → 2718 ppm
+block 58575319 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 369 ms
+2026-11-17 08:50:47,626 ERROR arbbot.runtime: engine cycle failed at block 58575342: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:47,694 ERROR arbbot.runtime: event cycle failed at block 58575342: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:47,937 ERROR arbbot.runtime: engine cycle failed at block 58575343: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:48,169 ERROR arbbot.runtime: engine cycle failed at block 58575344: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:48,852 ERROR arbbot.runtime: engine cycle failed at block 58575345: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:48,879 ERROR arbbot.runtime: event cycle failed at block 58575345: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:49,223 ERROR arbbot.runtime: engine cycle failed at block 58575346: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:49,250 ERROR arbbot.runtime: event cycle failed at block 58575348: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:49,490 ERROR arbbot.runtime: engine cycle failed at block 58575347: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:49,796 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 123 → 115 ppm
+2026-11-17 08:50:49,802 INFO arbbot.collector: pool 0xE846373C1a92B167b4E9cd5d8E4d6B1Db9E90EC7 (aerodrome_slipstream) fee changed 70 → 73 ppm
+block 58575348 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 364 ms
+2026-11-17 08:50:53,816 ERROR arbbot.runtime: engine cycle failed at block 58575368: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:54,163 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3700 → 3841 ppm
+2026-11-17 08:50:54,207 ERROR arbbot.runtime: engine cycle failed at block 58575369: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:54,234 ERROR arbbot.runtime: event cycle failed at block 58575369: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:54,457 ERROR arbbot.runtime: engine cycle failed at block 58575370: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:54,485 ERROR arbbot.runtime: event cycle failed at block 58575370: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:54,910 ERROR arbbot.runtime: engine cycle failed at block 58575371: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:55,408 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3841 → 3838 ppm
+2026-11-17 08:50:55,451 ERROR arbbot.runtime: engine cycle failed at block 58575372: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-17 08:50:55,769 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 300 → 280 ppm
+block 58575372 | FIABILITÉ INSUFFISANTE | candidates 5797 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8573 | rpc err 5 p50 369 ms
+report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_44008651904.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_44008651904.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_44008651904_opportunities.csv.gz"}
