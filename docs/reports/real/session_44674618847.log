@@ -76929,3 +76929,701 @@ Traceback (most recent call last):
     raise SolidlyMathError("!y")
 arbbot.core.math_solidly.SolidlyMathError: !y
 block 59813786 | FIABILITÉ INSUFFISANTE | candidates 64112 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 53 p50 647 ms
+2026-11-20 05:39:05,090 ERROR arbbot.runtime: engine cycle failed at block 59813816: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (63b1cf866)
+2026-11-20 05:39:05,597 ERROR arbbot.runtime: engine cycle failed at block 59813817: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:05,632 ERROR arbbot.runtime: event cycle failed at block 59813818: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:06,054 ERROR arbbot.runtime: engine cycle failed at block 59813818: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:06,508 ERROR arbbot.runtime: engine cycle failed at block 59813819: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:06,987 ERROR arbbot.runtime: engine cycle failed at block 59813820: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:07,023 ERROR arbbot.runtime: event cycle failed at block 59813820: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:07,203 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 115 → 146 ppm
+2026-11-20 05:39:07,203 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 400 → 412 ppm
+2026-11-20 05:39:07,204 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3715 → 3712 ppm
+2026-11-20 05:39:07,204 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4610 → 4605 ppm
+2026-11-20 05:39:10,238 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:10,243 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:10,260 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:10,460 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:10,460 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+block 59813820 | FIABILITÉ INSUFFISANTE | candidates 64231 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 58 p50 653 ms
+2026-11-20 05:39:11,172 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:13,361 ERROR arbbot.runtime: engine cycle failed at block 59813854: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:13,397 ERROR arbbot.runtime: event cycle failed at block 59813854: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:13,829 ERROR arbbot.runtime: engine cycle failed at block 59813855: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:14,278 ERROR arbbot.runtime: engine cycle failed at block 59813856: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:14,312 ERROR arbbot.runtime: event cycle failed at block 59813857: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:14,693 ERROR arbbot.runtime: engine cycle failed at block 59813857: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:14,729 ERROR arbbot.runtime: event cycle failed at block 59813857: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:15,103 ERROR arbbot.runtime: engine cycle failed at block 59813858: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 296, in _engine_loop
+    await self.process_block(block)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 305, in process_block
+    return await self._process_block(block)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:15,138 ERROR arbbot.runtime: event cycle failed at block 59813858: !y
+Traceback (most recent call last):
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 325, in _event_cycle
+    await self._process_block(block, trigger="event", touched=n)
+  File "/home/runner/work/my/my/backend/arbbot/app/runtime.py", line 348, in _process_block
+    opps = await self.detector.scan(self.routes, block, max_borrow_usd=self.policy.max_borrow_usd or None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/detector.py", line 129, in scan
+    res = optimize_amount(route, flash_fee_bps_x100=prov.fee_bps_x100, min_amount=lower, max_amount=upper,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 101, in optimize_amount
+    best_x = max(pts, key=f)
+             ^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/engine/optimizer.py", line 87, in f
+    q = quote_route(route, x)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 153, in quote_route
+    q = quote_hop(pool, hop.token_in, amount)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/pricing.py", line 73, in quote_hop
+    out = math_solidly.get_amount_out(st, amount_in, is0)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 82, in get_amount_out
+    y = reserve_b - _get_y(amount_in + reserve_a, xy, reserve_b, state)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/my/my/backend/arbbot/core/math_solidly.py", line 67, in _get_y
+    raise SolidlyMathError("!y")
+arbbot.core.math_solidly.SolidlyMathError: !y
+2026-11-20 05:39:15,364 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 260 → 240 ppm
+2026-11-20 05:39:15,364 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4605 → 4600 ppm
+block 59813858 | FIABILITÉ INSUFFISANTE | candidates 64384 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 59 p50 620 ms
+2026-11-20 05:39:18,217 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:18,219 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:18,224 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:18,224 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:18,230 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:18,230 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:18,231 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:18,237 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:18,246 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:18,249 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:18,249 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:18,250 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:18,264 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:18,293 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:18,302 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:18,310 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:18,321 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:18,439 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:18,439 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:18,516 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:18,801 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:18,852 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:18,863 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:18,872 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:18,872 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:18,917 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:18,939 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:19,035 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+block 59813858 | FIABILITÉ INSUFFISANTE | candidates 64384 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 87 p50 603 ms
+2026-11-20 05:39:24,633 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 146 → 154 ppm
+2026-11-20 05:39:24,634 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 412 → 424 ppm
+2026-11-20 05:39:24,634 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4600 → 4595 ppm
+2026-11-20 05:39:24,634 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 330 → 336 ppm
+block 59813898 | FIABILITÉ INSUFFISANTE | candidates 65245 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 87 p50 580 ms
+2026-11-20 05:39:28,613 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 171 → 173 ppm
+2026-11-20 05:39:32,175 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 154 → 177 ppm
+2026-11-20 05:39:32,175 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 424 → 448 ppm
+2026-11-20 05:39:32,176 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3712 → 3709 ppm
+2026-11-20 05:39:32,177 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 240 → 360 ppm
+2026-11-20 05:39:32,177 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4595 → 4590 ppm
+2026-11-20 05:39:32,177 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 336 → 340 ppm
+block 59813971 | FIABILITÉ INSUFFISANTE | candidates 66331 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 87 p50 511 ms
+2026-11-20 05:39:34,713 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:34,724 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:34,724 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:34,725 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:34,727 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:34,729 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:34,731 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:34,733 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:34,734 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:34,734 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:34,738 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:34,743 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:34,773 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:34,775 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:34,777 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:34,785 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:34,786 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:34,786 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:34,786 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:34,787 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:34,787 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:34,860 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:35,756 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:35,801 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:35,859 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:35,967 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:35,969 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:35,987 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:36,036 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:36,104 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:36,108 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:36,707 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:36,921 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:36,932 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:36,998 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+block 59813971 | FIABILITÉ INSUFFISANTE | candidates 66331 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 122 p50 501 ms
+2026-11-20 05:39:37,753 WARNING arbbot.collector: collector error: rpc failed after retries: http 429
+2026-11-20 05:39:37,816 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:37,836 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:41,901 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:41,910 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:41,932 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:41,932 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:41,936 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:41,944 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:41,956 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:41,957 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:41,960 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:41,962 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:41,964 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:41,967 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:41,971 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:41,992 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:42,036 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:42,100 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:42,101 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:42,114 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:42,150 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:42,210 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+block 59813971 | FIABILITÉ INSUFFISANTE | candidates 66331 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 145 p50 514 ms
+2026-11-20 05:39:42,526 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:42,605 WARNING arbbot.rpc: rpc error (http 429) → switching to https://mainnet.base.org
+2026-11-20 05:39:42,629 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.drpc.org
+2026-11-20 05:39:42,713 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-mainnet.public.blastapi.io
+2026-11-20 05:39:42,744 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base.gateway.tenderly.co
+2026-11-20 05:39:42,798 WARNING arbbot.rpc: rpc error (http 429) → switching to https://base-rpc.publicnode.com
+2026-11-20 05:39:45,615 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 177 → 208 ppm
+2026-11-20 05:39:45,616 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 448 → 484 ppm
+2026-11-20 05:39:45,616 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 360 → 500 ppm
+2026-11-20 05:39:45,617 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4590 → 4585 ppm
+2026-11-20 05:39:45,617 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 340 → 344 ppm
+block 59813972 | FIABILITÉ INSUFFISANTE | candidates 66456 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 477 ms
+2026-11-20 05:39:52,366 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 208 → 185 ppm
+2026-11-20 05:39:52,367 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3709 → 3706 ppm
+2026-11-20 05:39:52,367 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4585 → 4580 ppm
+block 59814036 | FIABILITÉ INSUFFISANTE | candidates 67197 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 454 ms
+block 59814083 | FIABILITÉ INSUFFISANTE | candidates 67806 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 434 ms
+2026-11-20 05:40:00,633 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 484 → 472 ppm
+2026-11-20 05:40:00,634 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 500 → 480 ppm
+2026-11-20 05:40:00,634 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4580 → 4575 ppm
+2026-11-20 05:40:00,635 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 418 → 415 ppm
+block 59814084 | FIABILITÉ INSUFFISANTE | candidates 68067 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 441 ms
+2026-11-20 05:40:08,817 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4575 → 4570 ppm
+block 59814122 | FIABILITÉ INSUFFISANTE | candidates 68877 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 422 ms
+2026-11-20 05:40:14,823 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 185 → 193 ppm
+2026-11-20 05:40:14,824 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3706 → 3703 ppm
+2026-11-20 05:40:14,824 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4570 → 4565 ppm
+2026-11-20 05:40:14,824 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 344 → 342 ppm
+block 59814160 | FIABILITÉ INSUFFISANTE | candidates 69403 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 432 ms
+block 59814160 | FIABILITÉ INSUFFISANTE | candidates 69403 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 475 ms
+block 59814196 | FIABILITÉ INSUFFISANTE | candidates 69989 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 477 ms
+2026-11-20 05:40:28,194 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 193 → 169 ppm
+2026-11-20 05:40:28,195 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 480 → 460 ppm
+2026-11-20 05:40:28,195 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4565 → 4560 ppm
+2026-11-20 05:40:28,200 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 173 → 187 ppm
+block 59814196 | FIABILITÉ INSUFFISANTE | candidates 69989 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 496 ms
+2026-11-20 05:40:38,134 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 169 → 177 ppm
+2026-11-20 05:40:38,135 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3703 → 3700 ppm
+2026-11-20 05:40:38,135 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2700 → 2721 ppm
+2026-11-20 05:40:38,135 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4560 → 4555 ppm
+block 59814257 | FIABILITÉ INSUFFISANTE | candidates 70414 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 506 ms
+block 59814257 | FIABILITÉ INSUFFISANTE | candidates 70414 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 505 ms
+2026-11-20 05:40:48,043 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2721 → 2718 ppm
+block 59814302 | FIABILITÉ INSUFFISANTE | candidates 70924 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 483 ms
+2026-11-20 05:40:49,379 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 177 → 162 ppm
+2026-11-20 05:40:49,380 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2718 → 2733 ppm
+2026-11-20 05:40:49,380 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 460 → 440 ppm
+2026-11-20 05:40:49,380 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4555 → 4550 ppm
+2026-11-20 05:40:49,382 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 415 → 427 ppm
+2026-11-20 05:40:49,385 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 187 → 185 ppm
+block 59814303 | FIABILITÉ INSUFFISANTE | candidates 71009 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 520 ms
+2026-11-20 05:40:56,127 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 162 → 169 ppm
+2026-11-20 05:40:56,127 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 472 → 460 ppm
+2026-11-20 05:40:56,128 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4550 → 4545 ppm
+block 59814367 | FIABILITÉ INSUFFISANTE | candidates 71612 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 470 ms
+2026-11-20 05:41:03,725 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3700 → 3757 ppm
+2026-11-20 05:41:03,725 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 440 → 420 ppm
+2026-11-20 05:41:03,726 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4545 → 4650 ppm
+2026-11-20 05:41:03,727 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 427 → 424 ppm
+block 59814403 | FIABILITÉ INSUFFISANTE | candidates 72292 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 483 ms
+block 59814403 | FIABILITÉ INSUFFISANTE | candidates 72292 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 566 ms
+2026-11-20 05:41:10,505 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 342 → 340 ppm
+2026-11-20 05:41:13,196 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3757 → 3754 ppm
+2026-11-20 05:41:13,196 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2733 → 2736 ppm
+2026-11-20 05:41:13,196 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4650 → 4645 ppm
+block 59814441 | FIABILITÉ INSUFFISANTE | candidates 72887 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 469 ms
+2026-11-20 05:41:19,385 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 169 → 154 ppm
+2026-11-20 05:41:19,386 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2736 → 2754 ppm
+2026-11-20 05:41:19,386 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 420 → 400 ppm
+2026-11-20 05:41:19,386 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4645 → 4635 ppm
+block 59814485 | FIABILITÉ INSUFFISANTE | candidates 73498 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 480 ms
+2026-11-20 05:41:26,627 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3754 → 3751 ppm
+2026-11-20 05:41:26,627 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4635 → 4630 ppm
+block 59814522 | FIABILITÉ INSUFFISANTE | candidates 74106 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 459 ms
+2026-11-20 05:41:32,190 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 154 → 115 ppm
+block 59814553 | FIABILITÉ INSUFFISANTE | candidates 74732 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 461 ms
+2026-11-20 05:41:34,183 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 115 → 123 ppm
+2026-11-20 05:41:34,184 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4630 → 4625 ppm
+2026-11-20 05:41:38,439 INFO arbbot.collector: pool 0x5d4e504EB4c526995E0cC7A6E327FDa75D8B52b5 (aerodrome_slipstream) fee changed 185 → 183 ppm
+block 59814587 | FIABILITÉ INSUFFISANTE | candidates 75203 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 439 ms
+2026-11-20 05:41:40,329 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 123 → 131 ppm
+2026-11-20 05:41:40,330 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 400 → 380 ppm
+2026-11-20 05:41:40,330 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4625 → 4620 ppm
+block 59814621 | FIABILITÉ INSUFFISANTE | candidates 75703 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 438 ms
+2026-11-20 05:41:47,536 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 131 → 146 ppm
+2026-11-20 05:41:47,537 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2754 → 2751 ppm
+2026-11-20 05:41:47,537 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4620 → 4615 ppm
+block 59814625 | FIABILITÉ INSUFFISANTE | candidates 76201 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 418 ms
+2026-11-20 05:41:54,260 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 146 → 177 ppm
+2026-11-20 05:41:54,261 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 460 → 448 ppm
+2026-11-20 05:41:54,261 INFO arbbot.collector: pool 0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02 (aerodrome_slipstream) fee changed 3751 → 3748 ppm
+2026-11-20 05:41:54,262 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4615 → 4610 ppm
+block 59814656 | FIABILITÉ INSUFFISANTE | candidates 76774 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 418 ms
+block 59814656 | FIABILITÉ INSUFFISANTE | candidates 76774 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 438 ms
+2026-11-20 05:42:04,931 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 380 → 360 ppm
+2026-11-20 05:42:04,933 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 424 → 421 ppm
+2026-11-20 05:42:06,669 INFO arbbot.collector: pool 0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59 (aerodrome_slipstream) fee changed 177 → 169 ppm
+2026-11-20 05:42:06,669 INFO arbbot.collector: pool 0x4e962BB3889Bf030368F56810A9c96B83CB3E778 (aerodrome_slipstream) fee changed 448 → 472 ppm
+2026-11-20 05:42:06,670 INFO arbbot.collector: pool 0x7eC6C9D993D9832Aa654593f2Dbc21303650Bc6c (aerodrome_slipstream) fee changed 2751 → 2748 ppm
+2026-11-20 05:42:06,670 INFO arbbot.collector: pool 0x80Cc08712Aa61cE9dc7604F9cE7560A25094B862 (aerodrome_slipstream) fee changed 4610 → 4600 ppm
+2026-11-20 05:42:06,670 INFO arbbot.collector: pool 0x3e66e55e97ce60096f74b7C475e8249f2D31a9fb (aerodrome_slipstream) fee changed 340 → 338 ppm
+2026-11-20 05:42:06,671 INFO arbbot.collector: pool 0x9785eF59E2b499fB741674ecf6fAF912Df7b3C1b (aerodrome_slipstream) fee changed 421 → 424 ppm
+block 59814693 | FIABILITÉ INSUFFISANTE | candidates 77591 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8590 | rpc err 151 p50 418 ms
