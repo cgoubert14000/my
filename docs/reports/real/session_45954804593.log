@@ -585860,3 +585860,5 @@ Traceback (most recent call last):
 arbbot.core.math_solidly.SolidlyMathError: !y
 block 62962337 | FIABILITÉ INSUFFISANTE | candidates 2330 | positive 0 | ghost {'pending': 0, 'labeled': 0, 'positives': 0, 'errors': 0, 'rate': None} | rel n=8789 | rpc err 160 p50 679 ms
 report: {"json": "/home/runner/work/my/my/docs/reports/real/ghost_base_45954804593.json", "md": "/home/runner/work/my/my/docs/reports/real/ghost_base_45954804593.md", "csv": "/home/runner/work/my/my/docs/reports/real/ghost_base_45954804593_opportunities.csv.gz"}
+2026-11-27 12:34:08,346 INFO arbbot.collector: pool 0xff862675c47B6a2C9072DCBe2f37a78A445c4f37 (aerodrome_slipstream) fee changed 280 → 260 ppm
+snapshot hook rc=0: publish: pushed to arena/9aff96cd-my (6cd9f5384)
